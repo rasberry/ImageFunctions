@@ -11,7 +11,7 @@ namespace ImageFunctions
 			{
 			default:
 			case Action.None: return null;
-			case Action.PixelateDetails: return new PixelateDetails.PixelateDetailsFunc();
+			case Action.PixelateDetails: return new PixelateDetails.Function();
 			}
 		}
 	}

@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Processing;
 
 namespace ImageFunctions.PixelateDetails
 {
-	public class PixelateDetailsFunc : IFunction
+	public class Function : IFunction
 	{
 		public void Main()
 		{
@@ -22,7 +22,10 @@ namespace ImageFunctions.PixelateDetails
 
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
-			ctx.ApplyProcessor(new PixelateDetailsProcessor<Rgba32>());
+			var proc = new Processor<Rgba32>();
+			proc.ImageSplitFactor = ImageSplitFactor;
+			proc.UseProportionalSplit = UseProportionalSplit;
+			ctx.ApplyProcessor(proc);
 		}
 
 		public bool ParseArgs(string[] args)
@@ -31,7 +34,27 @@ namespace ImageFunctions.PixelateDetails
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (String.IsNullOrEmpty(InImage)) {
+				if (curr == "-p") {
+					UseProportionalSplit = true;
+				}
+				else if (curr == "-ps" && ++a<len) {
+					string num = args[a];
+					bool isPercent = false;
+					if (num.EndsWith('%')) {
+						isPercent = true;
+						num = num.Remove(num.Length - 1);
+					}
+					if (!double.TryParse(num, out double d)) {
+						Log.Error("could not parse \""+num+"\" as a number");
+						return false;
+					}
+					if (!double.IsFinite(d) || d < double.Epsilon) {
+						Log.Error("invalid splitting factor \""+d+"\"");
+						return false;
+					}
+					ImageSplitFactor = isPercent ? 100.0/d : d;
+				}
+				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
 				}
 				else if (String.IsNullOrEmpty(OutImage)) {
@@ -58,9 +81,13 @@ namespace ImageFunctions.PixelateDetails
 		{
 			sb.AppendLine();
 			sb.AppendLine("PixelateDetails [options] (input image) [output image]");
+			sb.AppendLine(" -p                          Use proportianally sized sections");
+			sb.AppendLine(" -ps (number)[%]             Multiple or percent of image dimension used for splitting (default is 2)");
 		}
 
 		string InImage = null;
 		string OutImage = null;
+		bool UseProportionalSplit = false;
+		double ImageSplitFactor = 2.0;
 	}
 }

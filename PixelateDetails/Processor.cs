@@ -5,18 +5,72 @@ using SixLabors.ImageSharp.Processing.Processors;
 using SixLabors.Primitives;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
+using System.Collections.Generic;
 
 namespace ImageFunctions.PixelateDetails
 {
-	public class PixelateDetailsProcessor<TPixel> : AbstractProcessor<TPixel>
+	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
+		public double ImageSplitFactor { get; set; } = 2.0;
+		public bool UseProportionalSplit { get; set; } = false;
+
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
 			SplitAndAverage(frame,rectangle,config);
 		}
 
 		void SplitAndAverage(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		{
+			int chunkW,chunkH,remW,remH;
+			if (UseProportionalSplit) {
+				chunkW = (int)((double)rect.Width  / ImageSplitFactor);
+				chunkH = (int)((double)rect.Height / ImageSplitFactor);
+				remW =   (int)((double)rect.Width  % ImageSplitFactor);
+				remH =   (int)((double)rect.Height % ImageSplitFactor);
+			}
+			else {
+				int dim = Math.Min(rect.Width,rect.Height);
+				chunkW = chunkH = (int)((double)dim / ImageSplitFactor);
+				remW = rect.Width  % chunkW;
+				remH = rect.Height % chunkH;
+			}
+			if (chunkW < 1 || chunkH < 1) { return; }
+
+			Log.Debug("["+rect.Width+"x"+rect.Height+"] sf="+ImageSplitFactor+" P="+UseProportionalSplit+" cW="+chunkW+" cH="+chunkH+" rW="+remW+" rH="+remH);
+
+			int gridW = rect.Width / chunkW + 2; //add 2 for the remainder border
+			int gridH = rect.Height / chunkH + 2;
+			var grid = new List<SortPair>(gridW * gridH);
+
+			Rectangle bounds = new Rectangle {
+				X = rect.Left + remW / 2,
+				Y = rect.Top + remH / 2,
+				Width = rect.Width - remW - 1,
+				Height = rect.Height - remH - 1
+			};
+			for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
+				for(int x = bounds.Right; x >= bounds.Left; x -= chunkW) {
+					var r = new Rectangle(x,y,chunkW,chunkH);
+					var sp = SortPair.FromRect(frame,r);
+					grid.Add(sp);
+				}
+			}
+
+			//TODO figure out remaninder border rectangles
+			//	if (remW > 1) {
+			//		var rL = new Rectangle(rect.Left,y,remW/2,chunkH);
+			//		var spL = SortPair.FromRect(frame,rL);
+			//		grid.Add(spL);
+
+			//		var rR = new Rectangle(rect.Right - remW/2 - 1,y,remW/2,chunkH);
+			//		var spR = SortPair.FromRect(frame,rR);
+			//		grid.Add(spR);
+			//	}
+
+		}
+
+		void SplitAndAverage1(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			if (rect.Width < 2 || rect.Height < 2) { return; }
 
@@ -50,7 +104,7 @@ namespace ImageFunctions.PixelateDetails
 			ReplaceWithColor(frame,d.Rect,FindAverage(frame,d.Rect));
 		}
 
-		double Measure(ImageFrame<TPixel> frame, Rectangle rect)
+		static double Measure(ImageFrame<TPixel> frame, Rectangle rect)
 		{
 			double sum = 0.0;
 			for(int y = rect.Top; y < rect.Bottom; y++) {
@@ -72,7 +126,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 			}
 			
-			return sum;
+			return sum / (rect.Width * rect.Height);
 		}
 
 		TPixel FindAverage(ImageFrame<TPixel> frame, Rectangle rect)
@@ -114,10 +168,10 @@ namespace ImageFunctions.PixelateDetails
 			}
 		}
 
-		double GetPixelValue(TPixel? p)
+		static double GetPixelValue(TPixel? p)
 		{
 			if (!p.HasValue) { return 0.0; }
-			Rgba32 c = Rgba32.Black;
+			Rgba32 c = default(Rgba32);
 			p.Value.ToRgba32(ref c);
 			return (c.R + c.G + c.B)/3.0;
 		}
@@ -139,6 +193,14 @@ namespace ImageFunctions.PixelateDetails
 			}
 			public static bool operator >(SortPair a, SortPair b) {
 				return a.Value > b.Value;
+			}
+
+			public static SortPair FromRect(ImageFrame<TPixel> frame,Rectangle r)
+			{
+				double m = Measure(frame,r);
+				return new SortPair {
+					Value = m, Rect = r
+				};
 			}
 		}
 	}
