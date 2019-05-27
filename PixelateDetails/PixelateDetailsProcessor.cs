@@ -6,9 +6,9 @@ using SixLabors.Primitives;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
 
-namespace ImageFunctions
+namespace ImageFunctions.PixelateDetails
 {
-	public class PixelateDetails<TPixel> : AbstractProcessor<TPixel>
+	public class PixelateDetailsProcessor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
@@ -40,9 +40,9 @@ namespace ImageFunctions
 			if (b < d) { Swap(ref b,ref d); }
 			if (b < c) { Swap(ref b,ref c); }
 			
-			Log.Debug("mTL="+mTL+" mTR="+mTR+" mBL="+mBL+" mBR="+mBR);
-			Log.Debug("F = "+a.Value);
-			Log.Debug("S = "+b.Value);
+			//Log.Debug("mTL="+mTL+" mTR="+mTR+" mBL="+mBL+" mBR="+mBR);
+			//Log.Debug("F = "+a.Value);
+			//Log.Debug("S = "+b.Value);
 
 			SplitAndAverage(frame,a.Rect,config);
 			SplitAndAverage(frame,b.Rect,config);

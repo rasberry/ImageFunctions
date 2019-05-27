@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Processing;
+using System.Linq;
 
 namespace ImageFunctions
 {
@@ -12,17 +9,43 @@ namespace ImageFunctions
 		static void Main(string[] args)
 		{
 			if (args.Length < 1) {
-				Log.Message("Usage: "+nameof(ImageFunctions)+" [options] (input image file) [output image file]");
+				Options.Usage();
+				return;
+			}
+			if (!Options.Parse(args)) {
+				return;
+			}
+			IFunction func = Registry.Map(Options.Which);
+			if (!func.ParseArgs(args.Skip(1).ToArray())) {
 				return;
 			}
 
-			string inputFileName = args[0];
-			byte[] data = File.ReadAllBytes(inputFileName);
-			var imgIn = Image.Load(data);
+			try {
+				func.Main();
+			}
+			catch(Exception e) {
+				#if DEBUG
+				Log.Error(e.ToString());
+				#else
+				Log.Error(e.Message);
+				#endif
+			}
+		}
 
-			var img = imgIn.Clone((ctx) => {
-				ctx.ApplyProcessor(new PixelateDetails<Rgba32>());
-			});
+		static void Main1(string[] args)
+		{
+			//if (args.Length < 1) {
+			//	Log.Message("Usage: "+nameof(ImageFunctions)+" [options] (input image file) [output image file]");
+			//	return;
+			//}
+
+			//string inputFileName = args[0];
+			//byte[] data = File.ReadAllBytes(inputFileName);
+			//var imgIn = Image.Load(data);
+
+			//var img = imgIn.Clone((ctx) => {
+			//	ctx.ApplyProcessor(new PixelateDetails.PixelateDetailsProcessor<Rgba32>());
+			//});
 
 
 			//var img = new Image<Rgba32>(1024,1024);
@@ -63,10 +86,10 @@ namespace ImageFunctions
 			//	}
 			//}
 
-			string outFile = "test-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".png";
-			using (var ofs = File.OpenWrite(outFile)) {
-				img.SaveAsPng(ofs);
-			}
+			//string outFile = "test-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".png";
+			//using (var ofs = File.OpenWrite(outFile)) {
+			//	img.SaveAsPng(ofs);
+			//}
 		}
 	}
 }
