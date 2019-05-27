@@ -354,3 +354,4 @@ MigrationBackup/
 *.tab
 *.txt
 *.jpg
+test.sh

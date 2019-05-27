@@ -14,14 +14,19 @@ namespace ImageFunctions.PixelateDetails
 	{
 		public double ImageSplitFactor { get; set; } = 2.0;
 		public bool UseProportionalSplit { get; set; } = false;
+		public double DescentFactor { get; set; } = 0.5;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
+			//rectangle = new Rectangle(0,0,400,400);
 			SplitAndAverage(frame,rectangle,config);
 		}
 
 		void SplitAndAverage(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			Log.Debug("SplitAndAverage "+rect.DebugString());
+			if (rect.Width < 1 || rect.Height < 1) { return; }
+
 			int chunkW,chunkH,remW,remH;
 			if (UseProportionalSplit) {
 				chunkW = (int)((double)rect.Width  / ImageSplitFactor);
@@ -32,6 +37,7 @@ namespace ImageFunctions.PixelateDetails
 			else {
 				int dim = Math.Min(rect.Width,rect.Height);
 				chunkW = chunkH = (int)((double)dim / ImageSplitFactor);
+				if (chunkW < 1 || chunkH < 1) { return; }
 				remW = rect.Width  % chunkW;
 				remH = rect.Height % chunkH;
 			}
@@ -43,19 +49,46 @@ namespace ImageFunctions.PixelateDetails
 			int gridH = rect.Height / chunkH + 2;
 			var grid = new List<SortPair>(gridW * gridH);
 
-			Rectangle bounds = new Rectangle {
-				X = rect.Left + remW / 2,
-				Y = rect.Top + remH / 2,
-				Width = rect.Width - remW - 1,
-				Height = rect.Height - remH - 1
-			};
-			for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
-				for(int x = bounds.Right; x >= bounds.Left; x -= chunkW) {
+
+			int xStart = rect.Left + remW / 2;
+			int xEnd = rect.Right - chunkW;
+			int yStart = rect.Top + remH / 2;
+			int yEnd = rect.Bottom - chunkH;
+
+			Log.Debug("xs="+xStart+" xe="+xEnd+" ys="+yStart+" ye="+yEnd);
+
+			for(int y = yStart; y <= yEnd; y += chunkH) {
+				for(int x = xStart; x <= xEnd; x += chunkW) {
 					var r = new Rectangle(x,y,chunkW,chunkH);
+					Log.Debug("r = "+r.DebugString());
 					var sp = SortPair.FromRect(frame,r);
 					grid.Add(sp);
 				}
 			}
+
+
+
+			//Rectangle bounds = new Rectangle {
+			//	X = rect.Left + remW / 2,
+			//	Y = rect.Top + remH / 2,
+			//	Width = rect.Width - 1 - chunkW - Helpers.IntCeil(remW,2),
+			//	Height = rect.Height - 1 - chunkH - Helpers.IntCeil(remH,2)
+			//};
+			//Log.Debug("bounds = "+bounds);
+			//for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
+			//	for(int x = bounds.Right; x >= bounds.Left; x -= chunkW) {
+			//		var r = new Rectangle(x,y,chunkW,chunkH);
+			//		Log.Debug("rect "+r);
+			//		var sp = SortPair.FromRect(frame,r);
+			//		grid.Add(sp);
+			//	}
+			//}
+
+			//if (remW > 1) {
+			//	for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
+			//		
+			//	}
+			//}
 
 			//TODO figure out remaninder border rectangles
 			//	if (remW > 1) {
@@ -68,6 +101,24 @@ namespace ImageFunctions.PixelateDetails
 			//		grid.Add(spR);
 			//	}
 
+			Log.Debug("grid count = "+grid.Count);
+			grid.Sort();
+
+			int recurseCount = DescentFactor < 1.0
+				? (int)(grid.Count * DescentFactor)
+				: (int)DescentFactor
+			;
+			recurseCount = Math.Max(1,Math.Min(recurseCount,grid.Count - 1));
+
+			for(int g=0; g<grid.Count; g++) {
+				var sp = grid[g];
+				Log.Debug("sorted "+g+" "+sp.Value+" "+sp.Rect.DebugString());
+				if (g < recurseCount) {
+					SplitAndAverage(frame,sp.Rect,config);
+				} else {
+					ReplaceWithColor(frame,sp.Rect,FindAverage(frame,sp.Rect));
+				}
+			}
 		}
 
 		void SplitAndAverage1(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
@@ -106,6 +157,12 @@ namespace ImageFunctions.PixelateDetails
 
 		static double Measure(ImageFrame<TPixel> frame, Rectangle rect)
 		{
+			if (rect.Width < 2 || rect.Height < 2) {
+				var c = frame.GetPixelRowSpan(rect.Top)[rect.Left];
+				double pxvc = GetPixelValue(c);
+				return pxvc;
+			}
+
 			double sum = 0.0;
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
@@ -126,6 +183,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 			}
 			
+			Log.Debug("measure sum="+sum+" den="+rect.Width * rect.Height);
 			return sum / (rect.Width * rect.Height);
 		}
 
@@ -173,7 +231,9 @@ namespace ImageFunctions.PixelateDetails
 			if (!p.HasValue) { return 0.0; }
 			Rgba32 c = default(Rgba32);
 			p.Value.ToRgba32(ref c);
-			return (c.R + c.G + c.B)/3.0;
+			double val = (c.R + c.G + c.B)/3.0;
+			//Log.Debug("GetPixelValue val="+val+" r="+c.R+" g="+c.G+" b="+c.B);
+			return val;
 		}
 
 		void Swap<T>(ref T a, ref T b) where T : struct
@@ -183,7 +243,7 @@ namespace ImageFunctions.PixelateDetails
 			b = tmp;
 		}
 
-		struct SortPair
+		struct SortPair : IComparable
 		{
 			public double Value;
 			public Rectangle Rect;
@@ -201,6 +261,12 @@ namespace ImageFunctions.PixelateDetails
 				return new SortPair {
 					Value = m, Rect = r
 				};
+			}
+
+			public int CompareTo(object obj)
+			{
+				var sub = (SortPair)obj;
+				return -1 * this.Value.CompareTo(sub.Value);
 			}
 		}
 	}

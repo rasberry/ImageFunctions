@@ -25,6 +25,7 @@ namespace ImageFunctions.PixelateDetails
 			var proc = new Processor<Rgba32>();
 			proc.ImageSplitFactor = ImageSplitFactor;
 			proc.UseProportionalSplit = UseProportionalSplit;
+			proc.DescentFactor = DescentFactor;
 			ctx.ApplyProcessor(proc);
 		}
 
@@ -37,22 +38,23 @@ namespace ImageFunctions.PixelateDetails
 				if (curr == "-p") {
 					UseProportionalSplit = true;
 				}
-				else if (curr == "-ps" && ++a<len) {
+				else if (curr == "-s" && ++a<len) {
 					string num = args[a];
-					bool isPercent = false;
-					if (num.EndsWith('%')) {
-						isPercent = true;
-						num = num.Remove(num.Length - 1);
-					}
-					if (!double.TryParse(num, out double d)) {
-						Log.Error("could not parse \""+num+"\" as a number");
-						return false;
-					}
-					if (!double.IsFinite(d) || d < double.Epsilon) {
+					Helpers.ParseNumberPercent(num,out double d);
+					if (d < double.Epsilon) {
 						Log.Error("invalid splitting factor \""+d+"\"");
 						return false;
 					}
-					ImageSplitFactor = isPercent ? 100.0/d : d;
+					ImageSplitFactor = d;
+				}
+				else if (curr == "-r" && ++a<len) {
+					string num = args[a];
+					Helpers.ParseNumberPercent(num,out double d);
+					if (d < double.Epsilon) {
+						Log.Error("invalid re-split factor \""+d+"\"");
+						return false;
+					}
+					DescentFactor = d;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -82,12 +84,14 @@ namespace ImageFunctions.PixelateDetails
 			sb.AppendLine();
 			sb.AppendLine("PixelateDetails [options] (input image) [output image]");
 			sb.AppendLine(" -p                          Use proportianally sized sections");
-			sb.AppendLine(" -ps (number)[%]             Multiple or percent of image dimension used for splitting (default is 2)");
+			sb.AppendLine(" -s (number)[%]              Multiple or percent of image dimension used for splitting (default 2.0)");
+			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
 		}
 
 		string InImage = null;
 		string OutImage = null;
 		bool UseProportionalSplit = false;
 		double ImageSplitFactor = 2.0;
+		double DescentFactor = 0.5;
 	}
 }
