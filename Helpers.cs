@@ -40,7 +40,7 @@ namespace ImageFunctions
 				Log.Error("invalid number \""+d+"\"");
 				return false;
 			}
-			val = isPercent ? 100.0/d : d;
+			val = isPercent ? d/100.0 : d;
 			return true;
 		}
 

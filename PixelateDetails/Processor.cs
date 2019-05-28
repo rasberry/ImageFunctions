@@ -18,7 +18,6 @@ namespace ImageFunctions.PixelateDetails
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
-			//rectangle = new Rectangle(0,0,400,400);
 			SplitAndAverage(frame,rectangle,config);
 		}
 
@@ -74,6 +73,7 @@ namespace ImageFunctions.PixelateDetails
 				: (int)DescentFactor
 			;
 			recurseCount = Math.Max(1,Math.Min(recurseCount,grid.Count - 1));
+			//Log.Debug("c="+grid.Count+" df = "+DescentFactor+" rc="+recurseCount);
 
 			for(int g=grid.Count-1; g>=0; g--) {
 				var sp = grid[g];
