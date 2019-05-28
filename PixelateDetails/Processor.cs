@@ -24,24 +24,21 @@ namespace ImageFunctions.PixelateDetails
 
 		void SplitAndAverage(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			Log.Debug("SplitAndAverage "+rect.DebugString());
+			//Log.Debug("SplitAndAverage "+rect.DebugString());
 			if (rect.Width < 1 || rect.Height < 1) { return; }
 
 			int chunkW,chunkH,remW,remH;
 			if (UseProportionalSplit) {
 				chunkW = (int)((double)rect.Width  / ImageSplitFactor);
 				chunkH = (int)((double)rect.Height / ImageSplitFactor);
-				if (chunkW < 1 || chunkH < 1) { return; }
-				remW =   (int)((double)rect.Width  % ImageSplitFactor);
-				remH =   (int)((double)rect.Height % ImageSplitFactor);
 			}
 			else {
 				int dim = Math.Min(rect.Width,rect.Height);
 				chunkW = chunkH = (int)((double)dim / ImageSplitFactor);
-				if (chunkW < 1 || chunkH < 1) { return; }
-				remW = rect.Width  % chunkW;
-				remH = rect.Height % chunkH;
 			}
+			if (chunkW < 1 || chunkH < 1) { return; }
+			remW = rect.Width  % chunkW;
+			remH = rect.Height % chunkH;
 
 			//Log.Debug("["+rect.Width+"x"+rect.Height+"] sf="+ImageSplitFactor+" P="+UseProportionalSplit+" cW="+chunkW+" cH="+chunkH+" rW="+remW+" rH="+remH);
 
@@ -87,40 +84,6 @@ namespace ImageFunctions.PixelateDetails
 					ReplaceWithColor(frame,sp.Rect,FindAverage(frame,sp.Rect));
 				}
 			}
-		}
-
-		void SplitAndAverage1(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
-		{
-			if (rect.Width < 2 || rect.Height < 2) { return; }
-
-			int mx = rect.Width / 2;
-			int my = rect.Height / 2;
-			
-			Rectangle rTL,rTR,rBL,rBR;
-			double mTL = Measure(frame,rTL = new Rectangle(rect.Left + 00,rect.Top + 00,mx,my));
-			double mTR = Measure(frame,rTR = new Rectangle(rect.Left + mx,rect.Top + 00,mx,my));
-			double mBL = Measure(frame,rBL = new Rectangle(rect.Left + 00,rect.Top + my,mx,my));
-			double mBR = Measure(frame,rBR = new Rectangle(rect.Left + mx,rect.Top + my,mx,my));
-
-			// https://stackoverflow.com/questions/25070577/sort-4-numbers-without-array
-			SortPair a = new SortPair { Value = mTL, Rect = rTL };
-			SortPair b = new SortPair { Value = mTR, Rect = rTR };
-			SortPair c = new SortPair { Value = mBL, Rect = rBL };
-			SortPair d = new SortPair { Value = mBR, Rect = rBR };
-			if (a < b) { Swap(ref a,ref b); }
-			if (c < d) { Swap(ref c,ref d); }
-			if (a < c) { Swap(ref a,ref c); }
-			if (b < d) { Swap(ref b,ref d); }
-			if (b < c) { Swap(ref b,ref c); }
-			
-			//Log.Debug("mTL="+mTL+" mTR="+mTR+" mBL="+mBL+" mBR="+mBR);
-			//Log.Debug("F = "+a.Value);
-			//Log.Debug("S = "+b.Value);
-
-			SplitAndAverage(frame,a.Rect,config);
-			SplitAndAverage(frame,b.Rect,config);
-			SplitAndAverage(frame,c.Rect,config);
-			ReplaceWithColor(frame,d.Rect,FindAverage(frame,d.Rect));
 		}
 
 		static double Measure(ImageFrame<TPixel> frame, Rectangle rect)
@@ -184,7 +147,7 @@ namespace ImageFunctions.PixelateDetails
 
 		void ReplaceWithColor(ImageFrame<TPixel> frame, Rectangle rect, TPixel color)
 		{
-			Log.Debug("ReplaceWithColor r="+rect.DebugString());
+			// Log.Debug("ReplaceWithColor r="+rect.DebugString());
 			var span = frame.GetPixelSpan();
 			//var red = default(TPixel);
 			//red.FromRgba32(Rgba32.Red);
