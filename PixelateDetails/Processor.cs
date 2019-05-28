@@ -31,6 +31,7 @@ namespace ImageFunctions.PixelateDetails
 			if (UseProportionalSplit) {
 				chunkW = (int)((double)rect.Width  / ImageSplitFactor);
 				chunkH = (int)((double)rect.Height / ImageSplitFactor);
+				if (chunkW < 1 || chunkH < 1) { return; }
 				remW =   (int)((double)rect.Width  % ImageSplitFactor);
 				remH =   (int)((double)rect.Height % ImageSplitFactor);
 			}
@@ -41,67 +42,34 @@ namespace ImageFunctions.PixelateDetails
 				remW = rect.Width  % chunkW;
 				remH = rect.Height % chunkH;
 			}
-			if (chunkW < 1 || chunkH < 1) { return; }
 
-			Log.Debug("["+rect.Width+"x"+rect.Height+"] sf="+ImageSplitFactor+" P="+UseProportionalSplit+" cW="+chunkW+" cH="+chunkH+" rW="+remW+" rH="+remH);
+			//Log.Debug("["+rect.Width+"x"+rect.Height+"] sf="+ImageSplitFactor+" P="+UseProportionalSplit+" cW="+chunkW+" cH="+chunkH+" rW="+remW+" rH="+remH);
 
-			int gridW = rect.Width / chunkW + 2; //add 2 for the remainder border
-			int gridH = rect.Height / chunkH + 2;
+			int gridW = rect.Width / chunkW;
+			int gridH = rect.Height / chunkH;
 			var grid = new List<SortPair>(gridW * gridH);
 
-
-			int xStart = rect.Left + remW / 2;
+			int xStart = rect.Left;
 			int xEnd = rect.Right - chunkW;
-			int yStart = rect.Top + remH / 2;
+			int yStart = rect.Top;
 			int yEnd = rect.Bottom - chunkH;
 
-			Log.Debug("xs="+xStart+" xe="+xEnd+" ys="+yStart+" ye="+yEnd);
+			//Log.Debug("xs="+xStart+" xe="+xEnd+" ys="+yStart+" ye="+yEnd);
 
-			for(int y = yStart; y <= yEnd; y += chunkH) {
-				for(int x = xStart; x <= xEnd; x += chunkW) {
-					var r = new Rectangle(x,y,chunkW,chunkH);
-					Log.Debug("r = "+r.DebugString());
+			//using w and h to account for remainders
+			int w=0,h=0;
+			for(int y = yStart; y <= yEnd; y += h) {
+				for(int x = xStart; x <= xEnd; x += w) {
+					w = chunkW + (x == xStart ? remW : 0);
+					h = chunkH + (y == yStart ? remH : 0);
+					var r = new Rectangle(x,y,w,h);
+					//Log.Debug("r = "+r.DebugString());
 					var sp = SortPair.FromRect(frame,r);
 					grid.Add(sp);
 				}
 			}
 
-
-
-			//Rectangle bounds = new Rectangle {
-			//	X = rect.Left + remW / 2,
-			//	Y = rect.Top + remH / 2,
-			//	Width = rect.Width - 1 - chunkW - Helpers.IntCeil(remW,2),
-			//	Height = rect.Height - 1 - chunkH - Helpers.IntCeil(remH,2)
-			//};
-			//Log.Debug("bounds = "+bounds);
-			//for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
-			//	for(int x = bounds.Right; x >= bounds.Left; x -= chunkW) {
-			//		var r = new Rectangle(x,y,chunkW,chunkH);
-			//		Log.Debug("rect "+r);
-			//		var sp = SortPair.FromRect(frame,r);
-			//		grid.Add(sp);
-			//	}
-			//}
-
-			//if (remW > 1) {
-			//	for(int y = bounds.Bottom; y >= bounds.Top; y -= chunkH) {
-			//		
-			//	}
-			//}
-
-			//TODO figure out remaninder border rectangles
-			//	if (remW > 1) {
-			//		var rL = new Rectangle(rect.Left,y,remW/2,chunkH);
-			//		var spL = SortPair.FromRect(frame,rL);
-			//		grid.Add(spL);
-
-			//		var rR = new Rectangle(rect.Right - remW/2 - 1,y,remW/2,chunkH);
-			//		var spR = SortPair.FromRect(frame,rR);
-			//		grid.Add(spR);
-			//	}
-
-			Log.Debug("grid count = "+grid.Count);
+			//Log.Debug("grid count = "+grid.Count);
 			grid.Sort();
 
 			int recurseCount = DescentFactor < 1.0
@@ -110,9 +78,9 @@ namespace ImageFunctions.PixelateDetails
 			;
 			recurseCount = Math.Max(1,Math.Min(recurseCount,grid.Count - 1));
 
-			for(int g=0; g<grid.Count; g++) {
+			for(int g=grid.Count-1; g>=0; g--) {
 				var sp = grid[g];
-				Log.Debug("sorted "+g+" "+sp.Value+" "+sp.Rect.DebugString());
+				//Log.Debug("sorted "+g+" "+sp.Value+" "+sp.Rect.DebugString());
 				if (g < recurseCount) {
 					SplitAndAverage(frame,sp.Rect,config);
 				} else {
@@ -183,7 +151,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 			}
 			
-			Log.Debug("measure sum="+sum+" den="+rect.Width * rect.Height);
+			//Log.Debug("measure sum="+sum+" den="+rect.Width * rect.Height);
 			return sum / (rect.Width * rect.Height);
 		}
 
@@ -216,12 +184,23 @@ namespace ImageFunctions.PixelateDetails
 
 		void ReplaceWithColor(ImageFrame<TPixel> frame, Rectangle rect, TPixel color)
 		{
+			Log.Debug("ReplaceWithColor r="+rect.DebugString());
 			var span = frame.GetPixelSpan();
+			//var red = default(TPixel);
+			//red.FromRgba32(Rgba32.Red);
 
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
 					int off = y * frame.Width + x;
-					span[off] = color;
+					//bool onBorder =
+					//	x == rect.Left || x == rect.Right-1
+					//	|| y == rect.Top || y == rect.Bottom-1
+					//;
+					//if (onBorder) {
+					//	span[off] = red;
+					//} else {
+						span[off] = color;
+					//}
 				}
 			}
 		}
