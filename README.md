@@ -3,8 +3,10 @@ A collection of various image processing functions
 
 ## TODO ##
 ### General ###
+maybe pre-process input / output file since every function is going to need that
 
 ### PixelateDetails ###
-add option to use square sections
-add option to partition by multiples other than 2
-fix issue with odd dimensions causing off-by-one problems
+
+### Derivatives ###
+add option to do grayscale
+add option to do abs (should default to no abs?)

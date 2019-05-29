@@ -6,7 +6,8 @@ namespace ImageFunctions
 	public enum Action
 	{
 		None = 0,
-		PixelateDetails = 1
+		PixelateDetails = 1,
+		Derivatives = 2
 	}
 
 	public interface IFunction
