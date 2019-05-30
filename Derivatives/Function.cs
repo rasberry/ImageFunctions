@@ -24,7 +24,13 @@ namespace ImageFunctions.Derivatives
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (InImage == null) {
+				if (curr == "-g") {
+					DoGrayscale = true;
+				}
+				else if (curr == "-a") {
+					UseABS = true;
+				}
+				else if (InImage == null) {
 					InImage = curr;
 				}
 				else if (OutImage == null) {
@@ -50,16 +56,21 @@ namespace ImageFunctions.Derivatives
 		{
 			sb.AppendLine();
 			sb.AppendLine("Derivatives [options] (input image) [output image]");
+			sb.AppendLine(" -g                          Grayscale output");
+			sb.AppendLine(" -a                          Calculate absolute value difference");
 		}
-
 
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
+			proc.DoGrayscale = DoGrayscale;
+			proc.UseABS = UseABS;
 			ctx.ApplyProcessor(proc);
 		}
 
 		string InImage = null;
 		string OutImage = null;
+		bool DoGrayscale = false;
+		bool UseABS = false;
 	}
 }

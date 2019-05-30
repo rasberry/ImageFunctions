@@ -57,5 +57,21 @@ namespace ImageFunctions
 				+" T="+r.Top+" B="+r.Bottom+" L="+r.Left+" R="+r.Right
 			;
 		}
+
+		public static TPixel ToGrayScale<TPixel>(TPixel c) where TPixel : struct, IPixel<TPixel>
+		{
+			Rgba32 tmp = default(Rgba32);
+			c.ToRgba32(ref tmp);
+			tmp = ToGrayScale(tmp);
+			c.FromRgba32(tmp);
+			return c;
+		}
+
+		public static Rgba32 ToGrayScale(Rgba32 c)
+		{
+			double val = c.R * 0.2126 + c.G * 0.7152 + c.B * 0.0722;
+			byte g = (byte)Math.Clamp(val,0.0,255.0);
+			return new Rgba32(g,g,g,c.A);
+		}
 	}
 }
