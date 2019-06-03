@@ -9,6 +9,11 @@ namespace ImageFunctions
 {
 	public static class Helpers
 	{
+		public static string FunctionName(Action a)
+		{
+			return ((int)a).ToString() + ". "+a.ToString();
+		}
+
 		public static string CreateOutputFileName(string input)
 		{
 			//string ex = Path.GetExtension(input);
@@ -72,6 +77,20 @@ namespace ImageFunctions
 			double val = c.R * 0.2126 + c.G * 0.7152 + c.B * 0.0722;
 			byte g = (byte)Math.Clamp(val,0.0,255.0);
 			return new Rgba32(g,g,g,c.A);
+		}
+
+		public static Rgba32 ToColor<TPixel>(this TPixel color) where TPixel : struct, IPixel<TPixel>
+		{
+			Rgba32 c = default(Rgba32);
+			color.ToRgba32(ref c);
+			return c;
+		}
+
+		public static TPixel FromColor<TPixel>(this Rgba32 color)  where TPixel : struct, IPixel<TPixel>
+		{
+			TPixel p = default(TPixel);
+			p.FromRgba32(color);
+			return p;
 		}
 	}
 }

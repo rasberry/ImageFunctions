@@ -7,7 +7,8 @@ namespace ImageFunctions
 	{
 		None = 0,
 		PixelateDetails = 1,
-		Derivatives = 2
+		Derivatives = 2,
+		AreaSmoother = 3
 	}
 
 	public interface IFunction

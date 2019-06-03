@@ -5,7 +5,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
-namespace ImageFunctions.Derivatives
+namespace ImageFunctions.AreaSmoother
 {
 	public class Function : IFunction
 	{
@@ -24,13 +24,7 @@ namespace ImageFunctions.Derivatives
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (curr == "-g") {
-					DoGrayscale = true;
-				}
-				else if (curr == "-a") {
-					UseABS = true;
-				}
-				else if (InImage == null) {
+				if (InImage == null) {
 					InImage = curr;
 				}
 				else if (OutImage == null) {
@@ -54,24 +48,18 @@ namespace ImageFunctions.Derivatives
 
 		public void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.Derivatives);
+			string name = Helpers.FunctionName(Action.AreaSmoother);
 			sb.AppendLine();
-			sb.AppendLine(name+" [options] (input image) [output image]");
-			sb.AppendLine(" -g                          Grayscale output");
-			sb.AppendLine(" -a                          Calculate absolute value difference");
+			sb.AppendLine(name + " [options] (input image) [output image]");
 		}
 
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.DoGrayscale = DoGrayscale;
-			proc.UseABS = UseABS;
 			ctx.ApplyProcessor(proc);
 		}
 
 		string InImage = null;
 		string OutImage = null;
-		bool DoGrayscale = false;
-		bool UseABS = false;
 	}
 }
