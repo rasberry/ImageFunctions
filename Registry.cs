@@ -14,6 +14,7 @@ namespace ImageFunctions
 			case Action.PixelateDetails: return new PixelateDetails.Function();
 			case Action.Derivatives: return new Derivatives.Function();
 			case Action.AreaSmoother: return new AreaSmoother.Function();
+			case Action.AreaSmoother2: return new AreaSmoother2.Function();
 			}
 		}
 	}
