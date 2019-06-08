@@ -24,7 +24,13 @@ namespace ImageFunctions.AreaSmoother2
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (InImage == null) {
+				if (curr == "-H") {
+					HOnly = true;
+				}
+				else if (curr == "-V") {
+					VOnly = true;
+				}
+				else if (InImage == null) {
 					InImage = curr;
 				}
 				else if (OutImage == null) {
@@ -51,15 +57,21 @@ namespace ImageFunctions.AreaSmoother2
 			string name = Helpers.FunctionName(Action.AreaSmoother2);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
+			sb.AppendLine(" -H                          Horizontal only");
+			sb.AppendLine(" -V                          Vertical only");
 		}
 
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
+			proc.HOnly = HOnly;
+			proc.VOnly = VOnly;
 			ctx.ApplyProcessor(proc);
 		}
 
 		string InImage = null;
 		string OutImage = null;
+		bool HOnly = false;
+		bool VOnly = false;
 	}
 }
