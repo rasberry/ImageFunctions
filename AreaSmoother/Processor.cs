@@ -14,29 +14,21 @@ namespace ImageFunctions.AreaSmoother
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			var canvas = new Image<TPixel>(config,rect.Width,rect.Height);
-
-			var cspan = canvas.GetPixelSpan();
-			for(int y = rect.Top; y < rect.Bottom; y++ ) {
-				int cy = y - rect.Top;
-				for(int x = rect.Left; x < rect.Right; x++) {
-					int cx = x - rect.Left;
-					TPixel nc = SmoothPixel(frame,x,y);
-					//Log.Debug("x="+x+" y="+y+" nc = "+nc);
-					int coff = cy * rect.Width + cx;
-					cspan[coff] = nc;
+			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			{
+				var cspan = canvas.GetPixelSpan();
+				for(int y = rect.Top; y < rect.Bottom; y++ ) {
+					int cy = y - rect.Top;
+					for(int x = rect.Left; x < rect.Right; x++) {
+						int cx = x - rect.Left;
+						TPixel nc = SmoothPixel(frame,x,y);
+						//Log.Debug("x="+x+" y="+y+" nc = "+nc);
+						int coff = cy * rect.Width + cx;
+						cspan[coff] = nc;
+					}
 				}
-			}
 
-			var fspan = frame.GetPixelSpan();
-			for(int y = rect.Top; y < rect.Bottom; y++) {
-				int cy = y - rect.Top;
-				for(int x = rect.Left; x < rect.Right; x++) {
-					int cx = x - rect.Left;
-					int foff = y * frame.Width + x;
-					int coff = cy * rect.Width + cx;
-					fspan[foff] = cspan[coff];
-				}
+				frame.BlitImage(canvas,rect);
 			}
 		}
 

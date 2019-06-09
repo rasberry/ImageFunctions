@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
@@ -12,6 +14,7 @@ namespace ImageFunctions
 			sb.AppendLine(" -h / --help                 Show full help");
 			sb.AppendLine(" (action) -h                 Action specific help");
 			sb.AppendLine(" --actions                   List possible actions");
+			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
 
 			if (ShowHelpActions) {
 				sb.AppendLine().AppendLine("Actions:");
@@ -39,8 +42,11 @@ namespace ImageFunctions
 			Log.Message(sb.ToString());
 		}
 
-		public static bool Parse(string[] args)
+		public static bool Parse(string[] args, out string[] prunedArgs)
 		{
+			prunedArgs = null;
+			var pArgs = new List<string>();
+
 			int len = args.Length;
 			for(int a=0; a<len; a++) {
 				string curr = args[a];
@@ -55,7 +61,23 @@ namespace ImageFunctions
 				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
 					var parts = args[a].Split(new char[] { ',','x' },
 						StringSplitOptions.RemoveEmptyEntries);
-					
+					if (parts.Length < 4) {
+						Log.Error("rectangle must contain four numbers");
+						return false;
+					}
+					for(int p=0; p<4; p++) {
+						if (!int.TryParse(parts[p],out int n)) {
+							Log.Error("could not parse \""+parts[p]+"\" as a number");
+							return false;
+						}
+						switch(p) {
+						case 0: Rect.X = n; break;
+						case 1: Rect.Y = n; break;
+						case 2: Rect.Width = n; break;
+						case 3: Rect.Height = n; break;
+						}
+					}
+					// Log.Debug("rect = ["+Rect.X+","+Rect.Y+","+Rect.Width+","+Rect.Height+"]");
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
@@ -68,6 +90,9 @@ namespace ImageFunctions
 					}
 					Which = which;
 				}
+				else {
+					pArgs.Add(curr);
+				}
 			}
 
 			if (ShowFullHelp || ShowHelpActions || ShowActionHelp) {
@@ -79,10 +104,14 @@ namespace ImageFunctions
 				Log.Error("action was not specified");
 				return false;
 			}
+
+			prunedArgs = pArgs.ToArray();
 			return true;
 		}
 
 		public static Action Which { get; private set; } = Action.None;
+		public static Rectangle Rect = Rectangle.Empty;
+		
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;

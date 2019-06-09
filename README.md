@@ -30,14 +30,13 @@ Usage ImageFunctions (action) [options]
 
 ## TODO ##
 ### General ###
-* maybe pre-process input / output file since every function is going to need that
 * maybe update to process everything in rgba64 ?
 * look at paralellizing the processing functions
 * add options to specify a rectangle
 
 ### AreaSmoother ###
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector
-* AS2 - should be able to remove need for Visted by moving index past end of right position
+* AS2 has an off-by-one error when using --rect option
 
 ### PixelateDetails ###
 

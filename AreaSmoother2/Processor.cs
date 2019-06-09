@@ -15,39 +15,29 @@ namespace ImageFunctions.AreaSmoother2
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			var canvas = new Image<TPixel>(config,rect.Width,rect.Height);
-
-			var cspan = canvas.GetPixelSpan();
-
-			if (!VOnly) {
-				for(int y = rect.Top; y < rect.Bottom; y++ ) {
-					Visited.Clear();
-					for(int x = rect.Left; x < rect.Right; x++) {
-						if (Visited.Contains(x)) { continue; }
-						DrawGradientH(frame,canvas,rect,x,y);
-					}
-				}
-			}
-
-			if (!HOnly) {
-				for(int x = rect.Left; x < rect.Right; x++) {
-					Visited.Clear();
+			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			{
+				if (!VOnly) {
 					for(int y = rect.Top; y < rect.Bottom; y++ ) {
-						if (Visited.Contains(y)) { continue; }
-						DrawGradientV(frame,canvas,rect,x,y,!VOnly);
+						Visited.Clear();
+						for(int x = rect.Left; x < rect.Right; x++) {
+							if (Visited.Contains(x)) { continue; }
+							DrawGradientH(frame,canvas,rect,x,y);
+						}
 					}
 				}
-			}
 
-			var fspan = frame.GetPixelSpan();
-			for(int y = rect.Top; y < rect.Bottom; y++) {
-				int cy = y - rect.Top;
-				for(int x = rect.Left; x < rect.Right; x++) {
-					int cx = x - rect.Left;
-					int foff = y * frame.Width + x;
-					int coff = cy * rect.Width + cx;
-					fspan[foff] = cspan[coff];
+				if (!HOnly) {
+					for(int x = rect.Left; x < rect.Right; x++) {
+						Visited.Clear();
+						for(int y = rect.Top; y < rect.Bottom; y++ ) {
+							if (Visited.Contains(y)) { continue; }
+							DrawGradientV(frame,canvas,rect,x,y,!VOnly);
+						}
+					}
 				}
+
+				frame.BlitImage(canvas,rect);
 			}
 		}
 
@@ -55,15 +45,15 @@ namespace ImageFunctions.AreaSmoother2
 		{
 			var cSpan = canvas.GetPixelSpan();
 			var fSpan = frame.GetPixelSpan();
-			TPixel seed = fSpan[y * rect.Width + x];
+			TPixel seed = fSpan[y * frame.Width + x];
 			int lx = x;
 			int rx = x;
 			while(lx > rect.Left) {
-				if (!fSpan[y * rect.Width + lx].Equals(seed)) { break; }
+				if (!fSpan[y * frame.Width + lx].Equals(seed)) { break; }
 				lx--;
 			}
 			while(rx < rect.Right - 1) {
-				if (!fSpan[y * rect.Width + rx].Equals(seed)) { break; }
+				if (!fSpan[y * frame.Width + rx].Equals(seed)) { break; }
 				rx++;
 			}
 
@@ -77,8 +67,8 @@ namespace ImageFunctions.AreaSmoother2
 			}
 		
 			var sColor = seed.ToColor();
-			var lColor = Between(fSpan[y * rect.Width + lx].ToColor(),sColor,0.5);
-			var rColor = Between(fSpan[y * rect.Width + rx].ToColor(),sColor,0.5);
+			var lColor = Between(fSpan[y * frame.Width + lx].ToColor(),sColor,0.5);
+			var rColor = Between(fSpan[y * frame.Width + rx].ToColor(),sColor,0.5);
 
 			for(int gi=0; gi<len; gi++)
 			{
@@ -100,15 +90,15 @@ namespace ImageFunctions.AreaSmoother2
 		{
 			var cSpan = canvas.GetPixelSpan();
 			var fSpan = frame.GetPixelSpan();
-			var seed = fSpan[y * rect.Width + x].ToColor();
+			var seed = fSpan[y * frame.Width + x].ToColor();
 			int ty = y;
 			int by = y;
 			while(ty > rect.Top) {
-				if (!fSpan[ty * rect.Width + x].Equals(seed)) { break; }
+				if (!fSpan[ty * frame.Width + x].Equals(seed)) { break; }
 				ty--;
 			}
 			while(by < rect.Bottom - 1) {
-				if (!fSpan[by * rect.Width + x].Equals(seed)) { break; }
+				if (!fSpan[by * frame.Width + x].Equals(seed)) { break; }
 				by++;
 			}
 
@@ -122,8 +112,8 @@ namespace ImageFunctions.AreaSmoother2
 				return;
 			}
 		
-			var tColor = Between(fSpan[ty * rect.Width + x].ToColor(),seed,0.5);
-			var bColor = Between(fSpan[by * rect.Width + x].ToColor(),seed,0.5);
+			var tColor = Between(fSpan[ty * frame.Width + x].ToColor(),seed,0.5);
+			var bColor = Between(fSpan[by * frame.Width + x].ToColor(),seed,0.5);
 
 			for(int gi=0; gi<len; gi++)
 			{

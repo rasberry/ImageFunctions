@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 
 namespace ImageFunctions
 {
@@ -12,11 +11,12 @@ namespace ImageFunctions
 				Options.Usage();
 				return;
 			}
-			if (!Options.Parse(args)) {
+			if (!Options.Parse(args, out var pruned)) {
 				return;
 			}
 			IFunction func = Registry.Map(Options.Which);
-			if (!func.ParseArgs(args.Skip(1).ToArray())) {
+			func.Rect = Options.Rect;
+			if (!func.ParseArgs(pruned)) {
 				return;
 			}
 

@@ -4,6 +4,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.AreaSmoother
 {
@@ -17,6 +18,8 @@ namespace ImageFunctions.AreaSmoother
 				Helpers.SaveAsPng(OutImage,img);
 			}
 		}
+
+		public Rectangle Rect { get; set; }
 
 		public bool ParseArgs(string[] args)
 		{
@@ -69,7 +72,12 @@ namespace ImageFunctions.AreaSmoother
 		{
 			var proc = new Processor<Rgba32>();
 			proc.TotalTries = TotalTries;
-			ctx.ApplyProcessor(proc);
+			if (Rect.IsEmpty) {
+				ctx.ApplyProcessor(proc);
+			} else {
+				ctx.ApplyProcessor(proc,Rect);
+			}
+
 		}
 
 		string InImage = null;

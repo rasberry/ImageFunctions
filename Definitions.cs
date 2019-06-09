@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
@@ -16,6 +17,7 @@ namespace ImageFunctions
 	{
 		void Usage(StringBuilder sb);
 		bool ParseArgs(string[] args);
+		Rectangle Rect { get; set; }
 		void Main();
 	}
 }

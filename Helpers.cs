@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
@@ -22,7 +23,8 @@ namespace ImageFunctions
 			return outFile;
 		}
 
-		public static void SaveAsPng<TPixel>(string fileName, Image<TPixel> image) where TPixel : struct, IPixel<TPixel>
+		public static void SaveAsPng<TPixel>(string fileName, Image<TPixel> image)
+			where TPixel : struct, IPixel<TPixel>
 		{
 			PngEncoder encoder = new PngEncoder();
 			encoder.CompressionLevel = 9;
@@ -63,7 +65,8 @@ namespace ImageFunctions
 			;
 		}
 
-		public static TPixel ToGrayScale<TPixel>(TPixel c) where TPixel : struct, IPixel<TPixel>
+		public static TPixel ToGrayScale<TPixel>(TPixel c)
+			where TPixel : struct, IPixel<TPixel>
 		{
 			Rgba32 tmp = default(Rgba32);
 			c.ToRgba32(ref tmp);
@@ -79,18 +82,36 @@ namespace ImageFunctions
 			return new Rgba32(g,g,g,c.A);
 		}
 
-		public static Rgba32 ToColor<TPixel>(this TPixel color) where TPixel : struct, IPixel<TPixel>
+		public static Rgba32 ToColor<TPixel>(this TPixel color)
+			where TPixel : struct, IPixel<TPixel>
 		{
 			Rgba32 c = default(Rgba32);
 			color.ToRgba32(ref c);
 			return c;
 		}
 
-		public static TPixel FromColor<TPixel>(this Rgba32 color)  where TPixel : struct, IPixel<TPixel>
+		public static TPixel FromColor<TPixel>(this Rgba32 color)
+			where TPixel : struct, IPixel<TPixel>
 		{
 			TPixel p = default(TPixel);
 			p.FromRgba32(color);
 			return p;
+		}
+
+		public static void BlitImage<TPixel>(this ImageFrame<TPixel> frame, Image<TPixel> image, Rectangle spot)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			var cspan = image.GetPixelSpan();
+			var fspan = frame.GetPixelSpan();
+			for(int y = spot.Top; y < spot.Bottom; y++) {
+				int cy = y - spot.Top;
+				for(int x = spot.Left; x < spot.Right; x++) {
+					int cx = x - spot.Left;
+					int foff = y * frame.Width + x;
+					int coff = cy * spot.Width + cx;
+					fspan[foff] = cspan[coff];
+				}
+			}
 		}
 	}
 }

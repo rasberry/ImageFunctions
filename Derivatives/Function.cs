@@ -4,6 +4,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.Derivatives
 {
@@ -17,6 +18,8 @@ namespace ImageFunctions.Derivatives
 				Helpers.SaveAsPng(OutImage,img);
 			}
 		}
+
+		public Rectangle Rect { get; set; }
 
 		public bool ParseArgs(string[] args)
 		{
@@ -67,7 +70,11 @@ namespace ImageFunctions.Derivatives
 			var proc = new Processor<Rgba32>();
 			proc.DoGrayscale = DoGrayscale;
 			proc.UseABS = UseABS;
-			ctx.ApplyProcessor(proc);
+			if (Rect.IsEmpty) {
+				ctx.ApplyProcessor(proc);
+			} else {
+				ctx.ApplyProcessor(proc,Rect);
+			}
 		}
 
 		string InImage = null;

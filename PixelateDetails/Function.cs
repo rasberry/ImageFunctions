@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelateDetails
 {
@@ -20,13 +21,21 @@ namespace ImageFunctions.PixelateDetails
 			}
 		}
 
+		public Rectangle Rect { get; set; }
+
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.ImageSplitFactor = ImageSplitFactor;
 			proc.UseProportionalSplit = UseProportionalSplit;
 			proc.DescentFactor = DescentFactor;
-			ctx.ApplyProcessor(proc);
+			if (Rect.IsEmpty) {
+				Log.Debug("rect is empty "+Rect);
+				ctx.ApplyProcessor(proc);
+			} else {
+				Log.Debug("rect is full "+Rect);
+				ctx.ApplyProcessor(proc,Rect);
+			}
 		}
 
 		public bool ParseArgs(string[] args)
