@@ -18,30 +18,31 @@ namespace ImageFunctions.AreaSmoother2
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				if (!VOnly) {
-					for(int y = rect.Top; y < rect.Bottom; y++ ) {
-						Visited.Clear();
+					Helpers.ThreadRows(rect,config.MaxDegreeOfParallelism,(y) => {
+						HashSet<int> visited = new HashSet<int>();
 						for(int x = rect.Left; x < rect.Right; x++) {
-							if (Visited.Contains(x)) { continue; }
-							DrawGradientH(frame,canvas,rect,x,y);
+							if (visited.Contains(x)) { continue; }
+							DrawGradientH(visited,frame,canvas,rect,x,y);
 						}
-					}
+					});
 				}
 
 				if (!HOnly) {
-					for(int x = rect.Left; x < rect.Right; x++) {
-						Visited.Clear();
+					Helpers.ThreadColumns(rect,config.MaxDegreeOfParallelism,(x) => {
+						HashSet<int> visited = new HashSet<int>();
 						for(int y = rect.Top; y < rect.Bottom; y++ ) {
-							if (Visited.Contains(y)) { continue; }
-							DrawGradientV(frame,canvas,rect,x,y,!VOnly);
+							if (visited.Contains(y)) { continue; }
+							DrawGradientV(visited,frame,canvas,rect,x,y,!VOnly);
 						}
-					}
+					});
 				}
 
 				frame.BlitImage(canvas,rect);
 			}
 		}
 
-		void DrawGradientH(ImageFrame<TPixel> frame, Image<TPixel> canvas, Rectangle rect, int x, int y)
+		void DrawGradientH(HashSet<int> visited, ImageFrame<TPixel> frame, Image<TPixel> canvas,
+			Rectangle rect, int x, int y)
 		{
 			var cSpan = canvas.GetPixelSpan();
 			var fSpan = frame.GetPixelSpan();
@@ -60,7 +61,7 @@ namespace ImageFunctions.AreaSmoother2
 			int len = rx - lx - 1;
 			if (len <= 2) {
 				// color span is to small so just use colors as-is
-				Visited.Add(x);
+				visited.Add(x);
 				int off = GetOffset(x,y,rect);
 				cSpan[off] = seed;
 				return;
@@ -82,11 +83,12 @@ namespace ImageFunctions.AreaSmoother2
 				int gx = lx + gi + 1;
 				int off = GetOffset(gx,y,rect);
 				cSpan[off] = nc.FromColor<TPixel>();
-				Visited.Add(gx);
+				visited.Add(gx);
 			}
 		}
 
-		void DrawGradientV(ImageFrame<TPixel> frame, Image<TPixel> canvas, Rectangle rect, int x, int y, bool blend)
+		void DrawGradientV(HashSet<int> visited, ImageFrame<TPixel> frame, Image<TPixel> canvas,
+			Rectangle rect, int x, int y, bool blend)
 		{
 			var cSpan = canvas.GetPixelSpan();
 			var fSpan = frame.GetPixelSpan();
@@ -105,7 +107,7 @@ namespace ImageFunctions.AreaSmoother2
 			int len = by - ty - 1;
 			if (len <= 2) {
 				// color span is to small so just use colors as-is
-				Visited.Add(y);
+				visited.Add(y);
 				int off = GetOffset(x,y,rect);
 				var fc = blend ? Between(seed,cSpan[off].ToColor(),0.5) : seed;
 				cSpan[off] = fc.FromColor<TPixel>();
@@ -128,7 +130,7 @@ namespace ImageFunctions.AreaSmoother2
 				int off = GetOffset(x,gy,rect);
 				var fc = blend ? Between(nc,cSpan[off].ToColor(),0.5) : nc;
 				cSpan[off] = fc.FromColor<TPixel>();
-				Visited.Add(gy);
+				visited.Add(gy);
 			}
 		}
 
@@ -152,7 +154,5 @@ namespace ImageFunctions.AreaSmoother2
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw;
 		}
-
-		HashSet<int> Visited = new HashSet<int>();
 	}
 }

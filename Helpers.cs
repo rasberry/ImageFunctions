@@ -127,5 +127,21 @@ namespace ImageFunctions
 				callback(x + rect.Left,y + rect.Top);
 			});
 		}
+
+		public static void ThreadRows(Rectangle rect, int maxThreads, Action<int> callback)
+		{
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads
+			};
+			Parallel.For(rect.Top,rect.Bottom,po,callback);
+		}
+
+		public static void ThreadColumns(Rectangle rect, int maxThreads, Action<int> callback)
+		{
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads
+			};
+			Parallel.For(rect.Left,rect.Right,po,callback);
+		}
 	}
 }
