@@ -84,7 +84,8 @@ namespace ImageFunctions.PixelateDetails
 			string name = Helpers.FunctionName(Action.PixelateDetails);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" -p                          Use proportianally sized sections");
+			sb.AppendLine(" Creates areas of flat color by recusively splitting high detail chunks");
+			sb.AppendLine(" -p                          Use proportianally sized sections (default is square sized sections)");
 			sb.AppendLine(" -s (number)[%]              Multiple or percent of image dimension used for splitting (default 2.0)");
 			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
 		}

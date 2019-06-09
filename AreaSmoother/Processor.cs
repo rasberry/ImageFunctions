@@ -10,6 +10,7 @@ namespace ImageFunctions.AreaSmoother
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
+		public int TotalTries = 7;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -39,7 +40,7 @@ namespace ImageFunctions.AreaSmoother
 			}
 		}
 
-		static TPixel SmoothPixel(ImageFrame<TPixel> frame,int px, int py)
+		TPixel SmoothPixel(ImageFrame<TPixel> frame,int px, int py)
 		{
 			Rgba32 start = frame.GetPixelRowSpan(py)[px].ToColor();
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
@@ -53,7 +54,7 @@ namespace ImageFunctions.AreaSmoother
 			double ahigh = Math.PI;
 			double alow = 0;
 
-			for(int tries=1; tries <= 7; tries++)
+			for(int tries=1; tries <= TotalTries; tries++)
 			{
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)

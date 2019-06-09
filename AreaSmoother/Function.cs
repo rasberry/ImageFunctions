@@ -24,7 +24,17 @@ namespace ImageFunctions.AreaSmoother
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (InImage == null) {
+				if (curr == "-t" && ++a < len) {
+					if (!int.TryParse(args[a],out TotalTries)) {
+						Log.Error("invalid number "+args[a]);
+						return false;
+					}
+					if (TotalTries < 1) {
+						Log.Error("-t number must be greater than zero");
+						return false;
+					}
+				}
+				else if (InImage == null) {
 					InImage = curr;
 				}
 				else if (OutImage == null) {
@@ -51,15 +61,19 @@ namespace ImageFunctions.AreaSmoother
 			string name = Helpers.FunctionName(Action.AreaSmoother);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
+			sb.AppendLine(" Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
+			sb.AppendLine(" -t (number)                 Number of times to run fit function (default 7)");
 		}
 
 		void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
+			proc.TotalTries = TotalTries;
 			ctx.ApplyProcessor(proc);
 		}
 
 		string InImage = null;
 		string OutImage = null;
+		int TotalTries = 7;
 	}
 }

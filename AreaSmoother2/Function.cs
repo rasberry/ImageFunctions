@@ -57,6 +57,7 @@ namespace ImageFunctions.AreaSmoother2
 			string name = Helpers.FunctionName(Action.AreaSmoother2);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
+			sb.AppendLine(" Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
 			sb.AppendLine(" -H                          Horizontal only");
 			sb.AppendLine(" -V                          Vertical only");
 		}

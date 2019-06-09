@@ -14,10 +14,10 @@ namespace ImageFunctions
 			sb.AppendLine(" --actions                   List possible actions");
 
 			if (ShowHelpActions) {
-				sb.AppendLine().AppendLine(" Actions:");
+				sb.AppendLine().AppendLine("Actions:");
 				foreach(Action a in Enum.GetValues(typeof(Action))) {
 					if (a == Action.None) { continue; }
-					sb.AppendLine("  "+a);
+					sb.AppendLine(((int)a)+". "+a);
 				}
 			}
 

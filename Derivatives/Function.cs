@@ -57,6 +57,7 @@ namespace ImageFunctions.Derivatives
 			string name = Helpers.FunctionName(Action.Derivatives);
 			sb.AppendLine();
 			sb.AppendLine(name+" [options] (input image) [output image]");
+			sb.AppendLine(" Computes the color change rate - similar to edge detection");
 			sb.AppendLine(" -g                          Grayscale output");
 			sb.AppendLine(" -a                          Calculate absolute value difference");
 		}
