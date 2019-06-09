@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
@@ -112,6 +113,19 @@ namespace ImageFunctions
 					fspan[foff] = cspan[coff];
 				}
 			}
+		}
+
+		public static void ThreadPixels(Rectangle rect,int maxThreads,Action<int,int> callback)
+		{
+			long max = (long)rect.Width * rect.Height;
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads
+			};
+			Parallel.For(0,max,po,num => {
+				int y = (int)(num / (long)rect.Width);
+				int x = (int)(num % (long)rect.Width);
+				callback(x + rect.Left,y + rect.Top);
+			});
 		}
 	}
 }

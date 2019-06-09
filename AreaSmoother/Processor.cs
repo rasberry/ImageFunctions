@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ImageFunctions.AreaSmoother
 {
@@ -16,17 +17,13 @@ namespace ImageFunctions.AreaSmoother
 		{
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				var cspan = canvas.GetPixelSpan();
-				for(int y = rect.Top; y < rect.Bottom; y++ ) {
+				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
-					for(int x = rect.Left; x < rect.Right; x++) {
-						int cx = x - rect.Left;
-						TPixel nc = SmoothPixel(frame,x,y);
-						//Log.Debug("x="+x+" y="+y+" nc = "+nc);
-						int coff = cy * rect.Width + cx;
-						cspan[coff] = nc;
-					}
-				}
+					int cx = x - rect.Left;
+					TPixel nc = SmoothPixel(frame,x,y);
+					int coff = cy * rect.Width + cx;
+					canvas.GetPixelSpan()[coff] = nc;
+				});
 
 				frame.BlitImage(canvas,rect);
 			}
