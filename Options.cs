@@ -52,6 +52,11 @@ namespace ImageFunctions
 						ShowActionHelp = true;
 					}
 				}
+				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
+					var parts = args[a].Split(new char[] { ',','x' },
+						StringSplitOptions.RemoveEmptyEntries);
+					
+				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
 				}

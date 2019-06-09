@@ -21,18 +21,19 @@ namespace ImageFunctions.AreaSmoother2
 
 			if (!VOnly) {
 				for(int y = rect.Top; y < rect.Bottom; y++ ) {
+					Visited.Clear();
 					for(int x = rect.Left; x < rect.Right; x++) {
-						if (Visited.Contains(new Point(x,y))) { continue; }
+						if (Visited.Contains(x)) { continue; }
 						DrawGradientH(frame,canvas,rect,x,y);
 					}
 				}
 			}
 
 			if (!HOnly) {
-				Visited.Clear();
 				for(int x = rect.Left; x < rect.Right; x++) {
+					Visited.Clear();
 					for(int y = rect.Top; y < rect.Bottom; y++ ) {
-						if (Visited.Contains(new Point(x,y))) { continue; }
+						if (Visited.Contains(y)) { continue; }
 						DrawGradientV(frame,canvas,rect,x,y,!VOnly);
 					}
 				}
@@ -69,7 +70,7 @@ namespace ImageFunctions.AreaSmoother2
 			int len = rx - lx - 1;
 			if (len <= 2) {
 				// color span is to small so just use colors as-is
-				Visited.Add(new Point(x,y));
+				Visited.Add(x);
 				int off = GetOffset(x,y,rect);
 				cSpan[off] = seed;
 				return;
@@ -91,7 +92,7 @@ namespace ImageFunctions.AreaSmoother2
 				int gx = lx + gi + 1;
 				int off = GetOffset(gx,y,rect);
 				cSpan[off] = nc.FromColor<TPixel>();
-				Visited.Add(new Point(gx,y));
+				Visited.Add(gx);
 			}
 		}
 
@@ -114,7 +115,7 @@ namespace ImageFunctions.AreaSmoother2
 			int len = by - ty - 1;
 			if (len <= 2) {
 				// color span is to small so just use colors as-is
-				Visited.Add(new Point(x,y));
+				Visited.Add(y);
 				int off = GetOffset(x,y,rect);
 				var fc = blend ? Between(seed,cSpan[off].ToColor(),0.5) : seed;
 				cSpan[off] = fc.FromColor<TPixel>();
@@ -137,7 +138,7 @@ namespace ImageFunctions.AreaSmoother2
 				int off = GetOffset(x,gy,rect);
 				var fc = blend ? Between(nc,cSpan[off].ToColor(),0.5) : nc;
 				cSpan[off] = fc.FromColor<TPixel>();
-				Visited.Add(new Point(x,gy));
+				Visited.Add(gy);
 			}
 		}
 
@@ -162,6 +163,6 @@ namespace ImageFunctions.AreaSmoother2
 			return btw;
 		}
 
-		HashSet<Point> Visited = new HashSet<Point>();
+		HashSet<int> Visited = new HashSet<int>();
 	}
 }
