@@ -59,7 +59,8 @@ namespace ImageFunctions.ZoomBlur
 				double py = Math.Sin(ang) * d + cy;
 				int ipx = (int)Math.Round(px, 0);
 				int ipy = (int)Math.Round(py, 0);
-				Rgba32 c = GetAliasedColor(frame, ipx, ipy);
+				Rgba32 c = GetExtendedPixel(frame,ipx,ipy);
+				//Rgba32 c = GetAliasedColor(frame, ipx, ipy);
 				vector.Add(c);
 			}
 

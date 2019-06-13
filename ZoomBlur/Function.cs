@@ -40,18 +40,20 @@ namespace ImageFunctions.ZoomBlur
 				else if (curr == "-cc" && (a+=2) < len) {
 					if (!int.TryParse(args[a-1], out int px)) {
 						Log.Error("invalid number "+args[a-1]);
+						return false;
 					}
 					if (!int.TryParse(args[a], out int py)) {
-						Log.Error("invalid number "+args[a-1]);
+						Log.Error("invalid number "+args[a]);
+						return false;
 					}
 					CenterPx = new Point(px,py);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
 					if (!Helpers.ParseNumberPercent(args[a-1], out double px)) {
-						Log.Error("invalid number "+args[a-1]);
+						return false;
 					}
 					if (!Helpers.ParseNumberPercent(args[a], out double py)) {
-						Log.Error("invalid number "+args[a-1]);
+						return false;
 					}
 					CenterRt = new PointF((float)px,(float)py);
 				}
