@@ -6,6 +6,7 @@ Usage ImageFunctions (action) [options]
  -h / --help                 Show full help
  (action) -h                 Action specific help
  --actions                   List possible actions
+ -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -26,11 +27,20 @@ Usage ImageFunctions (action) [options]
  Blends adjacent areas of flat color together by blending horizontal and vertical gradients
  -H                          Horizontal only
  -V                          Vertical only
+
+5. ZoomBlur [options] (input image) [output image]
+ Blends rays of pixels to produce a 'zoom' effect
+ -z  (number)[%]              Zoom amount (default 1.1)
+ -cc (number) (number)        Coordinates of zoom center in pixels
+ -cp (number)[%] (number)[%]  Coordinates of zoom center by proportion (default 50% 50%)
+
 ```
 
 ## TODO ##
 ### General ###
 * maybe update to process everything in rgba64 ?
+  * looks like we need to wait for rc1 to do this
+  * using SixLabors.ImageSharp.Color
 * look at paralellizing the processing functions
 * maybe color usage a little ?
 * maybe add syntax to chain image functions together

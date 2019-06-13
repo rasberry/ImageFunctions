@@ -19,6 +19,7 @@ namespace ImageFunctions.Derivatives
 				return; //nothing to do
 			}
 
+			//using a queue to delay updates instead copying the image
 			int qLength = 3 * frame.Width;
 			var queue = new Queue<QueueItem>(qLength);
 			QueueItem dqi;

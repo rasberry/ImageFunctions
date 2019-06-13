@@ -11,7 +11,8 @@ namespace ImageFunctions
 		PixelateDetails = 1,
 		Derivatives = 2,
 		AreaSmoother = 3,
-		AreaSmoother2 = 4
+		AreaSmoother2 = 4,
+		ZoomBlur = 5
 	}
 
 	public interface IFunction

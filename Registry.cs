@@ -15,6 +15,7 @@ namespace ImageFunctions
 			case Action.Derivatives: return new Derivatives.Function();
 			case Action.AreaSmoother: return new AreaSmoother.Function();
 			case Action.AreaSmoother2: return new AreaSmoother2.Function();
+			case Action.ZoomBlur: return new ZoomBlur.Function();
 			}
 		}
 	}

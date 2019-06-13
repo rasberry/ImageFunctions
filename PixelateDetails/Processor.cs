@@ -18,6 +18,11 @@ namespace ImageFunctions.PixelateDetails
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
+			// TODO use proucer comsumer model to parallelize
+			// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/dataflow-task-parallel-library
+			// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-implement-a-producer-consumer-dataflow-pattern
+
+
 			SplitAndAverage(frame,rectangle,config);
 		}
 
@@ -126,8 +131,7 @@ namespace ImageFunctions.PixelateDetails
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
 					int off = y * frame.Width + x;
-					Rgba32 c = default(Rgba32);
-					span[off].ToRgba32(ref c);
+					var c = span[off].ToColor();
 					//TODO maybe multiply by alpha ?
 					r += c.R;
 					g += c.G;
@@ -140,9 +144,7 @@ namespace ImageFunctions.PixelateDetails
 				,(byte)(g / den)
 				,(byte)(b / den)
 			);
-			var pix = default(TPixel);
-			pix.FromRgba32(avg);
-			return pix;
+			return avg.FromColor<TPixel>();
 		}
 
 		void ReplaceWithColor(ImageFrame<TPixel> frame, Rectangle rect, TPixel color)
@@ -171,18 +173,10 @@ namespace ImageFunctions.PixelateDetails
 		static double GetPixelValue(TPixel? p)
 		{
 			if (!p.HasValue) { return 0.0; }
-			Rgba32 c = default(Rgba32);
-			p.Value.ToRgba32(ref c);
+			var c = p.Value.ToColor();
 			double val = (c.R + c.G + c.B)/3.0;
 			//Log.Debug("GetPixelValue val="+val+" r="+c.R+" g="+c.G+" b="+c.B);
 			return val;
-		}
-
-		void Swap<T>(ref T a, ref T b) where T : struct
-		{
-			T tmp = a;
-			a = b;
-			b = tmp;
 		}
 
 		struct SortPair : IComparable
