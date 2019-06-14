@@ -16,6 +16,7 @@ namespace ImageFunctions
 			case Action.AreaSmoother: return new AreaSmoother.Function();
 			case Action.AreaSmoother2: return new AreaSmoother2.Function();
 			case Action.ZoomBlur: return new ZoomBlur.Function();
+			case Action.Swirl: return new Swirl.Function();
 			}
 		}
 	}

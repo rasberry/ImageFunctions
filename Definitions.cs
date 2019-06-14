@@ -12,7 +12,8 @@ namespace ImageFunctions
 		Derivatives = 2,
 		AreaSmoother = 3,
 		AreaSmoother2 = 4,
-		ZoomBlur = 5
+		ZoomBlur = 5,
+		Swirl = 6
 	}
 
 	public interface IFunction
