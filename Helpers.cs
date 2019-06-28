@@ -1,3 +1,4 @@
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -49,6 +50,24 @@ namespace ImageFunctions
 				return false;
 			}
 			val = isPercent ? d/100.0 : d;
+			return true;
+		}
+
+		public static bool ParseDelimitedValues<V>(string arg, out V[] items,char sep = ',') where V : IConvertible
+		{
+			items = null;
+			if (arg == null) { return false; }
+			
+			string[] tokens = arg.Split(sep,4); //NOTE change 4 to more if needed
+			items = new V[tokens.Length];
+	
+			for(int i=0; i<tokens.Length; i++) {
+				if (Helpers.TryParse(tokens[i],out V val)) {
+					items[i] = val;
+				} else {
+					items[i] = default(V);
+				}
+			}
 			return true;
 		}
 
@@ -142,6 +161,24 @@ namespace ImageFunctions
 				MaxDegreeOfParallelism = maxThreads
 			};
 			Parallel.For(rect.Left,rect.Right,po,callback);
+		}
+
+		public static bool TryParse<V>(string sub, out V val) where V : IConvertible
+		{
+			val = default(V);
+			TypeCode tc = val.GetTypeCode();
+			switch(tc)
+			{
+			case TypeCode.Double: {
+				double.TryParse(sub,out double b);
+				val = (V)((object)b); return true;
+			}
+			case TypeCode.Int32: {
+				int.TryParse(sub,out int b);
+				val = (V)((object)b); return true;
+			}
+			}
+			return false;
 		}
 	}
 }

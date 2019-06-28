@@ -47,6 +47,8 @@ Usage ImageFunctions (action) [options]
   * possibly using '--' to seperate actions
   * need to figure out input/output file(s)
   * is there a need for multiple-in / multiple-out ?
+* add a vertial / horizontal only zoom blur (curtain blur ?)
+* is it possible to do a outer swirl (outside of radius towards edge instead of inwards?)
 
 ### AreaSmoother ###
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector

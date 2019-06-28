@@ -10,6 +10,13 @@ namespace ImageFunctions.Swirl
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
+		public Point? CenterPx = null;
+		public PointF? CenterPp = null;
+		public int? RadiusPx = null;
+		public double? RadiusPp = null;
+		public double Rotations = 0.9;
+		public bool CounterClockwise = false;
+
 		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -37,12 +44,11 @@ namespace ImageFunctions.Swirl
 			double pixelx = x - swirlx;
 			double pixely = y - swirly;
 			double pixelDist = Math.Sqrt((pixelx * pixelx) + (pixely * pixely));
-			double pixelAng = Math.Atan2(pixely,pixelx);
 
 			double swirlAmount = 1.0 - (pixelDist / swirlRadius);
 			if (swirlAmount > 0.0) {
 				double twistAngle = swirlTwists * swirlAmount * Math.PI * 2;
-				pixelAng += twistAngle;
+				double pixelAng = Math.Atan2(pixely,pixelx) + twistAngle;
 				pixelx = Math.Cos(pixelAng) * pixelDist;
 				pixely = Math.Sin(pixelAng) * pixelDist;
 			}
