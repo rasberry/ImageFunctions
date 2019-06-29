@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System.Collections.Generic;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.Swirl
 {
@@ -16,6 +17,8 @@ namespace ImageFunctions.Swirl
 		public double? RadiusPp = null;
 		public double Rotations = 0.9;
 		public bool CounterClockwise = false;
+		IResampler Sampler = new NearestNeighborResampler();
+		//IResampler Sampler = new BicubicResampler();
 
 		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
@@ -72,9 +75,8 @@ namespace ImageFunctions.Swirl
 				pixelx = Math.Cos(pixelAng) * pixelDist;
 				pixely = Math.Sin(pixelAng) * pixelDist;
 			}
-			int samplex = Math.Clamp((int)(swirlx + pixelx),0,frame.Width - 1);
-			int sampley = Math.Clamp((int)(swirly + pixely),0,frame.Height - 1);
-			var c = frame.GetPixelRowSpan(sampley)[samplex];
+
+			var c = frame.Sample(swirlx + pixelx,swirly + pixely,Sampler);
 			return c;
 		}
 	}

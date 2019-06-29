@@ -41,14 +41,17 @@ Usage ImageFunctions (action) [options]
 * maybe update to process everything in rgba64 ?
   * looks like we need to wait for rc1 to do this
   * using SixLabors.ImageSharp.Color
+  * for now change uses of rgba32 to Vector4 - Vector4 is float so
+    it will preserve accuracy better than rgba32
 * look at paralellizing the processing functions
-* maybe color usage a little ?
+* maybe color the 'usage' text a little ?
 * maybe add syntax to chain image functions together
   * possibly using '--' to seperate actions
   * need to figure out input/output file(s)
   * is there a need for multiple-in / multiple-out ?
-* add a vertial / horizontal only zoom blur (curtain blur ?)
-* is it possible to do a outer swirl (outside of radius towards edge instead of inwards?)
+* look at ways to sample pixels
+  * currently using single pixel sampler
+
 
 ### AreaSmoother ###
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector
@@ -58,3 +61,9 @@ Usage ImageFunctions (action) [options]
 
 ### Derivatives ###
 * maybe add other types of derivatives
+
+### ZoomBlur ###
+* add a vertial / horizontal only zoom blur (curtain blur ?)
+
+### Swirl ###
+* is it possible to do a outer swirl (outside of radius towards edge instead of inwards?)

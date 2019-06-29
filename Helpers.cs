@@ -6,12 +6,21 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
 	public static class Helpers
 	{
+		public static void Assert(bool isTrue, string message = null)
+		{
+			if (!isTrue) {
+				//throw new System.ApplicationException(message ?? "Assertion Failed");
+				Log.Debug(message ?? "Assertion Failed");
+			}
+		}
+
 		public static string FunctionName(Action a)
 		{
 			return ((int)a).ToString() + ". "+a.ToString();
@@ -188,6 +197,130 @@ namespace ImageFunctions
 			}
 			}
 			return false;
+		}
+
+		public static double Fractional(this double number)
+		{
+			//return number - Math.Truncate(number); //TODO returns negative numbers - don't know why
+			return Math.Abs(number % 1.0);
+		}
+		public static double Integral(this double number)
+		{
+			return Math.Truncate(number);
+		}
+
+		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			int px = Math.Clamp(x,0,img.Width - 1);
+			int py = Math.Clamp(y,0,img.Height - 1);
+			int off = py * img.Width + px;
+			//Log.Debug("GPS off = "+off);
+			return img.GetPixelSpan()[off];
+		}
+
+		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			if (sampler == null) {
+				TPixel pixn = img.GetPixelSafe((int)locX,(int)locY);
+				//Log.Debug("pix = "+pixn);
+				return pixn;
+			}
+
+			double m = sampler.Radius / 0.5; //stretch length 0.5 to Radius
+			double pxf = locX.Fractional();
+			double pyf = locY.Fractional();
+			double fx = 0.5 - pxf;
+			double fy = 0.5 - pyf;
+
+			//dx, dy are distance from center values - "how much of the other pixel do you want?"
+			//dx, dy are valued as:
+			//  1.0 = 100% original pixel
+			//  0.0 = 50%/50% original / other pixel
+			//sampler is scaled:
+			//  0.0 = closest to wanted value - returns 1.0
+			//  1.0 = farthest from wanted value - return 0.0
+			double sx = Math.Abs(fx) * m;
+			double sy = Math.Abs(fy) * m;
+			float dx = sampler.GetValue((float)sx);
+			float dy = sampler.GetValue((float)sy);
+			//Log.Debug("sx="+sx+" dx="+dx+" sy="+sy+" dy="+dy);
+
+			//pick and sample the 4 pixels;
+			Rgba32 p0,p1,p2,p3;
+			FillQuadrantColors(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
+			
+			double Rf = CalcSample(p0.R, p1.R, p2.R, p3.R, dx, dy);
+			double Gf = CalcSample(p0.G, p1.G, p2.G, p3.G, dx, dy);
+			double Bf = CalcSample(p0.B, p1.B, p2.B, p3.B, dx, dy);
+			double Af = 255.0; //CalcSample(p0.A, p1.A, p2.A, p3.A, dx, dy);
+
+			var color = new Rgba32((byte)Rf,(byte)Gf,(byte)Bf,(byte)Af);
+			TPixel pixi = color.FromColor<TPixel>();
+			//Log.Debug("pix = "+pixi);
+			return pixi;
+		}
+
+		static double CalcSample(byte v0,byte v1,byte v2,byte v3,double dx, double dy)
+		{
+			//Helpers.Assert(dx >= 0.0 && dx <= 1.0,"dx is wrong "+dx);
+			//Helpers.Assert(dy >= 0.0 && dy <= 1.0,"dx is wrong "+dy);
+			//return dy * 255.0;
+			//return (double)v2;
+			//four corner values
+			double b0 = (double)v0; //(double)v0 + v1 + v2 + v3 / 4.0;
+			double b1 = (double)v1; //(double)v1 + v2 / 2.0;
+			double b2 = (double)v2; //(double)v2;
+			double b3 = (double)v3; //(double)v3 + v2 / 2.0;
+
+			//interpolation calc
+			double x0 = (b0 * (1.0 - dx)) + (b1 * dx);
+			double x1 = (b3 * (1.0 - dx)) + b2 * dx;
+			double yf = (x0 * (1.0 - dy)) + (x1 * dy);
+			//double x0 = b0 * (dx) + b1 * (1.0 - dx);
+			//double x1 = b3 * (dx); // + b2 * dx;
+			//double yf = x0 * (1.0 - dy) + x1 * dy;
+			return Math.Clamp(yf,0.0,255.0);
+		}
+
+		static void FillQuadrantColors<TPixel>(
+			ImageFrame<TPixel> img, bool xIsPos, bool yIsPos,double px, double py,
+			out Rgba32 q0, out Rgba32 q1, out Rgba32 q2, out Rgba32 q3)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			int px0,py0,px1,py1,px2,py2,px3,py3;
+			if (!xIsPos && !yIsPos) {
+				px0 = (int)(px - 1.0); py0 = (int)(py - 1.0);
+				px1 = (int)(px + 0.0); py1 = (int)(py - 1.0);
+				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
+				px3 = (int)(px - 1.0); py3 = (int)(py + 0.0);
+			}
+			else if (xIsPos && !yIsPos) {
+				px1 = (int)(px + 0.0); py1 = (int)(py - 1.0);
+				px0 = (int)(px + 1.0); py0 = (int)(py - 1.0);
+				px3 = (int)(px + 1.0); py3 = (int)(py + 0.0);
+				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
+			}
+			else if (xIsPos && yIsPos) {
+				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
+				px3 = (int)(px + 1.0); py3 = (int)(py + 0.0);
+				px0 = (int)(px + 1.0); py0 = (int)(py + 1.0);
+				px1 = (int)(px + 0.0); py1 = (int)(py + 1.0);
+			}
+			else { // if (!xpos && ypos) {
+				px3 = (int)(px - 1.0); py3 = (int)(py + 0.0);
+				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
+				px1 = (int)(px + 0.0); py1 = (int)(py + 1.0);
+				px0 = (int)(px - 1.0); py0 = (int)(py + 1.0);
+			}
+
+			//had to mirror the p(n) order around the x,y axes so that this part
+			//  could stay the same (note the strange ordering above - q2 is always +0,+0)
+			q0 = img.GetPixelSafe(px0,py0).ToColor();
+			q1 = img.GetPixelSafe(px1,py1).ToColor();
+			q2 = img.GetPixelSafe(px2,py2).ToColor();
+			q3 = img.GetPixelSafe(px3,py3).ToColor();
 		}
 	}
 }
