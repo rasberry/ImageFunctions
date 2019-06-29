@@ -10,20 +10,9 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelateDetails
 {
-	public class Function : IFunction
+	public class Function : AbstractFunction
 	{
-		public void Main()
-		{
-			using (var img = Image.Load(InImage))
-			{
-				img.Mutate(Process);
-				Helpers.SaveAsPng(OutImage,img);
-			}
-		}
-
-		public Rectangle Rect { get; set; }
-
-		void Process(IImageProcessingContext<Rgba32> ctx)
+		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.ImageSplitFactor = ImageSplitFactor;
@@ -38,7 +27,7 @@ namespace ImageFunctions.PixelateDetails
 			}
 		}
 
-		public bool ParseArgs(string[] args)
+		public override bool ParseArgs(string[] args)
 		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
@@ -88,7 +77,7 @@ namespace ImageFunctions.PixelateDetails
 			return true;
 		}
 
-		public void Usage(StringBuilder sb)
+		public override void Usage(StringBuilder sb)
 		{
 			string name = Helpers.FunctionName(Action.PixelateDetails);
 			sb.AppendLine();
@@ -99,8 +88,6 @@ namespace ImageFunctions.PixelateDetails
 			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
 		}
 
-		string InImage = null;
-		string OutImage = null;
 		bool UseProportionalSplit = false;
 		double ImageSplitFactor = 2.0;
 		double DescentFactor = 0.5;

@@ -8,20 +8,9 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.AreaSmoother2
 {
-	public class Function : IFunction
+	public class Function : AbstractFunction
 	{
-		public void Main()
-		{
-			using (var img = Image.Load(InImage))
-			{
-				img.Mutate(Process);
-				Helpers.SaveAsPng(OutImage,img);
-			}
-		}
-
-		public Rectangle Rect { get; set; }
-
-		public bool ParseArgs(string[] args)
+		public override bool ParseArgs(string[] args)
 		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
@@ -55,7 +44,7 @@ namespace ImageFunctions.AreaSmoother2
 			return true;
 		}
 
-		public void Usage(StringBuilder sb)
+		public override void Usage(StringBuilder sb)
 		{
 			string name = Helpers.FunctionName(Action.AreaSmoother2);
 			sb.AppendLine();
@@ -65,7 +54,7 @@ namespace ImageFunctions.AreaSmoother2
 			sb.AppendLine(" -V                          Vertical only");
 		}
 
-		void Process(IImageProcessingContext<Rgba32> ctx)
+		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.HOnly = HOnly;
@@ -78,8 +67,6 @@ namespace ImageFunctions.AreaSmoother2
 
 		}
 
-		string InImage = null;
-		string OutImage = null;
 		bool HOnly = false;
 		bool VOnly = false;
 	}

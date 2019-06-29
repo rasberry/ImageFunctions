@@ -2,26 +2,16 @@ using System;
 using System.IO;
 using System.Text;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.ZoomBlur
 {
-	public class Function : IFunction
+	public class Function : AbstractFunction
 	{
-		public void Main()
-		{
-			using (var img = Image.Load(InImage))
-			{
-				img.Mutate(Process);
-				Helpers.SaveAsPng(OutImage,img);
-			}
-		}
-
-		public Rectangle Rect { get; set; }
-
-		public bool ParseArgs(string[] args)
+		public override bool ParseArgs(string[] args)
 		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
@@ -79,7 +69,7 @@ namespace ImageFunctions.ZoomBlur
 			return true;
 		}
 
-		public void Usage(StringBuilder sb)
+		public override void Usage(StringBuilder sb)
 		{
 			string name = Helpers.FunctionName(Action.ZoomBlur);
 			sb.AppendLine();
@@ -90,7 +80,7 @@ namespace ImageFunctions.ZoomBlur
 			sb.AppendLine(" -cp (number)[%] (number)[%]  Coordinates of zoom center by proportion (default 50% 50%)");
 		}
 
-		void Process(IImageProcessingContext<Rgba32> ctx)
+		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.ZoomAmount = ZoomAmount;
@@ -104,8 +94,6 @@ namespace ImageFunctions.ZoomBlur
 
 		}
 
-		string InImage = null;
-		string OutImage = null;
 		Point? CenterPx = null;
 		PointF? CenterRt = null;
 		double ZoomAmount = 1.1;

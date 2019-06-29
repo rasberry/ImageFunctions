@@ -33,6 +33,15 @@ namespace ImageFunctions
 			image.Save(fileName,encoder);
 		}
 
+		public static void SetMaxDegreeOfParallelism<TPixel>(this Image<TPixel> image,int? max)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			if (max.HasValue) {
+				var config = image.GetConfiguration();
+				config.MaxDegreeOfParallelism = max.Value;
+			}
+		}
+
 		public static bool ParseNumberPercent(string num, out double val)
 		{
 			val = 0.0;

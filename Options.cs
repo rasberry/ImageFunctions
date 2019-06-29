@@ -15,6 +15,7 @@ namespace ImageFunctions
 			sb.AppendLine(" (action) -h                 Action specific help");
 			sb.AppendLine(" --actions                   List possible actions");
 			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
+			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
 
 			if (ShowHelpActions) {
 				sb.AppendLine().AppendLine("Actions:");
@@ -71,16 +72,27 @@ namespace ImageFunctions
 							return false;
 						}
 						switch(p) {
-						case 0: Rect.X = n; break;
-						case 1: Rect.Y = n; break;
-						case 2: Rect.Width = n; break;
-						case 3: Rect.Height = n; break;
+						case 0: _Rect.X = n; break;
+						case 1: _Rect.Y = n; break;
+						case 2: _Rect.Width = n; break;
+						case 3: _Rect.Height = n; break;
 						}
 					}
 					// Log.Debug("rect = ["+Rect.X+","+Rect.Y+","+Rect.Width+","+Rect.Height+"]");
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
+				}
+				else if (curr == "--max-threads" && ++a < len) {
+					if (!int.TryParse(args[a],out int num)) {
+						Log.Error("Could not parse "+args[a]);
+						return false;
+					}
+					if (num < 1) {
+						Log.Error("max-threads must be greater than zero");
+						return false;
+					}
+					MaxDegreeOfParallelism = num;
 				}
 				else if (Which == Action.None) {
 					Action which;
@@ -110,10 +122,12 @@ namespace ImageFunctions
 		}
 
 		public static Action Which { get; private set; } = Action.None;
-		public static Rectangle Rect = Rectangle.Empty;
+		public static Rectangle Rect { get { return _Rect; }}
+		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;
+		static Rectangle _Rect = Rectangle.Empty;
 	}
 }

@@ -16,6 +16,7 @@ namespace ImageFunctions
 			}
 			IFunction func = Registry.Map(Options.Which);
 			func.Rect = Options.Rect;
+			func.MaxDegreeOfParallelism = Options.MaxDegreeOfParallelism;
 			if (!func.ParseArgs(pruned)) {
 				return;
 			}

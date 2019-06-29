@@ -21,6 +21,7 @@ namespace ImageFunctions
 		void Usage(StringBuilder sb);
 		bool ParseArgs(string[] args);
 		Rectangle Rect { get; set; }
+		int? MaxDegreeOfParallelism { get; set; }
 		void Main();
 	}
 }

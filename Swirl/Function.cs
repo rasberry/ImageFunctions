@@ -8,20 +8,9 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.Swirl
 {
-	public class Function : IFunction
+	public class Function : AbstractFunction
 	{
-		public void Main()
-		{
-			using (var img = Image.Load(InImage))
-			{
-				img.Mutate(Process);
-				Helpers.SaveAsPng(OutImage,img);
-			}
-		}
-
-		public Rectangle Rect { get; set; }
-
-		public bool ParseArgs(string[] args)
+		public override bool ParseArgs(string[] args)
 		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
@@ -101,7 +90,7 @@ namespace ImageFunctions.Swirl
 			return true;
 		}
 
-		public void Usage(StringBuilder sb)
+		public override void Usage(StringBuilder sb)
 		{
 			string name = Helpers.FunctionName(Action.Swirl);
 			sb.AppendLine();
@@ -115,7 +104,7 @@ namespace ImageFunctions.Swirl
 			sb.AppendLine(" -ccw                        Rotate Counter-clockwise. (default is clockwise)");
 		}
 
-		void Process(IImageProcessingContext<Rgba32> ctx)
+		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.CenterPx = CenterPx;
@@ -133,8 +122,6 @@ namespace ImageFunctions.Swirl
 
 		}
 
-		string InImage = null;
-		string OutImage = null;
 		Point? CenterPx = null;
 		PointF? CenterPp = null;
 		int? RadiusPx = null;
