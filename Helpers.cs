@@ -222,22 +222,60 @@ namespace ImageFunctions
 		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
 			where TPixel : struct, IPixel<TPixel>
 		{
-			if (sampler == null) {
+			if (false && sampler == null) {
 				TPixel pixn = img.GetPixelSafe((int)locX,(int)locY);
 				//Log.Debug("pix = "+pixn);
 				return pixn;
 			}
+			else {
+				TPixel pixc = SampleComplex(img,locX,locY,sampler);
+				return pixc;
+			}
+		}
 
+		static TPixel SampleComplex2<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			double pxf = locX.Fractional();
+			double pyf = locY.Fractional();
+
+			//pick and sample the 4 pixels;
+			Rgba32 p0,p1,p2,p3;
+			FillQuadrantColors(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
+
+			double dx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
+			double dy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
+			double Rf = CalcSample(p0.R, p1.R, p2.R, p3.R, dx, dy);
+			double Gf = CalcSample(p0.G, p1.G, p2.G, p3.G, dx, dy);
+			double Bf = CalcSample(p0.B, p1.B, p2.B, p3.B, dx, dy);
+			double Af = CalcSample(p0.A, p1.A, p2.A, p3.A, dx, dy);
+
+			//byte gg = (byte)((dx + dy)/2.0 * 255.0);
+			//var color = new Rgba32(gg,gg,gg,255);
+			var color = new Rgba32((byte)Rf,(byte)Gf,(byte)Bf,(byte)Af);
+			TPixel pixi = color.FromColor<TPixel>();
+			//Log.Debug("pix = "+pixi);
+			return pixi;
+
+			//TODO implement triangle sampler
+
+		}
+
+		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
+			where TPixel : struct, IPixel<TPixel>
+		{
 			double m = sampler.Radius / 0.5; //stretch length 0.5 to Radius
 			double pxf = locX.Fractional();
 			double pyf = locY.Fractional();
-			double fx = 0.5 - pxf;
-			double fy = 0.5 - pyf;
+			
+			//mirror as necessary around center
+			double fx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
+			double fy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
 
 			//dx, dy are distance from center values - "how much of the other pixel do you want?"
 			//dx, dy are valued as:
 			//  1.0 = 100% original pixel
-			//  0.0 = 50%/50% original / other pixel
+			//  0.0 = 100% other pixel
 			//sampler is scaled:
 			//  0.0 = closest to wanted value - returns 1.0
 			//  1.0 = farthest from wanted value - return 0.0
@@ -264,24 +302,18 @@ namespace ImageFunctions
 
 		static double CalcSample(byte v0,byte v1,byte v2,byte v3,double dx, double dy)
 		{
-			//Helpers.Assert(dx >= 0.0 && dx <= 1.0,"dx is wrong "+dx);
-			//Helpers.Assert(dy >= 0.0 && dy <= 1.0,"dx is wrong "+dy);
-			//return dy * 255.0;
-			//return (double)v2;
 			//four corner values
-			double b0 = (double)v0; //(double)v0 + v1 + v2 + v3 / 4.0;
-			double b1 = (double)v1; //(double)v1 + v2 / 2.0;
-			double b2 = (double)v2; //(double)v2;
-			double b3 = (double)v3; //(double)v3 + v2 / 2.0;
+			double b0 = (double)v0;
+			double b1 = (double)v1;
+			double b2 = (double)v2;
+			double b3 = (double)v3;
 
 			//interpolation calc
-			double x0 = (b0 * (1.0 - dx)) + (b1 * dx);
-			double x1 = (b3 * (1.0 - dx)) + b2 * dx;
-			double yf = (x0 * (1.0 - dy)) + (x1 * dy);
-			//double x0 = b0 * (dx) + b1 * (1.0 - dx);
-			//double x1 = b3 * (dx); // + b2 * dx;
-			//double yf = x0 * (1.0 - dy) + x1 * dy;
-			return Math.Clamp(yf,0.0,255.0);
+			double h0 = (b0 * (1.0 - dx)) + (b1 * dx);
+			double h1 = (b3 * (1.0 - dx)) + (b2 * dx);
+			double vf = (h0 * (1.0 - dy)) + (h1 * dy);
+
+			return Math.Clamp(vf,0.0,255.0);
 		}
 
 		static void FillQuadrantColors<TPixel>(
@@ -289,30 +321,32 @@ namespace ImageFunctions
 			out Rgba32 q0, out Rgba32 q1, out Rgba32 q2, out Rgba32 q3)
 			where TPixel : struct, IPixel<TPixel>
 		{
+			int cx = (int)px;
+			int cy = (int)py;
 			int px0,py0,px1,py1,px2,py2,px3,py3;
 			if (!xIsPos && !yIsPos) {
-				px0 = (int)(px - 1.0); py0 = (int)(py - 1.0);
-				px1 = (int)(px + 0.0); py1 = (int)(py - 1.0);
-				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
-				px3 = (int)(px - 1.0); py3 = (int)(py + 0.0);
+				px0 = cx - 1; py0 = cy - 1;
+				px1 = cx + 0; py1 = cy - 1;
+				px2 = cx + 0; py2 = cy + 0;
+				px3 = cx - 1; py3 = cy + 0;
 			}
 			else if (xIsPos && !yIsPos) {
-				px1 = (int)(px + 0.0); py1 = (int)(py - 1.0);
-				px0 = (int)(px + 1.0); py0 = (int)(py - 1.0);
-				px3 = (int)(px + 1.0); py3 = (int)(py + 0.0);
-				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
+				px1 = cx + 0; py1 = cy - 1;
+				px0 = cx + 1; py0 = cy - 1;
+				px3 = cx + 1; py3 = cy + 0;
+				px2 = cx + 0; py2 = cy + 0;
 			}
 			else if (xIsPos && yIsPos) {
-				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
-				px3 = (int)(px + 1.0); py3 = (int)(py + 0.0);
-				px0 = (int)(px + 1.0); py0 = (int)(py + 1.0);
-				px1 = (int)(px + 0.0); py1 = (int)(py + 1.0);
+				px2 = cx + 0; py2 = cy + 0;
+				px3 = cx + 1; py3 = cy + 0;
+				px0 = cx + 1; py0 = cy + 1;
+				px1 = cx + 0; py1 = cy + 1;
 			}
 			else { // if (!xpos && ypos) {
-				px3 = (int)(px - 1.0); py3 = (int)(py + 0.0);
-				px2 = (int)(px + 0.0); py2 = (int)(py + 0.0);
-				px1 = (int)(px + 0.0); py1 = (int)(py + 1.0);
-				px0 = (int)(px - 1.0); py0 = (int)(py + 1.0);
+				px3 = cx - 1; py3 = cy + 0;
+				px2 = cx + 0; py2 = cy + 0;
+				px1 = cx + 0; py1 = cy + 1;
+				px0 = cx - 1; py0 = cy + 1;
 			}
 
 			//had to mirror the p(n) order around the x,y axes so that this part
