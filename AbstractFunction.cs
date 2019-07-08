@@ -15,7 +15,7 @@ namespace ImageFunctions
 			{
 				img.SetMaxDegreeOfParallelism(MaxDegreeOfParallelism);
 				img.Mutate(Process);
-				Helpers.SaveAsPng(OutImage,img);
+				ImageHelpers.SaveAsPng(OutImage,img);
 			}
 		}
 

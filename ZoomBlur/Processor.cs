@@ -59,7 +59,7 @@ namespace ImageFunctions.ZoomBlur
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				TPixel c = Helpers.Sample(frame,px,py,Sampler);
+				TPixel c = ImageHelpers.Sample(frame,px,py,Sampler);
 
 				//int ipx = (int)Math.Round(px, 0);
 				//int ipy = (int)Math.Round(py, 0);

@@ -39,14 +39,14 @@ namespace ImageFunctions.Derivatives
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.Derivatives);
+			string name = OptionsHelpers.FunctionName(Action.Derivatives);
 			sb.AppendLine();
 			sb.AppendLine(name+" [options] (input image) [output image]");
 			sb.AppendLine(" Computes the color change rate - similar to edge detection");

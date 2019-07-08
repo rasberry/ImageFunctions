@@ -37,7 +37,7 @@ namespace ImageFunctions.Derivatives
 					var color = DoDiff(c,n,e,s,w,UseABS);
 					var qi = new QueueItem {
 						X = x, Y = y,
-						Color = DoGrayscale ? Helpers.ToGrayScale(color) : color
+						Color = DoGrayscale ? ImageHelpers.ToGrayScale(color) : color
 					};
 
 					if (queue.Count >= qLength) {

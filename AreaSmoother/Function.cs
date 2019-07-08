@@ -27,8 +27,8 @@ namespace ImageFunctions.AreaSmoother
 						return false;
 					}
 				}
-				else if (Options.HasSamplerArg(args,ref a)) {
-					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
 					Sampler = sampler;
@@ -50,14 +50,14 @@ namespace ImageFunctions.AreaSmoother
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.AreaSmoother);
+			string name = OptionsHelpers.FunctionName(Action.AreaSmoother);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends adjacent areas of flat color together by sampling the nearest two colors to the area");

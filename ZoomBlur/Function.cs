@@ -40,16 +40,16 @@ namespace ImageFunctions.ZoomBlur
 					CenterPx = new Point(px,py);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
-					if (!Helpers.ParseNumberPercent(args[a-1], out double px)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a-1], out double px)) {
 						return false;
 					}
-					if (!Helpers.ParseNumberPercent(args[a], out double py)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a], out double py)) {
 						return false;
 					}
 					CenterRt = new PointF((float)px,(float)py);
 				}
-				else if (Options.HasSamplerArg(args,ref a)) {
-					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
 					Sampler = sampler;
@@ -71,14 +71,14 @@ namespace ImageFunctions.ZoomBlur
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.ZoomBlur);
+			string name = OptionsHelpers.FunctionName(Action.ZoomBlur);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends rays of pixels to produce a 'zoom' effect");

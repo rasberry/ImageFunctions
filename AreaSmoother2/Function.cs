@@ -39,14 +39,14 @@ namespace ImageFunctions.AreaSmoother2
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.AreaSmoother2);
+			string name = OptionsHelpers.FunctionName(Action.AreaSmoother2);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends adjacent areas of flat color together by blending horizontal and vertical gradients");

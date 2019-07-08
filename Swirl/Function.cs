@@ -29,11 +29,11 @@ namespace ImageFunctions.Swirl
 					CenterPx = new Point(cx,cy);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
-					if (!Helpers.ParseNumberPercent(args[a-1],out double ppx)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a-1],out double ppx)) {
 						Log.Error("Could not parse "+args[a-1]);
 						return false;
 					}
-					if (!Helpers.ParseNumberPercent(args[a],out double ppy)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a],out double ppy)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
@@ -47,14 +47,14 @@ namespace ImageFunctions.Swirl
 					RadiusPx = val;
 				}
 				else if (curr == "-rp" && ++a < len) {
-					if (!Helpers.ParseNumberPercent(args[a],out double val)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a],out double val)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
 					RadiusPp = val;
 				}
 				else if (curr == "-s" && ++a < len) {
-					if (!Helpers.ParseNumberPercent(args[a],out double val)) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a],out double val)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
@@ -63,8 +63,8 @@ namespace ImageFunctions.Swirl
 				else if (curr == "-ccw") {
 					CounterClockwise = true;
 				}
-				else if (Options.HasSamplerArg(args,ref a)) {
-					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
 					Sampler = sampler;
@@ -92,14 +92,14 @@ namespace ImageFunctions.Swirl
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.Swirl);
+			string name = OptionsHelpers.FunctionName(Action.Swirl);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Smears pixels in a circle around a point");

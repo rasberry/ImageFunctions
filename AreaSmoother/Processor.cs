@@ -124,7 +124,7 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					Rgba32 f = Helpers.Sample(lb,fx,fy,Sampler).ToColor();
+					Rgba32 f = ImageHelpers.Sample(lb,fx,fy,Sampler).ToColor();
 					//Rgba32 f = lb.GetPixelRowSpan(fy)[fx].ToColor();
 					if (f != start) {
 						c = f;

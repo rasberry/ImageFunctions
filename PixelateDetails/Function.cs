@@ -38,7 +38,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 				else if (curr == "-s" && ++a<len) {
 					string num = args[a];
-					Helpers.ParseNumberPercent(num,out double d);
+					OptionsHelpers.ParseNumberPercent(num,out double d);
 					if (d < double.Epsilon) {
 						Log.Error("invalid splitting factor \""+d+"\"");
 						return false;
@@ -47,7 +47,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 				else if (curr == "-r" && ++a<len) {
 					string num = args[a];
-					Helpers.ParseNumberPercent(num,out double d);
+					OptionsHelpers.ParseNumberPercent(num,out double d);
 					if (d < double.Epsilon) {
 						Log.Error("invalid re-split factor \""+d+"\"");
 						return false;
@@ -71,7 +71,7 @@ namespace ImageFunctions.PixelateDetails
 				return false;
 			}
 			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = Helpers.CreateOutputFileName(InImage);
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 
 			return true;
@@ -79,7 +79,7 @@ namespace ImageFunctions.PixelateDetails
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = Helpers.FunctionName(Action.PixelateDetails);
+			string name = OptionsHelpers.FunctionName(Action.PixelateDetails);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Creates areas of flat color by recusively splitting high detail chunks");
