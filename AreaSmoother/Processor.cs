@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.AreaSmoother
 {
@@ -12,6 +13,7 @@ namespace ImageFunctions.AreaSmoother
 		where TPixel : struct, IPixel<TPixel>
 	{
 		public int TotalTries = 7;
+		public IResampler Sampler = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -31,7 +33,9 @@ namespace ImageFunctions.AreaSmoother
 
 		TPixel SmoothPixel(ImageFrame<TPixel> frame,int px, int py)
 		{
-			Rgba32 start = frame.GetPixelRowSpan(py)[px].ToColor();
+			TPixel tpstart = frame.GetPixelRowSpan(py)[px];
+			Rgba32 start = tpstart.ToColor();
+			
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
 			double bestlen = double.MaxValue;
 			double bestang = double.NaN;
@@ -48,11 +52,8 @@ namespace ImageFunctions.AreaSmoother
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)
 				{
-					Rgba32 fc;
-					Rgba32 bc;
-
-					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out fc);
-					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out bc);
+					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out Rgba32 fc);
+					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out Rgba32 bc);
 
 					double len = Dist(fp.X,fp.Y,bp.X,bp.Y);
 
@@ -106,7 +107,7 @@ namespace ImageFunctions.AreaSmoother
 			// return Sqrt((double)dx*dx + (double)dy*dy);
 		}
 
-		static Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, Rgba32 start, out Rgba32 c)
+		Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, Rgba32 start, out Rgba32 c)
 		{
 			double r=1;
 			c = start;
@@ -117,13 +118,14 @@ namespace ImageFunctions.AreaSmoother
 			int maxy = lb.Height -1;
 			
 			while(true) {
-				int fx = (int)(cosa * r) + px;
-				int fy = (int)(sina * r) + py;
+				double fx = (int)(cosa * r) + px;
+				double fy = (int)(sina * r) + py;
 				if (fx < 0 || fy < 0 || fx > maxx || fy > maxy) {
 					done = true;
 				}
 				if (!done) {
-					Rgba32 f = lb.GetPixelRowSpan(fy)[fx].ToColor();
+					Rgba32 f = Helpers.Sample(lb,fx,fy,Sampler).ToColor();
+					//Rgba32 f = lb.GetPixelRowSpan(fy)[fx].ToColor();
 					if (f != start) {
 						c = f;
 						done = true;
@@ -131,9 +133,11 @@ namespace ImageFunctions.AreaSmoother
 					}
 				}
 				if (done) {
+					int ix = (int)fx;
+					int iy = (int)fy;
 					return new Point(
-						fx < 0 ? 0 : fx > maxx ? maxx : fx
-						,fy < 0 ? 0 : fy > maxy ? maxy : fy
+						ix < 0 ? 0 : ix > maxx ? maxx : ix
+						,iy < 0 ? 0 : iy > maxy ? maxy : iy
 					);
 				}
 				r+=1;

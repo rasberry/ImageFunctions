@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions
@@ -33,14 +34,28 @@ namespace ImageFunctions
 					IFunction func = Registry.Map(a);
 					func.Usage(sb);
 				}
+				SamplerHelp(sb);
 			}
 			else if (action != Action.None)
 			{
 				IFunction func = Registry.Map(action);
 				func.Usage(sb);
+				if ((func as IHasResampler) != null) {
+					SamplerHelp(sb);
+				}
 			}
 
 			Log.Message(sb.ToString());
+		}
+
+		static void SamplerHelp(StringBuilder sb)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Available Samplers:");
+			foreach(Sampler s in Enum.GetValues(typeof(Sampler))) {
+				if (s == Sampler.None) { continue; }
+				sb.AppendLine(((int)s)+". "+s);
+			}
 		}
 
 		public static bool Parse(string[] args, out string[] prunedArgs)
@@ -119,6 +134,48 @@ namespace ImageFunctions
 
 			prunedArgs = pArgs.ToArray();
 			return true;
+		}
+
+
+		public static bool HasSamplerArg(string[] args, ref int a)
+		{
+			return args[a] == "--sampler" && ++a < args.Length;
+		}
+
+		public static bool TryParseSampler(string[] args, ref int a, out IResampler sampler)
+		{
+			sampler = null;
+			Sampler which;
+			if (!Enum.TryParse<Sampler>(args[a],true,out which)) {
+				Log.Error("unkown sampler \""+args[a]+"\"");
+				return false;
+			}
+			sampler = Registry.Map(which);
+			return true;
+		}
+
+		//TODO I think i decided against using this for now
+		public static bool ParseDelimitedValues<V>(string arg, out V[] items,char sep = ',') where V : IConvertible
+		{
+			items = null;
+			if (arg == null) { return false; }
+			
+			string[] tokens = arg.Split(sep,4); //NOTE change 4 to more if needed
+			items = new V[tokens.Length];
+	
+			for(int i=0; i<tokens.Length; i++) {
+				if (Helpers.TryParse(tokens[i],out V val)) {
+					items[i] = val;
+				} else {
+					items[i] = default(V);
+				}
+			}
+			return true;
+		}
+
+		public static void SamplerHelpLine(this System.Text.StringBuilder sb)
+		{
+			sb.AppendLine(" --sampler (name)            Use given sampler (defaults to nearest pixel)");
 		}
 
 		public static Action Which { get; private set; } = Action.None;

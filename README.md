@@ -43,15 +43,13 @@ Usage ImageFunctions (action) [options]
   * using SixLabors.ImageSharp.Color
   * for now change uses of rgba32 to Vector4 - Vector4 is float so
     it will preserve accuracy better than rgba32
-* look at paralellizing the processing functions
 * maybe color the 'usage' text a little ?
 * maybe add syntax to chain image functions together
   * possibly using '--' to seperate actions
   * need to figure out input/output file(s)
   * is there a need for multiple-in / multiple-out ?
-* look at ways to sample pixels
-  * currently using single pixel sampler
-
+* add progress bar
+* samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 
 ### AreaSmoother ###
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector

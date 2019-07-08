@@ -5,11 +5,12 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.ZoomBlur
 {
-	public class Function : AbstractFunction
+	public class Function : AbstractFunction, IHasResampler
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -47,6 +48,12 @@ namespace ImageFunctions.ZoomBlur
 					}
 					CenterRt = new PointF((float)px,(float)py);
 				}
+				else if (Options.HasSamplerArg(args,ref a)) {
+					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+						return false;
+					}
+					Sampler = sampler;
+				}
 				else if (InImage == null) {
 					InImage = curr;
 				}
@@ -75,9 +82,10 @@ namespace ImageFunctions.ZoomBlur
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends rays of pixels to produce a 'zoom' effect");
-			sb.AppendLine(" -z  (number)[%]              Zoom amount (default 1.1)");
-			sb.AppendLine(" -cc (number) (number)        Coordinates of zoom center in pixels");
-			sb.AppendLine(" -cp (number)[%] (number)[%]  Coordinates of zoom center by proportion (default 50% 50%)");
+			sb.AppendLine(" -z  (number)[%]             Zoom amount (default 1.1)");
+			sb.AppendLine(" -cc (number) (number)       Coordinates of zoom center in pixels");
+			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of zoom center by proportion (default 50% 50%)");
+			sb.SamplerHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
@@ -86,6 +94,7 @@ namespace ImageFunctions.ZoomBlur
 			proc.ZoomAmount = ZoomAmount;
 			proc.CenterPx = CenterPx;
 			proc.CenterRt = CenterRt;
+			proc.Sampler = Sampler;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -94,6 +103,7 @@ namespace ImageFunctions.ZoomBlur
 
 		}
 
+		public IResampler Sampler { get; set; } = null;
 		Point? CenterPx = null;
 		PointF? CenterRt = null;
 		double ZoomAmount = 1.1;

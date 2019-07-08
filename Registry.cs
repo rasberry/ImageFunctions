@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions
 {
@@ -17,6 +18,30 @@ namespace ImageFunctions
 			case Action.AreaSmoother2: return new AreaSmoother2.Function();
 			case Action.ZoomBlur: return new ZoomBlur.Function();
 			case Action.Swirl: return new Swirl.Function();
+			}
+		}
+
+		public static IResampler Map(Sampler sampler)
+		{
+			switch(sampler)
+			{
+			default:
+			case Sampler.None: return null;
+			case Sampler.Bicubic: return new BicubicResampler();
+			case Sampler.Box: return new BoxResampler();
+			case Sampler.CatmullRom: return new CatmullRomResampler();
+			case Sampler.Hermite: return new HermiteResampler();
+			case Sampler.Lanczos2: return new Lanczos2Resampler();
+			case Sampler.Lanczos3: return new Lanczos3Resampler();
+			case Sampler.Lanczos5: return new Lanczos5Resampler();
+			case Sampler.Lanczos8: return new Lanczos8Resampler();
+			case Sampler.MitchellNetravali: return new MitchellNetravaliResampler();
+			case Sampler.NearestNeighbor: return new NearestNeighborResampler();
+			case Sampler.Robidoux: return new RobidouxResampler();
+			case Sampler.RobidouxSharp: return new RobidouxSharpResampler();
+			case Sampler.Spline: return new SplineResampler();
+			case Sampler.Triangle: return new TriangleResampler();
+			case Sampler.Welch: return new WelchResampler();
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions
@@ -23,5 +24,30 @@ namespace ImageFunctions
 		Rectangle Rect { get; set; }
 		int? MaxDegreeOfParallelism { get; set; }
 		void Main();
+	}
+
+	public enum Sampler
+	{
+		None = 0,
+		NearestNeighbor = 1,
+		Bicubic = 2,
+		Box = 3,
+		CatmullRom = 4,
+		Hermite = 5,
+		Lanczos2 = 6,
+		Lanczos3 = 7,
+		Lanczos5 = 8,
+		Lanczos8 = 9,
+		MitchellNetravali = 10,
+		Robidoux = 11,
+		RobidouxSharp = 12,
+		Spline = 13,
+		Triangle = 14,
+		Welch = 15
+	}
+
+	public interface IHasResampler
+	{
+		IResampler Sampler { get; set; }
 	}
 }

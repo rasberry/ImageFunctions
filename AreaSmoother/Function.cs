@@ -4,11 +4,12 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.AreaSmoother
 {
-	public class Function : AbstractFunction
+	public class Function : AbstractFunction, IHasResampler
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -25,6 +26,12 @@ namespace ImageFunctions.AreaSmoother
 						Log.Error("-t number must be greater than zero");
 						return false;
 					}
+				}
+				else if (Options.HasSamplerArg(args,ref a)) {
+					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+						return false;
+					}
+					Sampler = sampler;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -55,12 +62,14 @@ namespace ImageFunctions.AreaSmoother
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
 			sb.AppendLine(" -t (number)                 Number of times to run fit function (default 7)");
+			sb.SamplerHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.TotalTries = TotalTries;
+			proc.Sampler = Sampler;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -69,6 +78,7 @@ namespace ImageFunctions.AreaSmoother
 
 		}
 
+		public IResampler Sampler { get; set; } = null;
 		int TotalTries = 7;
 	}
 }

@@ -17,8 +17,7 @@ namespace ImageFunctions.Swirl
 		public double? RadiusPp = null;
 		public double Rotations = 0.9;
 		public bool CounterClockwise = false;
-		IResampler Sampler = new NearestNeighborResampler();
-		//IResampler Sampler = new BicubicResampler();
+		public IResampler Sampler = null;
 
 		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)

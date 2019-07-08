@@ -4,11 +4,12 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.Swirl
 {
-	public class Function : AbstractFunction
+	public class Function : AbstractFunction, IHasResampler
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -62,6 +63,12 @@ namespace ImageFunctions.Swirl
 				else if (curr == "-ccw") {
 					CounterClockwise = true;
 				}
+				else if (Options.HasSamplerArg(args,ref a)) {
+					if (!Options.TryParseSampler(args,ref a,out IResampler sampler)) {
+						return false;
+					}
+					Sampler = sampler;
+				}
 				else if (InImage == null) {
 					InImage = curr;
 				}
@@ -95,13 +102,14 @@ namespace ImageFunctions.Swirl
 			string name = Helpers.FunctionName(Action.Swirl);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" TODO ");
+			sb.AppendLine(" Smears pixels in a circle around a point");
 			sb.AppendLine(" -cx (number) (number)       Swirl center X and Y coordinate in pixels");
 			sb.AppendLine(" -cp (number)[%] (number)[%] Swirl center X and Y coordinate proportionaly (default 50%,50%)");
 			sb.AppendLine(" -rx (number)                Swirl radius in pixels");
 			sb.AppendLine(" -rp (number)[%]             Swirl radius proportional to smallest image dimension (default 90%)");
 			sb.AppendLine(" -s  (number)[%]             Number of rotations (default 0.9)");
 			sb.AppendLine(" -ccw                        Rotate Counter-clockwise. (default is clockwise)");
+			sb.SamplerHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
@@ -113,6 +121,7 @@ namespace ImageFunctions.Swirl
 			proc.RadiusPp = RadiusPp;
 			proc.Rotations = Rotations;
 			proc.CounterClockwise = CounterClockwise;
+			proc.Sampler = Sampler;
 
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
@@ -122,6 +131,7 @@ namespace ImageFunctions.Swirl
 
 		}
 
+		public IResampler Sampler { get; set; } = null;
 		Point? CenterPx = null;
 		PointF? CenterPp = null;
 		int? RadiusPx = null;

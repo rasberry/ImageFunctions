@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.ZoomBlur
 {
@@ -14,6 +15,7 @@ namespace ImageFunctions.ZoomBlur
 		public double ZoomAmount = 1.1;
 		public Point? CenterPx = null;
 		public PointF? CenterRt = null;
+		public IResampler Sampler = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -48,7 +50,7 @@ namespace ImageFunctions.ZoomBlur
 			double dist = Math.Sqrt((y - cy) * (y - cy) + (x - cx) * (x - cx));
 			int idist = (int)Math.Ceiling(dist);
 
-			List<Rgba32> vector = new List<Rgba32>(idist);
+			List<TPixel> vector = new List<TPixel>(idist);
 			double ang = Math.Atan2(y - cy, x - cx);
 			double sd = dist;
 			double ed = dist * ZoomAmount;
@@ -57,35 +59,39 @@ namespace ImageFunctions.ZoomBlur
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				int ipx = (int)Math.Round(px, 0);
-				int ipy = (int)Math.Round(py, 0);
-				Rgba32 c = GetExtendedPixel(frame,ipx,ipy);
-				//Rgba32 c = GetAliasedColor(frame, ipx, ipy);
+				TPixel c = Helpers.Sample(frame,px,py,Sampler);
+
+				//int ipx = (int)Math.Round(px, 0);
+				//int ipy = (int)Math.Round(py, 0);
+				//Rgba32 c = GetExtendedPixel(frame,ipx,ipy);
+				////Rgba32 c = GetAliasedColor(frame, ipx, ipy);
 				vector.Add(c);
 			}
 
-			Rgba32 avg;
+			TPixel avg;
 			int count = vector.Count;
 			if (count < 2)
 			{
-				avg = frame.GetPixelRowSpan((int)y)[(int)x].ToColor();
+				avg = frame.GetPixelRowSpan((int)y)[(int)x];
 			}
 			else
 			{
 				int cr = 0, cg = 0, cb = 0, ca = 0;
-				foreach (Rgba32 c in vector)
+				foreach (TPixel tpc in vector)
 				{
+					Rgba32 c = tpc.ToColor();
 					cr += c.R; cg += c.G; cb += c.B;
 					ca += c.A;
 				}
-				avg = new Rgba32(
+				Rgba32 rgbaAvg = new Rgba32(
 					(byte)(cr / count),
 					(byte)(cg / count),
 					(byte)(cb / count),
 					(byte)(ca / count)
 				);
+				avg = rgbaAvg.FromColor<TPixel>();
 			}
-			return avg.FromColor<TPixel>();
+			return avg;
 		}
 
 		static Rgba32 GetAliasedColor(ImageFrame<TPixel> lb, int x, int y)

@@ -71,24 +71,6 @@ namespace ImageFunctions
 			return true;
 		}
 
-		public static bool ParseDelimitedValues<V>(string arg, out V[] items,char sep = ',') where V : IConvertible
-		{
-			items = null;
-			if (arg == null) { return false; }
-			
-			string[] tokens = arg.Split(sep,4); //NOTE change 4 to more if needed
-			items = new V[tokens.Length];
-	
-			for(int i=0; i<tokens.Length; i++) {
-				if (Helpers.TryParse(tokens[i],out V val)) {
-					items[i] = val;
-				} else {
-					items[i] = default(V);
-				}
-			}
-			return true;
-		}
-
 		public static int IntCeil(int num, int den)
 		{
 			int floor = num / den;
@@ -222,43 +204,14 @@ namespace ImageFunctions
 		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
 			where TPixel : struct, IPixel<TPixel>
 		{
-			if (false && sampler == null) {
+			if (sampler == null) {
 				TPixel pixn = img.GetPixelSafe((int)locX,(int)locY);
-				//Log.Debug("pix = "+pixn);
 				return pixn;
 			}
 			else {
 				TPixel pixc = SampleComplex(img,locX,locY,sampler);
 				return pixc;
 			}
-		}
-
-		static TPixel SampleComplex2<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			double pxf = locX.Fractional();
-			double pyf = locY.Fractional();
-
-			//pick and sample the 4 pixels;
-			Rgba32 p0,p1,p2,p3;
-			FillQuadrantColors(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
-
-			double dx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
-			double dy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
-			double Rf = CalcSample(p0.R, p1.R, p2.R, p3.R, dx, dy);
-			double Gf = CalcSample(p0.G, p1.G, p2.G, p3.G, dx, dy);
-			double Bf = CalcSample(p0.B, p1.B, p2.B, p3.B, dx, dy);
-			double Af = CalcSample(p0.A, p1.A, p2.A, p3.A, dx, dy);
-
-			//byte gg = (byte)((dx + dy)/2.0 * 255.0);
-			//var color = new Rgba32(gg,gg,gg,255);
-			var color = new Rgba32((byte)Rf,(byte)Gf,(byte)Bf,(byte)Af);
-			TPixel pixi = color.FromColor<TPixel>();
-			//Log.Debug("pix = "+pixi);
-			return pixi;
-
-			//TODO implement triangle sampler
-
 		}
 
 		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
@@ -272,6 +225,10 @@ namespace ImageFunctions
 			double fx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
 			double fy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
 
+			//byte moff = (byte)Math.Clamp(255.0 * (fx + fy) / 2.0,0.0,255.0);
+			//var mcolor = new Rgba32(moff,moff,moff,255);
+			//return mcolor.FromColor<TPixel>();
+
 			//dx, dy are distance from center values - "how much of the other pixel do you want?"
 			//dx, dy are valued as:
 			//  1.0 = 100% original pixel
@@ -284,7 +241,7 @@ namespace ImageFunctions
 			float dx = sampler.GetValue((float)sx);
 			float dy = sampler.GetValue((float)sy);
 			//Log.Debug("sx="+sx+" dx="+dx+" sy="+sy+" dy="+dy);
-
+			
 			//pick and sample the 4 pixels;
 			Rgba32 p0,p1,p2,p3;
 			FillQuadrantColors(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
@@ -292,7 +249,7 @@ namespace ImageFunctions
 			double Rf = CalcSample(p0.R, p1.R, p2.R, p3.R, dx, dy);
 			double Gf = CalcSample(p0.G, p1.G, p2.G, p3.G, dx, dy);
 			double Bf = CalcSample(p0.B, p1.B, p2.B, p3.B, dx, dy);
-			double Af = 255.0; //CalcSample(p0.A, p1.A, p2.A, p3.A, dx, dy);
+			double Af = CalcSample(p0.A, p1.A, p2.A, p3.A, dx, dy);
 
 			var color = new Rgba32((byte)Rf,(byte)Gf,(byte)Bf,(byte)Af);
 			TPixel pixi = color.FromColor<TPixel>();
