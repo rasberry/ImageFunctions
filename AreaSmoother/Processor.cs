@@ -14,9 +14,13 @@ namespace ImageFunctions.AreaSmoother
 	{
 		public int TotalTries = 7;
 		public IResampler Sampler = null;
+		public MetricFunction Measurer = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			if (Measurer == null) {
+				Measurer = Helpers.DistanceEuclidean;
+			}
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
@@ -55,7 +59,7 @@ namespace ImageFunctions.AreaSmoother
 					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out Rgba32 fc);
 					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out Rgba32 bc);
 
-					double len = Dist(fp.X,fp.Y,bp.X,bp.Y);
+					double len = Measurer(fp.X,fp.Y,bp.X,bp.Y);
 
 					if (len < bestlen) {
 						bestang = a;
@@ -64,7 +68,7 @@ namespace ImageFunctions.AreaSmoother
 						bestbc = Between(bc,start,0.5);
 						bestfpx = fp;
 						bestbpx = bp;
-						double flen = Dist(px,py,fp.X,fp.Y);
+						double flen = Measurer(px,py,fp.X,fp.Y);
 						bestratio = flen/len;
 						//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 					}
@@ -97,14 +101,6 @@ namespace ImageFunctions.AreaSmoother
 			var btw = new Rgba32(nr,ng,nb,na);
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw;
-		}
-
-		static double Dist(int x1,int y1,int x2,int y2)
-		{
-			int dx = x2 - x1;
-			int dy = y2 - y1;
-			return Math.Sqrt((double)dx*dx + (double)dy*dy);
-			// return Sqrt((double)dx*dx + (double)dy*dy);
 		}
 
 		Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, Rgba32 start, out Rgba32 c)

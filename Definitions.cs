@@ -50,4 +50,23 @@ namespace ImageFunctions
 	{
 		IResampler Sampler { get; set; }
 	}
+
+
+	public enum Metric
+	{
+		None = 0,
+		Manhattan = 1,
+		Euclidean = 2,
+		Chebyshev = 3,
+		ChebyshevInv = 4,
+		Minkowski = 5,
+		Canberra = 6
+	}
+
+	public delegate double MetricFunction(double x1, double y1, double x2, double y2);
+
+	public interface IHasDistance
+	{
+		MetricFunction Measurer { get; set; }
+	}
 }

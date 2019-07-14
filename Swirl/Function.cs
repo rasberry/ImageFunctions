@@ -9,7 +9,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.Swirl
 {
-	public class Function : AbstractFunction, IHasResampler
+	public class Function : AbstractFunction, IHasResampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -69,6 +69,12 @@ namespace ImageFunctions.Swirl
 					}
 					Sampler = sampler;
 				}
+				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out MetricFunction mf)) {
+						return false;
+					}
+					Measurer = mf;
+				}
 				else if (InImage == null) {
 					InImage = curr;
 				}
@@ -110,6 +116,7 @@ namespace ImageFunctions.Swirl
 			sb.AppendLine(" -s  (number)[%]             Number of rotations (default 0.9)");
 			sb.AppendLine(" -ccw                        Rotate Counter-clockwise. (default is clockwise)");
 			sb.SamplerHelpLine();
+			sb.MetricHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
@@ -122,6 +129,7 @@ namespace ImageFunctions.Swirl
 			proc.Rotations = Rotations;
 			proc.CounterClockwise = CounterClockwise;
 			proc.Sampler = Sampler;
+			proc.Measurer = Measurer;
 
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
@@ -132,6 +140,7 @@ namespace ImageFunctions.Swirl
 		}
 
 		public IResampler Sampler { get; set; } = null;
+		public MetricFunction Measurer { get; set; } = null;
 		Point? CenterPx = null;
 		PointF? CenterPp = null;
 		int? RadiusPx = null;

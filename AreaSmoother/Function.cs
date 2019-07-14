@@ -9,7 +9,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.AreaSmoother
 {
-	public class Function : AbstractFunction, IHasResampler
+	public class Function : AbstractFunction, IHasResampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -32,6 +32,12 @@ namespace ImageFunctions.AreaSmoother
 						return false;
 					}
 					Sampler = sampler;
+				}
+				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out MetricFunction mf)) {
+						return false;
+					}
+					Measurer = mf;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -63,6 +69,7 @@ namespace ImageFunctions.AreaSmoother
 			sb.AppendLine(" Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
 			sb.AppendLine(" -t (number)                 Number of times to run fit function (default 7)");
 			sb.SamplerHelpLine();
+			sb.MetricHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
@@ -70,6 +77,7 @@ namespace ImageFunctions.AreaSmoother
 			var proc = new Processor<Rgba32>();
 			proc.TotalTries = TotalTries;
 			proc.Sampler = Sampler;
+			proc.Measurer = Measurer;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -79,6 +87,7 @@ namespace ImageFunctions.AreaSmoother
 		}
 
 		public IResampler Sampler { get; set; } = null;
+		public MetricFunction Measurer { get; set; } = null;
 		int TotalTries = 7;
 	}
 }

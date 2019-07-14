@@ -10,7 +10,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.ZoomBlur
 {
-	public class Function : AbstractFunction, IHasResampler
+	public class Function : AbstractFunction, IHasResampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -54,6 +54,12 @@ namespace ImageFunctions.ZoomBlur
 					}
 					Sampler = sampler;
 				}
+				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out MetricFunction mf)) {
+						return false;
+					}
+					Measurer = mf;
+				}
 				else if (InImage == null) {
 					InImage = curr;
 				}
@@ -85,7 +91,10 @@ namespace ImageFunctions.ZoomBlur
 			sb.AppendLine(" -z  (number)[%]             Zoom amount (default 1.1)");
 			sb.AppendLine(" -cc (number) (number)       Coordinates of zoom center in pixels");
 			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of zoom center by proportion (default 50% 50%)");
+			sb.AppendLine(" -oh                         Only zoom horizontally");
+			sb.AppendLine(" -ov                         Only zoom vertically");
 			sb.SamplerHelpLine();
+			sb.MetricHelpLine();
 		}
 
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
@@ -95,6 +104,7 @@ namespace ImageFunctions.ZoomBlur
 			proc.CenterPx = CenterPx;
 			proc.CenterRt = CenterRt;
 			proc.Sampler = Sampler;
+			proc.Measurer = Measurer;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -104,6 +114,7 @@ namespace ImageFunctions.ZoomBlur
 		}
 
 		public IResampler Sampler { get; set; } = null;
+		public MetricFunction Measurer { get; set; } = null;
 		Point? CenterPx = null;
 		PointF? CenterRt = null;
 		double ZoomAmount = 1.1;

@@ -35,6 +35,7 @@ namespace ImageFunctions
 					func.Usage(sb);
 				}
 				SamplerHelp(sb);
+				MetricHelp(sb);
 			}
 			else if (action != Action.None)
 			{
@@ -42,6 +43,9 @@ namespace ImageFunctions
 				func.Usage(sb);
 				if ((func as IHasResampler) != null) {
 					SamplerHelp(sb);
+				}
+				if ((func as IHasDistance) != null) {
+					MetricHelp(sb);
 				}
 			}
 
@@ -55,6 +59,19 @@ namespace ImageFunctions
 			foreach(Sampler s in Enum.GetValues(typeof(Sampler))) {
 				if (s == Sampler.None) { continue; }
 				sb.AppendLine(((int)s)+". "+s);
+			}
+		}
+
+		static void MetricHelp(StringBuilder sb)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Available Metrics:");
+			foreach(Metric s in Enum.GetValues(typeof(Metric))) {
+				if (s == Metric.None) { continue; }
+				string txt = ((int)s)+". "+s+
+					(s == Metric.Minkowski ? " (p-factor)" : "")
+				;
+				sb.AppendLine(txt);
 			}
 		}
 

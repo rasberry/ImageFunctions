@@ -44,5 +44,22 @@ namespace ImageFunctions
 			case Sampler.Welch: return new WelchResampler();
 			}
 		}
+
+
+		public static MetricFunction Map(Metric m, double pFactor = 2.0)
+		{
+			switch(m)
+			{
+			default:
+			case Metric.None:         return null;
+			case Metric.Canberra:     return Helpers.DistanceCanberra;
+			case Metric.Manhattan:    return Helpers.DistanceManhattan;
+			case Metric.Euclidean:    return Helpers.DistanceEuclidean;
+			case Metric.Chebyshev:    return (x1,y1,x2,y2) => Helpers.DistanceChebyshev(x1,y1,x2,y2,false);
+			case Metric.ChebyshevInv: return (x1,y1,x2,y2) => Helpers.DistanceChebyshev(x1,y1,x2,y2,true);
+			case Metric.Minkowski:    return (x1,y1,x2,y2) => Helpers.DistanceMinkowski(x1,y1,x2,y2,pFactor);
+			}
+		}
+
 	}
 }

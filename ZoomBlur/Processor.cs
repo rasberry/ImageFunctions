@@ -16,9 +16,14 @@ namespace ImageFunctions.ZoomBlur
 		public Point? CenterPx = null;
 		public PointF? CenterRt = null;
 		public IResampler Sampler = null;
+		public MetricFunction Measurer = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			if (Measurer == null) {
+				Measurer = Helpers.DistanceEuclidean;
+			}
+
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				double w2 = rect.Width / 2.0;
@@ -47,7 +52,7 @@ namespace ImageFunctions.ZoomBlur
 
 		TPixel ZoomPixel(ImageFrame<TPixel> frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
-			double dist = Math.Sqrt((y - cy) * (y - cy) + (x - cx) * (x - cx));
+			double dist = Measurer(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
 
 			List<TPixel> vector = new List<TPixel>(idist);
@@ -60,22 +65,18 @@ namespace ImageFunctions.ZoomBlur
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
 				TPixel c = ImageHelpers.Sample(frame,px,py,Sampler);
-
-				//int ipx = (int)Math.Round(px, 0);
-				//int ipy = (int)Math.Round(py, 0);
-				//Rgba32 c = GetExtendedPixel(frame,ipx,ipy);
-				////Rgba32 c = GetAliasedColor(frame, ipx, ipy);
 				vector.Add(c);
 			}
 
 			TPixel avg;
 			int count = vector.Count;
-			if (count < 2)
-			{
-				avg = frame.GetPixelRowSpan((int)y)[(int)x];
+			if (count < 1) {
+				avg = ImageHelpers.Sample(frame,x,y,Sampler);
 			}
-			else
-			{
+			else if (count == 1) {
+				avg = vector[0];
+			}
+			else {
 				int cr = 0, cg = 0, cb = 0, ca = 0;
 				foreach (TPixel tpc in vector)
 				{
@@ -94,6 +95,7 @@ namespace ImageFunctions.ZoomBlur
 			return avg;
 		}
 
+		//TODO this is actually a regular blur function
 		static Rgba32 GetAliasedColor(ImageFrame<TPixel> lb, int x, int y)
 		{
 			Rgba32

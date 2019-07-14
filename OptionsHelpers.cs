@@ -6,6 +6,11 @@ namespace ImageFunctions
 {
 	public static class OptionsHelpers
 	{
+		public static void SamplerHelpLine(this System.Text.StringBuilder sb)
+		{
+			sb.AppendLine(" --sampler (name)            Use given sampler (defaults to nearest pixel)");
+		}
+
 		public static bool HasSamplerArg(string[] args, ref int a)
 		{
 			return args[a] == "--sampler" && ++a < args.Length;
@@ -16,10 +21,41 @@ namespace ImageFunctions
 			sampler = null;
 			Sampler which;
 			if (!Enum.TryParse<Sampler>(args[a],true,out which)) {
-				Log.Error("unkown sampler \""+args[a]+"\"");
+				Log.Error("unknown sampler \""+args[a]+"\"");
 				return false;
 			}
 			sampler = Registry.Map(which);
+			return true;
+		}
+
+		public static void MetricHelpLine(this System.Text.StringBuilder sb)
+		{
+			sb.AppendLine(" --metric (name) [args]      Use alterntive distance function");
+		}
+
+		public static bool HasMetricArg(string[] args, ref int a)
+		{
+			return args[a] == "--metric" && ++a < args.Length;
+		}
+
+		public static bool TryParseMetric(string[] args, ref int a, out MetricFunction mf)
+		{
+			mf = null;
+			Metric which;
+			if (!Enum.TryParse<Metric>(args[a],true,out which)) {
+				Log.Error("unknown metric \""+args[a]+"\"");
+				return false;
+			}
+			if (which == Metric.Minkowski && ++a < args.Length) {
+				if (!double.TryParse(args[a],out double p)) {
+					Log.Error("could not parse p-factor");
+					return false;
+				}
+				mf = Registry.Map(which,p);
+			}
+			else {
+				mf = Registry.Map(which);
+			}
 			return true;
 		}
 
@@ -44,7 +80,7 @@ namespace ImageFunctions
 
 		public static string FunctionName(Action a)
 		{
-			return ((int)a).ToString() + ". "+a.ToString();
+			return ((int)a).ToString() + ". " + a.ToString();
 		}
 
 		public static string CreateOutputFileName(string input)
@@ -53,11 +89,6 @@ namespace ImageFunctions
 			string name = Path.GetFileNameWithoutExtension(input);
 			string outFile = name+"-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".png";
 			return outFile;
-		}
-
-		public static void SamplerHelpLine(this System.Text.StringBuilder sb)
-		{
-			sb.AppendLine(" --sampler (name)            Use given sampler (defaults to nearest pixel)");
 		}
 
 		public static bool ParseNumberPercent(string num, out double val)
@@ -94,7 +125,9 @@ namespace ImageFunctions
 			case TypeCode.Int32: {
 				int.TryParse(sub,out int b);
 				val = (V)((object)b); return true;
-			}}
+			}
+			//add others as needed
+			}
 			return false;
 		}
 	}

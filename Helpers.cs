@@ -82,5 +82,56 @@ namespace ImageFunctions
 		{
 			return Math.Truncate(number);
 		}
+
+		public static double DistanceManhattan(double x1, double y1, double x2, double y2)
+		{
+			return Math.Abs(y2 - y1) + Math.Abs(x2 - x1);
+		}
+
+		public static double DistanceEuclidean(double x1, double y1, double x2, double y2)
+		{
+			double dx = x2 - x1;
+			double dy = y2 - y1;
+			return Math.Sqrt(dx * dx + dy * dy);
+		}
+
+		public static double DistanceChebyshev(double x1, double y1, double x2, double y2, bool invert = false)
+		{
+			double dx = Math.Abs(x2 - x1);
+			double dy = Math.Abs(y2 - y1);
+
+			return invert ? Math.Min(dx,dy) : Math.Max(dx,dy);
+		}
+
+		public static double DistanceCanberra(double x1, double y1, double x2, double y2)
+		{
+			double xden = x2 + x1;
+			double yden = y2 + y1;
+			//deal with singularities
+			double dx = Math.Abs(xden) < double.Epsilon ? 0.0 : (x2-x1)/xden;
+			double dy = Math.Abs(yden) < double.Epsilon ? 0.0 : (y2-y1)/yden;
+			return dx + dy;
+		}
+
+		public static double DistanceMinkowski(double x1, double y1, double x2, double y2, double p)
+		{
+			if (double.IsPositiveInfinity(p)) {
+				return DistanceChebyshev(x1,y1,x2,y2);
+			}
+			else if (double.IsNegativeInfinity(p)) {
+				return DistanceChebyshev(x1,y1,x2,y2,true);
+			}
+			else if (Math.Abs(p - 1.0) < double.Epsilon) {
+				return DistanceManhattan(x1,y1,x2,y2);
+			}
+			else if (Math.Abs(p - 2.0) < double.Epsilon) {
+				return DistanceEuclidean(x1,y1,x2,y2);
+			}
+			else {
+				double dx = Math.Abs(x2 - x1);
+				double dy = Math.Abs(y2 - y1);
+				return Math.Pow(Math.Pow(dx,p) + Math.Pow(dy,p),1/p);
+			}
+		}
 	}
 }

@@ -18,10 +18,14 @@ namespace ImageFunctions.Swirl
 		public double Rotations = 0.9;
 		public bool CounterClockwise = false;
 		public IResampler Sampler = null;
+		public MetricFunction Measurer = null;
 
 		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			if (Measurer == null) {
+				Measurer = Helpers.DistanceEuclidean;
+			}
 			double swirlRadius;
 			double swirlTwists = Rotations;
 			double swirlx, swirly;
@@ -63,8 +67,8 @@ namespace ImageFunctions.Swirl
 		{
 			double pixelx = x - swirlx;
 			double pixely = y - swirly;
-			double pixelDist = Math.Sqrt((pixelx * pixelx) + (pixely * pixely));
-
+			//double pixelDist = Math.Sqrt((pixelx * pixelx) + (pixely * pixely));
+			double pixelDist = Measurer(x,y,swirlx,swirly);
 			double swirlAmount = 1.0 - (pixelDist / swirlRadius);
 
 			if (swirlAmount > 0.0) {
