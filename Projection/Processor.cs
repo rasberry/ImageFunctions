@@ -52,11 +52,23 @@ namespace ImageFunctions.Projection
 
 			x -= ccx; y -= ccy;
 			double exp = 2.0;
+
+			#if false
 			//solve(w^q/n = w,n) : n = w^(q-1)
 			double dx = Math.Pow(Math.Abs(qw),exp - 1.0);
 			double dy = Math.Pow(Math.Abs(qh),exp - 1.0);
 			double px = Math.Sign(x) * Math.Pow(Math.Abs(x),exp) / dx;
 			double py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
+			#else 
+			//TODO scaling doesn't quite work. exp=2.0 and mx=my=1.0 works best
+			double den = Math.Pow(Math.Abs(x),exp) + Math.Pow(Math.Abs(y),exp);
+			//double mm = Math.Pow(Math.Abs(qw),exp) + Math.Pow(Math.Abs(qh),exp);
+			double mx = 1.0; //qw * qw / mm;
+			double my = 1.0; //qh * qh / mm;
+			double px = mx * den / x;
+			double py = my * den / y;
+			#endif
+
 			px += ccx; py += ccy;
 
 			return ImageHelpers.Sample(frame,px,py);
