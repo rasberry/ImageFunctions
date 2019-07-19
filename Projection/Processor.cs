@@ -12,15 +12,27 @@ namespace ImageFunctions.Projection
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
+		public Point? CenterPx = null;
+		public PointF? CenterPp = null;
+
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			var canvas = new Image<TPixel>(config,rect.Width,rect.Height);
-			double r = Math.Min(frame.Width,frame.Height);
+
+			double ccx,ccy;
+			if (CenterPx != null) {
+				ccx = CenterPx.Value.X;
+				ccy = CenterPx.Value.Y;
+			}
+			else {
+				ccx = frame.Width * (CenterPp == null ? 0.5 : CenterPp.Value.X);
+				ccy = frame.Height * (CenterPp == null ? 0.5 : CenterPp.Value.Y);
+			}
 
 			Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 				int cy = y - rect.Top;
 				int cx = x - rect.Left;
-				TPixel nc = ProjectPixel(frame,x,y,r);
+				TPixel nc = ProjectPixel(frame,x,y,ccx,ccy);
 				int coff = cy * rect.Width + cx;
 				canvas.GetPixelSpan()[coff] = nc;
 			});
@@ -33,10 +45,27 @@ namespace ImageFunctions.Projection
 			Log.Debug("ppymax = "+ppymax);
 		}
 
-		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double r)
+		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double ccx, double ccy)
 		{
-			int fw = frame.Width / 2;
-			int fh = frame.Height / 2;
+			double qw = x <= ccx ? ccx : frame.Width - ccx;
+			double qh = y <= ccy ? ccy : frame.Height - ccy;
+
+			x -= ccx; y -= ccy;
+			double exp = 2.0;
+			//solve(w^q/n = w,n) : n = w^(q-1)
+			double dx = Math.Pow(Math.Abs(qw),exp - 1.0);
+			double dy = Math.Pow(Math.Abs(qh),exp - 1.0);
+			double px = Math.Sign(x) * Math.Pow(Math.Abs(x),exp) / dx;
+			double py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
+			px += ccx; py += ccy;
+
+			return ImageHelpers.Sample(frame,px,py);
+		}
+
+		TPixel ProjectPixelB(ImageFrame<TPixel> frame,double x, double y,double ccx,double ccy)
+		{
+			double fw = frame.Width / 2;
+			double fh = frame.Height / 2;
 			x -= fw; y -= fh;
 
 			#if false

@@ -70,4 +70,11 @@ namespace ImageFunctions
 	{
 		MetricFunction Measurer { get; set; }
 	}
+
+	public enum Direction
+	{
+		None = 0,
+		N,NE,E,SE,S,SW,W,NW
+	}
+
 }

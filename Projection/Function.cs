@@ -15,6 +15,8 @@ namespace ImageFunctions.Projection
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
+			proc.CenterPp = CenterPp;
+			proc.CenterPx = CenterPx;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -29,6 +31,28 @@ namespace ImageFunctions.Projection
 			{
 				string curr = args[a];
 				if (false) {
+				}
+				if (curr == "-cx" && (a+=2) < len) {
+					if (!int.TryParse(args[a-1],out int cx)) {
+						Log.Error("Could not parse "+args[a-1]);
+						return false;
+					}
+					if (!int.TryParse(args[a],out int cy)) {
+						Log.Error("Could not parse "+args[a]);
+						return false;
+					}
+					CenterPx = new Point(cx,cy);
+				}
+				else if (curr == "-cp" && (a+=2) < len) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a-1],out double ppx)) {
+						Log.Error("Could not parse "+args[a-1]);
+						return false;
+					}
+					if (!OptionsHelpers.ParseNumberPercent(args[a],out double ppy)) {
+						Log.Error("Could not parse "+args[a]);
+						return false;
+					}
+					CenterPp = new PointF((float)ppx,(float)ppy);
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -49,6 +73,9 @@ namespace ImageFunctions.Projection
 			if (String.IsNullOrEmpty(OutImage)) {
 				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
+			if (CenterPx == null && CenterPp == null) {
+				CenterPp = new PointF(0.5f,0.5f);
+			}
 
 			return true;
 		}
@@ -59,7 +86,11 @@ namespace ImageFunctions.Projection
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" TODO");
-			//sb.AppendLine(" -p                          Use proportianally sized sections (default is square sized sections)");
+			sb.AppendLine(" -cc (number) (number)       Coordinates of center in pixels");
+			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of center by proportion (default 50% 50%)");
 		}
+
+		Point? CenterPx = null;
+		PointF? CenterPp = null;
 	}
 }
