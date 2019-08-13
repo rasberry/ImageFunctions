@@ -6,17 +6,21 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.Projection
 {
-	public class Function : AbstractFunction
+	public class Function : AbstractFunction, IHasResampler
 	{
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
 			proc.CenterPp = CenterPp;
 			proc.CenterPx = CenterPx;
+			proc.WhichMode = WhichMode;
+			proc.Power = Power;
+			proc.Sampler = Sampler;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -30,8 +34,6 @@ namespace ImageFunctions.Projection
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (false) {
-				}
 				if (curr == "-cx" && (a+=2) < len) {
 					if (!int.TryParse(args[a-1],out int cx)) {
 						Log.Error("Could not parse "+args[a-1]);
@@ -53,6 +55,27 @@ namespace ImageFunctions.Projection
 						return false;
 					}
 					CenterPp = new PointF((float)ppx,(float)ppy);
+				}
+				else if (curr == "-e" && ++a < len) {
+					if (!OptionsHelpers.TryParse(args[a],out double power)) {
+						Log.Error("Could not parse "+args[a]);
+						return false;
+					}
+					Power = power;
+				}
+				else if (curr == "-m" && ++a < len) {
+					Mode which;
+					if (!Enum.TryParse<Mode>(args[a],true,out which)) {
+						Log.Error("unkown mode \""+args[a]+"\"");
+						return false;
+					}
+					WhichMode = which;
+				}
+				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
+						return false;
+					}
+					Sampler = sampler;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -85,12 +108,28 @@ namespace ImageFunctions.Projection
 			string name = OptionsHelpers.FunctionName(Action.Projection);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" TODO");
+			sb.AppendLine(" Warps an image using a mapping function");
 			sb.AppendLine(" -cc (number) (number)       Coordinates of center in pixels");
 			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of center by proportion (default 50% 50%)");
+			sb.AppendLine(" -e (number)                 (e) Power Exponent (default 2.0)");
+			sb.AppendLine(" -m (mode)                   Choose mode (default Polynomial)");
+			sb.SamplerHelpLine();
+			sb.AppendLine();
+			sb.AppendLine(" Available Modes");
+			sb.AppendLine(" 1. Polynomial - x^e/w,y^e/h");
+			sb.AppendLine(" 2. Inverted   - TODO");
+		}
+
+		public enum Mode {
+			None = 0,
+			Polynomial = 1,
+			Inverted = 2
 		}
 
 		Point? CenterPx = null;
 		PointF? CenterPp = null;
+		double Power = 2.0;
+		Mode WhichMode = Mode.Polynomial;
+		public IResampler Sampler { get; set; } = null;
 	}
 }

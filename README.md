@@ -50,6 +50,21 @@ Usage ImageFunctions (action) [options]
   * is there a need for multiple-in / multiple-out ?
 * add progress bar
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
+* add noise functions
+  * perlin
+  * opensimplex - https://gist.github.com/digitalshadow/134a3a02b67cecd72181
+  * simplex ?
+  * maybe add random points and then draw gradients between closest ones (use trie?)
+    * might be able to do this little by little
+      1. random points in an area
+      1. add gradients
+      1. save border points for next area
+      1. repeat
+* maybe do a tree ring expanding from random cener points
+  * for each pixel
+  * find nearest starting point (trie?) - dotnet add package KdTree
+  * calculate distance to point
+  * color pixel based on distance
 
 ### AreaSmoother ###
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector

@@ -6,6 +6,7 @@ using SixLabors.Primitives;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Processing;
 using System.Collections.Generic;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.Projection
 {
@@ -14,6 +15,9 @@ namespace ImageFunctions.Projection
 	{
 		public Point? CenterPx = null;
 		public PointF? CenterPp = null;
+		public Function.Mode WhichMode = Function.Mode.Polynomial;
+		public double Power = 2.0;
+		public IResampler Sampler { get; set; } = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -32,48 +36,53 @@ namespace ImageFunctions.Projection
 			Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 				int cy = y - rect.Top;
 				int cx = x - rect.Left;
-				TPixel nc = ProjectPixel(frame,x,y,ccx,ccy);
+				TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,Power);
 				int coff = cy * rect.Width + cx;
 				canvas.GetPixelSpan()[coff] = nc;
 			});
 
 			frame.BlitImage(canvas,rect);
 
-			Log.Debug("ppxmin = "+ppxmin);
-			Log.Debug("ppxmax = "+ppxmax);
-			Log.Debug("ppymin = "+ppymin);
-			Log.Debug("ppymax = "+ppymax);
+			//Log.Debug("ppxmin = "+ppxmin);
+			//Log.Debug("ppxmax = "+ppxmax);
+			//Log.Debug("ppymin = "+ppymin);
+			//Log.Debug("ppymax = "+ppymax);
 		}
 
-		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double ccx, double ccy)
+		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double ccx, double ccy,double exp)
 		{
 			double qw = x <= ccx ? ccx : frame.Width - ccx;
 			double qh = y <= ccy ? ccy : frame.Height - ccy;
 
 			x -= ccx; y -= ccy;
-			double exp = 2.0;
+			double px = 0.0, py = 0.0;
 
-			#if false
-			//solve(w^q/n = w,n) : n = w^(q-1)
-			double dx = Math.Pow(Math.Abs(qw),exp - 1.0);
-			double dy = Math.Pow(Math.Abs(qh),exp - 1.0);
-			double px = Math.Sign(x) * Math.Pow(Math.Abs(x),exp) / dx;
-			double py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
-			#else 
-			//TODO scaling doesn't quite work. exp=2.0 and mx=my=1.0 works best
-			double den = Math.Pow(Math.Abs(x),exp) + Math.Pow(Math.Abs(y),exp);
-			//double mm = Math.Pow(Math.Abs(qw),exp) + Math.Pow(Math.Abs(qh),exp);
-			double mx = 1.0; //qw * qw / mm;
-			double my = 1.0; //qh * qh / mm;
-			double px = mx * den / x;
-			double py = my * den / y;
-			#endif
+			switch(WhichMode)
+			{
+			case Function.Mode.Polynomial: {
+				//solve(w^q/n = w,n) : n = w^(q-1)
+				double dx = Math.Pow(Math.Abs(qw),exp - 1.0);
+				double dy = Math.Pow(Math.Abs(qh),exp - 1.0);
+				px = Math.Sign(x) * Math.Pow(Math.Abs(x),exp) / dx;
+				py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
+			}; break;
+			case Function.Mode.Inverted: {
+				//TODO scaling doesn't quite work. exp=2.0 and mx=my=1.0 works best
+				double den = Math.Pow(Math.Abs(x),exp) + Math.Pow(Math.Abs(y),exp);
+				//double mm = Math.Pow(Math.Abs(qw),exp) + Math.Pow(Math.Abs(qh),exp);
+				double mx = 1.0; //qw * qw / mm;
+				double my = 1.0; //qh * qh / mm;
+				px = mx * den / x;
+				py = my * den / y;
+			}; break;
+			}
 
 			px += ccx; py += ccy;
 
-			return ImageHelpers.Sample(frame,px,py);
+			return ImageHelpers.Sample(frame,px,py,Sampler);
 		}
 
+		#if false
 		TPixel ProjectPixelB(ImageFrame<TPixel> frame,double x, double y,double ccx,double ccy)
 		{
 			double fw = frame.Width / 2;
@@ -108,11 +117,14 @@ namespace ImageFunctions.Projection
 
 			px += fw; py += fh;
 
-			return ImageHelpers.Sample(frame,px,py);
+			return ImageHelpers.Sample(frame,px,py,Sampler);
 		}
+
+
 		double ppxmin = double.MaxValue;
 		double ppxmax = double.MinValue;
 		double ppymin = double.MaxValue;
 		double ppymax = double.MinValue;
+		#endif
 	}
 }

@@ -119,12 +119,14 @@ namespace ImageFunctions
 			switch(tc)
 			{
 			case TypeCode.Double: {
-				double.TryParse(sub,out double b);
-				val = (V)((object)b); return true;
+				if (double.TryParse(sub,out double b)) {
+					val = (V)((object)b); return true;
+				} break;
 			}
 			case TypeCode.Int32: {
-				int.TryParse(sub,out int b);
-				val = (V)((object)b); return true;
+				if (int.TryParse(sub,out int b)) {
+					val = (V)((object)b); return true;
+				} break;
 			}
 			//add others as needed
 			}
