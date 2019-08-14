@@ -80,6 +80,7 @@ namespace ImageFunctions.Projection
 				double aw = Math.Pow(Math.Abs(qw),exp);
 				double ah = Math.Pow(Math.Abs(qh),exp);
 				double num = ax + ay;
+				// solve(((w^e+h^e)/w)*n=w,n);
 				double dx = (qw * qw)/(aw+ah);
 				double dy = (qh * qh)/(ah+aw);
 
