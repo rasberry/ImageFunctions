@@ -67,13 +67,24 @@ namespace ImageFunctions.Projection
 				py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
 			}; break;
 			case Function.Mode.Inverted: {
-				//TODO scaling doesn't quite work. exp=2.0 and mx=my=1.0 works best
-				double den = Math.Pow(Math.Abs(x),exp) + Math.Pow(Math.Abs(y),exp);
-				//double mm = Math.Pow(Math.Abs(qw),exp) + Math.Pow(Math.Abs(qh),exp);
-				double mx = 1.0; //qw * qw / mm;
-				double my = 1.0; //qh * qh / mm;
-				px = mx * den / x;
-				py = my * den / y;
+				////TODO scaling doesn't quite work. exp=2.0 and mx=my=1.0 works best
+				//double num = Math.Pow(Math.Abs(x),exp) + Math.Pow(Math.Abs(y),exp);
+				////double mm = Math.Pow(Math.Abs(qw),exp) + Math.Pow(Math.Abs(qh),exp);
+				//double mx = 1.0; //qw * qw / mm;
+				//double my = 1.0; //qh * qh / mm;
+				//px = mx * num / x;
+				//py = my * num / y;
+
+				double ax = Math.Pow(Math.Abs(x),exp);
+				double ay = Math.Pow(Math.Abs(y),exp);
+				double aw = Math.Pow(Math.Abs(qw),exp);
+				double ah = Math.Pow(Math.Abs(qh),exp);
+				double num = ax + ay;
+				double dx = (qw * qw)/(aw+ah);
+				double dy = (qh * qh)/(ah+aw);
+
+				px = num / x * dx;
+				py = num / y * dy;
 			}; break;
 			}
 
