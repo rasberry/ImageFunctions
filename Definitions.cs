@@ -15,7 +15,7 @@ namespace ImageFunctions
 		AreaSmoother2 = 4,
 		ZoomBlur = 5,
 		Swirl = 6,
-		Projection = 7
+		Deform = 7
 	}
 
 	public interface IFunction

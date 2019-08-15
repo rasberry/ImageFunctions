@@ -8,7 +8,7 @@ using SixLabors.ImageSharp.Processing;
 using System.Collections.Generic;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
-namespace ImageFunctions.Projection
+namespace ImageFunctions.Deform
 {
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>

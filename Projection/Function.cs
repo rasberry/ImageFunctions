@@ -9,7 +9,7 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
-namespace ImageFunctions.Projection
+namespace ImageFunctions.Deform
 {
 	public class Function : AbstractFunction, IHasResampler
 	{
@@ -105,7 +105,7 @@ namespace ImageFunctions.Projection
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.Projection);
+			string name = OptionsHelpers.FunctionName(Action.Deform);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Warps an image using a mapping function");
