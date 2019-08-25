@@ -20,7 +20,7 @@ namespace ImageFunctions
 		{
 			sampler = null;
 			Sampler which;
-			if (!Enum.TryParse<Sampler>(args[a],true,out which)) {
+			if (!OptionsHelpers.TryParse<Sampler>(args[a],out which)) {
 				Log.Error("unknown sampler \""+args[a]+"\"");
 				return false;
 			}
@@ -42,7 +42,7 @@ namespace ImageFunctions
 		{
 			mf = null;
 			Metric which;
-			if (!Enum.TryParse<Metric>(args[a],true,out which)) {
+			if (!OptionsHelpers.TryParse<Metric>(args[a],out which)) {
 				Log.Error("unknown metric \""+args[a]+"\"");
 				return false;
 			}
@@ -116,6 +116,16 @@ namespace ImageFunctions
 		{
 			val = default(V);
 			TypeCode tc = val.GetTypeCode();
+			Type t = typeof(V);
+
+			if (t.IsEnum) {
+				if (Enum.TryParse(t,sub,true,out object o)) {
+					val = (V)o;
+					return Enum.IsDefined(t,o);
+				}
+				return false;
+			}
+
 			switch(tc)
 			{
 			case TypeCode.Double: {

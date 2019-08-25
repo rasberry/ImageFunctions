@@ -49,17 +49,19 @@ namespace ImageFunctions.Swirl
 				swirly = rect.Height * py + rect.Top;
 			}
 
-			var canvas = new Image<TPixel>(config,rect.Width,rect.Height);
+			using (var progress = new ProgressBar())
+			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			{
+				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+					int cy = y - rect.Top;
+					int cx = x - rect.Left;
+					TPixel nc = SwirlPixel(frame,x,y,swirlx,swirly,swirlRadius,swirlTwists);
+					int coff = cy * rect.Width + cx;
+					canvas.GetPixelSpan()[coff] = nc;
+				},progress);
 
-			Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
-				int cy = y - rect.Top;
-				int cx = x - rect.Left;
-				TPixel nc = SwirlPixel(frame,x,y,swirlx,swirly,swirlRadius,swirlTwists);
-				int coff = cy * rect.Width + cx;
-				canvas.GetPixelSpan()[coff] = nc;
-			});
-
-			frame.BlitImage(canvas,rect);
+				frame.BlitImage(canvas,rect);
+			}
 		}
 
 		TPixel SwirlPixel(ImageFrame<TPixel> frame,

@@ -24,6 +24,7 @@ namespace ImageFunctions.ZoomBlur
 				Measurer = Helpers.DistanceEuclidean;
 			}
 
+			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				double w2 = rect.Width / 2.0;
@@ -44,7 +45,7 @@ namespace ImageFunctions.ZoomBlur
 					int cx = x - rect.Left;
 					int coff = cy * rect.Width + cx;
 					canvas.GetPixelSpan()[coff] = nc;
-				});
+				},progress);
 
 				frame.BlitImage(canvas,rect);
 			}

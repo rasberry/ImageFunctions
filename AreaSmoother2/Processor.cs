@@ -15,6 +15,7 @@ namespace ImageFunctions.AreaSmoother2
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				if (!VOnly) {
@@ -24,7 +25,7 @@ namespace ImageFunctions.AreaSmoother2
 							if (visited.Contains(x)) { continue; }
 							DrawGradientH(visited,frame,canvas,rect,x,y);
 						}
-					});
+					},progress);
 				}
 
 				if (!HOnly) {
@@ -34,7 +35,7 @@ namespace ImageFunctions.AreaSmoother2
 							if (visited.Contains(y)) { continue; }
 							DrawGradientV(visited,frame,canvas,rect,x,y,!VOnly);
 						}
-					});
+					},progress);
 				}
 
 				frame.BlitImage(canvas,rect);

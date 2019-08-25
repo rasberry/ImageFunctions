@@ -65,7 +65,7 @@ namespace ImageFunctions.Deform
 				}
 				else if (curr == "-m" && ++a < len) {
 					Mode which;
-					if (!Enum.TryParse<Mode>(args[a],true,out which)) {
+					if (!OptionsHelpers.TryParse<Mode>(args[a],out which)) {
 						Log.Error("unkown mode \""+args[a]+"\"");
 						return false;
 					}

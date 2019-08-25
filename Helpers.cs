@@ -1,6 +1,7 @@
 
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
@@ -37,8 +38,10 @@ namespace ImageFunctions
 			}
 		}
 
-		public static void ThreadPixels(Rectangle rect,int maxThreads,Action<int,int> callback)
+		public static void ThreadPixels(Rectangle rect,int maxThreads,Action<int,int> callback,
+			IProgress<double> progress = null)
 		{
+			long done = 0;
 			long max = (long)rect.Width * rect.Height;
 			var po = new ParallelOptions {
 				MaxDegreeOfParallelism = maxThreads
@@ -46,24 +49,40 @@ namespace ImageFunctions
 			Parallel.For(0,max,po,num => {
 				int y = (int)(num / (long)rect.Width);
 				int x = (int)(num % (long)rect.Width);
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
 				callback(x + rect.Left,y + rect.Top);
 			});
 		}
 
-		public static void ThreadRows(Rectangle rect, int maxThreads, Action<int> callback)
+		public static void ThreadRows(Rectangle rect, int maxThreads, Action<int> callback,
+			IProgress<double> progress = null)
 		{
+			int done = 0;
+			int max = rect.Bottom - rect.Top;
 			var po = new ParallelOptions {
 				MaxDegreeOfParallelism = maxThreads
 			};
-			Parallel.For(rect.Top,rect.Bottom,po,callback);
+			Parallel.For(rect.Top,rect.Bottom,po,num => {
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
+				callback(num);
+			});
 		}
 
-		public static void ThreadColumns(Rectangle rect, int maxThreads, Action<int> callback)
+		public static void ThreadColumns(Rectangle rect, int maxThreads, Action<int> callback,
+			IProgress<double> progress = null)
 		{
+			int done = 0;
+			int max = rect.Right - rect.Left;
 			var po = new ParallelOptions {
 				MaxDegreeOfParallelism = maxThreads
 			};
-			Parallel.For(rect.Left,rect.Right,po,callback);
+			Parallel.For(rect.Left,rect.Right,po,num => {
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
+				callback(num);
+			});
 		}
 
 		public static int IntCeil(int num, int den)

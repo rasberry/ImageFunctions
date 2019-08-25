@@ -128,7 +128,7 @@ namespace ImageFunctions
 				}
 				else if (Which == Action.None) {
 					Action which;
-					if (!Enum.TryParse<Action>(curr,true,out which)) {
+					if (!OptionsHelpers.TryParse<Action>(curr,out which)) {
 						Log.Error("unkown action \""+curr+"\"");
 						return false;
 					}

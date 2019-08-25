@@ -20,5 +20,10 @@ namespace ImageFunctions
 			Console.WriteLine("D: "+m);
 			#endif
 		}
+
+		public static void ShowProgress(double start)
+		{
+			
+		}
 	}
 }

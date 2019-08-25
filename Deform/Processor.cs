@@ -21,32 +21,34 @@ namespace ImageFunctions.Deform
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			var canvas = new Image<TPixel>(config,rect.Width,rect.Height);
+			using (var progress = new ProgressBar())
+			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			{
+				double ccx,ccy;
+				if (CenterPx != null) {
+					ccx = CenterPx.Value.X;
+					ccy = CenterPx.Value.Y;
+				}
+				else {
+					ccx = frame.Width * (CenterPp == null ? 0.5 : CenterPp.Value.X);
+					ccy = frame.Height * (CenterPp == null ? 0.5 : CenterPp.Value.Y);
+				}
 
-			double ccx,ccy;
-			if (CenterPx != null) {
-				ccx = CenterPx.Value.X;
-				ccy = CenterPx.Value.Y;
+				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+					int cy = y - rect.Top;
+					int cx = x - rect.Left;
+					TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,Power);
+					int coff = cy * rect.Width + cx;
+					canvas.GetPixelSpan()[coff] = nc;
+				},progress);
+
+				frame.BlitImage(canvas,rect);
+
+				//Log.Debug("ppxmin = "+ppxmin);
+				//Log.Debug("ppxmax = "+ppxmax);
+				//Log.Debug("ppymin = "+ppymin);
+				//Log.Debug("ppymax = "+ppymax);
 			}
-			else {
-				ccx = frame.Width * (CenterPp == null ? 0.5 : CenterPp.Value.X);
-				ccy = frame.Height * (CenterPp == null ? 0.5 : CenterPp.Value.Y);
-			}
-
-			Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
-				int cy = y - rect.Top;
-				int cx = x - rect.Left;
-				TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,Power);
-				int coff = cy * rect.Width + cx;
-				canvas.GetPixelSpan()[coff] = nc;
-			});
-
-			frame.BlitImage(canvas,rect);
-
-			//Log.Debug("ppxmin = "+ppxmin);
-			//Log.Debug("ppxmax = "+ppxmax);
-			//Log.Debug("ppymin = "+ppymin);
-			//Log.Debug("ppymax = "+ppymax);
 		}
 
 		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double ccx, double ccy,double exp)

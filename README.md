@@ -103,7 +103,6 @@ Available Metrics:
   * possibly using '--' to seperate actions
   * need to figure out input/output file(s)
   * is there a need for multiple-in / multiple-out ?
-* add progress bar
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * add noise functions
   * perlin
@@ -126,8 +125,10 @@ Available Metrics:
 * AS2 has an off-by-one error when using --rect option
 
 ### PixelateDetails ###
+* Paralellize and add progress bar
 
 ### Derivatives ###
+* Paralellize and add progress bar
 * maybe add other types of derivatives
 
 ### ZoomBlur ###

@@ -21,6 +21,7 @@ namespace ImageFunctions.AreaSmoother
 			if (Measurer == null) {
 				Measurer = Helpers.DistanceEuclidean;
 			}
+			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
@@ -29,7 +30,7 @@ namespace ImageFunctions.AreaSmoother
 					TPixel nc = SmoothPixel(frame,x,y);
 					int coff = cy * rect.Width + cx;
 					canvas.GetPixelSpan()[coff] = nc;
-				});
+				},progress);
 
 				frame.BlitImage(canvas,rect);
 			}
