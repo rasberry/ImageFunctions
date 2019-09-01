@@ -52,22 +52,25 @@ namespace ImageFunctions
 			return p;
 		}
 
-		public static void BlitImage<TPixel>(this ImageFrame<TPixel> frame, Image<TPixel> image, Rectangle spot)
+		public static void BlitImage<TPixel>(this ImageFrame<TPixel> dstImg, ImageFrame<TPixel> srcImg,
+			Rectangle dstRect = default(Rectangle), Point srcPoint = default(Point))
 			where TPixel : struct, IPixel<TPixel>
 		{
-			var cspan = image.GetPixelSpan();
-			var fspan = frame.GetPixelSpan();
-			for(int y = spot.Top; y < spot.Bottom; y++) {
-				int cy = y - spot.Top;
-				for(int x = spot.Left; x < spot.Right; x++) {
-					int cx = x - spot.Left;
-					int foff = y * frame.Width + x;
-					int coff = cy * spot.Width + cx;
-					fspan[foff] = cspan[coff];
+			//TODO this needs to be tested better
+
+			var srcspan = srcImg.GetPixelSpan();
+			var dstspan = dstImg.GetPixelSpan();
+			for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
+				int cy = y - dstRect.Top + srcPoint.Y;
+				for(int x = dstRect.Left; x < dstRect.Right; x++) {
+					int cx = x - dstRect.Left + srcPoint.X;
+					int dstoff = y * dstImg.Width + x;
+					int srcoff = cy * dstRect.Width + cx;
+					dstspan[dstoff] = srcspan[srcoff];
 				}
 			}
-		}
 
+		}
 
 		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
 			where TPixel : struct, IPixel<TPixel>

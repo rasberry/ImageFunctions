@@ -19,6 +19,7 @@ namespace ImageFunctions
 			case Action.ZoomBlur: return new ZoomBlur.Function();
 			case Action.Swirl: return new Swirl.Function();
 			case Action.Deform: return new Deform.Function();
+			case Action.Encrypt: return new Encrypt.Function();
 			}
 		}
 

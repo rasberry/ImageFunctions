@@ -42,7 +42,7 @@ namespace ImageFunctions.Deform
 					canvas.GetPixelSpan()[coff] = nc;
 				},progress);
 
-				frame.BlitImage(canvas,rect);
+				frame.BlitImage(canvas.Frames.RootFrame,rect);
 
 				//Log.Debug("ppxmin = "+ppxmin);
 				//Log.Debug("ppxmax = "+ppxmax);

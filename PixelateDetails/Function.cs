@@ -19,10 +19,8 @@ namespace ImageFunctions.PixelateDetails
 			proc.UseProportionalSplit = UseProportionalSplit;
 			proc.DescentFactor = DescentFactor;
 			if (Rect.IsEmpty) {
-				Log.Debug("rect is empty "+Rect);
 				ctx.ApplyProcessor(proc);
 			} else {
-				Log.Debug("rect is full "+Rect);
 				ctx.ApplyProcessor(proc,Rect);
 			}
 		}

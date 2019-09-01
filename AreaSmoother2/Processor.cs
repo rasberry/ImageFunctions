@@ -38,7 +38,7 @@ namespace ImageFunctions.AreaSmoother2
 					},progress);
 				}
 
-				frame.BlitImage(canvas,rect);
+				frame.BlitImage(canvas.Frames.RootFrame,rect);
 			}
 		}
 
