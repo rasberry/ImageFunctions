@@ -33,6 +33,7 @@ namespace ImageFunctions.Encrypt
 				var framePoint = new Point(rect.Left,rect.Top);
 				canvas.Frames.RootFrame.BlitImage(frame,canvasRect,framePoint);
 
+				//Encryption really wants to use streams
 				var inStream = new PixelStream<TPixel>(canvas);
 				inStream.PadToBlockSize = Encryptor.BlockSizeInBytes;
 				var outStream = new PixelStream<TPixel>(canvas);

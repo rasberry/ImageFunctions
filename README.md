@@ -64,6 +64,18 @@ Usage ImageFunctions (action) [options]
  1. Polynomial - x^e/w,y^e/h
  2. Inverted   - TODO
 
+8. Encrypt [options] (input image) [output image]
+ Encrypt or Decrypts all or parts of an image
+ Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option
+ -d                          Enable decryption (default is to encrypt)
+ -p (text)                   Password used to encrypt / decrypt image
+ -pi                         Ask for the password on the command prompt (instead of -p)
+ -raw                        Treat password text as a raw string (shell escaping still applies)
+ -iv (text)                  Initialization Vector - must be exactly 16 bytes
+ -salt (text)                Encryption salt parameter - must be at least 8 bytes long
+ -iter (number)              Number of RFC-2898 rounds to use (default 3119)
+ -test                       Print out any specified (text) inputs as hex and exit
+
 Available Samplers:
 1. NearestNeighbor
 2. Bicubic
@@ -88,7 +100,6 @@ Available Metrics:
 4. ChebyshevInv
 5. Minkowski (p-factor)
 6. Canberra
-
 ```
 
 ## TODO ##
@@ -136,3 +147,6 @@ Available Metrics:
 
 ### Swirl ###
 * is it possible to do a outer swirl (outside of radius towards edge instead of inwards?)
+
+### Encryption ###
+* add option to change key size? supposedly options are (128,192,256)
