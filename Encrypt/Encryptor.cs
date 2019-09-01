@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Json;
 using System.Security.Cryptography;
 using System.Text;
 using SixLabors.ImageSharp;
@@ -12,21 +11,19 @@ namespace ImageFunctions.Encrypt
 {
 	public class Encryptor
 	{
+		public const int BlockSizeInBytes = 16;
+		public const int MinSaltBytes = 8;
+		public const int DefaultIterations = 3119;
+
 		public static bool TryStringToBytes(string s,out byte[] bytes)
 		{
-			bytes = Encoding.UTF8.GetBytes(s);
-			return true;
-
-			var jval = JsonValue.Parse(s);
-			if (jval.JsonType == JsonType.Number) {
-				double d = (double)jval;
-				bytes = BitConverter.GetBytes(d);
+			bytes = null;
+			try {
+				string ue = System.Text.RegularExpressions.Regex.Unescape(s ?? "");
+				bytes = Encoding.UTF8.GetBytes(ue);
 			}
-			else if (jval.JsonType == JsonType.String) {
-				bytes = Encoding.UTF8.GetBytes(jval);
-			}
-			else {
-				bytes = null;
+			catch(ArgumentException) {
+				return false;
 			}
 			return bytes != null;
 		}
@@ -34,25 +31,22 @@ namespace ImageFunctions.Encrypt
 		public byte[] SaltBytes { get; set; } = null;
 		public byte[] IVBytes { get; set; } = null;
 		public int KeySize { get; set; } = 256;
+		public int PasswordIterations { get; set; } = DefaultIterations;
 
 		public void TransformStream(bool decrypt, Stream inData, Stream outData,
 			byte[] password, IProgress<double> progress = null)
 		{
-			if (SaltBytes == null) {
-				SaltBytes = DefaultSalt;
-			}
-			if (IVBytes == null) {
-				IVBytes = DefaultIV;
-			}
+			if (SaltBytes == null) { SaltBytes = DefaultSalt; }
+			if (IVBytes == null) { IVBytes = DefaultIV; }
 
 			using (var derived = new Rfc2898DeriveBytes(password, SaltBytes, PasswordIterations))
 			{
 				var keyBytes = derived.GetBytes(KeySize / 8);
 				using (var symmetricKey = new RijndaelManaged())
 				{
-					symmetricKey.BlockSize = 128;
+					symmetricKey.BlockSize = BlockSizeInBytes * 8;
 					symmetricKey.Mode = CipherMode.CBC;
-					symmetricKey.Padding = PaddingMode.PKCS7;
+					symmetricKey.Padding = PaddingMode.Zeros;
 
 					var encryptor = decrypt
 						? symmetricKey.CreateDecryptor(keyBytes, IVBytes)
@@ -60,9 +54,7 @@ namespace ImageFunctions.Encrypt
 					;
 					var cryptoStream = new CryptoStream(outData, encryptor, CryptoStreamMode.Write);
 
-					using (encryptor)
-					using (cryptoStream) {
-						//inData.CopyTo(cryptoStream);
+					using (encryptor) using (cryptoStream) {
 						CopyToWithProgress(inData,cryptoStream,progress);
 					}
 				}
@@ -85,16 +77,14 @@ namespace ImageFunctions.Encrypt
 		}
 
 		//salt must be at least 8 bytes
-		static byte[] DefaultSalt = new byte[] {
+		public static readonly byte[] DefaultSalt = new byte[] {
 			0xB, 0xE, 0xD, 0xF, 0xA, 0xC, 0xE, 0xD
 		};
 		//IV must be same size as block (128 bits)
-		static byte[] DefaultIV = new byte[] {
+		public static readonly byte[] DefaultIV = new byte[] {
 			0xA, 0xB, 0xB, 0xA, 0xD, 0xE, 0xF, 0xA,
-			0xC, 0xE, 0xD, 0xD, 0xE, 0xA, 0xF, 0xB
+			0xC, 0xE, 0xD, 0xF, 0xA, 0xD, 0xE, 0xD
 		};
-
-		const int PasswordIterations = 3119;
 	}
 
 	public class PixelStream<TPixel> : Stream
@@ -112,12 +102,26 @@ namespace ImageFunctions.Encrypt
 
 		ImageFrame<TPixel> Image = null;
 		long InternalLength = 0;
+		int PaddingLength = 0;
 
 		public override bool CanRead { get { return true; }}
 		public override bool CanSeek { get { return true; }}
 		public override bool CanWrite { get { return true; }}
-		public override long Length { get { return InternalLength; }}
 		public override long Position { get; set; }
+		public override long Length { get { return InternalLength + PaddingLength; }}
+
+		int? BlockSize = null;
+		public int? PadToBlockSize {
+			get {
+				return BlockSize;
+			}
+			set {
+				BlockSize = value;
+				if (BlockSize.HasValue) {
+					PaddingLength = (int)(InternalLength % BlockSize.Value);
+				}
+			}
+		}
 
 		public override void Flush()
 		{
@@ -140,6 +144,11 @@ namespace ImageFunctions.Encrypt
 			if (Position >= Length) {
 				return -1;
 			}
+			if (Position >= InternalLength) {
+				Position++;
+				return 0; //padding
+			}
+
 			int pos = (int)(Position / 4);
 			int elem = (int)(Position % 4);
 
@@ -190,6 +199,11 @@ namespace ImageFunctions.Encrypt
 			if (Position >= Length) {
 				return;
 			}
+			if (Position >= InternalLength) {
+				Position++;
+				return; //ignore padding
+			}
+
 			int pos = (int)(Position / 4);
 			int elem = (int)(Position % 4);
 			var span = Image.GetPixelSpan();
