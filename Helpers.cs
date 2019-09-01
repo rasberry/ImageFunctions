@@ -85,6 +85,21 @@ namespace ImageFunctions
 			});
 		}
 
+		public static void IteratePixels(Rectangle rect,Action<int,int> callback,
+			IProgress<double> progress = null)
+		{
+			long done = 0;
+			long max = (long)rect.Width * rect.Height;
+
+			for(int y = rect.Top; y < rect.Bottom; y++) {
+				for (int x = rect.Left; x < rect.Left; x++) {
+					done++;
+					progress?.Report((double)done/max);
+					callback(x,y);
+				}
+			}
+		}
+
 		public static int IntCeil(int num, int den)
 		{
 			int floor = num / den;

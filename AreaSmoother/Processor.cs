@@ -32,7 +32,7 @@ namespace ImageFunctions.AreaSmoother
 					canvas.GetPixelSpan()[coff] = nc;
 				},progress);
 
-				frame.BlitImage(canvas,rect);
+				frame.BlitImage(canvas.Frames.RootFrame,rect);
 			}
 		}
 
