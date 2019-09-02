@@ -1,10 +1,10 @@
-using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
-using System.Collections.Generic;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using SixLabors.Primitives;
+using System;
 
 namespace ImageFunctions.Swirl
 {
@@ -24,7 +24,7 @@ namespace ImageFunctions.Swirl
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			if (Measurer == null) {
-				Measurer = Helpers.DistanceEuclidean;
+				Measurer = MetricHelpers.DistanceEuclidean;
 			}
 			double swirlRadius;
 			double swirlTwists = Rotations;
@@ -52,7 +52,7 @@ namespace ImageFunctions.Swirl
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
 					TPixel nc = SwirlPixel(frame,x,y,swirlx,swirly,swirlRadius,swirlTwists);

@@ -6,6 +6,7 @@ using SixLabors.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ZoomBlur
 {
@@ -21,7 +22,7 @@ namespace ImageFunctions.ZoomBlur
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			if (Measurer == null) {
-				Measurer = Helpers.DistanceEuclidean;
+				Measurer = MetricHelpers.DistanceEuclidean;
 			}
 
 			using (var progress = new ProgressBar())
@@ -39,7 +40,7 @@ namespace ImageFunctions.ZoomBlur
 					h2 = rect.Height * CenterRt.Value.Y;
 				}
 
-				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					TPixel nc = ZoomPixel(frame,rect,x,y,w2,h2);
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;

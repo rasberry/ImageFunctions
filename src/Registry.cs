@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions
@@ -20,6 +21,7 @@ namespace ImageFunctions
 			case Action.Swirl: return new Swirl.Function();
 			case Action.Deform: return new Deform.Function();
 			case Action.Encrypt: return new Encrypt.Function();
+			case Action.PixelRules: return new PixelRules.Function();
 			}
 		}
 
@@ -54,12 +56,12 @@ namespace ImageFunctions
 			{
 			default:
 			case Metric.None:         return null;
-			case Metric.Canberra:     return Helpers.DistanceCanberra;
-			case Metric.Manhattan:    return Helpers.DistanceManhattan;
-			case Metric.Euclidean:    return Helpers.DistanceEuclidean;
-			case Metric.Chebyshev:    return (x1,y1,x2,y2) => Helpers.DistanceChebyshev(x1,y1,x2,y2,false);
-			case Metric.ChebyshevInv: return (x1,y1,x2,y2) => Helpers.DistanceChebyshev(x1,y1,x2,y2,true);
-			case Metric.Minkowski:    return (x1,y1,x2,y2) => Helpers.DistanceMinkowski(x1,y1,x2,y2,pFactor);
+			case Metric.Canberra:     return MetricHelpers.DistanceCanberra;
+			case Metric.Manhattan:    return MetricHelpers.DistanceManhattan;
+			case Metric.Euclidean:    return MetricHelpers.DistanceEuclidean;
+			case Metric.Chebyshev:    return (x1,y1,x2,y2) => MetricHelpers.DistanceChebyshev(x1,y1,x2,y2,false);
+			case Metric.ChebyshevInv: return (x1,y1,x2,y2) => MetricHelpers.DistanceChebyshev(x1,y1,x2,y2,true);
+			case Metric.Minkowski:    return (x1,y1,x2,y2) => MetricHelpers.DistanceMinkowski(x1,y1,x2,y2,pFactor);
 			}
 		}
 

@@ -3,30 +3,39 @@ using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
-namespace ImageFunctions.AreaSmoother2
+namespace ImageFunctions.PixelRules
 {
 	public class Function : AbstractFunction
 	{
+		protected override void Process(IImageProcessingContext<Rgba32> ctx)
+		{
+			var proc = new Processor<Rgba32>();
+			if (Rect.IsEmpty) {
+				ctx.ApplyProcessor(proc);
+			} else {
+				ctx.ApplyProcessor(proc,Rect);
+			}
+		}
+
 		public override bool ParseArgs(string[] args)
 		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
 				string curr = args[a];
-				if (curr == "-H") {
-					HOnly = true;
+				if (false) {
 				}
-				else if (curr == "-V") {
-					VOnly = true;
-				}
-				else if (InImage == null) {
+				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
 				}
-				else if (OutImage == null) {
+				else if (String.IsNullOrEmpty(OutImage)) {
 					OutImage = curr;
 				}
 			}
@@ -42,33 +51,29 @@ namespace ImageFunctions.AreaSmoother2
 			if (String.IsNullOrEmpty(OutImage)) {
 				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
+
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.AreaSmoother2);
+			string name = OptionsHelpers.FunctionName(Action.PixelRules);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
-			sb.AppendLine(" -H                          Horizontal only");
-			sb.AppendLine(" -V                          Vertical only");
+			sb.AppendLine(" TODO");
+			sb.AppendLine("                             Some text goes here");
+			sb.AppendLine();
+			sb.AppendLine(" Available Modes");
+			sb.AppendLine(" 1. StairCaseDescend");
+			sb.AppendLine(" 2. StairCaseAscend");
 		}
 
-		protected override void Process(IImageProcessingContext<Rgba32> ctx)
-		{
-			var proc = new Processor<Rgba32>();
-			proc.HOnly = HOnly;
-			proc.VOnly = VOnly;
-			if (Rect.IsEmpty) {
-				ctx.ApplyProcessor(proc);
-			} else {
-				ctx.ApplyProcessor(proc,Rect);
-			}
-
+		public enum Mode {
+			None = 0,
+			StairCaseDescend = 1,
+			StairCaseAscend = 2
 		}
 
-		bool HOnly = false;
-		bool VOnly = false;
+		Mode WhichMode = Mode.None;
 	}
 }

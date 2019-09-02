@@ -1,11 +1,7 @@
-using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
 using SixLabors.Primitives;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Processing;
-using System.Collections.Generic;
 
 namespace ImageFunctions.Encrypt
 {

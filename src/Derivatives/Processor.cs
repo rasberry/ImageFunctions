@@ -1,8 +1,9 @@
-using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
+using System;
 using System.Collections.Generic;
 
 namespace ImageFunctions.Derivatives

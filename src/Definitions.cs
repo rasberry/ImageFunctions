@@ -16,7 +16,8 @@ namespace ImageFunctions
 		ZoomBlur = 5,
 		Swirl = 6,
 		Deform = 7,
-		Encrypt = 8
+		Encrypt = 8,
+		PixelRules = 9
 	}
 
 	public interface IFunction
@@ -77,5 +78,4 @@ namespace ImageFunctions
 		None = 0,
 		N,NE,E,SE,S,SW,W,NW
 	}
-
 }

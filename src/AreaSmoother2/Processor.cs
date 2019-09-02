@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System.Collections.Generic;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother2
 {
@@ -19,7 +20,7 @@ namespace ImageFunctions.AreaSmoother2
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				if (!VOnly) {
-					Helpers.ThreadRows(rect,config.MaxDegreeOfParallelism,(y) => {
+					MoreHelpers.ThreadRows(rect,config.MaxDegreeOfParallelism,(y) => {
 						HashSet<int> visited = new HashSet<int>();
 						for(int x = rect.Left; x < rect.Right; x++) {
 							if (visited.Contains(x)) { continue; }
@@ -29,7 +30,7 @@ namespace ImageFunctions.AreaSmoother2
 				}
 
 				if (!HOnly) {
-					Helpers.ThreadColumns(rect,config.MaxDegreeOfParallelism,(x) => {
+					MoreHelpers.ThreadColumns(rect,config.MaxDegreeOfParallelism,(x) => {
 						HashSet<int> visited = new HashSet<int>();
 						for(int y = rect.Top; y < rect.Bottom; y++ ) {
 							if (visited.Contains(y)) { continue; }

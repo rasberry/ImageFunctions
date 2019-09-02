@@ -1,12 +1,10 @@
-using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Processing;
-using System.Collections.Generic;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using SixLabors.Primitives;
+using System;
 
 namespace ImageFunctions.Deform
 {
@@ -34,7 +32,7 @@ namespace ImageFunctions.Deform
 					ccy = frame.Height * (CenterPp == null ? 0.5 : CenterPp.Value.Y);
 				}
 
-				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
 					TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,Power);

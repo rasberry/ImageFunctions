@@ -1,11 +1,10 @@
-using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using SixLabors.Primitives;
+using System;
 
 namespace ImageFunctions.AreaSmoother
 {
@@ -19,12 +18,12 @@ namespace ImageFunctions.AreaSmoother
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			if (Measurer == null) {
-				Measurer = Helpers.DistanceEuclidean;
+				Measurer = MetricHelpers.DistanceEuclidean;
 			}
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				Helpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
 					TPixel nc = SmoothPixel(frame,x,y);

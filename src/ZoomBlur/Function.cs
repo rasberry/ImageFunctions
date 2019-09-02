@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;

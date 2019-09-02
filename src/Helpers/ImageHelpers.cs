@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
-namespace ImageFunctions
+namespace ImageFunctions.Helpers
 {
 	public static class ImageHelpers
 	{
@@ -17,7 +17,6 @@ namespace ImageFunctions
 			encoder.CompressionLevel = 9;
 			image.Save(fileName,encoder);
 		}
-
 
 		public static TPixel ToGrayScale<TPixel>(TPixel c)
 			where TPixel : struct, IPixel<TPixel>
@@ -69,7 +68,6 @@ namespace ImageFunctions
 					dstspan[dstoff] = srcspan[srcoff];
 				}
 			}
-
 		}
 
 		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
@@ -101,7 +99,7 @@ namespace ImageFunctions
 			double m = sampler.Radius / 0.5; //stretch length 0.5 to Radius
 			double pxf = locX.Fractional();
 			double pyf = locY.Fractional();
-			
+
 			//mirror as necessary around center
 			double fx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
 			double fy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
@@ -122,11 +120,11 @@ namespace ImageFunctions
 			float dx = sampler.GetValue((float)sx);
 			float dy = sampler.GetValue((float)sy);
 			//Log.Debug("sx="+sx+" dx="+dx+" sy="+sy+" dy="+dy);
-			
+
 			//pick and sample the 4 pixels;
 			Rgba32 p0,p1,p2,p3;
 			FillQuadrantColors(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
-			
+
 			double Rf = CalcSample(p0.R, p1.R, p2.R, p3.R, dx, dy);
 			double Gf = CalcSample(p0.G, p1.G, p2.G, p3.G, dx, dy);
 			double Bf = CalcSample(p0.B, p1.B, p2.B, p3.B, dx, dy);

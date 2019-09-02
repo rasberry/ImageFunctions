@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
-namespace ImageFunctions
+namespace ImageFunctions.Helpers
 {
 	public static class OptionsHelpers
 	{
