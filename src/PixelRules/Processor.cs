@@ -18,6 +18,7 @@ namespace ImageFunctions.PixelRules
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
+				//TODO simulated anhealing ??
 				for(int i=0; i<10; i++) {
 				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
