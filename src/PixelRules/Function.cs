@@ -97,12 +97,16 @@ namespace ImageFunctions.PixelRules
 			sb.AppendLine(" Available Modes");
 			sb.AppendLine(" 1. StairCaseDescend");
 			sb.AppendLine(" 2. StairCaseAscend");
+			sb.AppendLine(" 3. StairCaseClosest");
+			sb.AppendLine(" 4. StairCaseFarthest");
 		}
 
 		public enum Mode {
 			None = 0,
 			StairCaseDescend = 1,
-			StairCaseAscend = 2
+			StairCaseAscend = 2,
+			StairCaseClosest = 3,
+			StairCaseFarthest = 4
 		}
 
 		Mode WhichMode = Mode.StairCaseDescend;

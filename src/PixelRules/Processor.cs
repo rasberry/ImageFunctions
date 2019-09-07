@@ -127,11 +127,15 @@ namespace ImageFunctions.PixelRules
 			}
 			//both are good
 			if (bid != null) {
-				//only follow darker colors
-				TPixel white = NamedColors<TPixel>.White;
-				double bdw = Dist(best.Value,white);
-				double ddw = Dist(bid.Value,white);
-				if (bdw > ddw) { return false; }
+				if (WhichMode == Function.Mode.StairCaseAscend
+					|| WhichMode == Function.Mode.StairCaseDescend)
+				{
+					//only follow darker colors
+					TPixel white = NamedColors<TPixel>.White;
+					double bdw = Dist(best.Value,white);
+					double ddw = Dist(bid.Value,white);
+					if (bdw > ddw) { return false; }
+				}
 
 				//follow if color is closer
 				double d = Dist(best.Value,bid.Value);
@@ -155,7 +159,9 @@ namespace ImageFunctions.PixelRules
 			Rgba32 o = one.ToColor();
 			Rgba32 t = two.ToColor();
 
-			double[] vo = WhichMode == Function.Mode.StairCaseDescend
+			bool normal = WhichMode == Function.Mode.StairCaseDescend
+				|| WhichMode == Function.Mode.StairCaseClosest;
+			double[] vo = normal
 				? new double[] { o.R, o.G, o.B, o.A }
 				: new double[] { 255 - o.R, 255 - o.G, 255 - o.B, 255 - o.A }
 			;
