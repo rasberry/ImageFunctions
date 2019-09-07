@@ -11,24 +11,25 @@ namespace ImageFunctions.PixelRules
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public Function.Mode WhichMode = Function.Mode.None;
+		public Function.Mode WhichMode = Function.Mode.StairCaseDescend;
+		public int Passes = 1;
+		public int MaxIters = 100;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				//TODO simulated anhealing ??
-				for(int i=0; i<10; i++) {
-				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
-					int cy = y - rect.Top;
-					int cx = x - rect.Left;
-					TPixel nc = RunRule(frame,rect,x,y);
-					int coff = cy * rect.Width + cx;
-					canvas.GetPixelSpan()[coff] = nc;
-				},progress);
-
-				frame.BlitImage(canvas.Frames.RootFrame,rect);
+				for(int p=0; p<Passes; p++) {
+					progress.Prefix = "Pass "+(p+1)+"/"+Passes+" ";
+					MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+						int cy = y - rect.Top;
+						int cx = x - rect.Left;
+						TPixel nc = RunRule(frame,rect,x,y);
+						int coff = cy * rect.Width + cx;
+						canvas.GetPixelSpan()[coff] = nc;
+					},progress);
+					frame.BlitImage(canvas.Frames.RootFrame,rect);
 				}
 			}
 		}
@@ -37,7 +38,7 @@ namespace ImageFunctions.PixelRules
 		{
 			int cx = x, cy = y;
 			var history = new List<TPixel>();
-			int max = 100;
+			int max = MaxIters;
 
 			while(--max >= 0) {
 				TPixel ant = frame[cx,cy];
@@ -154,7 +155,10 @@ namespace ImageFunctions.PixelRules
 			Rgba32 o = one.ToColor();
 			Rgba32 t = two.ToColor();
 
-			double[] vo = new double[] { o.R, o.G, o.B, o.A };
+			double[] vo = WhichMode == Function.Mode.StairCaseDescend
+				? new double[] { o.R, o.G, o.B, o.A }
+				: new double[] { 255 - o.R, 255 - o.G, 255 - o.B, 255 - o.A }
+			;
 			double[] vt = new double[] { t.R, t.G, t.B, t.A };
 
 			double dist = MetricHelpers.DistanceEuclidean(vo,vt);

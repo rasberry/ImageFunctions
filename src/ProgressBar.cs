@@ -9,16 +9,13 @@ namespace ImageFunctions
 	/// An ASCII progress bar
 	/// </summary>
 	public class ProgressBar : IDisposable, IProgress<double> {
-		private const int blockCount = 10;
-		private readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
-		private const string animation = @"|/-\";
 
-		private readonly Timer timer;
-
-		private double currentProgress = 0;
-		private string currentText = string.Empty;
-		private bool disposed = false;
-		private int animationIndex = 0;
+		public void Dispose() {
+			lock (timer) {
+				disposed = true;
+				UpdateText(string.Empty);
+			}
+		}
 
 		public ProgressBar() {
 			timer = new Timer(TimerHandler);
@@ -37,23 +34,27 @@ namespace ImageFunctions
 			Interlocked.Exchange(ref currentProgress, value);
 		}
 
-		private void TimerHandler(object state) {
+		public string Prefix { get; set; } = null;
+
+		void TimerHandler(object state) {
 			lock (timer) {
 				if (disposed) return;
 
 				int progressBlockCount = (int) (currentProgress * blockCount);
 				int percent = (int) (currentProgress * 100);
-				string text = string.Format("[{0}{1}] {2,3}% {3}",
+				string text = string.Format("{4}[{0}{1}] {2,3}% {3}",
 					new string('#', progressBlockCount), new string('-', blockCount - progressBlockCount),
 					percent,
-					animation[animationIndex++ % animation.Length]);
+					animation[animationIndex++ % animation.Length],
+					Prefix ?? ""
+				);
 				UpdateText(text);
 
 				ResetTimer();
 			}
 		}
 
-		private void UpdateText(string text) {
+		void UpdateText(string text) {
 			// Get length of common portion
 			int commonPrefixLength = 0;
 			int commonLength = Math.Min(currentText.Length, text.Length);
@@ -79,16 +80,17 @@ namespace ImageFunctions
 			currentText = text;
 		}
 
-		private void ResetTimer() {
+		void ResetTimer() {
 			timer.Change(animationInterval, TimeSpan.FromMilliseconds(-1));
 		}
 
-		public void Dispose() {
-			lock (timer) {
-				disposed = true;
-				UpdateText(string.Empty);
-			}
-		}
-
+		const int blockCount = 10;
+		const string animation = @"|/-\";
+		readonly TimeSpan animationInterval = TimeSpan.FromSeconds(1.0 / 8);
+		readonly Timer timer;
+		double currentProgress = 0;
+		string currentText = string.Empty;
+		bool disposed = false;
+		int animationIndex = 0;
 	}
 }
