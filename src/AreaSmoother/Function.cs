@@ -35,7 +35,7 @@ namespace ImageFunctions.AreaSmoother
 					Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
-					if (!OptionsHelpers.TryParseMetric(args, ref a, out MetricFunction mf)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
 					Measurer = mf;
@@ -84,11 +84,10 @@ namespace ImageFunctions.AreaSmoother
 			} else {
 				ctx.ApplyProcessor(proc,Rect);
 			}
-
 		}
 
 		public IResampler Sampler { get; set; } = null;
-		public MetricFunction Measurer { get; set; } = null;
+		public IMeasurer Measurer { get; set; } = null;
 		int TotalTries = 7;
 	}
 }

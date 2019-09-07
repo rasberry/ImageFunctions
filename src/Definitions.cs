@@ -66,11 +66,15 @@ namespace ImageFunctions
 		Canberra = 6
 	}
 
-	public delegate double MetricFunction(double x1, double y1, double x2, double y2);
-
+	public interface IMeasurer
+	{
+		double Measure(double x1, double y1, double x2, double y2);
+		double Measure(double[] u, double[] v);
+	}
+	
 	public interface IHasDistance
 	{
-		MetricFunction Measurer { get; set; }
+		IMeasurer Measurer { get; set; }
 	}
 
 	public enum Direction

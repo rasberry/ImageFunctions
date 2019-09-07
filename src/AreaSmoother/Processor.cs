@@ -13,13 +13,10 @@ namespace ImageFunctions.AreaSmoother
 	{
 		public int TotalTries = 7;
 		public IResampler Sampler = null;
-		public MetricFunction Measurer = null;
+		public IMeasurer Measurer = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			if (Measurer == null) {
-				Measurer = MetricHelpers.DistanceEuclidean;
-			}
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
@@ -59,7 +56,7 @@ namespace ImageFunctions.AreaSmoother
 					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out Rgba32 fc);
 					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out Rgba32 bc);
 
-					double len = Measurer(fp.X,fp.Y,bp.X,bp.Y);
+					double len = Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
 					if (len < bestlen) {
 						bestang = a;
@@ -68,7 +65,7 @@ namespace ImageFunctions.AreaSmoother
 						bestbc = Between(bc,start,0.5);
 						bestfpx = fp;
 						bestbpx = bp;
-						double flen = Measurer(px,py,fp.X,fp.Y);
+						double flen = Measurer.Measure(px,py,fp.X,fp.Y);
 						bestratio = flen/len;
 						//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 					}

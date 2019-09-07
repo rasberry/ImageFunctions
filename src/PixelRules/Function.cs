@@ -12,7 +12,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelRules
 {
-	public class Function : AbstractFunction
+	public class Function : AbstractFunction, IHasDistance, IHasResampler
 	{
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
@@ -20,6 +20,8 @@ namespace ImageFunctions.PixelRules
 			proc.Passes = Passes;
 			proc.WhichMode = WhichMode;
 			proc.MaxIters = MaxIters;
+			proc.Sampler = Sampler;
+			proc.Measurer = Measurer;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -61,6 +63,18 @@ namespace ImageFunctions.PixelRules
 						return false;
 					}
 				}
+				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
+						return false;
+					}
+					Sampler = sampler;
+				}
+				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
+						return false;
+					}
+					Measurer = mf;
+				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
 				}
@@ -89,17 +103,22 @@ namespace ImageFunctions.PixelRules
 			string name = OptionsHelpers.FunctionName(Action.PixelRules);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" TODO");
+			sb.AppendLine(" Average a set of pixels by following a minimaztion function");
 			sb.AppendLine(" -m (mode)                   Which mode to use (default StairCaseDescend)");
 			sb.AppendLine(" -n (number)                 Number of times to apply operation (default 1)");
 			sb.AppendLine(" -x (number)                 Maximum number of iterations - in case of infinte loops (default 100)");
+			sb.SamplerHelpLine();
+			sb.MetricHelpLine();
 			sb.AppendLine();
 			sb.AppendLine(" Available Modes");
-			sb.AppendLine(" 1. StairCaseDescend");
-			sb.AppendLine(" 2. StairCaseAscend");
-			sb.AppendLine(" 3. StairCaseClosest");
-			sb.AppendLine(" 4. StairCaseFarthest");
+			sb.AppendLine(" 1. StairCaseDescend         move towards smallest distance");
+			sb.AppendLine(" 2. StairCaseAscend          move towards largest distance");
+			sb.AppendLine(" 3. StairCaseClosest         move towards closest distance");
+			sb.AppendLine(" 4. StairCaseFarthest        move towards farthest distance");
 		}
+
+		public IMeasurer Measurer { get; set; }
+		public IResampler Sampler { get; set; }
 
 		public enum Mode {
 			None = 0,

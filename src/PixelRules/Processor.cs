@@ -4,6 +4,7 @@ using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelRules
@@ -14,6 +15,8 @@ namespace ImageFunctions.PixelRules
 		public Function.Mode WhichMode = Function.Mode.StairCaseDescend;
 		public int Passes = 1;
 		public int MaxIters = 100;
+		public IResampler Sampler = null;
+		public IMeasurer Measurer = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -167,7 +170,7 @@ namespace ImageFunctions.PixelRules
 			;
 			double[] vt = new double[] { t.R, t.G, t.B, t.A };
 
-			double dist = MetricHelpers.DistanceEuclidean(vo,vt);
+			double dist = Measurer.Measure(vo,vt);
 			return dist;
 		}
 	}
