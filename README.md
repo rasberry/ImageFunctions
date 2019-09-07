@@ -150,3 +150,6 @@ Available Metrics:
 
 ### Encryption ###
 * add option to change key size? supposedly options are (128,192,256)
+
+## Deform ##
+* maybe implement [fisheye](https://stackoverflow.com/questions/2477774/correcting-fisheye-distortion-programmatically)
