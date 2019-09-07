@@ -1,14 +1,11 @@
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ImageFunctions.Helpers
 {

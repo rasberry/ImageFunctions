@@ -17,14 +17,10 @@ namespace ImageFunctions.ZoomBlur
 		public Point? CenterPx = null;
 		public PointF? CenterRt = null;
 		public IResampler Sampler = null;
-		public MetricFunction Measurer = null;
+		public IMeasurer Measurer = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			if (Measurer == null) {
-				Measurer = MetricHelpers.DistanceEuclidean;
-			}
-
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
@@ -54,7 +50,7 @@ namespace ImageFunctions.ZoomBlur
 
 		TPixel ZoomPixel(ImageFrame<TPixel> frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
-			double dist = Measurer(x,y,cx,cy);
+			double dist = Measurer.Measure(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
 
 			List<TPixel> vector = new List<TPixel>(idist);

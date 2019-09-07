@@ -38,7 +38,7 @@ namespace ImageFunctions.Helpers
 			return args[a] == "--metric" && ++a < args.Length;
 		}
 
-		public static bool TryParseMetric(string[] args, ref int a, out MetricFunction mf)
+		public static bool TryParseMetric(string[] args, ref int a, out IMeasurer mf)
 		{
 			mf = null;
 			Metric which;

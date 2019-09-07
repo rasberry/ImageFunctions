@@ -130,11 +130,83 @@ namespace ImageFunctions.Helpers
 			}
 			else {
 				double total = 0;
-				for (int i = 0; i < p1.Length; p++) {
+				for (int i = 0; i < p1.Length; i++) {
 					double d = Math.Abs(p2[i] - p1[i]);
 					total += Math.Pow(d, p);
 				}
 				return Math.Pow(total, 1 / p);
+			}
+		}
+
+		//Don't use this. use Registry Map instead - so that things stay consistent
+		// This is here because I don't want to expose MeasureRaft, but I want to keep all
+		// of the metrics related stuff together.
+		internal static IMeasurer Map(Metric m, double pFactor = 2.0)
+		{
+			switch(m)
+			{
+			default:
+			case Metric.None:
+			case Metric.Euclidean:
+				return new MeasurerRaft(DistanceEuclidean,DistanceEuclidean);
+			case Metric.Canberra:
+				return new MeasurerRaft(DistanceCanberra,DistanceCanberra);
+			case Metric.Manhattan:
+				return new MeasurerRaft(DistanceManhattan,DistanceManhattan);
+			case Metric.Chebyshev:
+				return new MeasurerRaft(Chebyshev,Chebyshev);
+			case Metric.ChebyshevInv:
+				return new MeasurerRaft(ChebyshevInv,ChebyshevInv);
+			case Metric.Minkowski:
+				return new MeasureMinkowski(pFactor);
+			}
+		}
+
+		class MeasurerRaft : IMeasurer
+		{
+			public delegate double MeasureTwo(double x1, double y1, double x2, double y2);
+			public delegate double MeasureMore(double[] u, double[] v);
+
+			public MeasurerRaft(MeasureTwo two,MeasureMore more) {
+				Two = two; More = more;
+			}
+
+			MeasureTwo Two;
+			MeasureMore More;
+
+			public double Measure(double x1, double y1, double x2, double y2) {
+				return Two(x1,y1,x2,y2);
+			}
+			public double Measure(double[] u, double[] v) {
+				return More(u,v);
+			}
+		}
+
+		static double Chebyshev(double x1,double y1,double x2,double y2) {
+			return DistanceChebyshev(x1,y1,x2,y2,false);
+		}
+		static double Chebyshev(double[] u, double[] v) {
+			return DistanceChebyshev(u,v,false);
+		}
+		static double ChebyshevInv(double x1,double y1,double x2,double y2) {
+			return DistanceChebyshev(x1,y1,x2,y2,true);
+		}
+		static double ChebyshevInv(double[] u, double[] v) {
+			return DistanceChebyshev(u,v,true);
+		}
+
+		class MeasureMinkowski : IMeasurer
+		{
+			public MeasureMinkowski(double pFactor) {
+				PFactor = pFactor;
+			}
+			double PFactor;
+
+			public double Measure(double x1, double y1, double x2, double y2) {
+				return MetricHelpers.DistanceMinkowski(x1,y1,x2,y2,PFactor);
+			}
+			public double Measure(double[] u, double[] v) {
+				return MetricHelpers.DistanceMinkowski(u,v,PFactor);
 			}
 		}
 	}

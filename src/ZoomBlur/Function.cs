@@ -56,7 +56,7 @@ namespace ImageFunctions.ZoomBlur
 					Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
-					if (!OptionsHelpers.TryParseMetric(args, ref a, out MetricFunction mf)) {
+					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
 					Measurer = mf;
@@ -115,7 +115,7 @@ namespace ImageFunctions.ZoomBlur
 		}
 
 		public IResampler Sampler { get; set; } = null;
-		public MetricFunction Measurer { get; set; } = null;
+		public IMeasurer Measurer { get; set; } = null;
 		Point? CenterPx = null;
 		PointF? CenterRt = null;
 		double ZoomAmount = 1.1;

@@ -49,21 +49,9 @@ namespace ImageFunctions
 			}
 		}
 
-
-		public static MetricFunction Map(Metric m, double pFactor = 2.0)
+		public static IMeasurer Map(Metric m, double pFactor = 2.0)
 		{
-			switch(m)
-			{
-			default:
-			case Metric.None:         return null;
-			case Metric.Canberra:     return MetricHelpers.DistanceCanberra;
-			case Metric.Manhattan:    return MetricHelpers.DistanceManhattan;
-			case Metric.Euclidean:    return MetricHelpers.DistanceEuclidean;
-			case Metric.Chebyshev:    return (x1,y1,x2,y2) => MetricHelpers.DistanceChebyshev(x1,y1,x2,y2,false);
-			case Metric.ChebyshevInv: return (x1,y1,x2,y2) => MetricHelpers.DistanceChebyshev(x1,y1,x2,y2,true);
-			case Metric.Minkowski:    return (x1,y1,x2,y2) => MetricHelpers.DistanceMinkowski(x1,y1,x2,y2,pFactor);
-			}
+			return MetricHelpers.Map(m,pFactor);
 		}
-
 	}
 }
