@@ -98,10 +98,38 @@ function make-4() {
 	makepermute "make4_r" "opts_r" "4" "AreaSmoother2" "img-4"
 }
 
+function make-5() {
+	make5_r=("zebra" "boy" "building" "cats" "cloud" "cookie" "creek")
+	opts_r=("-z 3")
+	makepermute "make5_r" "opts_r" "5" "ZoomBlur" "img-5"
+}
+
+function make-6() {
+	make6_r=("flower" "fractal" "handle" "harddrive" "lego" "pool" "rainbow")
+	opts_r=("-rp 50%" "-s 2" "-ccw")
+	makepermute "make6_r" "opts_r" "6" "Swirl" "img-6"
+}
+
+function make-7() {
+	make7_r=("road" "rock" "scorpius" "shack" "shell" "skull" "spider")
+	opts_r=("-e 2.5" "-m 2")
+	makepermute "make7_r" "opts_r" "7" "Deform" "img-7"
+}
+
+function make-8() {
+	make8_r=("toes" "zebra")
+	opts_r=("-p 1234")
+	makepermute "make8_r" "opts_r" "8" "Encrypt" "img-8"
+}
+
 # make-1
 # make-2
 # make-3
-make-4
+# make-4
+# make-5
+# make-6
+# make-7
+make-8
 
 # boy
 # building
