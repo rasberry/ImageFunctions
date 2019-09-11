@@ -122,6 +122,12 @@ function make-8() {
 	makepermute "make8_r" "opts_r" "8" "Encrypt" "img-8"
 }
 
+function make-9() {
+	make9_r=("boy" "building" "cats" "cloud" "cookie" "creek" "flower")
+	opts_r=("-m 2" "-m 3" "-n 10")
+	makepermute "make9_r" "opts_r" "9" "PixelRules" "img-9"
+}
+
 # make-1
 # make-2
 # make-3
@@ -129,7 +135,8 @@ function make-8() {
 # make-5
 # make-6
 # make-7
-make-8
+# make-8
+make-9
 
 # boy
 # building
