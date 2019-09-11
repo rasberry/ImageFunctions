@@ -36,7 +36,7 @@ namespace ImageFunctions.AreaSmoother
 		{
 			TPixel tpstart = frame.GetPixelRowSpan(py)[px];
 			Rgba32 start = tpstart.ToColor();
-			
+
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
 			double bestlen = double.MaxValue;
 			double bestang = double.NaN;
@@ -109,7 +109,7 @@ namespace ImageFunctions.AreaSmoother
 			double sina = Math.Sin(a) * (back ? -1 : 1);
 			int maxx = lb.Width -1;
 			int maxy = lb.Height -1;
-			
+
 			while(true) {
 				double fx = (int)(cosa * r) + px;
 				double fy = (int)(sina * r) + py;

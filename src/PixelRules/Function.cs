@@ -20,8 +20,8 @@ namespace ImageFunctions.PixelRules
 			proc.Passes = Passes;
 			proc.WhichMode = WhichMode;
 			proc.MaxIters = MaxIters;
-			proc.Sampler = Sampler;
-			proc.Measurer = Measurer;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.Measurer = Measurer ?? Registry.DefaultMetric;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {

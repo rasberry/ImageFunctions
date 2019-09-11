@@ -33,7 +33,7 @@ function md() {
 	done
 	echo "$tit"
 	echo "$sep"
-	
+
 	local -n md_r="$1"
 	max=$(maxlen "md_r")
 	for n in "${md_r[@]}"; do
@@ -47,7 +47,7 @@ function md() {
 		done
 		echo "$row"
 	done
-	
+
 }
 
 # imagearray outfolder index action options
@@ -86,8 +86,22 @@ function make-2() {
 	makepermute "make2_r" "opts_r" "2" "Derivatives" "img-2"
 }
 
+function make-3() {
+	make3_r=("rock-p" "scorpius-p" "shack-p" "shell-p" "skull-p" "spider-p" "toes-p")
+	opts_r=("-t 2" "-t 10" "--metric 1" "--sampler 11")
+	makepermute "make3_r" "opts_r" "3" "AreaSmoother" "img-3"
+}
+
+function make-4() {
+	make4_r=("rock-p" "scorpius-p" "shack-p" "shell-p" "skull-p" "spider-p" "toes-p")
+	opts_r=("-H" "-V")
+	makepermute "make4_r" "opts_r" "4" "AreaSmoother2" "img-4"
+}
+
 # make-1
-make-2
+# make-2
+# make-3
+make-4
 
 # boy
 # building

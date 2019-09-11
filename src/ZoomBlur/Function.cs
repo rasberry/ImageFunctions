@@ -104,8 +104,8 @@ namespace ImageFunctions.ZoomBlur
 			proc.ZoomAmount = ZoomAmount;
 			proc.CenterPx = CenterPx;
 			proc.CenterRt = CenterRt;
-			proc.Sampler = Sampler;
-			proc.Measurer = Measurer;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.Measurer = Measurer ?? Registry.DefaultMetric;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
