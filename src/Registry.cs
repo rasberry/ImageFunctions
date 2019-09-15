@@ -49,9 +49,16 @@ namespace ImageFunctions
 			}
 		}
 
-		public static IMeasurer Map(Metric m, double pFactor = 2.0)
-		{
+		public static IResampler DefaultResampler { get {
+			return Map(Sampler.NearestNeighbor);
+		}}
+
+		public static IMeasurer Map(Metric m, double pFactor = 2.0) {
 			return MetricHelpers.Map(m,pFactor);
 		}
+
+		public static IMeasurer DefaultMetric { get {
+			return Map(Metric.Euclidean);
+		}}
 	}
 }

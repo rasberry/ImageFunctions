@@ -21,7 +21,7 @@ namespace ImageFunctions.Deform
 			proc.CenterPx = CenterPx;
 			proc.WhichMode = WhichMode;
 			proc.Power = Power;
-			proc.Sampler = Sampler;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {

@@ -77,8 +77,8 @@ namespace ImageFunctions.AreaSmoother
 		{
 			var proc = new Processor<Rgba32>();
 			proc.TotalTries = TotalTries;
-			proc.Sampler = Sampler;
-			proc.Measurer = Measurer;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.Measurer = Measurer ?? Registry.DefaultMetric;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {

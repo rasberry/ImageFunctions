@@ -92,8 +92,8 @@ namespace ImageFunctions.ZoomBlur
 			sb.AppendLine(" -z  (number)[%]             Zoom amount (default 1.1)");
 			sb.AppendLine(" -cc (number) (number)       Coordinates of zoom center in pixels");
 			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of zoom center by proportion (default 50% 50%)");
-			sb.AppendLine(" -oh                         Only zoom horizontally");
-			sb.AppendLine(" -ov                         Only zoom vertically");
+			//sb.AppendLine(" -oh                         Only zoom horizontally");
+			//sb.AppendLine(" -ov                         Only zoom vertically");
 			sb.SamplerHelpLine();
 			sb.MetricHelpLine();
 		}
@@ -104,8 +104,8 @@ namespace ImageFunctions.ZoomBlur
 			proc.ZoomAmount = ZoomAmount;
 			proc.CenterPx = CenterPx;
 			proc.CenterRt = CenterRt;
-			proc.Sampler = Sampler;
-			proc.Measurer = Measurer;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.Measurer = Measurer ?? Registry.DefaultMetric;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {

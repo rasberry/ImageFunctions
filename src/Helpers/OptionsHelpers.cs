@@ -64,10 +64,10 @@ namespace ImageFunctions.Helpers
 		{
 			items = null;
 			if (arg == null) { return false; }
-			
+
 			string[] tokens = arg.Split(sep,4); //NOTE change 4 to more if needed
 			items = new V[tokens.Length];
-	
+
 			for(int i=0; i<tokens.Length; i++) {
 				if (TryParse(tokens[i],out V val)) {
 					items[i] = val;

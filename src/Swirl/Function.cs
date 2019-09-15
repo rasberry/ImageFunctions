@@ -129,8 +129,8 @@ namespace ImageFunctions.Swirl
 			proc.RadiusPp = RadiusPp;
 			proc.Rotations = Rotations;
 			proc.CounterClockwise = CounterClockwise;
-			proc.Sampler = Sampler;
-			proc.Measurer = Measurer;
+			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.Measurer = Measurer ?? Registry.DefaultMetric;
 
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
