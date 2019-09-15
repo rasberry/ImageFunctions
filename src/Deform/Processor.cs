@@ -11,11 +11,7 @@ namespace ImageFunctions.Deform
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public Point? CenterPx = null;
-		public PointF? CenterPp = null;
-		public Function.Mode WhichMode = Function.Mode.Polynomial;
-		public double Power = 2.0;
-		public IResampler Sampler { get; set; } = null;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -23,19 +19,19 @@ namespace ImageFunctions.Deform
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
 				double ccx,ccy;
-				if (CenterPx != null) {
-					ccx = CenterPx.Value.X;
-					ccy = CenterPx.Value.Y;
+				if (O.CenterPx != null) {
+					ccx = O.CenterPx.Value.X;
+					ccy = O.CenterPx.Value.Y;
 				}
 				else {
-					ccx = frame.Width * (CenterPp == null ? 0.5 : CenterPp.Value.X);
-					ccy = frame.Height * (CenterPp == null ? 0.5 : CenterPp.Value.Y);
+					ccx = frame.Width * (O.CenterPp == null ? 0.5 : O.CenterPp.Value.X);
+					ccy = frame.Height * (O.CenterPp == null ? 0.5 : O.CenterPp.Value.Y);
 				}
 
 				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,Power);
+					TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,O.Power);
 					int coff = cy * rect.Width + cx;
 					canvas.GetPixelSpan()[coff] = nc;
 				},progress);
@@ -57,7 +53,7 @@ namespace ImageFunctions.Deform
 			x -= ccx; y -= ccy;
 			double px = 0.0, py = 0.0;
 
-			switch(WhichMode)
+			switch(O.WhichMode)
 			{
 			case Function.Mode.Polynomial: {
 				//solve(w^q/n = w,n) : n = w^(q-1)
@@ -91,7 +87,7 @@ namespace ImageFunctions.Deform
 
 			px += ccx; py += ccy;
 
-			return ImageHelpers.Sample(frame,px,py,Sampler);
+			return ImageHelpers.Sample(frame,px,py,O.Sampler);
 		}
 
 		#if false
@@ -131,7 +127,6 @@ namespace ImageFunctions.Deform
 
 			return ImageHelpers.Sample(frame,px,py,Sampler);
 		}
-
 
 		double ppxmin = double.MaxValue;
 		double ppxmax = double.MinValue;

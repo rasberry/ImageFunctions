@@ -17,11 +17,7 @@ namespace ImageFunctions.PixelRules
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.Passes = Passes;
-			proc.WhichMode = WhichMode;
-			proc.MaxIters = MaxIters;
-			proc.Sampler = Sampler ?? Registry.DefaultResampler;
-			proc.Measurer = Measurer ?? Registry.DefaultMetric;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -36,11 +32,11 @@ namespace ImageFunctions.PixelRules
 			{
 				string curr = args[a];
 				if (curr == "-n" && ++a<len) {
-					if (!Helpers.OptionsHelpers.TryParse(args[a],out Passes)) {
+					if (!Helpers.OptionsHelpers.TryParse(args[a],out O.Passes)) {
 						Log.Error("invalid passes");
 						return false;
 					}
-					if (Passes < 1) {
+					if (O.Passes < 1) {
 						Log.Error("passes must be greater than zero");
 						return false;
 					}
@@ -51,14 +47,14 @@ namespace ImageFunctions.PixelRules
 						Log.Error("unkown mode \""+args[a]+"\"");
 						return false;
 					}
-					WhichMode = which;
+					O.WhichMode = which;
 				}
 				else if (curr == "-x" && ++a<len) {
-					if (!Helpers.OptionsHelpers.TryParse(args[a],out MaxIters)) {
+					if (!Helpers.OptionsHelpers.TryParse(args[a],out O.MaxIters)) {
 						Log.Error("invalid max iterations");
 						return false;
 					}
-					if (MaxIters < 1) {
+					if (O.MaxIters < 1) {
 						Log.Error("max iterations must be greater than zero");
 						return false;
 					}
@@ -67,13 +63,13 @@ namespace ImageFunctions.PixelRules
 					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
-					Sampler = sampler;
+					O.Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
-					Measurer = mf;
+					O.Measurer = mf;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -117,8 +113,8 @@ namespace ImageFunctions.PixelRules
 			sb.AppendLine(" 4. StairCaseFarthest        move towards farthest distance");
 		}
 
-		public IMeasurer Measurer { get; set; }
-		public IResampler Sampler { get; set; }
+		public IMeasurer Measurer { get { return O.Measurer; }}
+		public IResampler Sampler { get { return O.Sampler; }}
 
 		public enum Mode {
 			None = 0,
@@ -128,8 +124,6 @@ namespace ImageFunctions.PixelRules
 			StairCaseFarthest = 4
 		}
 
-		Mode WhichMode = Mode.StairCaseDescend;
-		int Passes = 1;
-		int MaxIters = 100;
+		Options O = new Options();
 	}
 }

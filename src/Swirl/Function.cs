@@ -27,7 +27,7 @@ namespace ImageFunctions.Swirl
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					CenterPx = new Point(cx,cy);
+					O.CenterPx = new Point(cx,cy);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
 					if (!OptionsHelpers.ParseNumberPercent(args[a-1],out double ppx)) {
@@ -38,43 +38,43 @@ namespace ImageFunctions.Swirl
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					CenterPp = new PointF((float)ppx,(float)ppy);
+					O.CenterPp = new PointF((float)ppx,(float)ppy);
 				}
 				else if (curr == "-rx" && ++a < len) {
 					if (!int.TryParse(args[a],out int val)) {
 						Log.Error("Could not parse "+args[a]+" as a number");
 						return false;
 					}
-					RadiusPx = val;
+					O.RadiusPx = val;
 				}
 				else if (curr == "-rp" && ++a < len) {
 					if (!OptionsHelpers.ParseNumberPercent(args[a],out double val)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					RadiusPp = val;
+					O.RadiusPp = val;
 				}
 				else if (curr == "-s" && ++a < len) {
 					if (!OptionsHelpers.ParseNumberPercent(args[a],out double val)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					Rotations = val;
+					O.Rotations = val;
 				}
 				else if (curr == "-ccw") {
-					CounterClockwise = true;
+					O.CounterClockwise = true;
 				}
 				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
-					Sampler = sampler;
+					O.Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
-					Measurer = mf;
+					O.Measurer = mf;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -84,11 +84,11 @@ namespace ImageFunctions.Swirl
 				}
 			}
 
-			if (CenterPx == null && CenterPp == null) {
-				CenterPp = new PointF(0.5f,0.5f);
+			if (O.CenterPx == null && O.CenterPp == null) {
+				O.CenterPp = new PointF(0.5f,0.5f);
 			}
-			if (RadiusPx == null && RadiusPp == null) {
-				RadiusPp = 0.9;
+			if (O.RadiusPx == null && O.RadiusPp == null) {
+				O.RadiusPp = 0.9;
 			}
 			if (String.IsNullOrEmpty(InImage)) {
 				Log.Error("input image must be provided");
@@ -123,15 +123,7 @@ namespace ImageFunctions.Swirl
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.CenterPx = CenterPx;
-			proc.CenterPp = CenterPp;
-			proc.RadiusPx = RadiusPx;
-			proc.RadiusPp = RadiusPp;
-			proc.Rotations = Rotations;
-			proc.CounterClockwise = CounterClockwise;
-			proc.Sampler = Sampler ?? Registry.DefaultResampler;
-			proc.Measurer = Measurer ?? Registry.DefaultMetric;
-
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -140,13 +132,8 @@ namespace ImageFunctions.Swirl
 
 		}
 
-		public IResampler Sampler { get; set; } = null;
-		public IMeasurer Measurer { get; set; } = null;
-		Point? CenterPx = null;
-		PointF? CenterPp = null;
-		int? RadiusPx = null;
-		double? RadiusPp = null;
-		double Rotations = 0.9;
-		bool CounterClockwise = false;
+		Options O = new Options();
+		public IResampler Sampler { get { return O.Sampler; }}
+		public IMeasurer Measurer { get { return O.Measurer; }}
 	}
 }

@@ -20,12 +20,12 @@ namespace ImageFunctions.ZoomBlur
 			{
 				string curr = args[a];
 				if (curr == "-z" && ++a < len) {
-					if (!double.TryParse(args[a],out ZoomAmount)) {
+					if (!double.TryParse(args[a],out O.ZoomAmount)) {
 						Log.Error("invalid number "+args[a]);
 						return false;
 					}
-					if (ZoomAmount < 0.0 || double.IsInfinity(ZoomAmount) || double.IsNaN(ZoomAmount)) {
-						Log.Error("zoom amount "+ZoomAmount+" is invalid");
+					if (O.ZoomAmount < 0.0 || double.IsInfinity(O.ZoomAmount) || double.IsNaN(O.ZoomAmount)) {
+						Log.Error("zoom amount "+O.ZoomAmount+" is invalid");
 						return false;
 					}
 				}
@@ -38,7 +38,7 @@ namespace ImageFunctions.ZoomBlur
 						Log.Error("invalid number "+args[a]);
 						return false;
 					}
-					CenterPx = new Point(px,py);
+					O.CenterPx = new Point(px,py);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
 					if (!OptionsHelpers.ParseNumberPercent(args[a-1], out double px)) {
@@ -47,19 +47,19 @@ namespace ImageFunctions.ZoomBlur
 					if (!OptionsHelpers.ParseNumberPercent(args[a], out double py)) {
 						return false;
 					}
-					CenterRt = new PointF((float)px,(float)py);
+					O.CenterRt = new PointF((float)px,(float)py);
 				}
 				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
-					Sampler = sampler;
+					O.Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
-					Measurer = mf;
+					O.Measurer = mf;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -101,23 +101,16 @@ namespace ImageFunctions.ZoomBlur
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.ZoomAmount = ZoomAmount;
-			proc.CenterPx = CenterPx;
-			proc.CenterRt = CenterRt;
-			proc.Sampler = Sampler ?? Registry.DefaultResampler;
-			proc.Measurer = Measurer ?? Registry.DefaultMetric;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
 				ctx.ApplyProcessor(proc,Rect);
 			}
-
 		}
 
-		public IResampler Sampler { get; set; } = null;
-		public IMeasurer Measurer { get; set; } = null;
-		Point? CenterPx = null;
-		PointF? CenterRt = null;
-		double ZoomAmount = 1.1;
+		public IResampler Sampler { get { return O.Sampler; }}
+		public IMeasurer Measurer { get { return O.Measurer; }}
+		Options O = new Options();
 	}
 }

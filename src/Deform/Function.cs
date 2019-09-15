@@ -17,11 +17,7 @@ namespace ImageFunctions.Deform
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.CenterPp = CenterPp;
-			proc.CenterPx = CenterPx;
-			proc.WhichMode = WhichMode;
-			proc.Power = Power;
-			proc.Sampler = Sampler ?? Registry.DefaultResampler;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -44,7 +40,7 @@ namespace ImageFunctions.Deform
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					CenterPx = new Point(cx,cy);
+					O.CenterPx = new Point(cx,cy);
 				}
 				else if (curr == "-cp" && (a+=2) < len) {
 					if (!OptionsHelpers.ParseNumberPercent(args[a-1],out double ppx)) {
@@ -55,14 +51,14 @@ namespace ImageFunctions.Deform
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					CenterPp = new PointF((float)ppx,(float)ppy);
+					O.CenterPp = new PointF((float)ppx,(float)ppy);
 				}
 				else if (curr == "-e" && ++a < len) {
 					if (!OptionsHelpers.TryParse(args[a],out double power)) {
 						Log.Error("Could not parse "+args[a]);
 						return false;
 					}
-					Power = power;
+					O.Power = power;
 				}
 				else if (curr == "-m" && ++a < len) {
 					Mode which;
@@ -70,13 +66,13 @@ namespace ImageFunctions.Deform
 						Log.Error("unkown mode \""+args[a]+"\"");
 						return false;
 					}
-					WhichMode = which;
+					O.WhichMode = which;
 				}
 				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
-					Sampler = sampler;
+					O.Sampler = sampler;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -97,8 +93,8 @@ namespace ImageFunctions.Deform
 			if (String.IsNullOrEmpty(OutImage)) {
 				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
-			if (CenterPx == null && CenterPp == null) {
-				CenterPp = new PointF(0.5f,0.5f);
+			if (O.CenterPx == null && O.CenterPp == null) {
+				O.CenterPp = new PointF(0.5f,0.5f);
 			}
 
 			return true;
@@ -127,10 +123,7 @@ namespace ImageFunctions.Deform
 			Inverted = 2
 		}
 
-		Point? CenterPx = null;
-		PointF? CenterPp = null;
-		double Power = 2.0;
-		Mode WhichMode = Mode.Polynomial;
-		public IResampler Sampler { get; set; } = null;
+		Options O = new Options();
+		public IResampler Sampler { get { return O.Sampler; }}
 	}
 }

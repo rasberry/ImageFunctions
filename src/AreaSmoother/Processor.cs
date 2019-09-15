@@ -11,9 +11,7 @@ namespace ImageFunctions.AreaSmoother
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public int TotalTries = 7;
-		public IResampler Sampler = null;
-		public IMeasurer Measurer = null;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -48,7 +46,7 @@ namespace ImageFunctions.AreaSmoother
 			double ahigh = Math.PI;
 			double alow = 0;
 
-			for(int tries=1; tries <= TotalTries; tries++)
+			for(int tries=1; tries <= O.TotalTries; tries++)
 			{
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)
@@ -56,7 +54,7 @@ namespace ImageFunctions.AreaSmoother
 					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out Rgba32 fc);
 					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out Rgba32 bc);
 
-					double len = Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
+					double len = O.Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
 					if (len < bestlen) {
 						bestang = a;
@@ -65,7 +63,7 @@ namespace ImageFunctions.AreaSmoother
 						bestbc = Between(bc,start,0.5);
 						bestfpx = fp;
 						bestbpx = bp;
-						double flen = Measurer.Measure(px,py,fp.X,fp.Y);
+						double flen = O.Measurer.Measure(px,py,fp.X,fp.Y);
 						bestratio = flen/len;
 						//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 					}
@@ -117,7 +115,7 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					Rgba32 f = ImageHelpers.Sample(lb,fx,fy,Sampler).ToColor();
+					Rgba32 f = ImageHelpers.Sample(lb,fx,fy,O.Sampler).ToColor();
 					//Rgba32 f = lb.GetPixelRowSpan(fy)[fx].ToColor();
 					if (f != start) {
 						c = f;

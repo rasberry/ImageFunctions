@@ -18,10 +18,10 @@ namespace ImageFunctions.AreaSmoother2
 			{
 				string curr = args[a];
 				if (curr == "-H") {
-					HOnly = true;
+					O.HOnly = true;
 				}
 				else if (curr == "-V") {
-					VOnly = true;
+					O.VOnly = true;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -58,17 +58,14 @@ namespace ImageFunctions.AreaSmoother2
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.HOnly = HOnly;
-			proc.VOnly = VOnly;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
 				ctx.ApplyProcessor(proc,Rect);
 			}
-
 		}
 
-		bool HOnly = false;
-		bool VOnly = false;
+		Options O = new Options();
 	}
 }

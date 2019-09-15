@@ -13,11 +13,7 @@ namespace ImageFunctions.ZoomBlur
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public double ZoomAmount = 1.1;
-		public Point? CenterPx = null;
-		public PointF? CenterRt = null;
-		public IResampler Sampler = null;
-		public IMeasurer Measurer = null;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -27,13 +23,13 @@ namespace ImageFunctions.ZoomBlur
 				double w2 = rect.Width / 2.0;
 				double h2 = rect.Height / 2.0;
 
-				if (CenterPx.HasValue) {
-					w2 = CenterPx.Value.X;
-					h2 = CenterPx.Value.Y;
+				if (O.CenterPx.HasValue) {
+					w2 = O.CenterPx.Value.X;
+					h2 = O.CenterPx.Value.Y;
 				}
-				else if (CenterRt.HasValue) {
-					w2 = rect.Width * CenterRt.Value.X;
-					h2 = rect.Height * CenterRt.Value.Y;
+				else if (O.CenterRt.HasValue) {
+					w2 = rect.Width * O.CenterRt.Value.X;
+					h2 = rect.Height * O.CenterRt.Value.Y;
 				}
 
 				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
@@ -50,26 +46,26 @@ namespace ImageFunctions.ZoomBlur
 
 		TPixel ZoomPixel(ImageFrame<TPixel> frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
-			double dist = Measurer.Measure(x,y,cx,cy);
+			double dist = O.Measurer.Measure(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
 
 			List<TPixel> vector = new List<TPixel>(idist);
 			double ang = Math.Atan2(y - cy, x - cx);
 			double sd = dist;
-			double ed = dist * ZoomAmount;
+			double ed = dist * O.ZoomAmount;
 
 			for (double d = sd; d < ed; d++)
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				TPixel c = ImageHelpers.Sample(frame,px,py,Sampler);
+				TPixel c = ImageHelpers.Sample(frame,px,py,O.Sampler);
 				vector.Add(c);
 			}
 
 			TPixel avg;
 			int count = vector.Count;
 			if (count < 1) {
-				avg = ImageHelpers.Sample(frame,x,y,Sampler);
+				avg = ImageHelpers.Sample(frame,x,y,O.Sampler);
 			}
 			else if (count == 1) {
 				avg = vector[0];

@@ -11,9 +11,7 @@ namespace ImageFunctions.PixelateDetails
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public double ImageSplitFactor { get; set; } = 2.0;
-		public bool UseProportionalSplit { get; set; } = false;
-		public double DescentFactor { get; set; } = 0.5;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
@@ -31,13 +29,13 @@ namespace ImageFunctions.PixelateDetails
 			if (rect.Width < 1 || rect.Height < 1) { return; }
 
 			int chunkW,chunkH,remW,remH;
-			if (UseProportionalSplit) {
-				chunkW = (int)((double)rect.Width  / ImageSplitFactor);
-				chunkH = (int)((double)rect.Height / ImageSplitFactor);
+			if (O.UseProportionalSplit) {
+				chunkW = (int)((double)rect.Width  / O.ImageSplitFactor);
+				chunkH = (int)((double)rect.Height / O.ImageSplitFactor);
 			}
 			else {
 				int dim = Math.Min(rect.Width,rect.Height);
-				chunkW = chunkH = (int)((double)dim / ImageSplitFactor);
+				chunkW = chunkH = (int)((double)dim / O.ImageSplitFactor);
 			}
 			if (chunkW < 1 || chunkH < 1) { return; }
 			remW = rect.Width  % chunkW;
@@ -72,9 +70,9 @@ namespace ImageFunctions.PixelateDetails
 			//Log.Debug("grid count = "+grid.Count);
 			grid.Sort();
 
-			int recurseCount = DescentFactor < 1.0
-				? (int)(grid.Count * DescentFactor)
-				: (int)DescentFactor
+			int recurseCount = O.DescentFactor < 1.0
+				? (int)(grid.Count * O.DescentFactor)
+				: (int)O.DescentFactor
 			;
 			recurseCount = Math.Max(1,Math.Min(recurseCount,grid.Count - 1));
 			//Log.Debug("c="+grid.Count+" df = "+DescentFactor+" rc="+recurseCount);

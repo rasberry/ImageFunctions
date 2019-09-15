@@ -51,7 +51,7 @@ namespace ImageFunctions
 
 	public interface IHasResampler
 	{
-		IResampler Sampler { get; set; }
+		IResampler Sampler { get; }
 	}
 
 
@@ -74,7 +74,7 @@ namespace ImageFunctions
 	
 	public interface IHasDistance
 	{
-		IMeasurer Measurer { get; set; }
+		IMeasurer Measurer { get; }
 	}
 
 	public enum Direction

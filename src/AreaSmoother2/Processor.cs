@@ -11,15 +11,14 @@ namespace ImageFunctions.AreaSmoother2
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public bool HOnly = false;
-		public bool VOnly = false;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				if (!VOnly) {
+				if (!O.VOnly) {
 					MoreHelpers.ThreadRows(rect,config.MaxDegreeOfParallelism,(y) => {
 						HashSet<int> visited = new HashSet<int>();
 						for(int x = rect.Left; x < rect.Right; x++) {
@@ -29,12 +28,12 @@ namespace ImageFunctions.AreaSmoother2
 					},progress);
 				}
 
-				if (!HOnly) {
+				if (!O.HOnly) {
 					MoreHelpers.ThreadColumns(rect,config.MaxDegreeOfParallelism,(x) => {
 						HashSet<int> visited = new HashSet<int>();
 						for(int y = rect.Top; y < rect.Bottom; y++ ) {
 							if (visited.Contains(y)) { continue; }
-							DrawGradientV(visited,frame,canvas,rect,x,y,!VOnly);
+							DrawGradientV(visited,frame,canvas,rect,x,y,!O.VOnly);
 						}
 					},progress);
 				}

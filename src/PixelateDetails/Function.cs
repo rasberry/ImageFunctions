@@ -16,9 +16,7 @@ namespace ImageFunctions.PixelateDetails
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.ImageSplitFactor = ImageSplitFactor;
-			proc.UseProportionalSplit = UseProportionalSplit;
-			proc.DescentFactor = DescentFactor;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -33,7 +31,7 @@ namespace ImageFunctions.PixelateDetails
 			{
 				string curr = args[a];
 				if (curr == "-p") {
-					UseProportionalSplit = true;
+					O.UseProportionalSplit = true;
 				}
 				else if (curr == "-s" && ++a<len) {
 					string num = args[a];
@@ -42,7 +40,7 @@ namespace ImageFunctions.PixelateDetails
 						Log.Error("invalid splitting factor \""+d+"\"");
 						return false;
 					}
-					ImageSplitFactor = d;
+					O.ImageSplitFactor = d;
 				}
 				else if (curr == "-r" && ++a<len) {
 					string num = args[a];
@@ -51,7 +49,7 @@ namespace ImageFunctions.PixelateDetails
 						Log.Error("invalid re-split factor \""+d+"\"");
 						return false;
 					}
-					DescentFactor = d;
+					O.DescentFactor = d;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -87,8 +85,6 @@ namespace ImageFunctions.PixelateDetails
 			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
 		}
 
-		bool UseProportionalSplit = false;
-		double ImageSplitFactor = 2.0;
-		double DescentFactor = 0.5;
+		Options O = new Options();
 	}
 }

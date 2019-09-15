@@ -12,19 +12,15 @@ namespace ImageFunctions.PixelRules
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public Function.Mode WhichMode = Function.Mode.StairCaseDescend;
-		public int Passes = 1;
-		public int MaxIters = 100;
-		public IResampler Sampler = null;
-		public IMeasurer Measurer = null;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			using (var progress = new ProgressBar())
 			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
 			{
-				for(int p=0; p<Passes; p++) {
-					progress.Prefix = "Pass "+(p+1)+"/"+Passes+" ";
+				for(int p=0; p<O.Passes; p++) {
+					progress.Prefix = "Pass "+(p+1)+"/"+O.Passes+" ";
 					MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 						int cy = y - rect.Top;
 						int cx = x - rect.Left;
@@ -41,7 +37,7 @@ namespace ImageFunctions.PixelRules
 		{
 			int cx = x, cy = y;
 			var history = new List<TPixel>();
-			int max = MaxIters;
+			int max = O.MaxIters;
 
 			while(--max >= 0) {
 				TPixel ant = frame[cx,cy];
@@ -130,8 +126,8 @@ namespace ImageFunctions.PixelRules
 			}
 			//both are good
 			if (bid != null) {
-				if (WhichMode == Function.Mode.StairCaseAscend
-					|| WhichMode == Function.Mode.StairCaseDescend)
+				if (O.WhichMode == Function.Mode.StairCaseAscend
+					|| O.WhichMode == Function.Mode.StairCaseDescend)
 				{
 					//only follow darker colors
 					TPixel white = NamedColors<TPixel>.White;
@@ -162,15 +158,15 @@ namespace ImageFunctions.PixelRules
 			Rgba32 o = one.ToColor();
 			Rgba32 t = two.ToColor();
 
-			bool normal = WhichMode == Function.Mode.StairCaseDescend
-				|| WhichMode == Function.Mode.StairCaseClosest;
+			bool normal = O.WhichMode == Function.Mode.StairCaseDescend
+				|| O.WhichMode == Function.Mode.StairCaseClosest;
 			double[] vo = normal
 				? new double[] { o.R, o.G, o.B, o.A }
 				: new double[] { 255 - o.R, 255 - o.G, 255 - o.B, 255 - o.A }
 			;
 			double[] vt = new double[] { t.R, t.G, t.B, t.A };
 
-			double dist = Measurer.Measure(vo,vt);
+			double dist = O.Measurer.Measure(vo,vt);
 			return dist;
 		}
 	}

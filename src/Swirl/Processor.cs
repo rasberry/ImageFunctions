@@ -11,37 +11,30 @@ namespace ImageFunctions.Swirl
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public Point? CenterPx = null;
-		public PointF? CenterPp = null;
-		public int? RadiusPx = null;
-		public double? RadiusPp = null;
-		public double Rotations = 0.9;
-		public bool CounterClockwise = false;
-		public IResampler Sampler = null;
-		public IMeasurer Measurer = null;
+		public Options O = null;
 
 		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			double swirlRadius;
-			double swirlTwists = Rotations;
+			double swirlTwists = O.Rotations;
 			double swirlx, swirly;
 
-			if (RadiusPx != null) {
-				swirlRadius = RadiusPx.Value;
+			if (O.RadiusPx != null) {
+				swirlRadius = O.RadiusPx.Value;
 			}
 			else {
-				double m = RadiusPp != null ? RadiusPp.Value : 0.9;
+				double m = O.RadiusPp != null ? O.RadiusPp.Value : 0.9;
 				swirlRadius = m * Math.Min(rect.Width,rect.Height);
 			}
 
-			if (CenterPx != null) {
-				swirlx = CenterPx.Value.X;
-				swirly = CenterPx.Value.Y;
+			if (O.CenterPx != null) {
+				swirlx = O.CenterPx.Value.X;
+				swirly = O.CenterPx.Value.Y;
 			}
 			else {
-				double px = CenterPp != null ? CenterPp.Value.X : 0.5;
-				double py = CenterPp != null ? CenterPp.Value.Y : 0.5;
+				double px = O.CenterPp != null ? O.CenterPp.Value.X : 0.5;
+				double py = O.CenterPp != null ? O.CenterPp.Value.Y : 0.5;
 				swirlx = rect.Width * px + rect.Left;
 				swirly = rect.Height * py + rect.Top;
 			}
@@ -67,18 +60,18 @@ namespace ImageFunctions.Swirl
 			double pixelx = x - swirlx;
 			double pixely = y - swirly;
 			//double pixelDist = Math.Sqrt((pixelx * pixelx) + (pixely * pixely));
-			double pixelDist = Measurer.Measure(x,y,swirlx,swirly);
+			double pixelDist = O.Measurer.Measure(x,y,swirlx,swirly);
 			double swirlAmount = 1.0 - (pixelDist / swirlRadius);
 
 			if (swirlAmount > 0.0) {
 				double twistAngle = swirlTwists * swirlAmount * Math.PI * 2;
-				if (!CounterClockwise) { twistAngle *= -1.0; }
+				if (!O.CounterClockwise) { twistAngle *= -1.0; }
 				double pixelAng = Math.Atan2(pixely,pixelx) + twistAngle;
 				pixelx = Math.Cos(pixelAng) * pixelDist;
 				pixely = Math.Sin(pixelAng) * pixelDist;
 			}
 
-			var c = frame.Sample(swirlx + pixelx,swirly + pixely,Sampler);
+			var c = frame.Sample(swirlx + pixelx,swirly + pixely,O.Sampler);
 			return c;
 		}
 	}

@@ -11,8 +11,7 @@ namespace ImageFunctions.Derivatives
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public bool UseABS { get; set; } = false;
-		public bool DoGrayscale { get; set; } = false;
+		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
@@ -35,10 +34,10 @@ namespace ImageFunctions.Derivatives
 					if (y > rect.Top)      { n = frame.GetPixelRowSpan(y-1)[x]; }
 					if (y < rect.Bottom-1) { s = frame.GetPixelRowSpan(y+1)[x]; }
 
-					var color = DoDiff(c,n,e,s,w,UseABS);
+					var color = DoDiff(c,n,e,s,w,O.UseABS);
 					var qi = new QueueItem {
 						X = x, Y = y,
-						Color = DoGrayscale ? ImageHelpers.ToGrayScale(color) : color
+						Color = O.DoGrayscale ? ImageHelpers.ToGrayScale(color) : color
 					};
 
 					if (queue.Count >= qLength) {

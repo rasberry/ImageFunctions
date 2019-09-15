@@ -19,26 +19,27 @@ namespace ImageFunctions.AreaSmoother
 			{
 				string curr = args[a];
 				if (curr == "-t" && ++a < len) {
-					if (!int.TryParse(args[a],out TotalTries)) {
+					if (!int.TryParse(args[a],out int totalTries)) {
 						Log.Error("invalid number "+args[a]);
 						return false;
 					}
-					if (TotalTries < 1) {
+					if (totalTries < 1) {
 						Log.Error("-t number must be greater than zero");
 						return false;
 					}
+					O.TotalTries = totalTries;
 				}
 				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
 						return false;
 					}
-					Sampler = sampler;
+					O.Sampler = sampler;
 				}
 				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
 					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
 						return false;
 					}
-					Measurer = mf;
+					O.Measurer = mf;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -76,9 +77,7 @@ namespace ImageFunctions.AreaSmoother
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.TotalTries = TotalTries;
-			proc.Sampler = Sampler ?? Registry.DefaultResampler;
-			proc.Measurer = Measurer ?? Registry.DefaultMetric;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -86,8 +85,8 @@ namespace ImageFunctions.AreaSmoother
 			}
 		}
 
-		public IResampler Sampler { get; set; } = null;
-		public IMeasurer Measurer { get; set; } = null;
-		int TotalTries = 7;
+		Options O = new Options();
+		public IResampler Sampler { get { return O.Sampler; }}
+		public IMeasurer Measurer { get { return O.Measurer; }}
 	}
 }

@@ -3,7 +3,8 @@
 # https://stackoverflow.com/questions/41731740/how-to-pass-an-array-into-a-bash-function
 
 # im="/mnt/d/Software/visual/ImageMagickQ16HDRI/magick.exe"
-dotnet="/mnt/c/Program Files/dotnet/dotnet.exe"
+# dotnet="/mnt/c/Program Files/dotnet/dotnet.exe"
+dotnet="dotnet"
 src="img/*"
 
 function pad() {
@@ -128,14 +129,14 @@ function make-9() {
 	makepermute "make9_r" "opts_r" "9" "PixelRules" "img-9"
 }
 
-# make-1
-# make-2
-# make-3
-# make-4
-# make-5
-# make-6
-# make-7
-# make-8
+make-1
+make-2
+make-3
+make-4
+make-5
+make-6
+make-7
+make-8
 make-9
 
 # boy

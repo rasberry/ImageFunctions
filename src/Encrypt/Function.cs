@@ -20,36 +20,36 @@ namespace ImageFunctions.Encrypt
 			{
 				string curr = args[a];
 				if (curr == "-p" && ++a<len) {
-					UserPassword = args[a];
+					O.UserPassword = args[a];
 				}
 				else if (curr == "-pi") {
-					if (!TryPromptForPassword(out UserPassword)) {
+					if (!TryPromptForPassword(out O.UserPassword)) {
 						Log.Error("invalid password");
 						return false;
 					}
 				}
 				else if (curr == "-raw") {
-					TreatPassAsRaw = true;
+					O.TreatPassAsRaw = true;
 				}
 				else if (curr == "-d") {
-					DoDecryption = true;
+					O.DoDecryption = true;
 				}
 				else if (curr == "-iv" && ++a<len) {
-					if (!Encryptor.TryStringToBytes(args[a],out IVBytes)) {
+					if (!Encryptor.TryStringToBytes(args[a],out O.IVBytes)) {
 						Log.Error("Invalid IV value");
 						return false;
 					}
-					if (IVBytes != null && IVBytes.Length != Encryptor.BlockSizeInBytes) {
+					if (O.IVBytes != null && O.IVBytes.Length != Encryptor.BlockSizeInBytes) {
 						Log.Error("IV must be "+Encryptor.BlockSizeInBytes+" bytes");
 						return false;
 					}
 				}
 				else if (curr == "-salt" && ++a<len) {
-					if (!Encryptor.TryStringToBytes(args[a],out SaltBytes)) {
+					if (!Encryptor.TryStringToBytes(args[a],out O.SaltBytes)) {
 						Log.Error("Invalid Salt value");
 						return false;
 					}
-					if (SaltBytes != null && SaltBytes.Length < Encryptor.MinSaltBytes) {
+					if (O.SaltBytes != null && O.SaltBytes.Length < Encryptor.MinSaltBytes) {
 						Log.Error("Salt must be at least "+Encryptor.MinSaltBytes+" bytes");
 						return false;
 					}
@@ -63,10 +63,10 @@ namespace ImageFunctions.Encrypt
 						Log.Error("Iterations must be greater than zero");
 						return false;
 					}
-					PasswordIterations = iter;
+					O.PasswordIterations = iter;
 				}
 				else if (curr == "-test") {
-					TestMode = true;
+					O.TestMode = true;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -77,12 +77,12 @@ namespace ImageFunctions.Encrypt
 			}
 
 			bool goodPass = false;
-			if (!String.IsNullOrEmpty(UserPassword)) {
-				if (TreatPassAsRaw) {
-					Password = Encoding.UTF8.GetBytes(UserPassword);
+			if (!String.IsNullOrEmpty(O.UserPassword)) {
+				if (O.TreatPassAsRaw) {
+					O.Password = Encoding.UTF8.GetBytes(O.UserPassword);
 					goodPass = true;
 				}
-				else if (Encryptor.TryStringToBytes(UserPassword,out Password)) {
+				else if (Encryptor.TryStringToBytes(O.UserPassword,out O.Password)) {
 					goodPass = true;
 				}
 			}
@@ -91,14 +91,14 @@ namespace ImageFunctions.Encrypt
 				return false;
 			}
 
-			if (TestMode) {
+			if (O.TestMode) {
 				Log.Message(
 					"Password: "
-					+"\n "+BytesAsHex(Password)
+					+"\n "+BytesAsHex(O.Password)
 					+"\nIV:"
-					+"\n "+BytesAsHex(IVBytes ?? Encryptor.DefaultIV)
+					+"\n "+BytesAsHex(O.IVBytes ?? Encryptor.DefaultIV)
 					+"\nSalt:"
-					+"\n "+BytesAsHex(SaltBytes ?? Encryptor.DefaultSalt)
+					+"\n "+BytesAsHex(O.SaltBytes ?? Encryptor.DefaultSalt)
 				);
 				return false; //stop the program
 			}
@@ -152,12 +152,7 @@ namespace ImageFunctions.Encrypt
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.DoDecryption = DoDecryption;
-			proc.Password = Password;
-			proc.IVBytes = IVBytes;
-			proc.SaltBytes = SaltBytes;
-			proc.PasswordIterations = PasswordIterations.GetValueOrDefault(Encryptor.DefaultIterations);
-
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -182,13 +177,6 @@ namespace ImageFunctions.Encrypt
 			sb.AppendLine(" -test                       Print out any specified (text) inputs as hex and exit");
 		}
 
-		bool DoDecryption = false;
-		byte[] Password = null;
-		string UserPassword = null;
-		byte[] IVBytes = null;
-		byte[] SaltBytes = null;
-		bool TreatPassAsRaw = false;
-		bool TestMode = false;
-		int? PasswordIterations = null;
+		Options O = new Options();
 	}
 }

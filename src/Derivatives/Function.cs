@@ -18,10 +18,10 @@ namespace ImageFunctions.Derivatives
 			{
 				string curr = args[a];
 				if (curr == "-g") {
-					DoGrayscale = true;
+					O.DoGrayscale = true;
 				}
 				else if (curr == "-a") {
-					UseABS = true;
+					O.UseABS = true;
 				}
 				else if (InImage == null) {
 					InImage = curr;
@@ -58,8 +58,7 @@ namespace ImageFunctions.Derivatives
 		protected override void Process(IImageProcessingContext<Rgba32> ctx)
 		{
 			var proc = new Processor<Rgba32>();
-			proc.DoGrayscale = DoGrayscale;
-			proc.UseABS = UseABS;
+			proc.O = O;
 			if (Rect.IsEmpty) {
 				ctx.ApplyProcessor(proc);
 			} else {
@@ -67,7 +66,6 @@ namespace ImageFunctions.Derivatives
 			}
 		}
 
-		bool DoGrayscale = false;
-		bool UseABS = false;
+		Options O = new Options();
 	}
 }
