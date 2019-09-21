@@ -2,6 +2,6 @@
 A collection of various image processing functions
 
 ## Pages ##
-* [[Usage]]
-* [[Examples]]
-* [[TODO]]
+* [Usage](../../wiki/usage)
+* [Examples](../../wiki/examples)
+* [TODO](../../wiki/todo)
