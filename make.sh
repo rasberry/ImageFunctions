@@ -5,7 +5,6 @@
 # im="/mnt/d/Software/visual/ImageMagickQ16HDRI/magick.exe"
 # dotnet="/mnt/c/Program Files/dotnet/dotnet.exe"
 dotnet="dotnet"
-src="img/*"
 
 function pad() {
 	printf "%-$1s" "$2"
@@ -43,7 +42,7 @@ function md() {
 		s=3;
 		while [ $s -le $e ]; do
 			i=$((s - 2))
-			row="$row|![$n-$i]($3/$n-$i.png \"$n-$i\")"
+			row="$row|![$n-$i](examples/$3/$n-$i.png \"$n-$i\")"
 			s=$((s + 1))
 		done
 		echo "$row"
@@ -54,9 +53,9 @@ function md() {
 # imagearray outfolder index action options
 function makeset() {
 	local -n makeset_r="$1"
-	if [ ! -d "$2" ]; then mkdir "$2"; fi
+	if [ ! -d "examples/$2" ]; then mkdir "examples/$2"; fi
 	for n in "${makeset_r[@]}"; do
-		"$dotnet" run -p "../src" "--no-build" -- "$4" $5 "img/$n.png" "$2/$n-$3.png"
+		"$dotnet" run -p "../src" "--no-build" -- "$4" $5 "img/$n.png" "examples/$2/$n-$3.png"
 	done
 }
 
