@@ -60,8 +60,8 @@ Usage ImageFunctions (action) [options]
  --sampler (name)            Use given sampler (defaults to nearest pixel)
 
  Available Modes
- 1. Polynomial - x^e/w,y^e/h
- 2. Inverted   - TODO
+ 1. Polynomial - x^e/w, y^e/h
+ 2. Inverted   - n/x, n/y; n = (x^e + y^e)
 
 8. Encrypt [options] (input image) [output image]
  Encrypt or Decrypts all or parts of an image
