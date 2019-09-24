@@ -33,6 +33,16 @@
 
 ## PixelateDetails ##
 * Paralellize and add progress bar
+* add a mode where borders inside of boxes are added
+  * border color options [average, original, user specified color]
+  * fill options [average, original, user specified color]
+  * need to come up with color input parser
+    * rgb 0-255    : "127,63,255"
+    * rgb decimals : "0.5,0.25,1.0"
+    * rgb percent  : "50%,25%,100%"
+    * rgb Hex      : "#7F3FFF"
+    * other color spaces ?
+  * maybe include option to specify which boders to render ? (nesw) or (trbl)
 
 ## Derivatives ##
 * Paralellize and add progress bar
