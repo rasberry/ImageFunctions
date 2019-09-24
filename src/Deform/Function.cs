@@ -113,9 +113,9 @@ namespace ImageFunctions.Deform
 			sb.SamplerHelpLine();
 			sb.AppendLine();
 			sb.AppendLine(" Available Modes");
-			sb.AppendLine(" 1. Polynomial - x^e/w,y^e/h");
-			sb.AppendLine(" 2. Inverted   - TODO");
-		}
+			sb.AppendLine(" 1. Polynomial - x^e/w, y^e/h");
+			sb.AppendLine(" 2. Inverted   - n/x, n/y; n = (x^e + y^e)");
+ 		}
 
 		public enum Mode {
 			None = 0,
