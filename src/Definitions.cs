@@ -17,7 +17,8 @@ namespace ImageFunctions
 		Swirl = 6,
 		Deform = 7,
 		Encrypt = 8,
-		PixelRules = 9
+		PixelRules = 9,
+		ImgDiff = 10
 	}
 
 	public interface IFunction

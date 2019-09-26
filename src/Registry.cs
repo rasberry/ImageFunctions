@@ -22,6 +22,7 @@ namespace ImageFunctions
 			case Action.Deform: return new Deform.Function();
 			case Action.Encrypt: return new Encrypt.Function();
 			case Action.PixelRules: return new PixelRules.Function();
+			case Action.ImgDiff: return new ImgDiff.Function();
 			}
 		}
 

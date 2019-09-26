@@ -69,17 +69,17 @@ namespace ImageFunctions.AreaSmoother2
 			}
 		
 			var sColor = seed.ToColor();
-			var lColor = Between(fSpan[y * frame.Width + lx].ToColor(),sColor,0.5);
-			var rColor = Between(fSpan[y * frame.Width + rx].ToColor(),sColor,0.5);
+			var lColor = ImageHelpers.BetweenColor(fSpan[y * frame.Width + lx].ToColor(),sColor,0.5);
+			var rColor = ImageHelpers.BetweenColor(fSpan[y * frame.Width + rx].ToColor(),sColor,0.5);
 
 			for(int gi=0; gi<len; gi++)
 			{
 				double ratio = (double)(gi+1)/(double)len;
 				Rgba32 nc;
 				if (ratio > 0.5) {
-					nc = Between(sColor,rColor,(ratio - 0.5) * 2.0);
+					nc = ImageHelpers.BetweenColor(sColor,rColor,(ratio - 0.5) * 2.0);
 				} else {
-					nc = Between(lColor,sColor,ratio * 2.0);
+					nc = ImageHelpers.BetweenColor(lColor,sColor,ratio * 2.0);
 				}
 				int gx = lx + gi + 1;
 				int off = GetOffset(gx,y,rect);
@@ -110,26 +110,26 @@ namespace ImageFunctions.AreaSmoother2
 				// color span is to small so just use colors as-is
 				visited.Add(y);
 				int off = GetOffset(x,y,rect);
-				var fc = blend ? Between(seed,cSpan[off].ToColor(),0.5) : seed;
+				var fc = blend ? ImageHelpers.BetweenColor(seed,cSpan[off].ToColor(),0.5) : seed;
 				cSpan[off] = fc.FromColor<TPixel>();
 				return;
 			}
 		
-			var tColor = Between(fSpan[ty * frame.Width + x].ToColor(),seed,0.5);
-			var bColor = Between(fSpan[by * frame.Width + x].ToColor(),seed,0.5);
+			var tColor = ImageHelpers.BetweenColor(fSpan[ty * frame.Width + x].ToColor(),seed,0.5);
+			var bColor = ImageHelpers.BetweenColor(fSpan[by * frame.Width + x].ToColor(),seed,0.5);
 
 			for(int gi=0; gi<len; gi++)
 			{
 				double ratio = (double)(gi+1)/(double)len;
 				Rgba32 nc;
 				if (ratio > 0.5) {
-					nc = Between(seed,bColor,(ratio - 0.5) * 2.0);
+					nc = ImageHelpers.BetweenColor(seed,bColor,(ratio - 0.5) * 2.0);
 				} else {
-					nc = Between(tColor,seed,ratio * 2.0);
+					nc = ImageHelpers.BetweenColor(tColor,seed,ratio * 2.0);
 				}
 				int gy = ty + gi + 1;
 				int off = GetOffset(x,gy,rect);
-				var fc = blend ? Between(nc,cSpan[off].ToColor(),0.5) : nc;
+				var fc = blend ? ImageHelpers.BetweenColor(nc,cSpan[off].ToColor(),0.5) : nc;
 				cSpan[off] = fc.FromColor<TPixel>();
 				visited.Add(gy);
 			}
@@ -141,19 +141,6 @@ namespace ImageFunctions.AreaSmoother2
 			int ox = x - rect.Left;
 			int off = oy * rect.Width + ox;
 			return off;
-		}
-
-		//ratio 0.0 = 100% a
-		//ratio 1.0 = 100% b
-		static Rgba32 Between(Rgba32 a, Rgba32 b, double ratio)
-		{
-			byte nr = (byte)Math.Round((1-ratio)*a.R + ratio*b.R,0);
-			byte ng = (byte)Math.Round((1-ratio)*a.G + ratio*b.G,0);
-			byte nb = (byte)Math.Round((1-ratio)*a.B + ratio*b.B,0);
-			byte na = (byte)Math.Round((1-ratio)*a.A + ratio*b.A,0);
-			var btw = new Rgba32(nr,ng,nb,na);
-			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
-			return btw;
 		}
 	}
 }
