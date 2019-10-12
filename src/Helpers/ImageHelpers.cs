@@ -10,8 +10,7 @@ namespace ImageFunctions.Helpers
 {
 	public static class ImageHelpers
 	{
-		public static void SaveAsPng<TPixel>(string fileName, Image<TPixel> image)
-			where TPixel : struct, IPixel<TPixel>
+		public static void SaveAsPng(string fileName, Image image)
 		{
 			PngEncoder encoder = new PngEncoder();
 			encoder.CompressionLevel = 9;

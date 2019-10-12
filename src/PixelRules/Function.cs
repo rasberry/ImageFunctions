@@ -7,6 +7,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
@@ -14,15 +15,13 @@ namespace ImageFunctions.PixelRules
 {
 	public class Function : AbstractFunction, IHasDistance, IHasResampler
 	{
-		protected override void Process(IImageProcessingContext<Rgba32> ctx)
+		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
 		{
-			var proc = new Processor<Rgba32>();
+			var proc = new Processor<TPixel>();
 			proc.O = O;
-			if (Rect.IsEmpty) {
-				ctx.ApplyProcessor(proc);
-			} else {
-				ctx.ApplyProcessor(proc,Rect);
-			}
+			proc.Source = source;
+			proc.SourceRectangle = sourceRectangle;
+			return proc;
 		}
 
 		public override bool ParseArgs(string[] args)

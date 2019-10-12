@@ -10,18 +10,22 @@ namespace ImageFunctions
 	public abstract class AbstractProcessor<TPixel> : IImageProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
-		public void Apply(Image<TPixel> source, Rectangle sourceRectangle)
+		public void Apply()
 		{
-			Configuration config = source.GetConfiguration();
-			foreach (ImageFrame<TPixel> sourceFrame in source.Frames) {
-				this.Apply(sourceFrame, sourceRectangle, config);
+			var config = Source.GetConfiguration();
+			if (MaxDegreeOfParallelism.HasValue) {
+				config.MaxDegreeOfParallelism = MaxDegreeOfParallelism.Value;
+			}
+			foreach (ImageFrame<TPixel> sourceFrame in Source.Frames) {
+				this.Apply(sourceFrame, SourceRectangle, config);
 			}
 		}
 
 		protected abstract void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config);
+
+		public virtual void Dispose() {}
+		public Image<TPixel> Source { get; set; }
+		public Rectangle SourceRectangle { get; set; }
+		public int? MaxDegreeOfParallelism { get; set; }
 	}
 }
-
-
-
-

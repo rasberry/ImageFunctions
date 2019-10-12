@@ -5,6 +5,7 @@ using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Processing.Processors;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 
@@ -120,16 +121,13 @@ namespace ImageFunctions.Swirl
 			sb.MetricHelpLine();
 		}
 
-		protected override void Process(IImageProcessingContext<Rgba32> ctx)
+		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
 		{
-			var proc = new Processor<Rgba32>();
+			var proc = new Processor<TPixel>();
 			proc.O = O;
-			if (Rect.IsEmpty) {
-				ctx.ApplyProcessor(proc);
-			} else {
-				ctx.ApplyProcessor(proc,Rect);
-			}
-
+			proc.Source = source;
+			proc.SourceRectangle = sourceRectangle;
+			return proc;
 		}
 
 		Options O = new Options();
