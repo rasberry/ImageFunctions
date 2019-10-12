@@ -59,3 +59,6 @@
 
 ## Deform ##
 * maybe implement [fisheye](https://stackoverflow.com/questions/2477774/correcting-fisheye-distortion-programmatically)
+
+## Image Diff ##
+* add a way to change the hilight color

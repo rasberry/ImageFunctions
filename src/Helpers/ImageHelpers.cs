@@ -192,5 +192,19 @@ namespace ImageFunctions.Helpers
 			q2 = img.GetPixelSafe(px2,py2).ToColor();
 			q3 = img.GetPixelSafe(px3,py3).ToColor();
 		}
+
+		//ratio 0.0 = 100% a
+		//ratio 1.0 = 100% b
+		public static Rgba32 BetweenColor(Rgba32 a, Rgba32 b, double ratio)
+		{
+			ratio = Math.Clamp(ratio,0.0,1.0);
+			byte nr = (byte)Math.Round((1.0-ratio)*a.R + ratio*b.R,0);
+			byte ng = (byte)Math.Round((1.0-ratio)*a.G + ratio*b.G,0);
+			byte nb = (byte)Math.Round((1.0-ratio)*a.B + ratio*b.B,0);
+			byte na = (byte)Math.Round((1.0-ratio)*a.A + ratio*b.A,0);
+			var btw = new Rgba32(nr,ng,nb,na);
+			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
+			return btw;
+		}
 	}
 }
