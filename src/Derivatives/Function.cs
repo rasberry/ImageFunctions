@@ -48,7 +48,7 @@ namespace ImageFunctions.Derivatives
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.Derivatives);
+			string name = OptionsHelpers.FunctionName(Activity.Derivatives);
 			sb.AppendLine();
 			sb.AppendLine(name+" [options] (input image) [output image]");
 			sb.AppendLine(" Computes the color change rate - similar to edge detection");

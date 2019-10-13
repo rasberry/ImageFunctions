@@ -101,7 +101,7 @@ namespace ImageFunctions.Deform
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.Deform);
+			string name = OptionsHelpers.FunctionName(Activity.Deform);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Warps an image using a mapping function");

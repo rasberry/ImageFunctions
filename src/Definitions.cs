@@ -6,7 +6,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
-	public enum Action
+	public enum Activity
 	{
 		None = 0,
 		PixelateDetails = 1,

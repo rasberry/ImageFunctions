@@ -80,7 +80,7 @@ namespace ImageFunctions.ImgDiff
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.ImgDiff);
+			string name = OptionsHelpers.FunctionName(Activity.ImgDiff);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (image one) (image two) [output image]");
 			sb.AppendLine(" Highlights differences between two images.");

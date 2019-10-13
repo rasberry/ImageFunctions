@@ -107,7 +107,7 @@ namespace ImageFunctions.Swirl
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.Swirl);
+			string name = OptionsHelpers.FunctionName(Activity.Swirl);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Smears pixels in a circle around a point");

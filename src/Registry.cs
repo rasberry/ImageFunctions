@@ -7,22 +7,22 @@ namespace ImageFunctions
 {
 	public static class Registry
 	{
-		public static IFunction Map(Action action)
+		public static IFunction Map(Activity action)
 		{
 			switch(action)
 			{
 			default:
-			case Action.None: return null;
-			case Action.PixelateDetails: return new PixelateDetails.Function();
-			case Action.Derivatives: return new Derivatives.Function();
-			case Action.AreaSmoother: return new AreaSmoother.Function();
-			case Action.AreaSmoother2: return new AreaSmoother2.Function();
-			case Action.ZoomBlur: return new ZoomBlur.Function();
-			case Action.Swirl: return new Swirl.Function();
-			case Action.Deform: return new Deform.Function();
-			case Action.Encrypt: return new Encrypt.Function();
-			case Action.PixelRules: return new PixelRules.Function();
-			case Action.ImgDiff: return new ImgDiff.Function();
+			case Activity.None: return null;
+			case Activity.PixelateDetails: return new PixelateDetails.Function();
+			case Activity.Derivatives: return new Derivatives.Function();
+			case Activity.AreaSmoother: return new AreaSmoother.Function();
+			case Activity.AreaSmoother2: return new AreaSmoother2.Function();
+			case Activity.ZoomBlur: return new ZoomBlur.Function();
+			case Activity.Swirl: return new Swirl.Function();
+			case Activity.Deform: return new Deform.Function();
+			case Activity.Encrypt: return new Encrypt.Function();
+			case Activity.PixelRules: return new PixelRules.Function();
+			case Activity.ImgDiff: return new ImgDiff.Function();
 			}
 		}
 
