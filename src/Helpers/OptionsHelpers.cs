@@ -78,7 +78,7 @@ namespace ImageFunctions.Helpers
 			return true;
 		}
 
-		public static string FunctionName(Action a)
+		public static string FunctionName(Activity a)
 		{
 			return ((int)a).ToString() + ". " + a.ToString();
 		}

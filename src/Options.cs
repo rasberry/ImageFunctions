@@ -8,7 +8,7 @@ namespace ImageFunctions
 {
 	public static class Options
 	{
-		public static void Usage(Action action = Action.None)
+		public static void Usage(Activity action = Activity.None)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("Usage "+nameof(ImageFunctions)+" (action) [options]");
@@ -20,24 +20,24 @@ namespace ImageFunctions
 
 			if (ShowHelpActions) {
 				sb.AppendLine().AppendLine("Actions:");
-				foreach(Action a in Enum.GetValues(typeof(Action))) {
-					if (a == Action.None) { continue; }
+				foreach(Activity a in Enum.GetValues(typeof(Activity))) {
+					if (a == Activity.None) { continue; }
 					sb.AppendLine(((int)a)+". "+a);
 				}
 			}
 
 			if (ShowFullHelp)
 			{
-				foreach(Action a in Enum.GetValues(typeof(Action)))
+				foreach(Activity a in Enum.GetValues(typeof(Activity)))
 				{
-					if (a == Action.None) { continue; }
+					if (a == Activity.None) { continue; }
 					IFunction func = Registry.Map(a);
 					func.Usage(sb);
 				}
 				SamplerHelp(sb);
 				MetricHelp(sb);
 			}
-			else if (action != Action.None)
+			else if (action != Activity.None)
 			{
 				IFunction func = Registry.Map(action);
 				func.Usage(sb);
@@ -84,7 +84,7 @@ namespace ImageFunctions
 			for(int a=0; a<len; a++) {
 				string curr = args[a];
 				if (curr == "-h" || curr == "--help") {
-					if (Which == Action.None) {
+					if (Which == Activity.None) {
 						ShowFullHelp = true;
 					}
 					else {
@@ -126,9 +126,9 @@ namespace ImageFunctions
 					}
 					MaxDegreeOfParallelism = num;
 				}
-				else if (Which == Action.None) {
-					Action which;
-					if (!OptionsHelpers.TryParse<Action>(curr,out which)) {
+				else if (Which == Activity.None) {
+					Activity which;
+					if (!OptionsHelpers.TryParse<Activity>(curr,out which)) {
 						Log.Error("unkown action \""+curr+"\"");
 						return false;
 					}
@@ -144,7 +144,7 @@ namespace ImageFunctions
 				return false;
 			}
 
-			if (Which == Action.None) {
+			if (Which == Activity.None) {
 				Log.Error("action was not specified");
 				return false;
 			}
@@ -153,10 +153,10 @@ namespace ImageFunctions
 			return true;
 		}
 
-		public static Action Which { get; private set; } = Action.None;
+		public static Activity Which { get; private set; } = Activity.None;
 		public static Rectangle Rect { get { return _Rect; }}
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
-		
+
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;

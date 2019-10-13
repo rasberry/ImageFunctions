@@ -96,7 +96,7 @@ namespace ImageFunctions.PixelRules
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.PixelRules);
+			string name = OptionsHelpers.FunctionName(Activity.PixelRules);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Average a set of pixels by following a minimaztion function");

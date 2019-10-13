@@ -85,7 +85,7 @@ namespace ImageFunctions.ZoomBlur
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.ZoomBlur);
+			string name = OptionsHelpers.FunctionName(Activity.ZoomBlur);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends rays of pixels to produce a 'zoom' effect");
