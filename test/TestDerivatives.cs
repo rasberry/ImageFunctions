@@ -9,38 +9,31 @@ namespace test
 	[TestClass]
 	public class TestDerivatives
 	{
-		// images used on wiki
-		// fractal,handle,harddrive,lego,pool,rainbow,road
-
-		const string name = "fractal";
 		const Activity Which = Activity.Derivatives;
 		const int num = (int)Which;
+		static string name = Materials.GetTestImageNames(Which)[0];
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void Derivatives(int index, string[] args)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string outFile = tempFile.TempFileName;
+				string checkFile = Path.Combine(Helpers.ImgRoot,
+					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+
+				var argsWithFiles = args.Append(inFile,outFile);
+				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+			}
 		}
 
-		[TestMethod]
-		public void Test_g()
+		public static IEnumerable<object[]> GetData()
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-g" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_a()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-a" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			yield return new object[] {1, new string[0] };
+			yield return new object[] {2, new string[] { "-g" } };
+			yield return new object[] {3, new string[] { "-a" } };
 		}
 	}
 }

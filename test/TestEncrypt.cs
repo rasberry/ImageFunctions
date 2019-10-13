@@ -9,20 +9,29 @@ namespace test
 	[TestClass]
 	public class TestEncrypt
 	{
-		// images used on wiki
-		// toes,zebra
-
-		const string name = "toes";
 		const Activity Which = Activity.Encrypt;
 		const int num = (int)Which;
+		static string name = Materials.GetTestImageNames(Which)[0];
 
-		[TestMethod]
-		public void Test_p1234()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void Encrypt(int index, string[] args)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-p","1234" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string outFile = tempFile.TempFileName;
+				string checkFile = Path.Combine(Helpers.ImgRoot,
+					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+
+				var argsWithFiles = args.Append(inFile,outFile);
+				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+			}
+		}
+
+		public static IEnumerable<object[]> GetData()
+		{
+			yield return new object[] {2, new string[] { "-p","1234" } };
 		}
 	}
 }

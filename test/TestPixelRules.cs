@@ -9,47 +9,32 @@ namespace test
 	[TestClass]
 	public class TestPixelRules
 	{
-		// images used on wiki
-		// boy,building,cats,cloud,cookie,creek,flower
-
-		const string name = "building";
 		const Activity Which = Activity.PixelRules;
 		const int num = (int)Which;
+		static string name = Materials.GetTestImageNames(Which)[0];
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void PixelRules(int index, string[] args)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string outFile = tempFile.TempFileName;
+				string checkFile = Path.Combine(Helpers.ImgRoot,
+					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+
+				var argsWithFiles = args.Append(inFile,outFile);
+				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+			}
 		}
 
-		[TestMethod]
-		public void Test_m2()
+		public static IEnumerable<object[]> GetData()
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-m","2" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_m3()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-m","3" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_n10()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-4.png");
-			var args = new List<string>{ "-n","10" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			yield return new object[] {1, new string[0] };
+			yield return new object[] {2, new string[] { "-m","2" } };
+			yield return new object[] {3, new string[] { "-m","3" } };
+			yield return new object[] {4, new string[] { "-n","10" } };
 		}
 	}
 }

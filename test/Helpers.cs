@@ -59,18 +59,17 @@ namespace test
 			return sOne.SequenceEqual(sTwo);
 		}
 
-		public static void RunImageFunction(Activity act, List<string> args, string inFile, string checkFile)
+		public static string[] Append(this string[] args,params string[] more)
 		{
-			string pr = Helpers.ProjectRoot;
-			string outFile = Path.GetTempFileName();
-			File.Move(outFile,outFile+".png");
-			outFile += ".png";
+			var moreArgs = new List<string>(args);
+			moreArgs.AddRange(more);
+			return moreArgs.ToArray();
+		}
 
+		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
+		{
 			IFunction func = Registry.Map(act);
-			args.Add(inFile);
-			args.Add(outFile);
-
-			bool worked = func.ParseArgs(args.ToArray());
+			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked);
 
 			func.Main();
@@ -78,6 +77,11 @@ namespace test
 			Assert.IsTrue(File.Exists(outFile));
 			Assert.IsTrue(Helpers.AreImagesEqual(checkFile,outFile));
 			File.Delete(outFile);
+		}
+
+		public static ITempFile CreateTempPngFile()
+		{
+			return new TempPngFile();
 		}
 	}
 }

@@ -9,38 +9,31 @@ namespace test
 	[TestClass]
 	public class TestAreaSmoother2
 	{
-		// images used on wiki
-		// rock-p,scorpius-p,shack-p,shell-p,skull-p,spider-p,toes-p
-
-		const string name = "scorpius-p";
 		const Activity Which = Activity.AreaSmoother2;
 		const int num = (int)Which;
+		static string name = Materials.GetTestImageNames(Which)[0];
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void AreaSmoother2(int index, string[] args)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string outFile = tempFile.TempFileName;
+				string checkFile = Path.Combine(Helpers.ImgRoot,
+					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+
+				var argsWithFiles = args.Append(inFile,outFile);
+				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+			}
 		}
 
-		[TestMethod]
-		public void Test_H()
+		public static IEnumerable<object[]> GetData()
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-H" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_V()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-V" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			yield return new object[] {1, new string[0] };
+			yield return new object[] {2, new string[] { "-H" } };
+			yield return new object[] {3, new string[] { "-V" } };
 		}
 	}
 }
