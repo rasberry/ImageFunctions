@@ -7,13 +7,13 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestDerivatives
+	public class TestZoomBlur
 	{
 		// images used on wiki
-		// fractal,handle,harddrive,lego,pool,rainbow,road
+		// zebra,boy,building,cats,cloud,cookie,creek
 
-		const string name = "fractal";
-		const Activity Which = Activity.Derivatives;
+		const string name = "zebra";
+		const Activity Which = Activity.ZoomBlur;
 		const int num = (int)Which;
 
 		[TestMethod]
@@ -26,20 +26,11 @@ namespace test
 		}
 
 		[TestMethod]
-		public void Test_g()
+		public void Test_z3()
 		{
 			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
 			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-g" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_a()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-a" };
+			var args = new List<string>{ "-z","3" };
 			Helpers.RunImageFunction(Which, args, inFile, checkFile);
 		}
 	}

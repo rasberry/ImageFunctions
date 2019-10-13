@@ -7,12 +7,13 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestPixelateDetails
+	public class TestAreaSmoother2
 	{
 		// images used on wiki
-		// boy, building, cats, cloud, cookie, creek, flower
-		const string name = "boy";
-		const Activity Which = Activity.PixelateDetails;
+		// rock-p,scorpius-p,shack-p,shell-p,skull-p,spider-p,toes-p
+
+		const string name = "scorpius-p";
+		const Activity Which = Activity.AreaSmoother2;
 		const int num = (int)Which;
 
 		[TestMethod]
@@ -25,29 +26,20 @@ namespace test
 		}
 
 		[TestMethod]
-		public void Test_p()
+		public void Test_H()
 		{
 			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
 			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-p" };
+			var args = new List<string>{ "-H" };
 			Helpers.RunImageFunction(Which, args, inFile, checkFile);
 		}
 
 		[TestMethod]
-		public void Test_s3()
+		public void Test_V()
 		{
 			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
 			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-s","3" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_r3()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-4.png");
-			var args = new List<string>{ "-r","3" };
+			var args = new List<string>{ "-V" };
 			Helpers.RunImageFunction(Which, args, inFile, checkFile);
 		}
 	}
