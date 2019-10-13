@@ -17,7 +17,10 @@ namespace ImageFunctions
 				config.MaxDegreeOfParallelism = MaxDegreeOfParallelism.Value;
 			}
 			foreach (ImageFrame<TPixel> sourceFrame in Source.Frames) {
-				this.Apply(sourceFrame, SourceRectangle, config);
+				var rect = SourceRectangle;
+				if (rect.IsEmpty) { rect = sourceFrame.Bounds(); }
+
+				this.Apply(sourceFrame, rect, config);
 			}
 		}
 
