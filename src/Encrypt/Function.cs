@@ -162,7 +162,7 @@ namespace ImageFunctions.Encrypt
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.Encrypt);
+			string name = OptionsHelpers.FunctionName(Activity.Encrypt);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Encrypt or Decrypts all or parts of an image");

@@ -47,7 +47,7 @@ namespace ImageFunctions.AreaSmoother2
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.AreaSmoother2);
+			string name = OptionsHelpers.FunctionName(Activity.AreaSmoother2);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Blends adjacent areas of flat color together by blending horizontal and vertical gradients");

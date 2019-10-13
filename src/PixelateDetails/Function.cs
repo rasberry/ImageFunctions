@@ -76,7 +76,7 @@ namespace ImageFunctions.PixelateDetails
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Action.PixelateDetails);
+			string name = OptionsHelpers.FunctionName(Activity.PixelateDetails);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] (input image) [output image]");
 			sb.AppendLine(" Creates areas of flat color by recusively splitting high detail chunks");

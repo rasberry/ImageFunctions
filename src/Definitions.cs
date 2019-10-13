@@ -6,7 +6,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
-	public enum Action
+	public enum Activity
 	{
 		None = 0,
 		PixelateDetails = 1,
@@ -72,7 +72,7 @@ namespace ImageFunctions
 		double Measure(double x1, double y1, double x2, double y2);
 		double Measure(double[] u, double[] v);
 	}
-	
+
 	public interface IHasDistance
 	{
 		IMeasurer Measurer { get; }
