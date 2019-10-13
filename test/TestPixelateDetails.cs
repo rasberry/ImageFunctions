@@ -2,24 +2,51 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions;
 using System.IO;
 using System;
+using System.Collections.Generic;
 
 namespace test
 {
 	[TestClass]
 	public class TestPixelateDetails
 	{
-		[TestMethod]
-		public void Test1()
-		{
-			// | Image   | Default | -p | -s 3 | -r 3 |
-			string pr = Helpers.ProjectRoot;
-			string temp = Path.GetTempFileName();
+		// images used on wiki
+		// boy, building, cats, cloud, cookie, creek, flower
+		const string name = "boy";
 
-			IFunction func = Registry.Map(Activity.PixelateDetails);
-			bool worked = func.ParseArgs(new string[] {
-				Path.Combine(pr,"wiki","img","boy.png",temp)
-			});
-			Assert.IsTrue(worked);
+		[TestMethod]
+		public void TestDefault()
+		{
+			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-1.png");
+			var args = new List<string>();
+			Helpers.RunImageFunction(Activity.PixelateDetails,args, inFile, checkFile);
+		}
+
+		[TestMethod]
+		public void Test_p()
+		{
+			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-2.png");
+			var args = new List<string>{ "-p" };
+			Helpers.RunImageFunction(Activity.PixelateDetails, args, inFile, checkFile);
+		}
+
+		[TestMethod]
+		public void Test_s3()
+		{
+			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-3.png");
+			var args = new List<string>{ "-s","3" };
+			Helpers.RunImageFunction(Activity.PixelateDetails, args, inFile, checkFile);
+		}
+
+		[TestMethod]
+		public void Test_r3()
+		{
+			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-4.png");
+			var args = new List<string>{ "-r","3" };
+			Helpers.RunImageFunction(Activity.PixelateDetails, args, inFile, checkFile);
 		}
 	}
 }
