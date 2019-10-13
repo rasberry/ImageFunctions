@@ -25,8 +25,8 @@ namespace test
 
 		public static bool AreImagesEqual(string one, string two)
 		{
-			var iOne = Image.Load(one);
-			var iTwo = Image.Load(two);
+			var iOne = Image.Load<Rgba32>(one);
+			var iTwo = Image.Load<Rgba32>(two);
 			using (iOne) using(iTwo) {
 				if (!iOne.Bounds().Equals(iTwo.Bounds())) {
 					return false;
