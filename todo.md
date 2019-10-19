@@ -26,6 +26,9 @@
   * find nearest starting point (trie?) - dotnet add package KdTree
   * calculate distance to point
   * color pixel based on distance
+* take a look at https://en.wikipedia.org/wiki/Rose_(mathematics)
+  * https://en.wikipedia.org/wiki/Spirograph
+  * https://en.wikipedia.org/wiki/Maurer_rose
 
 ## AreaSmoother ##
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector
