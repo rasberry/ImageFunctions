@@ -19,9 +19,28 @@ namespace test
 		}}
 		static string RootFolder = null;
 
-		public static string ImgRoot { get {
-			return Path.Combine(ProjectRoot,"..","wiki","img");
+		public static string WikiRoot { get {
+			return Path.Combine(Helpers.ProjectRoot,"..","wiki");
 		}}
+
+		public static string ImgRoot { get {
+			return Path.Combine(WikiRoot,"img");
+		}}
+
+		public delegate string[] ArgsProvider();
+
+		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
+		{
+			IFunction func = Registry.Map(act);
+			bool worked = func.ParseArgs(args);
+			Assert.IsTrue(worked);
+
+			func.Main();
+
+			Assert.IsTrue(File.Exists(outFile));
+			Assert.IsTrue(File.Exists(checkFile));
+			Assert.IsTrue(Helpers.AreImagesEqual(checkFile,outFile));
+		}
 
 		public static bool AreImagesEqual(string one, string two)
 		{
@@ -66,22 +85,33 @@ namespace test
 			return moreArgs.ToArray();
 		}
 
-		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
-		{
-			IFunction func = Registry.Map(act);
-			bool worked = func.ParseArgs(args);
-			Assert.IsTrue(worked);
-
-			func.Main();
-
-			Assert.IsTrue(File.Exists(outFile));
-			Assert.IsTrue(Helpers.AreImagesEqual(checkFile,outFile));
-			File.Delete(outFile);
-		}
-
 		public static ITempFile CreateTempPngFile()
 		{
 			return new TempPngFile();
+		}
+
+		public static IEnumerable<Activity> AllActivity()
+		{
+			foreach(Activity a in Enum.GetValues(typeof(Activity))) {
+				if (a == Activity.None) { continue; }
+				yield return a;
+			}
+		}
+
+		public static (int,string[] args) ExtractInnards(object[] items)
+		{
+			int index = (int)items[0];
+			string[] args = (string[])items[1];
+			return (index,args);
+		}
+
+		public static string InFile(string n) {
+			return Path.Combine(Helpers.ImgRoot,n + ".png");
+		}
+
+		public static string CheckFile(Activity which, string n, int i) {
+			return Path.Combine(Helpers.ImgRoot,
+				string.Format("img-{0}-{1}-{2}.png",(int)which,n,i+1));
 		}
 	}
 }

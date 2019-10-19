@@ -1,12 +1,19 @@
 using System;
-using System.Collections.Generic;
-using ImageFunctions;
 
 namespace test
 {
-	public class Example
+	public enum FileSet
 	{
-		public Activity Which = Activity.None;
-		public List<object[]> Args = null;
+		None = 0,
+		OneOne, //one input, one output
+		TwoOne, //two input, one output
+	}
+
+	public interface IAmTest
+	{
+		string[] GetImageNames();
+		int CaseCount { get; }
+		FileSet Set { get; }
+		string[] GetArgs(int index);
 	}
 }

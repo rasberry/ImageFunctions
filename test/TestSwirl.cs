@@ -7,34 +7,51 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestSwirl
+	public class TestSwirl : IAmTest
 	{
 		const Activity Which = Activity.Swirl;
 		const int num = (int)Which;
-		static string name = Materials.GetTestImageNames(Which)[0];
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void Swirl(int index, string[] args)
+		public void Swirl(int index)
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
-				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string img = GetImageNames()[0];
+				string inFile = Helpers.InFile(img);
 				string outFile = tempFile.TempFileName;
-				string checkFile = Path.Combine(Helpers.ImgRoot,
-					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+				string checkFile = Helpers.CheckFile(Which,img,index);
+				var args = Helpers.Append(GetArgs(index),inFile,outFile);
 
-				var argsWithFiles = args.Append(inFile,outFile);
-				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+				Helpers.RunImageFunction(Which,args,outFile,checkFile);
 			}
 		}
 
+		public string[] GetArgs(int index)
+		{
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-rp", "50%" };
+			case 2: return new string[] { "-s", "2" };
+			case 3: return new string[] { "-ccw" };
+			}
+			return null;
+		}
+		const int _CaseCount = 4;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
 		public static IEnumerable<object[]> GetData()
 		{
-			yield return new object[] {1, new string[0] };
-			yield return new object[] {2, new string[] { "-rp","50%" } };
-			yield return new object[] {3, new string[] { "-s","2" } };
-			yield return new object[] {4, new string[] { "-ccw" } };
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
+		}
+
+		public string[] GetImageNames()
+		{
+			return new string[] { "flower","fractal","handle","harddrive","lego","pool","rainbow" };
 		}
 	}
 }

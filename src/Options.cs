@@ -8,7 +8,14 @@ namespace ImageFunctions
 {
 	public static class Options
 	{
+
 		public static void Usage(Activity action = Activity.None)
+		{
+			string text = GetUsageText(action,ShowFullHelp,ShowHelpActions);
+			Log.Message(text);
+		}
+
+		public static string GetUsageText(Activity action, bool showFull, bool showActions)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("Usage "+nameof(ImageFunctions)+" (action) [options]");
@@ -18,7 +25,7 @@ namespace ImageFunctions
 			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
 			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
 
-			if (ShowHelpActions) {
+			if (showActions) {
 				sb.AppendLine().AppendLine("Actions:");
 				foreach(Activity a in Enum.GetValues(typeof(Activity))) {
 					if (a == Activity.None) { continue; }
@@ -26,7 +33,7 @@ namespace ImageFunctions
 				}
 			}
 
-			if (ShowFullHelp)
+			if (showFull)
 			{
 				foreach(Activity a in Enum.GetValues(typeof(Activity)))
 				{
@@ -49,7 +56,7 @@ namespace ImageFunctions
 				}
 			}
 
-			Log.Message(sb.ToString());
+			return sb.ToString();
 		}
 
 		static void SamplerHelp(StringBuilder sb)
@@ -110,7 +117,6 @@ namespace ImageFunctions
 						case 3: _Rect.Height = n; break;
 						}
 					}
-					// Log.Debug("rect = ["+Rect.X+","+Rect.Y+","+Rect.Width+","+Rect.Height+"]");
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;

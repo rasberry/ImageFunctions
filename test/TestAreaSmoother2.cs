@@ -7,33 +7,50 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestAreaSmoother2
+	public class TestAreaSmoother2 : IAmTest
 	{
 		const Activity Which = Activity.AreaSmoother2;
 		const int num = (int)Which;
-		static string name = Materials.GetTestImageNames(Which)[0];
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void AreaSmoother2(int index, string[] args)
+		public void AreaSmoother2(int index)
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
-				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string img = GetImageNames()[0];
+				string inFile = Helpers.InFile(img);
 				string outFile = tempFile.TempFileName;
-				string checkFile = Path.Combine(Helpers.ImgRoot,
-					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+				string checkFile = Helpers.CheckFile(Which,img,index);
+				var args = Helpers.Append(GetArgs(index),inFile,outFile);
 
-				var argsWithFiles = args.Append(inFile,outFile);
-				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+				Helpers.RunImageFunction(Which,args,outFile,checkFile);
 			}
 		}
 
+		public string[] GetArgs(int index)
+		{
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-H" };
+			case 2: return new string[] { "-V" };
+			}
+			return null;
+		}
+		const int _CaseCount = 3;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
 		public static IEnumerable<object[]> GetData()
 		{
-			yield return new object[] {1, new string[0] };
-			yield return new object[] {2, new string[] { "-H" } };
-			yield return new object[] {3, new string[] { "-V" } };
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
+		}
+
+		public string[] GetImageNames()
+		{
+			return new string[] { "rock-p","scorpius-p","shack-p","shell-p","skull-p","spider-p","toes-p" };
 		}
 	}
 }

@@ -7,32 +7,49 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestZoomBlur
+	public class TestZoomBlur : IAmTest
 	{
 		const Activity Which = Activity.ZoomBlur;
 		const int num = (int)Which;
-		static string name = Materials.GetTestImageNames(Which)[0];
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void ZoomBlur(int index, string[] args)
+		public void ZoomBlur(int index)
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
-				string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
+				string img = GetImageNames()[0];
+				string inFile = Helpers.InFile(img);
 				string outFile = tempFile.TempFileName;
-				string checkFile = Path.Combine(Helpers.ImgRoot,
-					string.Format("img-{0}-{1}-{2}.png",num,name,index));
+				string checkFile = Helpers.CheckFile(Which,img,index);
+				var args = Helpers.Append(GetArgs(index),inFile,outFile);
 
-				var argsWithFiles = args.Append(inFile,outFile);
-				Helpers.RunImageFunction(Which,argsWithFiles,outFile,checkFile);
+				Helpers.RunImageFunction(Which,args,outFile,checkFile);
 			}
 		}
 
+		public string[] GetArgs(int index)
+		{
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-z", "3" };
+			}
+			return null;
+		}
+		const int _CaseCount = 2;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
 		public static IEnumerable<object[]> GetData()
 		{
-			yield return new object[] {1, new string[0] };
-			yield return new object[] {2, new string[] { "-z","3" } };
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
+		}
+
+		public string[] GetImageNames()
+		{
+			return new string[] { "zebra","boy","building","cats","cloud","cookie","creek" };
 		}
 	}
 }

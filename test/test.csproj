@@ -16,4 +16,8 @@
     <ProjectReference Include="..\src\ImageFunctions.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);BUILDWIKI</DefineConstants>
+  </PropertyGroup>
+
 </Project>
