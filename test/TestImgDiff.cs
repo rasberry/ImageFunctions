@@ -30,7 +30,7 @@ namespace test
 			case 0: return new string[0];
 			case 1: return new string[] { "-i" };
 			case 2: return new string[] { "-o","1.0" };
-			case 3: return new string[] { "-o","0.5" };
+			case 3: return new string[] { "-o","0.5","-c","red" };
 			}
 			return null;
 		}

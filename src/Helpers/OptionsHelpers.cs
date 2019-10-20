@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.Helpers
@@ -141,6 +144,55 @@ namespace ImageFunctions.Helpers
 			//add others as needed
 			}
 			return false;
+		}
+
+		public static bool TryParseColor(string sub, out Color color)
+		{
+			color = default(Color);
+			try {
+				color = Color.FromHex(sub);
+				return true;
+			}
+			catch(ArgumentException) {
+				//Continue
+			}
+
+			if (ColorMap == null) {
+				PopColorMap();
+			}
+			if (ColorMap.TryGetValue(sub,out string ColorName)) {
+				if (TryGetColorByName(ColorName, out color)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		static IDictionary<string,string> ColorMap = null;
+		static void PopColorMap()
+		{
+			ColorMap = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
+			var flags = BindingFlags.Public | BindingFlags.Static;
+			Type colorType = typeof(Color);
+			var fields = colorType.GetFields(flags);
+
+			foreach(var info in fields) {
+				if (colorType.Equals(info.FieldType)) {
+					ColorMap.Add(info.Name,info.Name);
+				}
+			}
+		}
+
+		static bool TryGetColorByName(string name, out Color color)
+		{
+			color = default(Color);
+			var flags = BindingFlags.Public | BindingFlags.Static;
+			Type colorType = typeof(Color);
+			var field = colorType.GetField(name,flags);
+			if (field == null) { return false; }
+			color = (Color)field.GetValue(null);
+			return true;
 		}
 	}
 }

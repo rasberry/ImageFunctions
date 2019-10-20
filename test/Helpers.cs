@@ -19,6 +19,7 @@ namespace test
 				string file = Path.Combine(ProjectRoot,"test-log.txt");
 				var fs = File.Open(file,FileMode.Create,FileAccess.Write,FileShare.Read);
 				sw = new StreamWriter(fs);
+				sw.WriteLine("@Created at "+DateTime.Now.ToString("O"));
 			}
 			sw.WriteLine(message);
 			sw.Flush();

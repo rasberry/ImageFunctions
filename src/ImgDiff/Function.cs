@@ -37,12 +37,21 @@ namespace ImageFunctions.ImgDiff
 				}
 				else if (curr == "-o" && ++a<len) {
 					string num = args[a];
-					OptionsHelpers.ParseNumberPercent(num,out double d);
-					if (d < double.Epsilon) {
-						Log.Error("invalid opacity \""+d+"\"");
+					if (!OptionsHelpers.ParseNumberPercent(num,out double d)
+						|| d < double.Epsilon)
+					{
+						Log.Error("invalid opacity \""+num+"\"");
 						return false;
 					}
 					O.HilightOpacity = d;
+				}
+				else if (curr == "-c" && ++a<len) {
+					string clr = args[a];
+					if (!OptionsHelpers.TryParseColor(clr,out Color c)) {
+						Log.Error("invalid color \""+clr+"\"");
+						return false;
+					}
+					O.HilightColor = c;
 				}
 				else if (String.IsNullOrEmpty(InImage)) {
 					InImage = curr;
@@ -88,7 +97,7 @@ namespace ImageFunctions.ImgDiff
 			sb.AppendLine(" -o (number)[%]              Overlay hilight color at given opacity");
 			sb.AppendLine(" -i                          Match identical pixels instead of differences");
 			sb.AppendLine(" -x                          Output original pixels instead of hilighting them");
-			//sb.AppendLine(" -c (color)                  Change hilight color");
+			sb.AppendLine(" -c (color)                  Change hilight color - hex value or name (default is magenta)");
 		}
 
 		Options O = new Options();

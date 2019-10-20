@@ -93,6 +93,7 @@ Usage ImageFunctions (action) [options]
  -o (number)[%]              Overlay hilight color at given opacity
  -i                          Match identical pixels instead of differences
  -x                          Output original pixels instead of hilighting them
+ -c (color)                  Change hilight color - hex value or name (default is magenta)
 
 Available Samplers:
 1. NearestNeighbor

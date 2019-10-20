@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestHelpers
+	public class TestTestHelpers
 	{
 		[TestMethod]
 		public void TestToTuple()
