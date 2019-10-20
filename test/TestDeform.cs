@@ -17,16 +17,12 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void Deform(int index)
 		{
-			using(var tempFile = Helpers.CreateTempPngFile())
-			{
-				var imgs = GetImageNames()[0];
-				var inFiles = Helpers.InFile(imgs);
-				string outFile = tempFile.TempFileName;
-				string checkFile = Helpers.CheckFile(Which,imgs,index);
-				var args = Helpers.Append(GetArgs(index),inFiles,outFile);
-
-				Helpers.RunImageFunction(Which,args,outFile,checkFile);
-			}
+			Helpers.RunTestWithInputFiles(
+				Which,
+				index,
+				GetImageNames(),
+				GetArgs(index)
+			);
 		}
 
 		public string[] GetArgs(int index)

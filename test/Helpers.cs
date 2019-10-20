@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Linq;
 
 namespace test
 {
@@ -15,7 +16,8 @@ namespace test
 		public static void Debug(string message)
 		{
 			if (sw == null) {
-				var fs = File.Open("test-log.txt",FileMode.Create,FileAccess.Write,FileShare.Read);
+				string file = Path.Combine(ProjectRoot,"test-log.txt");
+				var fs = File.Open(file,FileMode.Create,FileAccess.Write,FileShare.Read);
 				sw = new StreamWriter(fs);
 			}
 			sw.WriteLine(message);
@@ -25,19 +27,37 @@ namespace test
 
 		public static string ProjectRoot { get {
 			if (RootFolder == null) {
-				RootFolder = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"));
+				RootFolder = Path.GetFullPath(
+					Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\")
+				);
 			}
 			return RootFolder;
 		}}
 		static string RootFolder = null;
 
 		public static string WikiRoot { get {
-			return Path.Combine(Helpers.ProjectRoot,"..","wiki");
+			return new Uri(
+				Path.Combine(Helpers.ProjectRoot,"..","wiki")
+			).LocalPath;
 		}}
 
 		public static string ImgRoot { get {
 			return Path.Combine(WikiRoot,"img");
 		}}
+
+		public static void RunTestWithInputFiles(Activity act, int index, ITuple[] images, string[] argsForIndex)
+		{
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				var imgs = images[0];
+				var inFiles = Helpers.InFile(imgs);
+				string outFile = tempFile.TempFileName;
+				string checkFile = Helpers.CheckFile(act,imgs,index);
+				var args = Helpers.Append(argsForIndex,inFiles,outFile);
+
+				Helpers.RunImageFunction(act,args,outFile,checkFile);
+			}
+		}
 
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
 		{
@@ -95,9 +115,7 @@ namespace test
 			{
 				if (o is ITuple) {
 					var tuple = o as ITuple;
-					for(int t=0; t<tuple.Length; t++) {
-						moreArgs.Add(tuple[t].ToString());
-					}
+					moreArgs.AddRange(tuple.Enumerate<string>());
 				}
 				else {
 					moreArgs.Add(o.ToString());
@@ -120,15 +138,14 @@ namespace test
 		}
 
 		public static ITuple InFile(ITuple tuple, bool forweb = false) {
-			int len = tuple.Length;
-			var list = new List<string>();
-
-			for(int t=0; t<tuple.Length; t++) {
-				string file = tuple[t] + ".png";
-				string path = forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
-				list.Add(path);
-			}
-			return list.ToTuple();
+			var pathTuple = tuple.Enumerate<string>()
+				.Select((name) => {
+					string file = name + ".png";
+					string path = forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+					return path;
+				})
+				.ToTuple();
+			return pathTuple;
 		}
 
 		public static string CheckFile(Activity which, ITuple tuple, int i,bool forweb = false) {
@@ -148,6 +165,7 @@ namespace test
 
 		public static IEnumerable<T> Enumerate<T>(this ITuple tuple)
 		{
+			//TODO maybe handle nested tuples ?
 			for(int t=0; t<tuple.Length; t++) {
 				yield return (T)tuple[t];
 			}
