@@ -87,7 +87,9 @@ namespace test
 						//only generate if missing
 						if (!File.Exists(outFile)) {
 							var func = Registry.Map(act); //must make a new instance each time or args get jumbled
-							if (!func.ParseArgs(args)) { throw new ArgumentException(); }
+							if (!func.ParseArgs(args)) {
+								throw new ArgumentException("unable to parse arguments "+string.Join(' ',args));
+							}
 							func.Main();
 						}
 					}

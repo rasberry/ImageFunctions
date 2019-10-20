@@ -48,6 +48,16 @@ namespace test
 		}
 
 		[TestMethod]
+		public void TestAppendWTuple()
+		{
+			var list = new string[] { "1","2","3" };
+			var tuple = Tuple.Create("4","5");
+			var more = Helpers.Append(list,tuple);
+			string test = string.Join(' ',more);
+			Assert.AreEqual("1 2 3 4 5",test);
+		}
+
+		[TestMethod]
 		public void TestCheckFile()
 		{
 			var one = Tuple.Create("one");

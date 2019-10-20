@@ -10,9 +10,12 @@ A collection of various image processing functions
 * run project
   * ```dotnet run -p src --```
 * test project
-  * ```dotnet test```
+  * ```dotnet test -d n```
 * build wiki
-  * Note: Only do this if all tests pass. Buiding the wiki takes a long time.
+  * Notes:
+    * Only do this if all tests pass.
+    * Buiding the wiki may take a long time.
+    * To regenerate test images you must remove wiki/img/img-*
     ```
     set BUILDWIKI=1
     dotnet test --filter TestBuildWiki

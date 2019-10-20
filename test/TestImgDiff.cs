@@ -9,7 +9,7 @@ namespace test
 	[TestClass]
 	public class TestImgDiff : IAmTest
 	{
-		const Activity Which = Activity.Encrypt;
+		const Activity Which = Activity.ImgDiff;
 		const int num = (int)Which;
 
 		[DataTestMethod]
@@ -33,12 +33,12 @@ namespace test
 			switch(index) {
 			case 0: return new string[0];
 			case 1: return new string[] { "-i" };
-			case 2: return new string[] { "-o 1.0" };
-			case 3: return new string[] { "-o 0.5" };
+			case 2: return new string[] { "-o","1.0" };
+			case 3: return new string[] { "-o","0.5" };
 			}
 			return null;
 		}
-		const int _CaseCount = 1;
+		const int _CaseCount = 4;
 		public int CaseCount { get { return _CaseCount; }}
 		public FileSet Set { get { return FileSet.OneOne; }}
 
