@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using ImageFunctions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SixLabors.ImageSharp;
@@ -37,8 +38,6 @@ namespace test
 		public static string ImgRoot { get {
 			return Path.Combine(WikiRoot,"img");
 		}}
-
-		public delegate string[] ArgsProvider();
 
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
 		{
@@ -89,10 +88,21 @@ namespace test
 			return sOne.SequenceEqual(sTwo);
 		}
 
-		public static string[] Append(this string[] args,params string[] more)
+		public static string[] Append(this string[] args,params object[] more)
 		{
 			var moreArgs = new List<string>(args);
-			moreArgs.AddRange(more);
+			foreach(object o in more)
+			{
+				if (o is ITuple) {
+					var tuple = o as ITuple;
+					for(int t=0; t<tuple.Length; t++) {
+						moreArgs.Add(tuple[t].ToString());
+					}
+				}
+				else {
+					moreArgs.Add(o.ToString());
+				}
+			}
 			return moreArgs.ToArray();
 		}
 
@@ -109,21 +119,82 @@ namespace test
 			}
 		}
 
-		public static (int,string[] args) ExtractInnards(object[] items)
+		public static ITuple InFile(ITuple tuple, bool forweb = false) {
+			int len = tuple.Length;
+			var list = new List<string>();
+
+			for(int t=0; t<tuple.Length; t++) {
+				string file = tuple[t] + ".png";
+				string path = forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+				list.Add(path);
+			}
+			return list.ToTuple();
+		}
+
+		public static string CheckFile(Activity which, ITuple tuple, int i,bool forweb = false) {
+			string name = string.Join('-',tuple.Enumerate<string>());
+			string file = string.Format("img-{0}-{1}-{2}.png",(int)which,name,i+1);
+			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+		}
+
+		public static ITuple[] Tupleify<T>(this T[] array)
 		{
-			int index = (int)items[0];
-			string[] args = (string[])items[1];
-			return (index,args);
+			var dest = new ITuple[array.Length];
+			for(int i=0; i<array.Length; i++) {
+				dest[i] = Tuple.Create(array[i]);
+			}
+			return dest;
 		}
 
-		public static string InFile(string n, bool forweb = false) {
-			string file = n + ".png";
-			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+		public static IEnumerable<T> Enumerate<T>(this ITuple tuple)
+		{
+			for(int t=0; t<tuple.Length; t++) {
+				yield return (T)tuple[t];
+			}
 		}
 
-		public static string CheckFile(Activity which, string n, int i,bool forweb = false) {
-			string file = string.Format("img-{0}-{1}-{2}.png",(int)which,n,i+1);
-			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+		public static ITuple ToTuple<T>(this IEnumerable<T> items)
+		{
+			//need to unroll in reverse so put the whole thing in a list
+			var bag = System.Linq.Enumerable.ToList(items);
+
+			int residue = bag.Count % 7;
+			ITuple last = null;
+			int end = bag.Count - 1;
+
+			switch(residue)
+			{
+			case 6:
+				last = Tuple.Create(bag[end-5],bag[end-4],bag[end-3],bag[end-2],bag[end-1],bag[end]);
+				end -= 6; break;
+			case 5:
+				last = Tuple.Create(bag[end-4],bag[end-3],bag[end-2],bag[end-1],bag[end]);
+				end -= 5; break;
+			case 4:
+				last = Tuple.Create(bag[end-3],bag[end-2],bag[end-1],bag[end]);
+				end -= 4; break;
+			case 3:
+				last = Tuple.Create(bag[end-2],bag[end-1],bag[end]);
+				end -= 3; break;
+			case 2:
+				last = Tuple.Create(bag[end-1],bag[end]);
+				end -= 2; break;
+			case 1:
+				last = Tuple.Create(bag[end]);
+				end -= 1; break;
+			}
+
+			while(end > 0) {
+				ITuple next;
+				if (last == null) {
+					next = Tuple.Create(bag[end-6],bag[end-5],bag[end-4],bag[end-3],bag[end-2],bag[end-1],bag[end]);
+				} else {
+					next = Tuple.Create(bag[end-6],bag[end-5],bag[end-4],bag[end-3],bag[end-2],bag[end-1],bag[end],last);
+				}
+				end -= 7;
+				last = next;
+			}
+			return last;
 		}
 	}
 }

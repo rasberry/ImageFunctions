@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
@@ -11,7 +12,7 @@ namespace test
 
 	public interface IAmTest
 	{
-		string[] GetImageNames();
+		ITuple[] GetImageNames();
 		int CaseCount { get; }
 		FileSet Set { get; }
 		string[] GetArgs(int index);

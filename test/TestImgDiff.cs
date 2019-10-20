@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions;
-using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,14 +7,14 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestZoomBlur : IAmTest
+	public class TestImgDiff : IAmTest
 	{
-		const Activity Which = Activity.ZoomBlur;
+		const Activity Which = Activity.Encrypt;
 		const int num = (int)Which;
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void ZoomBlur(int index)
+		public void ImgDiff(int index)
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
@@ -33,11 +32,13 @@ namespace test
 		{
 			switch(index) {
 			case 0: return new string[0];
-			case 1: return new string[] { "-z", "3" };
+			case 1: return new string[] { "-i" };
+			case 2: return new string[] { "-o 1.0" };
+			case 3: return new string[] { "-o 0.5" };
 			}
 			return null;
 		}
-		const int _CaseCount = 2;
+		const int _CaseCount = 1;
 		public int CaseCount { get { return _CaseCount; }}
 		public FileSet Set { get { return FileSet.OneOne; }}
 
@@ -50,8 +51,12 @@ namespace test
 
 		public ITuple[] GetImageNames()
 		{
-			var list = new string[] { "zebra","boy","building","cats","cloud","cookie","creek" };
-			return Helpers.Tupleify(list);
+			return new ITuple[] {
+				("toes","toes-p"),
+				("rock","rock-p"),
+				("scorpius","scorpius-p"),
+				("shack","shack-p")
+			};
 		}
 	}
 }

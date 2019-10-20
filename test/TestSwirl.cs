@@ -3,6 +3,7 @@ using ImageFunctions;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
@@ -18,11 +19,11 @@ namespace test
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
-				string img = GetImageNames()[0];
-				string inFile = Helpers.InFile(img);
+				var imgs = GetImageNames()[0];
+				var inFiles = Helpers.InFile(imgs);
 				string outFile = tempFile.TempFileName;
-				string checkFile = Helpers.CheckFile(Which,img,index);
-				var args = Helpers.Append(GetArgs(index),inFile,outFile);
+				string checkFile = Helpers.CheckFile(Which,imgs,index);
+				var args = Helpers.Append(GetArgs(index),inFiles,outFile);
 
 				Helpers.RunImageFunction(Which,args,outFile,checkFile);
 			}
@@ -49,9 +50,10 @@ namespace test
 			}
 		}
 
-		public string[] GetImageNames()
+		public ITuple[] GetImageNames()
 		{
-			return new string[] { "flower","fractal","handle","harddrive","lego","pool","rainbow" };
+			var list = new string[] { "flower","fractal","handle","harddrive","lego","pool","rainbow" };
+			return Helpers.Tupleify(list);
 		}
 	}
 }

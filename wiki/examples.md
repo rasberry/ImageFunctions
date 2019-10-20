@@ -104,4 +104,13 @@ Examples are categorized by Action
 |creek   |![creek-0](img/img-9-creek-1.png "creek-0")|![creek-1](img/img-9-creek-2.png "creek-1")|![creek-2](img/img-9-creek-3.png "creek-2")|![creek-3](img/img-9-creek-4.png "creek-3")|
 |flower  |![flower-0](img/img-9-flower-1.png "flower-0")|![flower-1](img/img-9-flower-2.png "flower-1")|![flower-2](img/img-9-flower-3.png "flower-2")|![flower-3](img/img-9-flower-4.png "flower-3")|
 
+</details><details><summary>ImgDiff</summary>
+
+| Image    | Default |
+|----------|---------|
+|toes<br/>toes-p      |![toes-toes-p-0](img/img-10-toes-toes-p-1.png "toes-toes-p-0")|
+|rock<br/>rock-p      |![rock-rock-p-0](img/img-10-rock-rock-p-1.png "rock-rock-p-0")|
+|scorpius<br/>scorpius-p  |![scorpius-scorpius-p-0](img/img-10-scorpius-scorpius-p-1.png "scorpius-scorpius-p-0")|
+|shack<br/>shack-p     |![shack-shack-p-0](img/img-10-shack-shack-p-1.png "shack-shack-p-0")|
+
 </details>
