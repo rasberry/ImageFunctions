@@ -118,4 +118,5 @@ Available Metrics:
 4. ChebyshevInv
 5. Minkowski (p-factor)
 6. Canberra
+
 ```
