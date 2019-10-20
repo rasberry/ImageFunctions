@@ -1,6 +1,5 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions;
-using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -8,14 +7,14 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestAreaSmoother : IAmTest
+	public class TestImgDiff : IAmTest
 	{
-		const Activity Which = Activity.AreaSmoother;
+		const Activity Which = Activity.ImgDiff;
 		const int num = (int)Which;
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void AreaSmoother(int index)
+		public void ImgDiff(int index)
 		{
 			Helpers.RunTestWithInputFiles(
 				Which,
@@ -28,15 +27,14 @@ namespace test
 		public string[] GetArgs(int index)
 		{
 			switch(index) {
-				case 0: return new string[0];
-				case 1: return new string[] { "-t","2" };
-				case 2: return new string[] { "-t","10" };
-				case 3: return new string[] { "--metric","1" };
-				case 4: return new string[] { "--sampler","11" };
+			case 0: return new string[0];
+			case 1: return new string[] { "-i" };
+			case 2: return new string[] { "-o","1.0" };
+			case 3: return new string[] { "-o","0.5" };
 			}
 			return null;
 		}
-		const int _CaseCount = 5;
+		const int _CaseCount = 4;
 		public int CaseCount { get { return _CaseCount; }}
 		public FileSet Set { get { return FileSet.OneOne; }}
 
@@ -49,8 +47,12 @@ namespace test
 
 		public ITuple[] GetImageNames()
 		{
-			var list = new string[] { "rock-p","scorpius-p","shack-p","shell-p","skull-p","spider-p","toes-p" };
-			return Helpers.Tupleify(list);
+			return new ITuple[] {
+				("toes","toes-p"),
+				("rock","rock-p"),
+				("scorpius","scorpius-p"),
+				("shack","shack-p")
+			};
 		}
 	}
 }

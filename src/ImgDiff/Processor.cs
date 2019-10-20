@@ -30,7 +30,7 @@ namespace ImageFunctions.ImgDiff
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
 			using (var progress = new ProgressBar())
-			using (var compareImg = Image.Load(O.CompareImage))
+			using (var compareImg = Image.Load<Rgba32>(O.CompareImage))
 			{
 				var ab = Rectangle.Intersect(frame.Bounds(),compareImg.Bounds());
 				var minimum = Rectangle.Intersect(ab,rectangle);
@@ -43,7 +43,7 @@ namespace ImageFunctions.ImgDiff
 
 					if (O.OutputOriginal) {
 						if (sameSame) {
-							frame[x,y] = NamedColors<TPixel>.Transparent;
+							frame[x,y] = Color.Transparent.ToPixel<TPixel>();
 						}
 					}
 					else {
@@ -52,7 +52,7 @@ namespace ImageFunctions.ImgDiff
 							if (O.HilightOpacity == null) {
 								dist = ColorDistanceRatio(one,two);
 								sc = O.HilightColor;
-								ec = NamedColors<Rgba32>.White;
+								ec = Color.White.ToPixel<Rgba32>();
 							}
 							else {
 								dist = O.HilightOpacity.Value;

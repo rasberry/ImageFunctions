@@ -3,44 +3,52 @@ using ImageFunctions;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
 	[TestClass]
-	public class TestAreaSmoother2
+	public class TestAreaSmoother2 : IAmTest
 	{
-		// images used on wiki
-		// rock-p,scorpius-p,shack-p,shell-p,skull-p,spider-p,toes-p
-
-		const string name = "scorpius-p";
 		const Activity Which = Activity.AreaSmoother2;
 		const int num = (int)Which;
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void AreaSmoother2(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			Helpers.RunTestWithInputFiles(
+				Which,
+				index,
+				GetImageNames(),
+				GetArgs(index)
+			);
 		}
 
-		[TestMethod]
-		public void Test_H()
+		public string[] GetArgs(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-H" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-H" };
+			case 2: return new string[] { "-V" };
+			}
+			return null;
+		}
+		const int _CaseCount = 3;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
+		public static IEnumerable<object[]> GetData()
+		{
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
 		}
 
-		[TestMethod]
-		public void Test_V()
+		public ITuple[] GetImageNames()
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-V" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			var list = new string[] { "rock-p","scorpius-p","shack-p","shell-p","skull-p","spider-p","toes-p" };
+			return Helpers.Tupleify(list);
 		}
 	}
 }

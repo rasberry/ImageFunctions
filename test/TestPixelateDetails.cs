@@ -3,52 +3,53 @@ using ImageFunctions;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
 	[TestClass]
-	public class TestPixelateDetails
+	public class TestPixelateDetails : IAmTest
 	{
-		// images used on wiki
-		// boy, building, cats, cloud, cookie, creek, flower
-		const string name = "boy";
 		const Activity Which = Activity.PixelateDetails;
 		const int num = (int)Which;
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void PixelateDetails(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			Helpers.RunTestWithInputFiles(
+				Which,
+				index,
+				GetImageNames(),
+				GetArgs(index)
+			);
 		}
 
-		[TestMethod]
-		public void Test_p()
+		public string[] GetArgs(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-p" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-p" };
+			case 2: return new string[] { "-s", "3" };
+			case 3: return new string[] { "-r", "3" };
+			}
+			return null;
+		}
+		const int _CaseCount = 4;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
+		public static IEnumerable<object[]> GetData()
+		{
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
 		}
 
-		[TestMethod]
-		public void Test_s3()
+		public ITuple[] GetImageNames()
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-3.png");
-			var args = new List<string>{ "-s","3" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
-		}
-
-		[TestMethod]
-		public void Test_r3()
-		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-1-"+name+"-4.png");
-			var args = new List<string>{ "-r","3" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			var list = new string[] { "boy","building","cats","cloud","cookie","creek","flower" };
+			return Helpers.Tupleify(list);
 		}
 	}
 }

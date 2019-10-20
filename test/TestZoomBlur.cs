@@ -3,35 +3,51 @@ using ImageFunctions;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace test
 {
 	[TestClass]
-	public class TestZoomBlur
+	public class TestZoomBlur : IAmTest
 	{
-		// images used on wiki
-		// zebra,boy,building,cats,cloud,cookie,creek
-
-		const string name = "zebra";
 		const Activity Which = Activity.ZoomBlur;
 		const int num = (int)Which;
 
-		[TestMethod]
-		public void TestDefault()
+		[DataTestMethod]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void ZoomBlur(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-1.png");
-			var args = new List<string>();
-			Helpers.RunImageFunction(Which,args, inFile, checkFile);
+			Helpers.RunTestWithInputFiles(
+				Which,
+				index,
+				GetImageNames(),
+				GetArgs(index)
+			);
 		}
 
-		[TestMethod]
-		public void Test_z3()
+		public string[] GetArgs(int index)
 		{
-			string inFile = Path.Combine(Helpers.ImgRoot,name + ".png");
-			string checkFile = Path.Combine(Helpers.ImgRoot,"img-"+num+"-"+name+"-2.png");
-			var args = new List<string>{ "-z","3" };
-			Helpers.RunImageFunction(Which, args, inFile, checkFile);
+			switch(index) {
+			case 0: return new string[0];
+			case 1: return new string[] { "-z", "3" };
+			}
+			return null;
+		}
+		const int _CaseCount = 2;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return FileSet.OneOne; }}
+
+		public static IEnumerable<object[]> GetData()
+		{
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
+		}
+
+		public ITuple[] GetImageNames()
+		{
+			var list = new string[] { "zebra","boy","building","cats","cloud","cookie","creek" };
+			return Helpers.Tupleify(list);
 		}
 	}
 }

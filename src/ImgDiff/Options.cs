@@ -1,4 +1,4 @@
-using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
 
 namespace ImageFunctions.ImgDiff
 {
@@ -7,7 +7,7 @@ namespace ImageFunctions.ImgDiff
 		public double? HilightOpacity = null;
 		public bool MatchSamePixels = false;
 		public bool OutputOriginal = false;
-		public Rgba32 HilightColor = NamedColors<Rgba32>.Magenta;
+		public Color HilightColor = Color.Magenta;
 		public string CompareImage = null;
 	}
 }

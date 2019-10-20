@@ -35,8 +35,6 @@ Usage ImageFunctions (action) [options]
  -z  (number)[%]             Zoom amount (default 1.1)
  -cc (number) (number)       Coordinates of zoom center in pixels
  -cp (number)[%] (number)[%] Coordinates of zoom center by proportion (default 50% 50%)
- -oh                         Only zoom horizontally
- -ov                         Only zoom vertically
  --sampler (name)            Use given sampler (defaults to nearest pixel)
  --metric (name) [args]      Use alterntive distance function
 
@@ -75,6 +73,27 @@ Usage ImageFunctions (action) [options]
  -iter (number)              Number of RFC-2898 rounds to use (default 3119)
  -test                       Print out any specified (text) inputs as hex and exit
 
+9. PixelRules [options] (input image) [output image]
+ Average a set of pixels by following a minimaztion function
+ -m (mode)                   Which mode to use (default StairCaseDescend)
+ -n (number)                 Number of times to apply operation (default 1)
+ -x (number)                 Maximum number of iterations - in case of infinte loops (default 100)
+ --sampler (name)            Use given sampler (defaults to nearest pixel)
+ --metric (name) [args]      Use alterntive distance function
+
+ Available Modes
+ 1. StairCaseDescend         move towards smallest distance
+ 2. StairCaseAscend          move towards largest distance
+ 3. StairCaseClosest         move towards closest distance
+ 4. StairCaseFarthest        move towards farthest distance
+
+10. ImgDiff [options] (image one) (image two) [output image]
+ Highlights differences between two images.
+ By default differeces are hilighted based on distance ranging from hilight color to white
+ -o (number)[%]              Overlay hilight color at given opacity
+ -i                          Match identical pixels instead of differences
+ -x                          Output original pixels instead of hilighting them
+
 Available Samplers:
 1. NearestNeighbor
 2. Bicubic
@@ -99,4 +118,5 @@ Available Metrics:
 4. ChebyshevInv
 5. Minkowski (p-factor)
 6. Canberra
+
 ```

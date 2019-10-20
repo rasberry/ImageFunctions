@@ -130,7 +130,7 @@ namespace ImageFunctions.PixelRules
 					|| O.WhichMode == Function.Mode.StairCaseDescend)
 				{
 					//only follow darker colors
-					TPixel white = NamedColors<TPixel>.White;
+					TPixel white = Color.White.ToPixel<TPixel>();
 					double bdw = Dist(best.Value,white);
 					double ddw = Dist(bid.Value,white);
 					if (bdw > ddw) { return false; }
