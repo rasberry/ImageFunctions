@@ -11,6 +11,17 @@ namespace test
 {
 	public static class Helpers
 	{
+		public static void Debug(string message)
+		{
+			if (sw == null) {
+				var fs = File.Open("test-log.txt",FileMode.Create,FileAccess.Write,FileShare.Read);
+				sw = new StreamWriter(fs);
+			}
+			sw.WriteLine(message);
+			sw.Flush();
+		}
+		static StreamWriter sw = null;
+
 		public static string ProjectRoot { get {
 			if (RootFolder == null) {
 				RootFolder = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"));
@@ -105,13 +116,14 @@ namespace test
 			return (index,args);
 		}
 
-		public static string InFile(string n) {
-			return Path.Combine(Helpers.ImgRoot,n + ".png");
+		public static string InFile(string n, bool forweb = false) {
+			string file = n + ".png";
+			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
 		}
 
-		public static string CheckFile(Activity which, string n, int i) {
-			return Path.Combine(Helpers.ImgRoot,
-				string.Format("img-{0}-{1}-{2}.png",(int)which,n,i+1));
+		public static string CheckFile(Activity which, string n, int i,bool forweb = false) {
+			string file = string.Format("img-{0}-{1}-{2}.png",(int)which,n,i+1);
+			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
 		}
 	}
 }

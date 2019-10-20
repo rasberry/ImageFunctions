@@ -9,21 +9,39 @@ using System.Linq;
 namespace test
 {
 	[TestClass]
-	public static class Materials
+	public class Materials
 	{
 		[ClassInitialize]
 		public static void Construct(TestContext context)
 		{
-			bool buildFlag = context.Properties.TryGetValue("buildWiki", out object _);
+			//var sb = new StringBuilder();
+			//foreach(var kvp in context.Properties) {
+			//	sb.AppendLine(kvp.Key+":"+kvp.Value);
+			//}
+			//throw new Exception("props = "+sb.ToString());
+			//bool buildFlag = context.Properties.TryGetValue("buildWiki", out object _);
+
+			string val = Environment.GetEnvironmentVariable("BUILDWIKI");
+			bool buildFlag = val == "1";
 			if (buildFlag) {
+				context.WriteLine("Building Wiki...");
 				BuildWiki(context);
 			}
 		}
 
+		[TestMethod]
+		public void TestBuildWiki()
+		{
+			Assert.IsTrue(true);
+		}
+
 		static void BuildWiki(TestContext context)
 		{
+			context.WriteLine("building usage...");
 			BuildUsage();
+			context.WriteLine("building examples...");
 			BuildExamples();
+			context.WriteLine("building images...");
 			BuildImages();
 		}
 
@@ -67,7 +85,7 @@ namespace test
 			tbl.AppendLine(th1).AppendLine(th2);
 
 			foreach (string img in images) {
-				string row = MakeTableRow(act, null, imgLenMax, caseCount);
+				string row = MakeTableRow(act, img, imgLenMax, caseCount);
 				tbl.Append(row);
 			}
 
@@ -83,7 +101,6 @@ namespace test
 
 				var images = inst.GetImageNames();
 				int count = inst.CaseCount;
-				var func = Registry.Map(act);
 
 				foreach (string img in images)
 				{
@@ -92,6 +109,9 @@ namespace test
 					{
 						string outFile = Helpers.CheckFile(act,img,c);
 						var args = Helpers.Append(inst.GetArgs(c),inFile,outFile);
+						// Helpers.Debug("act="+act+" img="+img+" c="+c+" args = "+string.Join(' ',args));
+
+						var func = Registry.Map(act); //must make a new instance each time or args get jumbled
 						if (!func.ParseArgs(args)) { throw new ArgumentException(); }
 						func.Main();
 					}
@@ -102,6 +122,7 @@ namespace test
 		//0 = usage text
 		const string TemplateUsage =
 			   "# Usage #"
+			+"\n"
 			+"\n```"
 			+"\n{0}"
 			+"\n```"
@@ -125,29 +146,34 @@ namespace test
 		{
 			var sb1 = new StringBuilder();
 			var sb2 = new StringBuilder();
-			sb1.Append("| Image");
-			sb2.Append("|      ");
-			if (imgLenMax > 5) {
-				sb1.Append(new string(' ',imgLenMax-4));
-				sb2.Append(new string('-',imgLenMax-4));
+			sb1.Append("| Image ");
+			sb2.Append("|-------");
+			if (imgLenMax > 7) {
+				sb1.Append(new string(' ',imgLenMax - 7));
+				sb2.Append(new string('-',imgLenMax - 7));
 			}
-			sb1.Append("| Default |");
-			sb2.Append("|---------|");
 
 			foreach(string[] args in argsInCase)
 			{
-				sb1.Append(' ');
-				sb2.Append('-');
-				foreach(string a in args)
-				{
-					sb1.Append(a);
-					sb2.Append(new string('-',a.Length));
-					sb1.Append(' ');
-					sb2.Append('-');
+				if (args.Length < 1) {
+					sb1.Append("| Default ");
+					sb2.Append("|---------");
 				}
-				sb1.Append('|');
-				sb2.Append('|');
+				else {
+					sb1.Append('|').Append(' ');
+					sb2.Append('|').Append('-');
+					foreach(string a in args)
+					{
+						sb1.Append(a);
+						sb2.Append(new string('-',a.Length));
+						sb1.Append(' ');
+						sb2.Append('-');
+					}
+				}
 			}
+			sb1.Append('|');
+			sb2.Append('|');
+
 			return (sb1.ToString(),sb2.ToString());
 		}
 
@@ -156,14 +182,14 @@ namespace test
 			int w = (int)which;
 			var sb = new StringBuilder();
 			sb.Append('|').Append(image);
-			sb.Append(new string(' ',imgLenMax - image.Length));
+			sb.Append(new string(' ',Math.Max(7,imgLenMax) - image.Length));
 			sb.Append('|');
 			for(int i=0; i<argCount; i++)
 			{
-				string outFile = Helpers.CheckFile(which,image,i);
-				sb.AppendFormat("![{0}-{2}{1} \"{0}-{2}\")|",image,outFile,i);
+				string outFile = Helpers.CheckFile(which,image,i,true);
+				sb.AppendFormat("![{0}-{2}]({1} \"{0}-{2}\")|",image,outFile,i);
 			}
-			return sb.ToString();
+			return sb.AppendLine().ToString();
 		}
 
 		static IAmTest GetTestInstance(Activity which)
@@ -179,7 +205,7 @@ namespace test
 			case Activity.Deform: return new TestDeform();
 			case Activity.Encrypt: return new TestEncrypt();
 			case Activity.PixelRules: return new TestPixelRules();
-			//case Activity.ImgDiff: return TestImgDiff.GetData();
+			// case Activity.ImgDiff: return TestImgDiff.GetData();
 			}
 			return null;
 		}

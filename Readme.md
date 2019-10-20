@@ -11,6 +11,13 @@ A collection of various image processing functions
   * ```dotnet run -p src --```
 * test project
   * ```dotnet test```
+* build wiki
+  * Note: Only do this if all tests pass. Buiding the wiki takes a long time.
+    ```
+    set BUILDWIKI=1
+    dotnet test --filter TestBuildWiki
+    set BUILDWIKI=0
+    ```
 
 ## Notes ##
 * pull/push from wiki
