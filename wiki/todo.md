@@ -5,6 +5,8 @@
   * using SixLabors.ImageSharp.Color
   * for now change uses of rgba32 to Vector4 - Vector4 is float so
     it will preserve accuracy better than rgba32
+* add --colors option to list out all available (named) colors
+  * currently color parser allows hex RGB or RRGGBBAA colors and named colors
 * maybe color the 'usage' text a little ?
 * maybe add syntax to chain image functions together
   * possibly using '--' to seperate actions
@@ -62,6 +64,3 @@
 
 ## Deform ##
 * maybe implement [fisheye](https://stackoverflow.com/questions/2477774/correcting-fisheye-distortion-programmatically)
-
-## Image Diff ##
-* add a way to change the hilight color
