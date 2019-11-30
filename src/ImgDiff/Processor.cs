@@ -32,6 +32,7 @@ namespace ImageFunctions.ImgDiff
 			using (var progress = new ProgressBar())
 			using (var compareImg = Image.Load<Rgba32>(O.CompareImage))
 			{
+				double totalDist = 0.0;
 				var ab = Rectangle.Intersect(frame.Bounds(),compareImg.Bounds());
 				var minimum = Rectangle.Intersect(ab,rectangle);
 
@@ -59,11 +60,13 @@ namespace ImageFunctions.ImgDiff
 								sc = one;
 								ec = O.HilightColor;
 							}
+							totalDist += dist;
 							var overlay = ImageHelpers.BetweenColor(sc,ec,dist);
 							frame[x,y] = overlay.FromColor<TPixel>();
 						}
 					}
 				},progress);
+				Log.Message("total distance = "+totalDist);
 			}
 		}
 

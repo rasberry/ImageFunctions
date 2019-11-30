@@ -26,20 +26,27 @@ namespace test
 		}
 		static StreamWriter sw = null;
 
-		public static string ProjectRoot { get {
+		public static string ProjectRoot { get
+		{
 			if (RootFolder == null) {
-				RootFolder = Path.GetFullPath(
-					Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\")
-				);
+				string root = AppContext.BaseDirectory;
+				int i=40; 
+				while(--i > 0) {
+					string f = new DirectoryInfo(root).Name;
+					if (string.Equals(f,nameof(ImageFunctions),StringComparison.CurrentCultureIgnoreCase)) {
+						break;
+					} else {
+						root = new Uri(Path.Combine(root,"..")).LocalPath;
+					}
+				}
+				RootFolder = root;
 			}
 			return RootFolder;
 		}}
 		static string RootFolder = null;
 
 		public static string WikiRoot { get {
-			return new Uri(
-				Path.Combine(Helpers.ProjectRoot,"..","wiki")
-			).LocalPath;
+			return Path.Combine(Helpers.ProjectRoot,"wiki");
 		}}
 
 		public static string ImgRoot { get {

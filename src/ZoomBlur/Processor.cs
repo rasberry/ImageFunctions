@@ -89,6 +89,7 @@ namespace ImageFunctions.ZoomBlur
 			return avg;
 		}
 
+		#if false
 		//TODO this is actually a regular blur function
 		static Rgba32 GetAliasedColor(ImageFrame<TPixel> lb, int x, int y)
 		{
@@ -138,5 +139,6 @@ namespace ImageFunctions.ZoomBlur
 			int by = Math.Clamp(y,0,b.Height-1);
 			return b.GetPixelRowSpan(by)[bx].ToColor();
 		}
+		#endif
 	}
 }
