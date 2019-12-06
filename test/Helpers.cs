@@ -8,6 +8,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
+using ImageFunctions.Helpers;
 
 namespace test
 {
@@ -53,7 +54,8 @@ namespace test
 			return Path.Combine(WikiRoot,"img");
 		}}
 
-		public static void RunTestWithInputFiles(Activity act, int index, ITuple[] images, string[] argsForIndex)
+		public static void RunTestWithInputFiles(Activity act, int index, ITuple[] images, string[] argsForIndex,
+			Func<string,string,bool> fileComparer = null)
 		{
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
@@ -63,12 +65,16 @@ namespace test
 				string checkFile = Helpers.CheckFile(act,imgs,index);
 				var args = Helpers.Append(argsForIndex,inFiles,outFile);
 
-				Helpers.RunImageFunction(act,args,outFile,checkFile);
+				Helpers.RunImageFunction(act,args,outFile,checkFile,fileComparer);
 			}
 		}
 
-		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile)
+		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
+			Func<string,string,bool> fileComparer = null)
 		{
+			if (fileComparer == null) {
+				fileComparer = Helpers.AreImagesEqual;
+			}
 			IFunction func = Registry.Map(act);
 			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked);
@@ -77,7 +83,7 @@ namespace test
 
 			Assert.IsTrue(File.Exists(outFile));
 			Assert.IsTrue(File.Exists(checkFile));
-			Assert.IsTrue(Helpers.AreImagesEqual(checkFile,outFile));
+			Assert.IsTrue(fileComparer(checkFile,outFile));
 		}
 
 		public static bool AreImagesEqual(string one, string two)
@@ -114,6 +120,42 @@ namespace test
 			var sTwo = two.GetPixelSpan();
 
 			return sOne.SequenceEqual(sTwo);
+		}
+
+		public static double ImageDistance(string one, string two)
+		{
+			var iOne = Image.Load<Rgba32>(one);
+			var iTwo = Image.Load<Rgba32>(two);
+			using (iOne) using(iTwo) {
+				if (iOne.Frames.Count != iTwo.Frames.Count) {
+					return double.MaxValue;
+				}
+				double total = 0.0;
+				for(int f=0; f<iOne.Frames.Count; f++) {
+					var fOne = iOne.Frames[f];
+					var fTwo = iTwo.Frames[f];
+					total += FrameDistance(fOne,fTwo);
+				}
+				return total;
+			}
+		}
+
+		public static double FrameDistance<TPixel>(ImageFrame<TPixel> one, ImageFrame<TPixel> two)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			var sOne = one.GetPixelSpan();
+			var sTwo = two.GetPixelSpan();
+			int maxLen = Math.Max(sOne.Length,sTwo.Length);
+			var black = Color.Black.ToPixel<TPixel>();
+			
+			double total = 0.0;
+			for(int p=0; p<maxLen; p++) {
+				var pOne = p < sOne.Length ? sOne[p] : black;
+				var pTwo = p < sTwo.Length ? sTwo[p] : black;
+				double dist = MetricHelpers.ColorDistance(pOne,pTwo);
+				total += dist;
+			}
+			return total;
 		}
 
 		public static string[] Append(this string[] args,params object[] more)

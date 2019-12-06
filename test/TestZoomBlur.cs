@@ -21,7 +21,8 @@ namespace test
 				Which,
 				index,
 				GetImageNames(),
-				GetArgs(index)
+				GetArgs(index),
+				AreImagesClose
 			);
 		}
 
@@ -48,6 +49,13 @@ namespace test
 		{
 			var list = new string[] { "zebra","boy","building","cats","cloud","cookie","creek" };
 			return Helpers.Tupleify(list);
+		}
+
+		bool AreImagesClose(string one, string two)
+		{
+			double dist = Helpers.ImageDistance(one,two);
+			Log.Debug("AreImagesClose dist = "+dist);
+			return dist < 1500.0;
 		}
 	}
 }

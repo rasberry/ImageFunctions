@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace ImageFunctions.Helpers
 {
@@ -137,6 +139,22 @@ namespace ImageFunctions.Helpers
 				return Math.Pow(total, 1 / p);
 			}
 		}
+
+		public static double ColorDistance<TPixel>(TPixel one, TPixel two, IMeasurer measurer = null)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			if (measurer == null) {
+				measurer = DefaultColorDistanceMeasurer;
+			}
+			var cOne = one.ToColor();
+			var cTwo = two.ToColor();
+			double[] vOne = new double[] { cOne.R, cOne.G, cOne.B, cOne.A };
+			double[] vTwo = new double[] { cTwo.R, cTwo.G, cTwo.B, cTwo.A };
+			double dist = measurer.Measure(vOne,vTwo);
+			return dist;
+
+		}
+		static IMeasurer DefaultColorDistanceMeasurer = Registry.Map(Metric.Euclidean);
 
 		//Don't use this. use Registry Map instead - so that things stay consistent
 		// This is here because I don't want to expose MeasureRaft, but I want to keep all
