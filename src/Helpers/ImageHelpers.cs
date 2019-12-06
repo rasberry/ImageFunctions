@@ -34,6 +34,22 @@ namespace ImageFunctions.Helpers
 			return new Rgba32(g,g,g,c.A);
 		}
 
+		//TODO switch to these ones
+		//public static Color ToColor<TPixel>(this TPixel color)
+		//	where TPixel : struct, IPixel<TPixel>
+		//{
+		//	Color c = new Color(color.ToVector4());
+		//	return c;
+		//}
+
+		//TODO switch to these ones
+		//public static TPixel FromColor<TPixel>(this Color color)
+		//	where TPixel : struct, IPixel<TPixel>
+		//{
+		//	return color.ToPixel<TPixel>();
+		//}
+
+
 		public static Rgba32 ToColor<TPixel>(this TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
