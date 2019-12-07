@@ -62,8 +62,8 @@ namespace ImageFunctions.Derivatives
 			var rgbaE = GetColor(e);
 			var rgbaS = GetColor(s);
 			var rgbaW = GetColor(w);
-			
-			int diffR = 0,diffG = 0,diffB = 0;
+
+			double diffR = 0,diffG = 0,diffB = 0;
 			int num = 0;
 
 			if (n.HasValue) {
@@ -101,9 +101,9 @@ namespace ImageFunctions.Derivatives
 			return pix.FromColor<TPixel>();
 		}
 
-		static int DiffOne(bool abs,double a, double b)
+		static double DiffOne(bool abs,double a, double b)
 		{
-			int tmp = (int)a - (int)b;
+			double tmp = a - b;
 			return abs ? Math.Abs(tmp) : tmp;
 		}
 

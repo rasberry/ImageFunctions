@@ -31,7 +31,7 @@ namespace test
 		{
 			if (RootFolder == null) {
 				string root = AppContext.BaseDirectory;
-				int i=40; 
+				int i=40;
 				while(--i > 0) {
 					string f = new DirectoryInfo(root).Name;
 					if (string.Equals(f,nameof(ImageFunctions),StringComparison.CurrentCultureIgnoreCase)) {
@@ -73,12 +73,20 @@ namespace test
 			Func<string,string,bool> fileComparer = null)
 		{
 			if (fileComparer == null) {
-				fileComparer = Helpers.AreImagesEqual;
+				//fileComparer = Helpers.AreImagesEqual;
+				fileComparer = (string one,string two) => {
+					double dist = Helpers.ImageDistance(one,two);
+					Log.Debug($"dist = {dist}");
+					return dist < 1.0;
+				};
 			}
 			IFunction func = Registry.Map(act);
 			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked);
 
+			if (System.Diagnostics.Debugger.IsAttached) {
+				func.MaxDegreeOfParallelism = 1;
+			}
 			func.Main();
 
 			Assert.IsTrue(File.Exists(outFile));
@@ -124,8 +132,8 @@ namespace test
 
 		public static double ImageDistance(string one, string two)
 		{
-			var iOne = Image.Load<Rgba32>(one);
-			var iTwo = Image.Load<Rgba32>(two);
+			var iOne = Image.Load<RgbaD>(one);
+			var iTwo = Image.Load<RgbaD>(two);
 			using (iOne) using(iTwo) {
 				if (iOne.Frames.Count != iTwo.Frames.Count) {
 					return double.MaxValue;
@@ -147,7 +155,7 @@ namespace test
 			var sTwo = two.GetPixelSpan();
 			int maxLen = Math.Max(sOne.Length,sTwo.Length);
 			var black = Color.Black.ToPixel<TPixel>();
-			
+
 			double total = 0.0;
 			for(int p=0; p<maxLen; p++) {
 				var pOne = p < sOne.Length ? sOne[p] : black;

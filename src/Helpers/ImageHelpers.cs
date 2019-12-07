@@ -104,10 +104,6 @@ namespace ImageFunctions.Helpers
 			double fx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
 			double fy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
 
-			//byte moff = (byte)Math.Clamp(255.0 * (fx + fy) / 2.0,0.0,255.0);
-			//var mcolor = new Rgba32(moff,moff,moff,255);
-			//return mcolor.FromColor<TPixel>();
-
 			//dx, dy are distance from center values - "how much of the other pixel do you want?"
 			//dx, dy are valued as:
 			//  1.0 = 100% original pixel
@@ -199,10 +195,10 @@ namespace ImageFunctions.Helpers
 			var va = a.ToColor();
 			var vb = b.ToColor();
 			ratio = Math.Clamp(ratio,0.0,1.0);
-			float nr = (float)Math.Round((1 - ratio) * va.R + ratio * vb.R, 0);
-			float ng = (float)Math.Round((1 - ratio) * va.G + ratio * vb.G, 0);
-			float nb = (float)Math.Round((1 - ratio) * va.B + ratio * vb.B, 0);
-			float na = (float)Math.Round((1 - ratio) * va.A + ratio * vb.A, 0);
+			double nr = (1.0 - ratio) * va.R + ratio * vb.R;
+			double ng = (1.0 - ratio) * va.G + ratio * vb.G;
+			double nb = (1.0 - ratio) * va.B + ratio * vb.B;
+			double na = (1.0 - ratio) * va.A + ratio * vb.A;
 			var btw = new RgbaD(nr,ng,nb,na);
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw.FromColor<TPixel>();

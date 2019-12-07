@@ -106,7 +106,7 @@ Examples are categorized by Action
 
 </details><details><summary>ImgDiff</summary>
 
-| Image    | Default | -i | -o 1.0 | -o 0.5 -c red |
+| Image    | Default | -i | -o 0.9 | -o 0.5 -c red |
 |----------|---------|----|--------|---------------|
 |toes<br/>toes-p      |![toes-toes-p-0](img/img-10-toes-toes-p-1.png "toes-toes-p-0")|![toes-toes-p-1](img/img-10-toes-toes-p-2.png "toes-toes-p-1")|![toes-toes-p-2](img/img-10-toes-toes-p-3.png "toes-toes-p-2")|![toes-toes-p-3](img/img-10-toes-toes-p-4.png "toes-toes-p-3")|
 |rock<br/>rock-p      |![rock-rock-p-0](img/img-10-rock-rock-p-1.png "rock-rock-p-0")|![rock-rock-p-1](img/img-10-rock-rock-p-2.png "rock-rock-p-1")|![rock-rock-p-2](img/img-10-rock-rock-p-3.png "rock-rock-p-2")|![rock-rock-p-3](img/img-10-rock-rock-p-4.png "rock-rock-p-3")|
