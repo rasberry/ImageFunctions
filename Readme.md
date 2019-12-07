@@ -18,6 +18,7 @@ A collection of various image processing functions
     * To regenerate test images you must remove wiki/img/img-*
     ```
     set BUILDWIKI=1
+    rm wiki/img/img-*.png
     dotnet test --filter TestBuildWiki
     set BUILDWIKI=0
     ```
