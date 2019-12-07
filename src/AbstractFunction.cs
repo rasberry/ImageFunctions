@@ -16,7 +16,7 @@ namespace ImageFunctions
 		{
 			using (var fs = File.Open(InImage,FileMode.Open,FileAccess.Read,FileShare.Read))
 			using (var img = Image.Load<RgbaD>(fs))
-			using (var proc = CreatePixelSpecificProcessor(img,Rect))
+			using (var proc = CreatePixelSpecificProcessor<RgbaD>(img,Rect))
 			{
 				var absProc = proc as AbstractProcessor<RgbaD>;
 				absProc.MaxDegreeOfParallelism = MaxDegreeOfParallelism;

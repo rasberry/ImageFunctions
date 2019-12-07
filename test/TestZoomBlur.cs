@@ -55,7 +55,7 @@ namespace test
 		{
 			double dist = Helpers.ImageDistance(one,two);
 			Log.Debug("AreImagesClose dist = "+dist);
-			return dist < 1500.0;
+			return dist < 1.0;
 		}
 	}
 }

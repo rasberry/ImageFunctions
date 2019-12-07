@@ -8,6 +8,7 @@ namespace ImageFunctions
 	{
 		public RgbaD(double r,double g,double b,double a)
 		{
+			//Log.Debug($"RgbaD [{r},{g},{b},{a}]");
 			//bool isValid =
 			//	   r >= 0.0 && g >= 0.0 && b >= 0.0 && a >= 0.0
 			//	&& r <= 1.0 && g <= 1.0 && b <= 1.0 && a <= 1.0;
@@ -71,10 +72,10 @@ namespace ImageFunctions
 
 		public void FromScaledVector4(Vector4 v)
 		{
-			this.R = v.W;
-			this.G = v.X;
-			this.B = v.Y;
-			this.A = v.Z;
+			this.R = v.X;
+			this.G = v.Y;
+			this.B = v.Z;
+			this.A = v.W;
 		}
 
 		public Vector4 ToScaledVector4()
