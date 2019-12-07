@@ -12,16 +12,23 @@ A collection of various image processing functions
 * test project
   * ```dotnet test -d n```
 * build wiki
-  * Notes:
-    * Only do this if all tests pass.
-    * Buiding the wiki may take a long time.
-    * To regenerate test images you must remove wiki/img/img-*
-    ```
-    set BUILDWIKI=1
-    rm wiki/img/img-*.png
-    dotnet test --filter TestBuildWiki
-    set BUILDWIKI=0
-    ```
+  * Only do this if all tests pass.
+  * Buiding the wiki may take a long time.
+  * To regenerate test images you must remove wiki/img/img-*
+  * **Windows**
+  ```
+  set BUILDWIKI=1
+  erase "wiki\img\img-*.png"
+  dotnet test --filter TestBuildWiki
+  set BUILDWIKI=0
+  ```
+  * **Linux**
+  ```
+  export BUILDWIKI=1
+  rm wiki/img/img-*.png
+  dotnet test --filter TestBuildWiki
+  export BUILDWIKI=0
+  ```
 
 ## Notes ##
 * pull/push from wiki
