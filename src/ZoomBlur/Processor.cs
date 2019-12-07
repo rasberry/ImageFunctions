@@ -71,18 +71,18 @@ namespace ImageFunctions.ZoomBlur
 				avg = vector[0];
 			}
 			else {
-				int cr = 0, cg = 0, cb = 0, ca = 0;
+				double cr = 0, cg = 0, cb = 0, ca = 0;
 				foreach (TPixel tpc in vector)
 				{
-					Rgba32 c = tpc.ToColor();
+					var c = tpc.ToColor();
 					cr += c.R; cg += c.G; cb += c.B;
 					ca += c.A;
 				}
-				Rgba32 rgbaAvg = new Rgba32(
-					(byte)(cr / count),
-					(byte)(cg / count),
-					(byte)(cb / count),
-					(byte)(ca / count)
+				var rgbaAvg = new RgbaD(
+					cr / count,
+					cg / count,
+					cb / count,
+					ca / count
 				);
 				avg = rgbaAvg.FromColor<TPixel>();
 			}

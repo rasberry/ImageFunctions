@@ -15,10 +15,10 @@ namespace ImageFunctions
 		public void Main()
 		{
 			using (var fs = File.Open(InImage,FileMode.Open,FileAccess.Read,FileShare.Read))
-			using (var img = Image.Load<Rgba32>(fs))
+			using (var img = Image.Load<RgbaD>(fs))
 			using (var proc = CreatePixelSpecificProcessor(img,Rect))
 			{
-				var absProc = proc as AbstractProcessor<Rgba32>;
+				var absProc = proc as AbstractProcessor<RgbaD>;
 				absProc.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 				absProc.Apply();
 				ImageHelpers.SaveAsPng(OutImage,img);

@@ -62,7 +62,7 @@ namespace ImageFunctions.PixelRules
 			int count = 0;
 
 			foreach(TPixel px in list) {
-				Rgba32 c = px.ToColor();
+				var c = px.ToColor();
 				r += c.R;
 				g += c.G;
 				b += c.B;
@@ -70,11 +70,11 @@ namespace ImageFunctions.PixelRules
 				count++;
 			}
 
-			Rgba32 avg = new Rgba32(
-				(byte)Math.Clamp(r / count,0.0,255.0),
-				(byte)Math.Clamp(g / count,0.0,255.0),
-				(byte)Math.Clamp(b / count,0.0,255.0),
-				(byte)Math.Clamp(a / count,0.0,255.0)
+			var avg = new RgbaD(
+				r / count,
+				g / count,
+				b / count,
+				a / count
 			);
 			return avg.FromColor<TPixel>();
 		}
@@ -155,14 +155,14 @@ namespace ImageFunctions.PixelRules
 				return double.MaxValue;
 			}
 
-			Rgba32 o = one.ToColor();
-			Rgba32 t = two.ToColor();
+			var o = one.ToColor();
+			var t = two.ToColor();
 
 			bool normal = O.WhichMode == Function.Mode.StairCaseDescend
 				|| O.WhichMode == Function.Mode.StairCaseClosest;
 			double[] vo = normal
 				? new double[] { o.R, o.G, o.B, o.A }
-				: new double[] { 255 - o.R, 255 - o.G, 255 - o.B, 255 - o.A }
+				: new double[] { 1.0 - o.R, 1.0 - o.G, 1.0 - o.B, 1.0 - o.A }
 			;
 			double[] vt = new double[] { t.R, t.G, t.B, t.A };
 

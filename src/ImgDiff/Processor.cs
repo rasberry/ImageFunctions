@@ -30,15 +30,17 @@ namespace ImageFunctions.ImgDiff
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
 		{
 			using (var progress = new ProgressBar())
-			using (var compareImg = Image.Load<Rgba32>(O.CompareImage))
+			using (var compareImg = Image.Load<TPixel>(O.CompareImage))
 			{
 				double totalDist = 0.0;
 				var ab = Rectangle.Intersect(frame.Bounds(),compareImg.Bounds());
 				var minimum = Rectangle.Intersect(ab,rectangle);
+				var colorWhite = Color.White.ToPixel<RgbaD>();
+				var colorHilight = O.HilightColor.ToPixel<RgbaD>();
 
 				MoreHelpers.ThreadPixels(minimum, config.MaxDegreeOfParallelism, (x,y) => {
-					Rgba32 one = frame[x,y].ToColor();
-					Rgba32 two = compareImg[x,y];
+					var one = frame[x,y].ToColor();
+					var two = compareImg[x,y].ToColor();
 					bool areSame = one == two;
 					bool sameSame = O.MatchSamePixels ^ areSame; //XOR
 
@@ -49,16 +51,16 @@ namespace ImageFunctions.ImgDiff
 					}
 					else {
 						if (!sameSame) {
-							double dist; Rgba32 sc,ec;
+							double dist; RgbaD sc,ec;
 							if (O.HilightOpacity == null) {
 								dist = ColorDistanceRatio(one,two);
-								sc = O.HilightColor;
-								ec = Color.White.ToPixel<Rgba32>();
+								sc = colorHilight;
+								ec = colorWhite;
 							}
 							else {
 								dist = O.HilightOpacity.Value;
 								sc = one;
-								ec = O.HilightColor;
+								ec = colorHilight;
 							}
 							totalDist += dist;
 							var overlay = ImageHelpers.BetweenColor(sc,ec,dist);
@@ -70,7 +72,7 @@ namespace ImageFunctions.ImgDiff
 			}
 		}
 
-		double ColorDistanceRatio(Rgba32 one, Rgba32 two)
+		double ColorDistanceRatio(RgbaD one, RgbaD two)
 		{
 			var vo = new double[] { one.R, one.B, one.G, one.A };
 			var vt = new double[] { two.R, two.B, two.G, two.A };

@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace ImageFunctions.Derivatives
 {
@@ -56,13 +57,13 @@ namespace ImageFunctions.Derivatives
 		static TPixel DoDiff(TPixel? src, TPixel? n, TPixel? e, TPixel? s, TPixel? w, bool abs)
 		{
 			if (!src.HasValue) { return default(TPixel); }
-			Rgba32 rgbaSrc = ToRgba32(src);
-			Rgba32 rgbaN = ToRgba32(n);
-			Rgba32 rgbaE = ToRgba32(e);
-			Rgba32 rgbaS = ToRgba32(s);
-			Rgba32 rgbaW = ToRgba32(w);
+			var rgbaSrc = GetColor(src);
+			var rgbaN = GetColor(n);
+			var rgbaE = GetColor(e);
+			var rgbaS = GetColor(s);
+			var rgbaW = GetColor(w);
 			
-			int diffR=0,diffG=0,diffB=0;
+			int diffR = 0,diffG = 0,diffB = 0;
 			int num = 0;
 
 			if (n.HasValue) {
@@ -89,44 +90,29 @@ namespace ImageFunctions.Derivatives
 				diffB += DiffOne(abs,rgbaSrc.B,rgbaW.B);
 				num++;
 			}
-			int off = abs ? 0 : 127;
+			double off = abs ? 0 : 0.5;
 			if (abs) { num *= 2; }
-			var pix = ToPixel(
+			var pix = new RgbaD(
 				diffR/num + off,
 				diffG/num + off,
 				diffB/num + off,
 				rgbaSrc.A
 			);
-			return pix;
+			return pix.FromColor<TPixel>();
 		}
 
-		static int DiffOne(bool abs,byte a, byte b)
+		static int DiffOne(bool abs,double a, double b)
 		{
 			int tmp = (int)a - (int)b;
 			return abs ? Math.Abs(tmp) : tmp;
 		}
 
-		static Rgba32 ToRgba32(TPixel? px)
+		static RgbaD GetColor(TPixel? px)
 		{
-			Rgba32 rgba = default(Rgba32);
 			if (px.HasValue) {
-				px.Value.ToRgba32(ref rgba);
-				return rgba;
+				return px.Value.ToColor();
 			}
-			return default(Rgba32);
-		}
-
-		static TPixel ToPixel(int R,int G,int B,byte A)
-		{
-			var pix = default(TPixel);
-			Rgba32 c = new Rgba32(
-				(byte)Math.Clamp(R,0,255),
-				(byte)Math.Clamp(G,0,255),
-				(byte)Math.Clamp(B,0,255),
-				A
-			);
-			pix.FromRgba32(c);
-			return pix;
+			return default(RgbaD);
 		}
 
 		struct QueueItem
