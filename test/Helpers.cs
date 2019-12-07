@@ -73,12 +73,12 @@ namespace test
 			Func<string,string,bool> fileComparer = null)
 		{
 			if (fileComparer == null) {
-				//fileComparer = Helpers.AreImagesEqual;
-				fileComparer = (string one,string two) => {
-					double dist = Helpers.ImageDistance(one,two);
-					Log.Debug($"dist = {dist}");
-					return dist < 1.0;
-				};
+				fileComparer = Helpers.AreImagesEqual;
+				//fileComparer = (string one,string two) => {
+				//	double dist = Helpers.ImageDistance(one,two);
+				//	Log.Debug($"dist = {dist}");
+				//	return dist < 1.0;
+				//};
 			}
 			IFunction func = Registry.Map(act);
 			bool worked = func.ParseArgs(args);
