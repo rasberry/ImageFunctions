@@ -5,6 +5,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using SixLabors.Primitives;
 using System;
+using System.Numerics;
 
 namespace ImageFunctions.AreaSmoother
 {
@@ -32,15 +33,14 @@ namespace ImageFunctions.AreaSmoother
 
 		TPixel SmoothPixel(ImageFrame<TPixel> frame,int px, int py)
 		{
-			TPixel tpstart = frame.GetPixelRowSpan(py)[px];
-			Rgba32 start = tpstart.ToColor();
+			TPixel start = frame.GetPixelRowSpan(py)[px];
 
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
 			double bestlen = double.MaxValue;
 			double bestang = double.NaN;
 			double bestratio = 1;
-			Rgba32 bestfc = start;
-			Rgba32 bestbc = start;
+			TPixel bestfc = start;
+			TPixel bestbc = start;
 			Point bestfpx = new Point(px,py);
 			Point bestbpx = new Point(px,py);
 			double ahigh = Math.PI;
@@ -51,16 +51,16 @@ namespace ImageFunctions.AreaSmoother
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)
 				{
-					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out Rgba32 fc);
-					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out Rgba32 bc);
+					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out TPixel fc);
+					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out TPixel bc);
 
 					double len = O.Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
 					if (len < bestlen) {
 						bestang = a;
 						bestlen = len;
-						bestfc = Between(fc,start,0.5);
-						bestbc = Between(bc,start,0.5);
+						bestfc = ImageHelpers.BetweenColor(fc,start,0.5);
+						bestbc = ImageHelpers.BetweenColor(bc,start,0.5);
 						bestfpx = fp;
 						bestbpx = bp;
 						double flen = O.Measurer.Measure(px,py,fp.X,fp.Y);
@@ -73,32 +73,21 @@ namespace ImageFunctions.AreaSmoother
 				ahigh = bestang + Math.PI/3/tries;
 			}
 
-			Rgba32 final;
+			TPixel final;
 			//Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
-			if (bestfc == start && bestbc == start) {
+			if (bestfc.Equals(start) && bestbc.Equals(start)) {
 				final = start;
 			}
 			else if (bestratio > 0.5) {
-				final = Between(start,bestbc,(bestratio-0.5)*2);
+				final = ImageHelpers.BetweenColor(start,bestbc,(bestratio-0.5)*2);
 			}
 			else {
-				final = Between(bestfc,start,bestratio*2);
+				final = ImageHelpers.BetweenColor(bestfc,start,bestratio*2);
 			}
-			return final.FromColor<TPixel>();
+			return final;
 		}
 
-		static Rgba32 Between(Rgba32 a, Rgba32 b, double ratio)
-		{
-			byte nr = (byte)Math.Round((1-ratio)*a.R + ratio*b.R,0);
-			byte ng = (byte)Math.Round((1-ratio)*a.G + ratio*b.G,0);
-			byte nb = (byte)Math.Round((1-ratio)*a.B + ratio*b.B,0);
-			byte na = (byte)Math.Round((1-ratio)*a.A + ratio*b.A,0);
-			var btw = new Rgba32(nr,ng,nb,na);
-			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
-			return btw;
-		}
-
-		Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, Rgba32 start, out Rgba32 c)
+		Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, TPixel start, out TPixel c)
 		{
 			double r=1;
 			c = start;
@@ -115,9 +104,8 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					Rgba32 f = ImageHelpers.Sample(lb,fx,fy,O.Sampler).ToColor();
-					//Rgba32 f = lb.GetPixelRowSpan(fy)[fx].ToColor();
-					if (f != start) {
+					TPixel f = ImageHelpers.Sample(lb,fx,fy,O.Sampler);
+					if (!f.Equals(start)) {
 						c = f;
 						done = true;
 

@@ -136,10 +136,11 @@ namespace ImageFunctions.PixelateDetails
 				}
 			}
 			double den = rect.Width * rect.Height;
-			var avg = new Rgba32(
-				 (byte)(r / den)
-				,(byte)(g / den)
-				,(byte)(b / den)
+			var avg = new RgbaD(
+				 r / den
+				,g / den
+				,b / den
+				,1.0
 			);
 			return avg.FromColor<TPixel>();
 		}

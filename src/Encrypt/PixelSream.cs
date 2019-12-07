@@ -72,7 +72,8 @@ namespace ImageFunctions.Encrypt
 			int pos = (int)(Position / 4);
 			int elem = (int)(Position % 4);
 
-			Rgba32 c = Image.GetPixelSpan()[pos].ToColor();
+			Rgba32 c = default(Rgba32);
+			Image.GetPixelSpan()[pos].ToRgba32(ref c);
 			byte comp;
 			switch(elem) {
 				default:
@@ -128,7 +129,8 @@ namespace ImageFunctions.Encrypt
 			int elem = (int)(Position % 4);
 			var span = Image.GetPixelSpan();
 
-			Rgba32 c = span[pos].ToColor();
+			Rgba32 c = default(Rgba32);
+			span[pos].ToRgba32(ref c);
 			switch(elem) {
 				default:
 				case 0: c.R = value; break;
@@ -136,7 +138,7 @@ namespace ImageFunctions.Encrypt
 				case 2: c.B = value; break;
 				case 3: c.A = value; break;
 			}
-			span[pos] = c.FromColor<TPixel>();
+			span[pos].FromRgba32(c);
 			Position++;
 		}
 	}
