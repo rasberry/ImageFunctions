@@ -19,14 +19,15 @@ namespace ImageFunctions
 		Deform = 7,
 		Encrypt = 8,
 		PixelRules = 9,
-		ImgDiff = 10
+		ImgDiff = 10,
+		AllColors = 11
 	}
 
 	public interface IFunction
 	{
 		void Usage(StringBuilder sb);
 		bool ParseArgs(string[] args);
-		Rectangle Rect { get; set; }
+		Rectangle? Rect { get; set; }
 		int? MaxDegreeOfParallelism { get; set; }
 		void Main();
 	}
@@ -56,7 +57,6 @@ namespace ImageFunctions
 		IResampler Sampler { get; }
 	}
 
-
 	public enum Metric
 	{
 		None = 0,
@@ -83,5 +83,10 @@ namespace ImageFunctions
 	{
 		None = 0,
 		N,NE,E,SE,S,SW,W,NW
+	}
+
+	public interface IGenerator
+	{
+		Size StartingSize { get; }
 	}
 }

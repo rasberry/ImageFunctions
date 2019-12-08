@@ -84,6 +84,11 @@ namespace ImageFunctions.AreaSmoother
 			return proc;
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 		public IResampler Sampler { get { return O.Sampler; }}
 		public IMeasurer Measurer { get { return O.Measurer; }}

@@ -116,10 +116,9 @@ namespace ImageFunctions.Deform
 			sb.AppendLine(" 2. Inverted   - n/x, n/y; n = (x^e + y^e)");
  		}
 
-		public enum Mode {
-			None = 0,
-			Polynomial = 1,
-			Inverted = 2
+		public override void Main()
+		{
+			Main<RgbaD>();
 		}
 
 		Options O = new Options();

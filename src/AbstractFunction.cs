@@ -12,20 +12,38 @@ namespace ImageFunctions
 {
 	public abstract class AbstractFunction : IFunction, IImageProcessor
 	{
-		public void Main()
+		public abstract void Main();
+
+		public void Main<TPixel>()
+			where TPixel : struct, IPixel<TPixel>
 		{
-			using (var fs = File.Open(InImage,FileMode.Open,FileAccess.Read,FileShare.Read))
-			using (var img = Image.Load<RgbaD>(fs))
-			using (var proc = CreatePixelSpecificProcessor<RgbaD>(img,Rect))
+			if (InImage == null) {
+				var rect = Rect.GetValueOrDefault();
+				using (var img = new Image<TPixel>(rect.Width,rect.Height)) {
+					DoProcessing(img);
+				}
+			}
+			else {
+				using (var fs = File.Open(InImage,FileMode.Open,FileAccess.Read,FileShare.Read))
+				using (var img = Image.Load<TPixel>(fs)) {
+					DoProcessing(img);
+				}
+			}
+		}
+
+		void DoProcessing<TPixel>(Image<TPixel> img)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			using (var proc = CreatePixelSpecificProcessor<TPixel>(img,Rect.GetValueOrDefault()))
 			{
-				var absProc = proc as AbstractProcessor<RgbaD>;
+				var absProc = proc as AbstractProcessor<TPixel>;
 				absProc.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 				absProc.Apply();
 				ImageHelpers.SaveAsPng(OutImage,img);
 			}
 		}
 
-		public Rectangle Rect { get; set; }
+		public Rectangle? Rect { get; set; }
 		public int? MaxDegreeOfParallelism { get; set; }
 
 		public abstract void Usage(StringBuilder sb);
@@ -36,6 +54,5 @@ namespace ImageFunctions
 
 		protected string InImage = null;
 		protected string OutImage = null;
-
 	}
 }

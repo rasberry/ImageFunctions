@@ -11,8 +11,6 @@ namespace ImageFunctions
 		{
 			switch(action)
 			{
-			default:
-			case Activity.None: return null;
 			case Activity.PixelateDetails: return new PixelateDetails.Function();
 			case Activity.Derivatives: return new Derivatives.Function();
 			case Activity.AreaSmoother: return new AreaSmoother.Function();
@@ -23,7 +21,9 @@ namespace ImageFunctions
 			case Activity.Encrypt: return new Encrypt.Function();
 			case Activity.PixelRules: return new PixelRules.Function();
 			case Activity.ImgDiff: return new ImgDiff.Function();
+			case Activity.AllColors: return new AllColors.Function();
 			}
+			throw new ArgumentException("E: Unmapped action "+action);
 		}
 
 		public static IResampler Map(Sampler sampler)

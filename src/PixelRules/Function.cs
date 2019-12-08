@@ -123,6 +123,11 @@ namespace ImageFunctions.PixelRules
 			StairCaseFarthest = 4
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 	}
 }

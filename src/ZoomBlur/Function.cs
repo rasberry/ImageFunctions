@@ -108,6 +108,11 @@ namespace ImageFunctions.ZoomBlur
 			return proc;
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		public IResampler Sampler { get { return O.Sampler; }}
 		public IMeasurer Measurer { get { return O.Measurer; }}
 		Options O = new Options();

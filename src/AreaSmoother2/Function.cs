@@ -65,6 +65,11 @@ namespace ImageFunctions.AreaSmoother2
 			return proc;
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 	}
 }

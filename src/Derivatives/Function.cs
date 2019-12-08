@@ -65,6 +65,11 @@ namespace ImageFunctions.Derivatives
 			return proc;
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 	}
 }

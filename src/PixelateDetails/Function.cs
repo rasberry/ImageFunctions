@@ -84,6 +84,11 @@ namespace ImageFunctions.PixelateDetails
 			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 	}
 }

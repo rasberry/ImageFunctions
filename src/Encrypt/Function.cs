@@ -176,6 +176,11 @@ namespace ImageFunctions.Encrypt
 			sb.AppendLine(" -test                       Print out any specified (text) inputs as hex and exit");
 		}
 
+		public override void Main()
+		{
+			Main<Rgba32>();
+		}
+
 		Options O = new Options();
 	}
 }

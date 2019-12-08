@@ -100,6 +100,11 @@ namespace ImageFunctions.ImgDiff
 			sb.AppendLine(" -c (color)                  Change hilight color - hex value or name (default is magenta)");
 		}
 
+		public override void Main()
+		{
+			Main<RgbaD>();
+		}
+
 		Options O = new Options();
 	}
 }

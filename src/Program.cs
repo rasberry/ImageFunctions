@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
@@ -11,16 +12,22 @@ namespace ImageFunctions
 				Options.Usage();
 				return;
 			}
+
+			//parse initial options - determines which action to do
 			if (!Options.Parse(args, out var pruned)) {
 				return;
 			}
+
+			//map / parse action specific arguments
 			IFunction func = Registry.Map(Options.Which);
-			func.Rect = Options.Rect;
-			func.MaxDegreeOfParallelism = Options.MaxDegreeOfParallelism;
+			if (!MapOptions(func)) {
+				return;
+			}
 			if (!func.ParseArgs(pruned)) {
 				return;
 			}
 
+			//kick off action
 			try {
 				func.Main();
 			}
@@ -31,6 +38,28 @@ namespace ImageFunctions
 				Log.Error(e.Message);
 				#endif
 			}
+		}
+
+		static bool MapOptions(IFunction func)
+		{
+			IGenerator iGen = func as IGenerator;
+			//generators must be given a size
+			if (iGen != null) {
+				if (Options.Rect == Rectangle.Empty) {
+					var size = iGen.StartingSize;
+					if (size == Size.Empty) {
+						Log.Error($"{Options.Which} doesn't provide an initial size so you must include the --rect option");
+						return false;
+					}
+					func.Rect = new Rectangle(0,0,size.Width,size.Height);
+				}
+			}
+			else {
+				func.Rect = Options.Rect;
+			}
+
+			func.MaxDegreeOfParallelism = Options.MaxDegreeOfParallelism;
+			return true;
 		}
 	}
 }

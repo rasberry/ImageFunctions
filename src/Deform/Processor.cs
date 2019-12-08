@@ -50,14 +50,14 @@ namespace ImageFunctions.Deform
 
 			switch(O.WhichMode)
 			{
-			case Function.Mode.Polynomial: {
+			case Mode.Polynomial: {
 				//solve(w^q/n = w,n) : n = w^(q-1)
 				double dx = Math.Pow(Math.Abs(qw),exp - 1.0);
 				double dy = Math.Pow(Math.Abs(qh),exp - 1.0);
 				px = Math.Sign(x) * Math.Pow(Math.Abs(x),exp) / dx;
 				py = Math.Sign(y) * Math.Pow(Math.Abs(y),exp) / dy;
 			}; break;
-			case Function.Mode.Inverted: {
+			case Mode.Inverted: {
 				double ax = Math.Pow(Math.Abs(x),exp);
 				double ay = Math.Pow(Math.Abs(y),exp);
 				double aw = Math.Pow(Math.Abs(qw),exp);
