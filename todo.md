@@ -64,3 +64,9 @@
 
 ## Deform ##
 * maybe implement [fisheye](https://stackoverflow.com/questions/2477774/correcting-fisheye-distortion-programmatically)
+
+## AllColors ##
+* add arrangements
+  * left to right / right to left
+  * spiral in to out
+* add option to invert sort order
