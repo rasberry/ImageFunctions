@@ -27,17 +27,12 @@ namespace ImageFunctions
 
 			if (showActions) {
 				sb.AppendLine().AppendLine("Actions:");
-				foreach(Activity a in Enum.GetValues(typeof(Activity))) {
-					if (a == Activity.None) { continue; }
-					sb.AppendLine(((int)a)+". "+a);
-				}
+				OptionsHelpers.PrintEnum<Activity>(sb);
 			}
 
 			if (showFull)
 			{
-				foreach(Activity a in Enum.GetValues(typeof(Activity)))
-				{
-					if (a == Activity.None) { continue; }
+				foreach(Activity a in OptionsHelpers.EnumAll<Activity>()) {
 					IFunction func = Registry.Map(a);
 					func.Usage(sb);
 				}
@@ -63,23 +58,16 @@ namespace ImageFunctions
 		{
 			sb.AppendLine();
 			sb.AppendLine("Available Samplers:");
-			foreach(Sampler s in Enum.GetValues(typeof(Sampler))) {
-				if (s == Sampler.None) { continue; }
-				sb.AppendLine(((int)s)+". "+s);
-			}
+			OptionsHelpers.PrintEnum<Sampler>(sb);
 		}
 
 		static void MetricHelp(StringBuilder sb)
 		{
 			sb.AppendLine();
 			sb.AppendLine("Available Metrics:");
-			foreach(Metric s in Enum.GetValues(typeof(Metric))) {
-				if (s == Metric.None) { continue; }
-				string txt = ((int)s)+". "+s+
-					(s == Metric.Minkowski ? " (p-factor)" : "")
-				;
-				sb.AppendLine(txt);
-			}
+			OptionsHelpers.PrintEnum<Metric>(sb, false, null, (m) => {
+				return m == Metric.Minkowski ? m + " (p-factor)" : m.ToString();
+			});
 		}
 
 		public static bool Parse(string[] args, out string[] prunedArgs)
@@ -162,6 +150,7 @@ namespace ImageFunctions
 		public static Activity Which { get; private set; } = Activity.None;
 		public static Rectangle Rect { get { return _Rect; }}
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
+		public static object OptionHelpers { get; private set; }
 
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;

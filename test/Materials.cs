@@ -6,6 +6,7 @@ using ImageFunctions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using ImageFunctions.Helpers;
 
 namespace test
 {
@@ -32,7 +33,7 @@ namespace test
 			var sb = new StringBuilder();
 			sb.Append(TemplateExamplesHeader);
 
-			foreach(Activity act in Helpers.AllActivity())
+			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
@@ -67,7 +68,7 @@ namespace test
 
 		static void BuildImages()
 		{
-			foreach(Activity act in Helpers.AllActivity())
+			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }

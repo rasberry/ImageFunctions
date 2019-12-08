@@ -29,6 +29,18 @@ namespace ImageFunctions.AllColors
 					}
 					O.SortBy = pat;
 				}
+				else if (curr == "-s" && (a+=2) < len) {
+					if (!OptionsHelpers.TryParse<Space>(args[a-1],out Space choose)) {
+						Log.Error("invalid color space "+args[a-1]);
+						return false;
+					}
+					if (!OptionsHelpers.TryParse<Component>(args[a],out Component comp)) {
+						Log.Error("invalid component "+args[a]);
+						return false;
+					}
+					O.WhichSpace = choose;
+					O.WhichComp = comp;
+				}
 				else if (OutImage == null) {
 					OutImage = curr;
 				}
@@ -36,6 +48,10 @@ namespace ImageFunctions.AllColors
 
 			if (String.IsNullOrEmpty(OutImage)) {
 				OutImage = OptionsHelpers.CreateOutputFileName(nameof(AllColors));
+			}
+
+			if (O.SortBy == Pattern.None && O.WhichSpace == Space.None) {
+				O.SortBy = Pattern.BitOrder;
 			}
 			return true;
 		}
@@ -46,22 +62,21 @@ namespace ImageFunctions.AllColors
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] [output image]");
 			sb.AppendLine(" Creates an image with every possible 24-bit color ordered by chosen pattern.");
-			sb.AppendLine(" -t (number)                 Number of times to run fit function (default 7)");
 			sb.AppendLine(" -p (pattern)                Pattern to use (default BitOrder)");
+			sb.AppendLine(" -s (space) (component)      Sort by color space component (instead of pattern)");
 			sb.AppendLine();
 			sb.AppendLine(" Available Patterns");
 
-			var allPatterns = AllPatterns(out int max);
-			int numLen = 1 + (int)Math.Floor(Math.Log10(max));
-			foreach(Pattern p in allPatterns) {
-				string pnum = ((int)p).ToString();
-				string npad = pnum.Length < numLen ? new string(' ',numLen - pnum.Length) : "";
-				string pname = p.ToString();
-				string ppad = new string(' ',26 - pname.Length);
-				string pdsc = GetPatternDescription(p);
-				Log.Debug("npadlen = "+npad.Length);
-				sb.AppendLine($"{npad}{pnum}. {pname}{ppad}{pdsc}");
-			}
+			OptionsHelpers.PrintEnum<Pattern>(sb,true,(e) => {
+				return GetPatternDescription(e);
+			});
+
+			sb.AppendLine();
+			sb.AppendLine(" Available Spaces");
+			OptionsHelpers.PrintEnum<Space>(sb,true);
+			sb.AppendLine();
+			sb.AppendLine(" Available Components");
+			OptionsHelpers.PrintEnum<Component>(sb,true);
 		}
 
 		static string GetPatternDescription(Pattern p)
@@ -87,8 +102,7 @@ namespace ImageFunctions.AllColors
 		{
 			var list = new List<Pattern>();
 			max = int.MinValue;
-			foreach(Pattern p in Enum.GetValues(typeof(Pattern))) {
-				if (p == Pattern.None) { continue; }
+			foreach(Pattern p in OptionsHelpers.EnumAll<Pattern>()) {
 				list.Add(p);
 				if ((int)p > max) { max = (int)p; }
 			}

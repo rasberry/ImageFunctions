@@ -187,14 +187,6 @@ namespace test
 			return new TempPngFile();
 		}
 
-		public static IEnumerable<Activity> AllActivity()
-		{
-			foreach(Activity a in Enum.GetValues(typeof(Activity))) {
-				if (a == Activity.None) { continue; }
-				yield return a;
-			}
-		}
-
 		public static ITuple InFile(ITuple tuple, bool forweb = false) {
 			var pathTuple = tuple.Enumerate<string>()
 				.Select((name) => {

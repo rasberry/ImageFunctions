@@ -203,5 +203,26 @@ namespace ImageFunctions.Helpers
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw.FromColor<TPixel>();
 		}
+
+		public static (double,double,double) ConvertToHSI(Rgba32 c)
+		{
+			int max = Math.Max(c.R,Math.Max(c.G,c.B));
+			int min = Math.Min(c.R,Math.Min(c.G,c.B));
+			int chr = max - min;
+			double H = 0.0;
+			if (max == c.R) {
+				H = (c.G - c.B / (double)chr) % 6.0;
+			}
+			else if (max == c.G) {
+				H = (c.B - c.R / (double)chr) + 2.0;
+			}
+			else if (max == c.B) {
+				H = (c.R - c.G / (double)chr) + 4.0;
+			}
+			double I = (c.R + c.G + c.B) / 3.0;
+			double S = 1.0 - min / I;
+
+			return (H,S,I);
+		}
 	}
 }

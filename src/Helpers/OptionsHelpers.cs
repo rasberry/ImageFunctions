@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using System.Linq;
 
 namespace ImageFunctions.Helpers
 {
@@ -193,6 +195,33 @@ namespace ImageFunctions.Helpers
 			if (field == null) { return false; }
 			color = (Color)field.GetValue(null);
 			return true;
+		}
+
+		public static IEnumerable<T> EnumAll<T>(bool includeZero = false)
+			where T : struct
+		{
+			foreach(T a in Enum.GetValues(typeof(T))) {
+				int v = (int)((object)a);
+				if (!includeZero && v == 0) { continue; }
+				yield return a;
+			};
+		}
+
+		public static void PrintEnum<T>(StringBuilder sb, bool nested = false, Func<T,string> descriptionMap = null,
+			Func<T,string> nameMap = null) where T : struct
+		{
+			var allEnums = EnumAll<T>().ToList();
+			int numLen = 1 + (int)Math.Floor(Math.Log10(allEnums.Count));
+			foreach(T e in allEnums) {
+				int inum = (int)((object)e);
+				string pnum = inum.ToString();
+				string npad = pnum.Length < numLen ? new string(' ',numLen - pnum.Length) : "";
+				if (nested) { npad = " "+npad; }
+				string pname = nameMap == null ? e.ToString() : nameMap(e);
+				string ppad = new string(' ',(nested ? 24 : 26) - pname.Length);
+				string pdsc = descriptionMap == null ? "" : descriptionMap(e);
+				sb.AppendLine($"{npad}{pnum}. {pname}{ppad}{pdsc}");
+			}
 		}
 	}
 }

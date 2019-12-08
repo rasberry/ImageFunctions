@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.ColorSpaces.Conversion;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 
@@ -21,27 +23,35 @@ namespace ImageFunctions.AllColors
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			ListSorter sorter = null;
-			switch(O.SortBy)
-			{
-			default:
-			case Pattern.BitOrder:      sorter = SortByNumber; break;
-			case Pattern.AERT:          sorter = SortByAERT; break;
-			case Pattern.HSP:           sorter = SortByHSP; break;
-			case Pattern.WCAG2:         sorter = SortByWCAG2; break;
-			case Pattern.VofHSV:        sorter = SortByVofHSV; break;
-			case Pattern.IofHSI:        sorter = SortByIofHSI; break;
-			case Pattern.LofHSL:        sorter = SortByLofHSL; break;
-			case Pattern.Luminance709:  sorter = SortByLuminance709; break;
-			case Pattern.Luminance601:  sorter = SortByLuminance601; break;
-			case Pattern.Luminance2020: sorter = SortByLuminance2020; break;
-			case Pattern.SMPTE240M:     sorter = SortBySmpte1999; break;
+			if (O.WhichSpace != Space.None) {
+				sorter = SortByColorSpaceComponent;
+			}
+			else {
+				switch(O.SortBy)
+				{
+				default:
+				case Pattern.BitOrder:      sorter = SortByNumber; break;
+				case Pattern.AERT:          sorter = SortByAERT; break;
+				case Pattern.HSP:           sorter = SortByHSP; break;
+				case Pattern.WCAG2:         sorter = SortByWCAG2; break;
+				case Pattern.Luminance709:  sorter = SortByLuminance709; break;
+				case Pattern.Luminance601:  sorter = SortByLuminance601; break;
+				case Pattern.Luminance2020: sorter = SortByLuminance2020; break;
+				case Pattern.SMPTE240M:     sorter = SortBySmpte1999; break;
+				}
 			}
 
-			List<Rgba32> colorList = PatternSorter(sorter);
+			List<Rgba32> colorList = null;
+			using (var progress = new ProgressBar())
+			{
+				progress.Prefix = "Sorting...";
+				colorList = PatternSorter(sorter,progress);
+			}
 			var transparent = Color.Transparent.ToPixel<TPixel>();
 
 			using (var progress = new ProgressBar())
 			{
+				progress.Prefix = "Rendering...";
 				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
@@ -75,10 +85,20 @@ namespace ImageFunctions.AllColors
 		delegate double ColorSortValue(Rgba32 c);
 		delegate int ListSorter(Rgba32 a, Rgba32 b);
 
-		static List<Rgba32> PatternSorter(ListSorter sorter)
+		static ColorSpaceConverter _Converter = new ColorSpaceConverter();
+		static List<Rgba32> PatternSorter(ListSorter sorter,ProgressBar progress)
 		{
+			//there doesn't seem to be a sort with progress so take a guess
+			// at the maximum number of iterations
+			double max = 5 * 7 * NumberOfColors; //5 * log(n) * n
+			int count = 0;
+			var progressSorter = new Func<Rgba32,Rgba32,int>((a,b) => {
+				count++;
+				progress.Report(count / max);
+				return sorter(a,b);
+			});
 			var cList = PatternBitOrder();
-			cList.Sort(new Comparison<Rgba32>(sorter));
+			cList.Sort(new Comparison<Rgba32>(progressSorter));
 			return cList;
 		}
 
@@ -146,40 +166,146 @@ namespace ImageFunctions.AllColors
 			return c;
 		}
 
-		// https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
-		static int SortByVofHSV(Rgba32 ca, Rgba32 cb)
-		{
-			byte la = Math.Max(ca.R,Math.Max(ca.G,ca.B));
-			byte lb = Math.Max(cb.R,Math.Max(cb.G,cb.B));
-			return la > lb ? 1 : la < lb ? -1 : 0;
-		}
-
-		// https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
-		static int SortByIofHSI(Rgba32 ca, Rgba32 cb)
-		{
-			double la = ca.R + ca.G + ca.B / 3.0;
-			double lb = cb.R + cb.G + cb.B / 3.0;
-			return la > lb ? 1 : la < lb ? -1 : 0;
-		}
-
-		// https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
-		static int SortByLofHSL(Rgba32 ca, Rgba32 cb)
-		{
-			byte xa = Math.Max(ca.R,Math.Max(ca.G,ca.B));
-			byte xb = Math.Max(cb.R,Math.Max(cb.G,cb.B));
-			byte ma = Math.Min(ca.R,Math.Min(ca.G,ca.B));
-			byte mb = Math.Min(cb.R,Math.Min(cb.G,cb.B));
-			double la = xa + ma / 2.0;
-			double lb = xb + mb / 2.0;
-			return la > lb ? 1 : la < lb ? -1 : 0;
-		}
-
 		// http://discoverybiz.net/enu0/faq/faq_YUV_YCbCr_YPbPr.html
 		static int SortBySmpte1999(Rgba32 ca, Rgba32 cb)
 		{
 			double la = 0.212 * ca.R + 0.701 * ca.G + 0.087 * ca.B;
 			double lb = 0.212 * cb.R + 0.701 * cb.G + 0.087 * cb.B;
 			return la > lb ? 1 : la < lb ? -1 : 0;
+		}
+
+		int SortByColorSpaceComponent(Rgba32 ca, Rgba32 cb)
+		{
+			var space = O.WhichSpace;
+			var comp = O.WhichComp;
+
+			var converter = _Converter;
+			double va = 0.0;
+			double vb = 0.0;
+
+			switch(space)
+			{
+			case Space.RGB: {
+				switch(comp) {
+					case Component.First:  va = ca.R / 255.0; vb = cb.R / 255.0; break;
+					case Component.Second: va = ca.G / 255.0; vb = cb.G / 255.0; break;
+					case Component.Third:  va = ca.B / 255.0; vb = cb.B / 255.0; break;
+				} break; }
+			case Space.HSV: {
+				var ha = converter.ToHsv(ca);
+				var hb = converter.ToHsv(cb);
+				switch(comp) {
+					case Component.First:  va = ha.H; vb = hb.H; break;
+					case Component.Second: va = ha.S; vb = hb.S; break;
+					case Component.Third:  va = ha.V; vb = hb.V; break;
+				} break; }
+			case Space.HSL: {
+				var ha = converter.ToHsl(ca);
+				var hb = converter.ToHsl(cb);
+				switch(comp) {
+					case Component.First:  va = ha.H; vb = hb.H; break;
+					case Component.Second: va = ha.S; vb = hb.S; break;
+					case Component.Third:  va = ha.L; vb = hb.L; break;
+				} break; }
+			case Space.HSI: {
+				var ha = ImageHelpers.ConvertToHSI(ca);
+				var hb = ImageHelpers.ConvertToHSI(cb);
+				switch(comp) {
+					case Component.First:  va = ha.Item1; vb = hb.Item1; break;
+					case Component.Second: va = ha.Item2; vb = hb.Item2; break;
+					case Component.Third:  va = ha.Item3; vb = hb.Item3; break;
+				} break; }
+			case Space.YCbCr: {
+				var ha = converter.ToYCbCr(ca);
+				var hb = converter.ToYCbCr(cb);
+				switch(comp) {
+					case Component.First:  va = ha.Y; vb = hb.Y; break;
+					case Component.Second: va = ha.Cb; vb = hb.Cb; break;
+					case Component.Third:  va = ha.Cr; vb = hb.Cr; break;
+				} break; }
+			case Space.CieLab: {
+				var ha = converter.ToCieLab(ca);
+				var hb = converter.ToCieLab(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.A; vb = hb.A; break;
+					case Component.Third:  va = ha.B; vb = hb.B; break;
+				} break; }
+			case Space.CieLch: {
+				var ha = converter.ToCieLch(ca);
+				var hb = converter.ToCieLch(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.C; vb = hb.C; break;
+					case Component.Third:  va = ha.H; vb = hb.H; break;
+				} break; }
+			case Space.CieLchuv: {
+				var ha = converter.ToCieLchuv(ca);
+				var hb = converter.ToCieLchuv(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.C; vb = hb.C; break;
+					case Component.Third:  va = ha.H; vb = hb.H; break;
+				} break; }
+			case Space.CieLuv: {
+				var ha = converter.ToCieLuv(ca);
+				var hb = converter.ToCieLuv(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.U; vb = hb.U; break;
+					case Component.Third:  va = ha.V; vb = hb.V; break;
+				} break; }
+			case Space.CieXyy: {
+				var ha = converter.ToCieXyy(ca);
+				var hb = converter.ToCieXyy(cb);
+				switch(comp) {
+					case Component.First:  va = ha.X; vb = hb.X; break;
+					case Component.Second: va = ha.Y; vb = hb.Y; break;
+					case Component.Third:  va = ha.Yl; vb = hb.Yl; break;
+				} break; }
+			case Space.CieXyz: {
+				var ha = converter.ToCieXyz(ca);
+				var hb = converter.ToCieXyz(cb);
+				switch(comp) {
+					case Component.First:  va = ha.X; vb = hb.X; break;
+					case Component.Second: va = ha.Y; vb = hb.Y; break;
+					case Component.Third:  va = ha.Z; vb = hb.Z; break;
+				} break; }
+			case Space.Cmyk: {
+				var ha = converter.ToCmyk(ca);
+				var hb = converter.ToCmyk(cb);
+				switch(comp) {
+					case Component.First:  va = ha.C; vb = hb.C; break;
+					case Component.Second: va = ha.M; vb = hb.M; break;
+					case Component.Third:  va = ha.Y; vb = hb.Y; break;
+					case Component.Fourth: va = ha.K; vb = hb.K; break;
+				} break; }
+			case Space.HunterLab: {
+				var ha = converter.ToHunterLab(ca);
+				var hb = converter.ToHunterLab(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.A; vb = hb.A; break;
+					case Component.Third:  va = ha.B; vb = hb.B; break;
+				} break; }
+			case Space.LinearRgb: {
+				var ha = converter.ToLinearRgb(ca);
+				var hb = converter.ToLinearRgb(cb);
+				switch(comp) {
+					case Component.First:  va = ha.R; vb = hb.R; break;
+					case Component.Second: va = ha.G; vb = hb.G; break;
+					case Component.Third:  va = ha.B; vb = hb.B; break;
+				} break; }
+			case Space.Lms: {
+				var ha = converter.ToLms(ca);
+				var hb = converter.ToLms(cb);
+				switch(comp) {
+					case Component.First:  va = ha.L; vb = hb.L; break;
+					case Component.Second: va = ha.M; vb = hb.M; break;
+					case Component.Third:  va = ha.S; vb = hb.S; break;
+				} break; }
+			}
+			return va > vb ? 1 : va < vb ? -1 : 0;
 		}
 	}
 }
