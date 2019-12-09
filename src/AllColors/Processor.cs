@@ -17,38 +17,24 @@ namespace ImageFunctions.AllColors
 		where TPixel : struct, IPixel<TPixel>
 	{
 		const int NumberOfColors = 16777216;
-
+		//there doesn't seem to be a sort with progress so take a guess
+		// at the maximum number of iterations
+		const double SortMax = 5 * 7 * NumberOfColors; //5 * log(n) * n
 		public Options O = null;
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			ListSorter sorter = null;
+			List<Rgba32> colorList = null;
+			var order = new int[] { 1,2,3 }; //TODO get order from options
+
 			if (O.WhichSpace != Space.None) {
-				sorter = SortByColorSpaceComponent;
+				colorList = ConvertBySpace(O.WhichSpace, order);
 			}
 			else {
-				switch(O.SortBy)
-				{
-				default:
-				case Pattern.BitOrder:      sorter = SortByNumber; break;
-				case Pattern.AERT:          sorter = SortByAERT; break;
-				case Pattern.HSP:           sorter = SortByHSP; break;
-				case Pattern.WCAG2:         sorter = SortByWCAG2; break;
-				case Pattern.Luminance709:  sorter = SortByLuminance709; break;
-				case Pattern.Luminance601:  sorter = SortByLuminance601; break;
-				case Pattern.Luminance2020: sorter = SortByLuminance2020; break;
-				case Pattern.SMPTE240M:     sorter = SortBySmpte1999; break;
-				}
+				colorList = ConvertByPattern(O.SortBy);
 			}
 
-			List<Rgba32> colorList = null;
-			using (var progress = new ProgressBar())
-			{
-				progress.Prefix = "Sorting...";
-				colorList = PatternSorter(sorter,progress);
-			}
 			var transparent = Color.Transparent.ToPixel<TPixel>();
-
 			using (var progress = new ProgressBar())
 			{
 				progress.Prefix = "Rendering...";
@@ -71,6 +57,65 @@ namespace ImageFunctions.AllColors
 			}
 		}
 
+		static List<Rgba32> ConvertByPattern(Pattern p)
+		{
+			Func<Rgba32,double> converter = null;
+			switch(p)
+			{
+			default:
+			case Pattern.BitOrder:      return PatternBitOrder();
+			case Pattern.AERT:          converter = ConvertAERT; break;
+			case Pattern.HSP:           converter = ConvertHSP; break;
+			case Pattern.WCAG2:         converter = ConvertWCAG2; break;
+			case Pattern.Luminance709:  converter = ConvertLuminance709; break;
+			case Pattern.Luminance601:  converter = ConvertLuminance601; break;
+			case Pattern.Luminance2020: converter = ConvertLuminance2020; break;
+			case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
+			}
+
+			return ConvertAndSort<double>(converter,ComparersLuminance());
+		}
+
+		static List<Rgba32> ConvertBySpace(Space space, int[] order)
+		{
+			switch(space)
+			{
+			case Space.RGB:
+				return ConvertAndSort(c => c,ComparersRgba32(),order);
+			case Space.CieLab:
+				return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),order);
+			case Space.CieLch:
+				return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),order);
+			case Space.CieLchuv:
+				return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),order);
+			case Space.CieLuv:
+				return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),order);
+			case Space.CieXyy:
+				return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),order);
+			case Space.CieXyz:
+				return ConvertAndSort(c => _Converter.ToCieXyz(c),ComparersCieXyz(),order);
+			case Space.Cmyk:
+				return ConvertAndSort(c => _Converter.ToCmyk(c),ComparersCmyk(),order);
+			case Space.HSI:
+				return ConvertAndSort(c => ImageHelpers.ConvertToHSI(c),ComparersHsi(),order);
+			case Space.HSL:
+				return ConvertAndSort(c => _Converter.ToHsl(c),ComparersHsl(),order);
+			case Space.HSV:
+				return ConvertAndSort(c => _Converter.ToHsv(c),ComparersHsv(),order);
+			case Space.HunterLab:
+				return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),order);
+			case Space.LinearRgb:
+				return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),order);
+			case Space.Lms:
+				return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),order);
+			case Space.YCbCr:
+				return ConvertAndSort(c => _Converter.ToYCbCr(c),ComparersYCbCr(),order);
+			}
+
+			//throw expcetion ?
+			return null;
+		}
+
 		static List<Rgba32> PatternBitOrder()
 		{
 			var cList = new List<Rgba32>(NumberOfColors);
@@ -82,79 +127,132 @@ namespace ImageFunctions.AllColors
 			return cList;
 		}
 
-		delegate double ColorSortValue(Rgba32 c);
-		delegate int ListSorter(Rgba32 a, Rgba32 b);
-
-		static ColorSpaceConverter _Converter = new ColorSpaceConverter();
-		static List<Rgba32> PatternSorter(ListSorter sorter,ProgressBar progress)
+		static List<Rgba32> ConvertAndSort<T>(Func<Rgba32,T> conv, Func<T,T,int>[] compList, int[] order = null)
+			where T : struct
 		{
-			//there doesn't seem to be a sort with progress so take a guess
-			// at the maximum number of iterations
-			double max = 5 * 7 * NumberOfColors; //5 * log(n) * n
-			int count = 0;
-			var progressSorter = new Func<Rgba32,Rgba32,int>((a,b) => {
-				count++;
-				progress.Report(count / max);
-				return sorter(a,b);
-			});
-			var cList = PatternBitOrder();
-			cList.Sort(new Comparison<Rgba32>(progressSorter));
-			return cList;
+			var colorList = PatternBitOrder();
+			var tempList = new List<(Rgba32,T)>(colorList.Count);
+			if (order != null) {
+				Array.Sort(order,compList);
+			}
+
+			using (var progress = new ProgressBar())
+			{
+				progress.Prefix = "Converting...";
+				for(int t=0; t<colorList.Count; t++) {
+					Rgba32 c = colorList[t];
+					T next = conv(c);
+					tempList.Add((c,next));
+					progress.Report((double)t / colorList.Count);
+				}
+			}
+
+			using (var progress = new ProgressBar())
+			{
+				progress.Prefix = "Sorting...";
+
+				int count = 0;
+				var progressSorter = new Comparison<(Rgba32,T)>((a,b) => {
+					count++;
+					progress.Report(count / SortMax);
+					return MultiSort(compList,a.Item2,b.Item2);
+				});
+				//seems to be a lot faster than Array.Sort(key,collection)
+				// maybe because of having to cast between object and T in the Compare function ?
+				tempList.Sort(progressSorter);
+			}
+
+			for(int t=0; t<colorList.Count; t++) {
+				colorList[t] = tempList[t].Item1;
+			}
+
+			return colorList;
 		}
 
-		static int SortByNumber(Rgba32 ca, Rgba32 cb)
+		static int MultiSort<T>(Func<T,T,int>[] compers,T a, T b)
 		{
-			return (int)(ca.PackedValue - cb.PackedValue);
+			for(int c=0; c<compers.Length; c++)
+			{
+				var comp = compers[c];
+				int d = comp(a,b);
+				if (d != 0) { return d; }
+			}
+			return 0;
+		}
+
+		//static List<Rgba32> PatternSorter(Func<Rgba32,Rgba32,int> sorter,ProgressBar progress)
+		//{
+		//	int count = 0;
+		//	var progressSorter = new Comparison<Rgba32>((a,b) => {
+		//		count++;
+		//		progress.Report(count / SortMax);
+		//		return sorter(a,b);
+		//	});
+		//	var cList = PatternBitOrder();
+		//	cList.Sort(progressSorter);
+		//	return cList;
+		//}
+
+		static ColorSpaceConverter _Converter = new ColorSpaceConverter();
+
+		static Func<double,double,int>[] ComparersLuminance()
+		{
+			var arr = new Func<double,double,int>[] {
+				(a,b) => a > b ? 1 : a < b ? -1 : 0,
+			};
+			return arr;
 		}
 
 		// https://en.wikipedia.org/wiki/Rec._709
-		static int SortByLuminance709(Rgba32 ca, Rgba32 cb)
+		static double ConvertLuminance709(Rgba32 c)
 		{
-			double la = 0.2126 * ca.R + 0.7152 * ca.G + 0.0722 * ca.B;
-			double lb = 0.2126 * cb.R + 0.7152 * cb.G + 0.0722 * cb.B;
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B;
+			return l;
 		}
 
 		// https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion
 		// https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
 		// https://en.wikipedia.org/wiki/Rec._601
-		static int SortByLuminance601(Rgba32 ca, Rgba32 cb)
+		static double ConvertLuminance601(Rgba32 c)
 		{
-			double la = 16.0 + (65.481 * ca.R / 255.0) + (128.553 * ca.G / 255.0) + (24.966 * ca.B / 255.0);
-			double lb = 16.0 + (65.481 * cb.R / 255.0) + (128.553 * cb.G / 255.0) + (24.966 * cb.B / 255.0);
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 16.0
+				+ ( 65.481 * c.R / 255.0)
+				+ (128.553 * c.G / 255.0)
+				+ ( 24.966 * c.B / 255.0)
+			;
+			return l;
 		}
 
+
 		// https://en.wikipedia.org/wiki/Rec._2020
-		static int SortByLuminance2020(Rgba32 ca, Rgba32 cb)
+		static double ConvertLuminance2020(Rgba32 c)
 		{
-			double la = 0.2627 * ca.R + 0.6780 * ca.G + 0.0593 * ca.B;
-			double lb = 0.2627 * cb.R + 0.6780 * cb.G + 0.0593 * cb.B;
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 0.2627 * c.R + 0.6780 * c.G + 0.0593 * c.B;
+			return l;
 		}
 
 		// http://www.w3.org/TR/AERT#color-contrast
-		static int SortByAERT(Rgba32 ca, Rgba32 cb)
+		static double ConvertAERT(Rgba32 c)
 		{
-			double la = 0.299 * ca.R + 0.587 * ca.G + 0.114 * ca.B;
-			double lb = 0.299 * cb.R + 0.587 * cb.G + 0.114 * cb.B;
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 0.299 * c.R + 0.587 * c.G + 0.114 * c.B;
+			return l;
 		}
 
 		// http://alienryderflex.com/hsp.html
-		static int SortByHSP(Rgba32 ca, Rgba32 cb)
+		static double ConvertHSP(Rgba32 c)
 		{
-			double la = Math.Sqrt(0.299 * ca.R * ca.R + 0.587 * ca.G * ca.G + 0.114 * ca.B * ca.B);
-			double lb = Math.Sqrt(0.299 * cb.R * cb.R + 0.587 * cb.G * cb.G + 0.114 * cb.B * cb.B);
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 0.299 * c.R * c.R + 0.587 * c.G * c.G + 0.114 * c.B * c.B;
+			return Math.Sqrt(l);
 		}
 
 		// http://www.w3.org/TR/WCAG20/#relativeluminancedef
-		static int SortByWCAG2(Rgba32 ca, Rgba32 cb)
+		static double ConvertWCAG2(Rgba32 c)
 		{
-			double la = 0.2126 * WCAG2Normalize(ca.R) + 0.7152 * WCAG2Normalize(ca.G) + 0.0722 * WCAG2Normalize(ca.B);
-			double lb = 0.2126 * WCAG2Normalize(cb.R) + 0.7152 * WCAG2Normalize(cb.G) + 0.0722 * WCAG2Normalize(cb.B);
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l =
+				  0.2126 * WCAG2Normalize(c.R)
+				+ 0.7152 * WCAG2Normalize(c.G)
+				+ 0.0722 * WCAG2Normalize(c.B);
+			return l;
 		}
 		static double WCAG2Normalize(byte component)
 		{
@@ -167,145 +265,161 @@ namespace ImageFunctions.AllColors
 		}
 
 		// http://discoverybiz.net/enu0/faq/faq_YUV_YCbCr_YPbPr.html
-		static int SortBySmpte1999(Rgba32 ca, Rgba32 cb)
+		static double ConvertSmpte1999(Rgba32 c)
 		{
-			double la = 0.212 * ca.R + 0.701 * ca.G + 0.087 * ca.B;
-			double lb = 0.212 * cb.R + 0.701 * cb.G + 0.087 * cb.B;
-			return la > lb ? 1 : la < lb ? -1 : 0;
+			double l = 0.212 * c.R + 0.701 * c.G + 0.087 * c.B;
+			return l;
 		}
 
-		int SortByColorSpaceComponent(Rgba32 ca, Rgba32 cb)
+		static Func<Rgba32,Rgba32,int>[] ComparersRgba32()
 		{
-			var space = O.WhichSpace;
-			var comp = O.WhichComp;
+			var arr = new Func<Rgba32,Rgba32,int>[] {
+				(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
+				(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
+				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
 
-			var converter = _Converter;
-			double va = 0.0;
-			double vb = 0.0;
+		static Func<Hsv,Hsv,int>[] ComparersHsv()
+		{
+			var arr = new Func<Hsv,Hsv,int>[] {
+				(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
+				(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
+				(a,b) => a.V > b.V ? 1 : a.V < b.V ? -1 : 0,
+			};
+			return arr;
+		}
 
-			switch(space)
-			{
-			case Space.RGB: {
-				switch(comp) {
-					case Component.First:  va = ca.R / 255.0; vb = cb.R / 255.0; break;
-					case Component.Second: va = ca.G / 255.0; vb = cb.G / 255.0; break;
-					case Component.Third:  va = ca.B / 255.0; vb = cb.B / 255.0; break;
-				} break; }
-			case Space.HSV: {
-				var ha = converter.ToHsv(ca);
-				var hb = converter.ToHsv(cb);
-				switch(comp) {
-					case Component.First:  va = ha.H; vb = hb.H; break;
-					case Component.Second: va = ha.S; vb = hb.S; break;
-					case Component.Third:  va = ha.V; vb = hb.V; break;
-				} break; }
-			case Space.HSL: {
-				var ha = converter.ToHsl(ca);
-				var hb = converter.ToHsl(cb);
-				switch(comp) {
-					case Component.First:  va = ha.H; vb = hb.H; break;
-					case Component.Second: va = ha.S; vb = hb.S; break;
-					case Component.Third:  va = ha.L; vb = hb.L; break;
-				} break; }
-			case Space.HSI: {
-				var ha = ImageHelpers.ConvertToHSI(ca);
-				var hb = ImageHelpers.ConvertToHSI(cb);
-				switch(comp) {
-					case Component.First:  va = ha.Item1; vb = hb.Item1; break;
-					case Component.Second: va = ha.Item2; vb = hb.Item2; break;
-					case Component.Third:  va = ha.Item3; vb = hb.Item3; break;
-				} break; }
-			case Space.YCbCr: {
-				var ha = converter.ToYCbCr(ca);
-				var hb = converter.ToYCbCr(cb);
-				switch(comp) {
-					case Component.First:  va = ha.Y; vb = hb.Y; break;
-					case Component.Second: va = ha.Cb; vb = hb.Cb; break;
-					case Component.Third:  va = ha.Cr; vb = hb.Cr; break;
-				} break; }
-			case Space.CieLab: {
-				var ha = converter.ToCieLab(ca);
-				var hb = converter.ToCieLab(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.A; vb = hb.A; break;
-					case Component.Third:  va = ha.B; vb = hb.B; break;
-				} break; }
-			case Space.CieLch: {
-				var ha = converter.ToCieLch(ca);
-				var hb = converter.ToCieLch(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.C; vb = hb.C; break;
-					case Component.Third:  va = ha.H; vb = hb.H; break;
-				} break; }
-			case Space.CieLchuv: {
-				var ha = converter.ToCieLchuv(ca);
-				var hb = converter.ToCieLchuv(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.C; vb = hb.C; break;
-					case Component.Third:  va = ha.H; vb = hb.H; break;
-				} break; }
-			case Space.CieLuv: {
-				var ha = converter.ToCieLuv(ca);
-				var hb = converter.ToCieLuv(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.U; vb = hb.U; break;
-					case Component.Third:  va = ha.V; vb = hb.V; break;
-				} break; }
-			case Space.CieXyy: {
-				var ha = converter.ToCieXyy(ca);
-				var hb = converter.ToCieXyy(cb);
-				switch(comp) {
-					case Component.First:  va = ha.X; vb = hb.X; break;
-					case Component.Second: va = ha.Y; vb = hb.Y; break;
-					case Component.Third:  va = ha.Yl; vb = hb.Yl; break;
-				} break; }
-			case Space.CieXyz: {
-				var ha = converter.ToCieXyz(ca);
-				var hb = converter.ToCieXyz(cb);
-				switch(comp) {
-					case Component.First:  va = ha.X; vb = hb.X; break;
-					case Component.Second: va = ha.Y; vb = hb.Y; break;
-					case Component.Third:  va = ha.Z; vb = hb.Z; break;
-				} break; }
-			case Space.Cmyk: {
-				var ha = converter.ToCmyk(ca);
-				var hb = converter.ToCmyk(cb);
-				switch(comp) {
-					case Component.First:  va = ha.C; vb = hb.C; break;
-					case Component.Second: va = ha.M; vb = hb.M; break;
-					case Component.Third:  va = ha.Y; vb = hb.Y; break;
-					case Component.Fourth: va = ha.K; vb = hb.K; break;
-				} break; }
-			case Space.HunterLab: {
-				var ha = converter.ToHunterLab(ca);
-				var hb = converter.ToHunterLab(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.A; vb = hb.A; break;
-					case Component.Third:  va = ha.B; vb = hb.B; break;
-				} break; }
-			case Space.LinearRgb: {
-				var ha = converter.ToLinearRgb(ca);
-				var hb = converter.ToLinearRgb(cb);
-				switch(comp) {
-					case Component.First:  va = ha.R; vb = hb.R; break;
-					case Component.Second: va = ha.G; vb = hb.G; break;
-					case Component.Third:  va = ha.B; vb = hb.B; break;
-				} break; }
-			case Space.Lms: {
-				var ha = converter.ToLms(ca);
-				var hb = converter.ToLms(cb);
-				switch(comp) {
-					case Component.First:  va = ha.L; vb = hb.L; break;
-					case Component.Second: va = ha.M; vb = hb.M; break;
-					case Component.Third:  va = ha.S; vb = hb.S; break;
-				} break; }
-			}
-			return va > vb ? 1 : va < vb ? -1 : 0;
+		static Func<Hsl,Hsl,int>[] ComparersHsl()
+		{
+			var arr = new Func<Hsl,Hsl,int>[] {
+				(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
+				(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieLab,CieLab,int>[] ComparersCieLab()
+		{
+			var arr = new Func<CieLab,CieLab,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.A > b.A ? 1 : a.A < b.A ? -1 : 0,
+				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieLch,CieLch,int>[] ComparersCieLch()
+		{
+			var arr = new Func<CieLch,CieLch,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
+				(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieLchuv,CieLchuv,int>[] ComparersCieLchuv()
+		{
+			var arr = new Func<CieLchuv,CieLchuv,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
+				(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieLuv,CieLuv,int>[] ComparersCieLuv()
+		{
+			var arr = new Func<CieLuv,CieLuv,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.U > b.U ? 1 : a.U < b.U ? -1 : 0,
+				(a,b) => a.V > b.V ? 1 : a.V < b.V ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieXyy,CieXyy,int>[] ComparersCieXyy()
+		{
+			var arr = new Func<CieXyy,CieXyy,int>[] {
+				(a,b) => a.X > b.X ? 1 : a.X < b.X ? -1 : 0,
+				(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
+				(a,b) => a.Yl > b.Yl ? 1 : a.Yl < b.Yl ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<CieXyz,CieXyz,int>[] ComparersCieXyz()
+		{
+			var arr = new Func<CieXyz,CieXyz,int>[] {
+				(a,b) => a.X > b.X ? 1 : a.X < b.X ? -1 : 0,
+				(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
+				(a,b) => a.Z > b.Z ? 1 : a.Z < b.Z ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<Cmyk,Cmyk,int>[] ComparersCmyk()
+		{
+			var arr = new Func<Cmyk,Cmyk,int>[] {
+				(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
+				(a,b) => a.M > b.M ? 1 : a.M < b.M ? -1 : 0,
+				(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
+				(a,b) => a.K > b.K ? 1 : a.K < b.K ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<(double,double,double),(double,double,double),int>[] ComparersHsi()
+		{
+			var arr = new Func<(double,double,double),(double,double,double),int>[] {
+				(a,b) => a.Item1 > b.Item1 ? 1 : a.Item1 < b.Item1 ? -1 : 0,
+				(a,b) => a.Item2 > b.Item2 ? 1 : a.Item2 < b.Item2 ? -1 : 0,
+				(a,b) => a.Item3 > b.Item3 ? 1 : a.Item3 < b.Item3 ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<HunterLab,HunterLab,int>[] ComparersHunterLab()
+		{
+			var arr = new Func<HunterLab,HunterLab,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.A > b.A ? 1 : a.A < b.A ? -1 : 0,
+				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<LinearRgb,LinearRgb,int>[] ComparersLinearRgb()
+		{
+			var arr = new Func<LinearRgb,LinearRgb,int>[] {
+				(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
+				(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
+				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<Lms,Lms,int>[] ComparersLms()
+		{
+			var arr = new Func<Lms,Lms,int>[] {
+				(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
+				(a,b) => a.M > b.M ? 1 : a.M < b.M ? -1 : 0,
+				(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<YCbCr,YCbCr,int>[] ComparersYCbCr()
+		{
+			var arr = new Func<YCbCr,YCbCr,int>[] {
+				(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
+				(a,b) => a.Cb > b.Cb ? 1 : a.Cb < b.Cb ? -1 : 0,
+				(a,b) => a.Cr > b.Cr ? 1 : a.Cr < b.Cr ? -1 : 0,
+			};
+			return arr;
 		}
 	}
 }

@@ -29,8 +29,6 @@ namespace ImageFunctions
 		}
 
 		public void Report(double value) {
-			// Make sure value is in [0..1] range
-			value = Math.Max(0, Math.Min(1, value));
 			Interlocked.Exchange(ref currentProgress, value);
 		}
 
@@ -40,8 +38,11 @@ namespace ImageFunctions
 			lock (timer) {
 				if (disposed) return;
 
-				int progressBlockCount = (int) (currentProgress * blockCount);
-				int percent = (int) (currentProgress * 100);
+				// Make sure value is in [0..1] range
+				double value = Math.Max(0, Math.Min(1, currentProgress));
+
+				int progressBlockCount = (int) (value * blockCount);
+				int percent = (int) (value * 100);
 				string text = string.Format("{4}[{0}{1}] {2,3}% {3}",
 					new string('#', progressBlockCount), new string('-', blockCount - progressBlockCount),
 					percent,
