@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.Primitives;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -112,6 +113,12 @@ namespace ImageFunctions.Helpers
 		public static double Integral(this double number)
 		{
 			return Math.Truncate(number);
+		}
+
+		public static void ParalellSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null)
+		{
+			var ps = new ParallelSort<T>(array,comp,progress);
+			ps.Sort();
 		}
 	}
 }

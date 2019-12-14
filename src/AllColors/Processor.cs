@@ -25,10 +25,9 @@ namespace ImageFunctions.AllColors
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
 			List<Rgba32> colorList = null;
-			var order = new int[] { 1,2,3 }; //TODO get order from options
 
 			if (O.WhichSpace != Space.None) {
-				colorList = ConvertBySpace(O.WhichSpace, order);
+				colorList = ConvertBySpace(O.WhichSpace, O.Order);
 			}
 			else {
 				colorList = ConvertByPattern(O.SortBy);
@@ -112,8 +111,7 @@ namespace ImageFunctions.AllColors
 				return ConvertAndSort(c => _Converter.ToYCbCr(c),ComparersYCbCr(),order);
 			}
 
-			//throw expcetion ?
-			return null;
+			throw new NotImplementedException($"Space {space} is not implemented");
 		}
 
 		static List<Rgba32> PatternBitOrder()
@@ -133,6 +131,15 @@ namespace ImageFunctions.AllColors
 			var colorList = PatternBitOrder();
 			var tempList = new List<(Rgba32,T)>(colorList.Count);
 			if (order != null) {
+				//make sure order is at least as long as the colorList
+				if (order.Length < compList.Length) {
+					int[] fullOrder = new int[compList.Length];
+					order.CopyTo(fullOrder,0);
+					for(int i = order.Length - 1; i < compList.Length; i++) {
+						order[i] = int.MaxValue;
+					}
+				}
+				//sort compList using order as the guide
 				Array.Sort(order,compList);
 			}
 
@@ -158,8 +165,15 @@ namespace ImageFunctions.AllColors
 					return MultiSort(compList,a.Item2,b.Item2);
 				});
 				//seems to be a lot faster than Array.Sort(key,collection)
-				// maybe because of having to cast between object and T in the Compare function ?
 				tempList.Sort(progressSorter);
+				
+				//TODO this is slower on core2 - test on i3
+				//var comp = Comparer<(Rgba32,T)>.Create(
+				//	new Comparison<(Rgba32,T)>((a,b) => {
+				//		return MultiSort(compList,a.Item2,b.Item2);
+				//	})
+				//);
+				//MoreHelpers.ParalellSort<(Rgba32,T)>(tempList,comp,progress);
 			}
 
 			for(int t=0; t<colorList.Count; t++) {

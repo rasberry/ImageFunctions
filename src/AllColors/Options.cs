@@ -36,18 +36,10 @@ namespace ImageFunctions.AllColors
 		Lms
 	}
 
-	public enum Component {
-		None = 0,
-		First = 1,
-		Second = 2,
-		Third = 3,
-		Fourth = 4
-	}
-
 	public class Options
 	{
 		public Pattern SortBy = Pattern.None;
 		public Space WhichSpace = Space.None;
-		public Component WhichComp = Component.None;
+		public int[] Order = null;
 	}
 }

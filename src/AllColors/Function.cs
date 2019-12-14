@@ -29,17 +29,28 @@ namespace ImageFunctions.AllColors
 					}
 					O.SortBy = pat;
 				}
-				else if (curr == "-s" && (a+=2) < len) {
-					if (!OptionsHelpers.TryParse<Space>(args[a-1],out Space choose)) {
-						Log.Error("invalid color space "+args[a-1]);
-						return false;
-					}
-					if (!OptionsHelpers.TryParse<Component>(args[a],out Component comp)) {
-						Log.Error("invalid component "+args[a]);
+				else if (curr == "-s" && ++a < len) {
+					if (!OptionsHelpers.TryParse<Space>(args[a],out Space choose)) {
+						Log.Error("invalid color space "+args[a]);
 						return false;
 					}
 					O.WhichSpace = choose;
-					O.WhichComp = comp;
+				}
+				else if (curr == "-so" && ++a < len) {
+					string[] items = args[a].Split(',');
+					if (items.Length < 1) {
+						Log.Error("You must provide at least one priority");
+						return false;
+					}
+					int[] priorities = new int[items.Length];
+					for(int i=0; i<items.Length; i++) {
+						if (!int.TryParse(items[i],out var num)) {
+							Log.Error("Each priority must be a number");
+							return false;
+						}
+						priorities[i] = num;
+					}
+					O.Order = priorities;
 				}
 				else if (OutImage == null) {
 					OutImage = curr;
@@ -62,8 +73,9 @@ namespace ImageFunctions.AllColors
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] [output image]");
 			sb.AppendLine(" Creates an image with every possible 24-bit color ordered by chosen pattern.");
-			sb.AppendLine(" -p (pattern)                Pattern to use (default BitOrder)");
-			sb.AppendLine(" -s (space) (component)      Sort by color space component (instead of pattern)");
+			sb.AppendLine(" -p (pattern)                Sort by Pattern (default BitOrder)");
+			sb.AppendLine(" -s (space)                  Sort by color space components (instead of pattern)");
+			sb.AppendLine(" -so (c,...)                 Change priority order of components (default 1,2,3,4)");
 			sb.AppendLine();
 			sb.AppendLine(" Available Patterns");
 
@@ -74,9 +86,6 @@ namespace ImageFunctions.AllColors
 			sb.AppendLine();
 			sb.AppendLine(" Available Spaces");
 			OptionsHelpers.PrintEnum<Space>(sb,true);
-			sb.AppendLine();
-			sb.AppendLine(" Available Components");
-			OptionsHelpers.PrintEnum<Component>(sb,true);
 		}
 
 		static string GetPatternDescription(Pattern p)
