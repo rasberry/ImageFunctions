@@ -136,8 +136,9 @@ namespace ImageFunctions.AllColors
 					int[] fullOrder = new int[compList.Length];
 					order.CopyTo(fullOrder,0);
 					for(int i = order.Length - 1; i < compList.Length; i++) {
-						order[i] = int.MaxValue;
+						fullOrder[i] = int.MaxValue;
 					}
+					order = fullOrder;
 				}
 				//sort compList using order as the guide
 				Array.Sort(order,compList);
