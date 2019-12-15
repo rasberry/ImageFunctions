@@ -20,7 +20,7 @@ namespace ImageFunctions.Deform
 			var proc = new Processor<TPixel>();
 			proc.O = O;
 			proc.Source = source;
-			proc.SourceRectangle = sourceRectangle;
+			proc.Bounds = sourceRectangle;
 			return proc;
 		}
 

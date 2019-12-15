@@ -114,6 +114,7 @@ namespace ImageFunctions.AllColors
 			throw new NotImplementedException($"Space {space} is not implemented");
 		}
 
+		//return every color in numeric order
 		static List<Rgba32> PatternBitOrder()
 		{
 			var cList = new List<Rgba32>(NumberOfColors);

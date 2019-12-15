@@ -105,6 +105,7 @@ namespace ImageFunctions
 						case 3: _Rect.Height = n; break;
 						}
 					}
+					Log.Debug(_Rect.ToString());
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
@@ -148,7 +149,7 @@ namespace ImageFunctions
 		}
 
 		public static Activity Which { get; private set; } = Activity.None;
-		public static Rectangle Rect { get { return _Rect; }}
+		public static Rectangle Bounds { get { return _Rect; }}
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		public static object OptionHelpers { get; private set; }
 

@@ -17,7 +17,7 @@ namespace ImageFunctions
 				config.MaxDegreeOfParallelism = MaxDegreeOfParallelism.Value;
 			}
 			foreach (ImageFrame<TPixel> sourceFrame in Source.Frames) {
-				var rect = SourceRectangle;
+				var rect = Bounds;
 				if (rect.IsEmpty) { rect = sourceFrame.Bounds(); }
 
 				this.Apply(sourceFrame, rect, config);
@@ -28,7 +28,7 @@ namespace ImageFunctions
 
 		public virtual void Dispose() {}
 		public Image<TPixel> Source { get; set; }
-		public Rectangle SourceRectangle { get; set; }
+		public Rectangle Bounds { private get; set; } //don't let subclasses read this - should be relying on the one passed in
 		public int? MaxDegreeOfParallelism { get; set; }
 	}
 }

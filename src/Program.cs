@@ -45,17 +45,17 @@ namespace ImageFunctions
 			IGenerator iGen = func as IGenerator;
 			//generators must be given a size
 			if (iGen != null) {
-				if (Options.Rect == Rectangle.Empty) {
+				if (Options.Bounds == Rectangle.Empty) {
 					var size = iGen.StartingSize;
 					if (size == Size.Empty) {
 						Log.Error($"{Options.Which} doesn't provide an initial size so you must include the --rect option");
 						return false;
 					}
-					func.Rect = new Rectangle(0,0,size.Width,size.Height);
+					func.Bounds = new Rectangle(0,0,size.Width,size.Height);
 				}
 			}
 			else {
-				func.Rect = Options.Rect;
+				func.Bounds = Options.Bounds;
 			}
 
 			func.MaxDegreeOfParallelism = Options.MaxDegreeOfParallelism;

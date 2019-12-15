@@ -18,7 +18,7 @@ namespace ImageFunctions
 			where TPixel : struct, IPixel<TPixel>
 		{
 			if (InImage == null) {
-				var rect = Rect.GetValueOrDefault();
+				var rect = Bounds.GetValueOrDefault();
 				using (var img = new Image<TPixel>(rect.Width,rect.Height)) {
 					DoProcessing(img);
 				}
@@ -34,7 +34,8 @@ namespace ImageFunctions
 		void DoProcessing<TPixel>(Image<TPixel> img)
 			where TPixel : struct, IPixel<TPixel>
 		{
-			using (var proc = CreatePixelSpecificProcessor<TPixel>(img,Rect.GetValueOrDefault()))
+			var rect = Bounds.GetValueOrDefault();
+			using (var proc = CreatePixelSpecificProcessor<TPixel>(img,rect))
 			{
 				var absProc = proc as AbstractProcessor<TPixel>;
 				absProc.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
@@ -43,7 +44,7 @@ namespace ImageFunctions
 			}
 		}
 
-		public Rectangle? Rect { get; set; }
+		public Rectangle? Bounds { get; set; }
 		public int? MaxDegreeOfParallelism { get; set; }
 
 		public abstract void Usage(StringBuilder sb);

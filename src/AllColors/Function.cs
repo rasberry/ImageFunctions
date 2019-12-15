@@ -96,9 +96,6 @@ namespace ImageFunctions.AllColors
 			case Pattern.AERT:           return "AERT brightness";
 			case Pattern.HSP:            return "HSP color model brightness";
 			case Pattern.WCAG2:          return "WCAG2 relative luminance";
-			case Pattern.VofHSV:         return "Value of HSV";
-			case Pattern.IofHSI:         return "Intensity of HSI";
-			case Pattern.LofHSL:         return "Lightness of HSL";
 			case Pattern.Luminance709:   return "Luminance BT.709";
 			case Pattern.Luminance601:   return "Luminance BT.601";
 			case Pattern.Luminance2020:  return "Luminance BT.2020";
@@ -124,7 +121,7 @@ namespace ImageFunctions.AllColors
 			var proc = new Processor<TPixel>();
 			proc.O = O;
 			proc.Source = source;
-			proc.SourceRectangle = sourceRectangle;
+			proc.Bounds = sourceRectangle;
 			return proc;
 		}
 
