@@ -38,5 +38,7 @@ namespace ImageFunctions.AllColors
 		public Pattern SortBy = Pattern.None;
 		public Space WhichSpace = Space.None;
 		public int[] Order = null;
+		public const int FourKWidth = 4096;
+		public const int FourKHeight = 4096;
 	}
 }

@@ -13,7 +13,7 @@ namespace ImageFunctions.AllColors
 	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
-			return new Size(FourKWidth,FourKHeigt);
+			return new Size(Options.FourKWidth,Options.FourKHeight);
 		}}
 
 		public override bool ParseArgs(string[] args)
@@ -131,7 +131,5 @@ namespace ImageFunctions.AllColors
 		}
 
 		Options O = new Options();
-		const int FourKWidth = 4096;
-		const int FourKHeigt = 4096;
 	}
 }

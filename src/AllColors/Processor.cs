@@ -27,10 +27,10 @@ namespace ImageFunctions.AllColors
 			List<Rgba32> colorList = null;
 
 			if (O.WhichSpace != Space.None) {
-				colorList = ConvertBySpace(O.WhichSpace, O.Order);
+				colorList = ConvertBySpace(O.WhichSpace, O.Order, rect);
 			}
 			else {
-				colorList = ConvertByPattern(O.SortBy);
+				colorList = ConvertByPattern(O.SortBy, rect);
 			}
 
 			var transparent = Color.Transparent.ToPixel<TPixel>();
@@ -56,13 +56,13 @@ namespace ImageFunctions.AllColors
 			}
 		}
 
-		static List<Rgba32> ConvertByPattern(Pattern p)
+		static List<Rgba32> ConvertByPattern(Pattern p, Rectangle rect)
 		{
 			Func<Rgba32,double> converter = null;
 			switch(p)
 			{
 			default:
-			case Pattern.BitOrder:      return PatternBitOrder();
+			case Pattern.BitOrder:      return PatternBitOrder(rect);
 			case Pattern.AERT:          converter = ConvertAERT; break;
 			case Pattern.HSP:           converter = ConvertHSP; break;
 			case Pattern.WCAG2:         converter = ConvertWCAG2; break;
@@ -72,53 +72,62 @@ namespace ImageFunctions.AllColors
 			case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
 			}
 
-			return ConvertAndSort<double>(converter,ComparersLuminance());
+			return ConvertAndSort<double>(converter,ComparersLuminance(),rect);
 		}
 
-		static List<Rgba32> ConvertBySpace(Space space, int[] order)
+		static List<Rgba32> ConvertBySpace(Space space, int[] order, Rectangle rect)
 		{
 			switch(space)
 			{
 			case Space.RGB:
-				return ConvertAndSort(c => c,ComparersRgba32(),order);
+				return ConvertAndSort(c => c,ComparersRgba32(),rect,order);
 			case Space.CieLab:
-				return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),order);
+				return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order);
 			case Space.CieLch:
-				return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),order);
+				return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect,order);
 			case Space.CieLchuv:
-				return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),order);
+				return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect,order);
 			case Space.CieLuv:
-				return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),order);
+				return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order);
 			case Space.CieXyy:
-				return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),order);
+				return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order);
 			case Space.CieXyz:
-				return ConvertAndSort(c => _Converter.ToCieXyz(c),ComparersCieXyz(),order);
+				return ConvertAndSort(c => _Converter.ToCieXyz(c),ComparersCieXyz(),rect,order);
 			case Space.Cmyk:
-				return ConvertAndSort(c => _Converter.ToCmyk(c),ComparersCmyk(),order);
+				return ConvertAndSort(c => _Converter.ToCmyk(c),ComparersCmyk(),rect,order);
 			case Space.HSI:
-				return ConvertAndSort(c => ImageHelpers.ConvertToHSI(c),ComparersHsi(),order);
+				return ConvertAndSort(c => ImageHelpers.ConvertToHSI(c),ComparersHsi(),rect,order);
 			case Space.HSL:
-				return ConvertAndSort(c => _Converter.ToHsl(c),ComparersHsl(),order);
+				return ConvertAndSort(c => _Converter.ToHsl(c),ComparersHsl(),rect,order);
 			case Space.HSV:
-				return ConvertAndSort(c => _Converter.ToHsv(c),ComparersHsv(),order);
+				return ConvertAndSort(c => _Converter.ToHsv(c),ComparersHsv(),rect,order);
 			case Space.HunterLab:
-				return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),order);
+				return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order);
 			case Space.LinearRgb:
-				return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),order);
+				return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order);
 			case Space.Lms:
-				return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),order);
+				return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order);
 			case Space.YCbCr:
-				return ConvertAndSort(c => _Converter.ToYCbCr(c),ComparersYCbCr(),order);
+				return ConvertAndSort(c => _Converter.ToYCbCr(c),ComparersYCbCr(),rect,order);
 			}
 
 			throw new NotImplementedException($"Space {space} is not implemented");
 		}
 
 		//return every color in numeric order
-		static List<Rgba32> PatternBitOrder()
+		static List<Rgba32> PatternBitOrder(Rectangle rect)
 		{
-			var cList = new List<Rgba32>(NumberOfColors);
+			bool isEmpty = rect == Rectangle.Empty;
+			int num = isEmpty
+				? NumberOfColors
+				: rect.Width * rect.Height;
+
+			var cList = new List<Rgba32>(num);
 			for(int i=0; i<NumberOfColors; i++) {
+				int y = i / Options.FourKWidth;
+				int x = i % Options.FourKWidth;
+				if (!isEmpty && !rect.Contains(x,y)) { continue; }
+
 				var color = new Rgba32((uint)i);
 				color.A = 255;
 				cList.Add(color);
@@ -126,10 +135,11 @@ namespace ImageFunctions.AllColors
 			return cList;
 		}
 
-		static List<Rgba32> ConvertAndSort<T>(Func<Rgba32,T> conv, Func<T,T,int>[] compList, int[] order = null)
+		static List<Rgba32> ConvertAndSort<T>(Func<Rgba32,T> conv, Func<T,T,int>[] compList,
+			Rectangle rect, int[] order = null)
 			where T : struct
 		{
-			var colorList = PatternBitOrder();
+			var colorList = PatternBitOrder(rect);
 			var tempList = new List<(Rgba32,T)>(colorList.Count);
 			if (order != null) {
 				//make sure order is at least as long as the colorList
@@ -196,19 +206,6 @@ namespace ImageFunctions.AllColors
 			return 0;
 		}
 
-		//static List<Rgba32> PatternSorter(Func<Rgba32,Rgba32,int> sorter,ProgressBar progress)
-		//{
-		//	int count = 0;
-		//	var progressSorter = new Comparison<Rgba32>((a,b) => {
-		//		count++;
-		//		progress.Report(count / SortMax);
-		//		return sorter(a,b);
-		//	});
-		//	var cList = PatternBitOrder();
-		//	cList.Sort(progressSorter);
-		//	return cList;
-		//}
-
 		static ColorSpaceConverter _Converter = new ColorSpaceConverter();
 
 		static Func<double,double,int>[] ComparersLuminance()
@@ -238,7 +235,6 @@ namespace ImageFunctions.AllColors
 			;
 			return l;
 		}
-
 
 		// https://en.wikipedia.org/wiki/Rec._2020
 		static double ConvertLuminance2020(Rgba32 c)

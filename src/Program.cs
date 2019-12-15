@@ -53,6 +53,9 @@ namespace ImageFunctions
 					}
 					func.Bounds = new Rectangle(0,0,size.Width,size.Height);
 				}
+				else {
+					func.Bounds = Options.Bounds;
+				}
 			}
 			else {
 				func.Bounds = Options.Bounds;
