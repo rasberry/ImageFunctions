@@ -52,6 +52,9 @@ namespace ImageFunctions.AllColors
 					}
 					O.Order = priorities;
 				}
+				else if (curr == "-np") {
+					O.NoParallelSort = true;
+				}
 				else if (OutImage == null) {
 					OutImage = curr;
 				}
@@ -76,6 +79,7 @@ namespace ImageFunctions.AllColors
 			sb.AppendLine(" -p (pattern)                Sort by Pattern (default BitOrder)");
 			sb.AppendLine(" -s (space)                  Sort by color space components (instead of pattern)");
 			sb.AppendLine(" -so (c,...)                 Change priority order of components (default 1,2,3,4)");
+			sb.AppendLine(" -np                         Use single threaded sort function instead of parallel");
 			sb.AppendLine();
 			sb.AppendLine(" Available Patterns");
 

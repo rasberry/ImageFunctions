@@ -20,12 +20,32 @@ namespace ImageFunctions.Helpers
 			Progress = progress;
 		}
 
-		
 		IList<T> Elements;
 		IComparer<T> Comparer;
 		IProgress<double> Progress;
 		int Finished = 0;
 		int Length;
+		ParallelOptions POpts = null;
+
+		public int? MaxDegreeOfParallelism {
+			get {
+				return POpts == null
+					? (int?)null
+					: POpts.MaxDegreeOfParallelism;
+			}
+			set {
+				//reset value if something weird is passed in
+				if (!value.HasValue || value.Value < 1) {
+					POpts = null;
+					return;
+				}
+				//otherwise set the value
+				if (POpts == null) {
+					POpts = new ParallelOptions();
+				}
+				POpts.MaxDegreeOfParallelism = value.Value;
+			}
+		}
 
 		public void Sort()
 		{
@@ -48,13 +68,18 @@ namespace ImageFunctions.Helpers
 				}
 			}
 			else {
-				int pivot = from + (to - from) / 2; 
+				int pivot = from + (to - from) / 2;
 				pivot = Partition(from, to, pivot);
 				if (depthRemaining > 0) {
-					Parallel.Invoke(
+					var actions = new Action[] {
 						() => ParallelQuickSort(from, pivot, depthRemaining - 1),
 						() => ParallelQuickSort(pivot + 1, to, depthRemaining - 1)
-					);
+					};
+					if (POpts == null) {
+						Parallel.Invoke(actions);
+					} else {
+						Parallel.Invoke(POpts,actions);
+					}
 				}
 				else {
 					ParallelQuickSort(from, pivot, 0);

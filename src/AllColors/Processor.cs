@@ -56,7 +56,7 @@ namespace ImageFunctions.AllColors
 			}
 		}
 
-		static List<Rgba32> ConvertByPattern(Pattern p, Rectangle rect)
+		List<Rgba32> ConvertByPattern(Pattern p, Rectangle rect)
 		{
 			Func<Rgba32,double> converter = null;
 			switch(p)
@@ -75,7 +75,7 @@ namespace ImageFunctions.AllColors
 			return ConvertAndSort<double>(converter,ComparersLuminance(),rect);
 		}
 
-		static List<Rgba32> ConvertBySpace(Space space, int[] order, Rectangle rect)
+		List<Rgba32> ConvertBySpace(Space space, int[] order, Rectangle rect)
 		{
 			switch(space)
 			{
@@ -135,7 +135,7 @@ namespace ImageFunctions.AllColors
 			return cList;
 		}
 
-		static List<Rgba32> ConvertAndSort<T>(Func<Rgba32,T> conv, Func<T,T,int>[] compList,
+		List<Rgba32> ConvertAndSort<T>(Func<Rgba32,T> conv, Func<T,T,int>[] compList,
 			Rectangle rect, int[] order = null)
 			where T : struct
 		{
@@ -176,16 +176,21 @@ namespace ImageFunctions.AllColors
 					progress.Report(count / SortMax);
 					return MultiSort(compList,a.Item2,b.Item2);
 				});
-				//seems to be a lot faster than Array.Sort(key,collection)
-				tempList.Sort(progressSorter);
-				
-				//TODO this is slower on core2 - test on i3
-				//var comp = Comparer<(Rgba32,T)>.Create(
-				//	new Comparison<(Rgba32,T)>((a,b) => {
-				//		return MultiSort(compList,a.Item2,b.Item2);
-				//	})
-				//);
-				//MoreHelpers.ParalellSort<(Rgba32,T)>(tempList,comp,progress);
+
+				if (O.NoParallelSort) {
+					//seems to be a lot faster than Array.Sort(key,collection)
+					//single threaded version for machines with a low number of cores
+					tempList.Sort(progressSorter);
+				}
+				else {
+					//parallel version seems to works best on 4+ cores
+					var comp = Comparer<(Rgba32,T)>.Create(
+						new Comparison<(Rgba32,T)>((a,b) => {
+							return MultiSort(compList,a.Item2,b.Item2);
+						})
+					);
+					MoreHelpers.ParalellSort<(Rgba32,T)>(tempList,comp,progress,MaxDegreeOfParallelism);
+				}
 			}
 
 			for(int t=0; t<colorList.Count; t++) {

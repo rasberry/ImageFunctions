@@ -40,5 +40,6 @@ namespace ImageFunctions.AllColors
 		public int[] Order = null;
 		public const int FourKWidth = 4096;
 		public const int FourKHeight = 4096;
+		public bool NoParallelSort = false;
 	}
 }
