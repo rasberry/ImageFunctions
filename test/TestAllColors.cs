@@ -12,10 +12,58 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestAllColors
+	public class TestAllColors : IAmTest
 	{
+		const ImageFunctions.Activity Which = ImageFunctions.Activity.AllColors;
+
 		[DataTestMethod]
-		[DynamicData(nameof(PatternsData), DynamicDataSourceType.Method)]
+		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+		public void AllColors(int index)
+		{
+			var args = GetArgs(index);
+			string name = args.Length == 4
+				? $"{args[1]}-{args[3].Replace(",","")}"
+				: $"Default"
+			;
+			Helpers.RunTestGenerator(
+				Which, index, name,
+				GetArgs(index),
+				new Rectangle(1920,1920,256,256)
+			);
+		}
+
+		public static IEnumerable<object[]> GetData()
+		{
+			for(int i=0; i<_CaseCount; i++) {
+				yield return new object[] { i };
+			}
+		}
+		const int _CaseCount = 7;
+		public int CaseCount { get { return _CaseCount; }}
+		public FileSet Set { get { return  FileSet.NoneOne; }}
+
+		public ITuple[] GetImageNames()
+		{
+			return null;
+		}
+
+		public string[] GetArgs(int index)
+		{
+			switch(index)
+			{
+			case 0: return new string[0];
+			case 1: return new string[] { "-s","RGB","-so","1,2,3"};
+			case 2: return new string[] { "-s","RGB","-so","3,2,1"};
+			case 3: return new string[] { "-s","RGB","-so","2,3,1"};
+			case 4: return new string[] { "-s","YCbCr","-so","1,2,3"};
+			case 5: return new string[] { "-s","YCbCr","-so","3,1,2"};
+			case 6: return new string[] { "-s","YCbCr","-so","1,3,2"};
+			}
+			return null;
+		}
+
+		//[DataTestMethod]
+		//[DynamicData(nameof(PatternsData), DynamicDataSourceType.Method)]
 		public void GenAllPatterns(Pattern pt)
 		{
 			string outName = Path.Combine(Helpers.ProjectRoot,"test-"+pt+".png");
@@ -33,8 +81,8 @@ namespace test
 				yield return new object[] { pt };
 			}
 		}
-		[DataTestMethod]
-		[DynamicData(nameof(SpacesData), DynamicDataSourceType.Method)]
+		//[DataTestMethod]
+		//[DynamicData(nameof(SpacesData), DynamicDataSourceType.Method)]
 		public void GenAllSpaces(Space sp, int[] order)
 		{
 			var func = new ImageFunctions.AllColors.Function();

@@ -95,29 +95,63 @@ Usage ImageFunctions (action) [options]
  -x                          Output original pixels instead of hilighting them
  -c (color)                  Change hilight color - hex value or name (default is magenta)
 
+11. AllColors [options] [output image]
+ Creates an image with every possible 24-bit color ordered by chosen pattern.
+ -p (pattern)                Sort by Pattern (default BitOrder)
+ -s (space)                  Sort by color space components (instead of pattern)
+ -so (c,...)                 Change priority order of components (default 1,2,3,4)
+ -np                         Use single threaded sort function instead of parallel
+
+ Available Patterns
+ 1. BitOrder                Numeric order
+ 2. AERT                    AERT brightness
+ 3. HSP                     HSP color model brightness
+ 4. WCAG2                   WCAG2 relative luminance
+ 5. SMPTE240M               Luminance SMPTE 240M (1999)
+ 6. Luminance709            Luminance BT.709
+ 7. Luminance601            Luminance BT.601
+ 8. Luminance2020           Luminance BT.2020
+
+ Available Spaces
+  1. RGB                     
+  2. HSV                     
+  3. HSL                     
+  4. HSI                     
+  5. YCbCr                   
+  6. CieLab                  
+  7. CieLch                  
+  8. CieLchuv                
+  9. CieLuv                  
+ 10. CieXyy                  
+ 11. CieXyz                  
+ 12. Cmyk                    
+ 13. HunterLab               
+ 14. LinearRgb               
+ 15. Lms                     
+
 Available Samplers:
-1. NearestNeighbor
-2. Bicubic
-3. Box
-4. CatmullRom
-5. Hermite
-6. Lanczos2
-7. Lanczos3
-8. Lanczos5
-9. Lanczos8
-10. MitchellNetravali
-11. Robidoux
-12. RobidouxSharp
-13. Spline
-14. Triangle
-15. Welch
+ 1. NearestNeighbor           
+ 2. Bicubic                   
+ 3. Box                       
+ 4. CatmullRom                
+ 5. Hermite                   
+ 6. Lanczos2                  
+ 7. Lanczos3                  
+ 8. Lanczos5                  
+ 9. Lanczos8                  
+10. MitchellNetravali         
+11. Robidoux                  
+12. RobidouxSharp             
+13. Spline                    
+14. Triangle                  
+15. Welch                     
 
 Available Metrics:
-1. Manhattan
-2. Euclidean
-3. Chebyshev
-4. ChebyshevInv
-5. Minkowski (p-factor)
-6. Canberra
+1. Manhattan                 
+2. Euclidean                 
+3. Chebyshev                 
+4. ChebyshevInv              
+5. Minkowski (p-factor)      
+6. Canberra                  
 
 ```

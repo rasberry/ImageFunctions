@@ -38,7 +38,10 @@ namespace test
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
 
-				string tbl = BuildExamplesTable(act, inst);
+				string tbl = inst.Set == FileSet.NoneOne
+					? BuildGenExamplesTable(act, inst)
+					: BuildExamplesTable(act, inst);
+				;
 				sb.AppendFormat(TemplateExample, act.ToString(), tbl);
 			}
 
@@ -46,6 +49,9 @@ namespace test
 			File.WriteAllText(file,sb.ToString());
 		}
 
+		//examples for activities with input images
+		//row = input images
+		//columns = parameters
 		static string BuildExamplesTable(Activity act, IAmTest inst)
 		{
 			var tbl = new StringBuilder();
@@ -64,6 +70,18 @@ namespace test
 			}
 
 			return tbl.ToString();
+		}
+
+		//examples for generator activies (no input images)
+		//row = parameters
+		//columns = output image
+		static string BuildGenExamplesTable(Activity act, IAmTest inst)
+		{
+			var tbl = new StringBuilder();
+			int caseCount = inst.CaseCount;
+			var argsInCase = Enumerable.Range(0, caseCount)
+				.Select((i) => inst.GetArgs(i));
+			return ""; //TODO maybe rework make table to take a table data structure
 		}
 
 		static void BuildImages()
@@ -197,6 +215,7 @@ namespace test
 			case Activity.Encrypt: return new TestEncrypt();
 			case Activity.PixelRules: return new TestPixelRules();
 			case Activity.ImgDiff: return new TestImgDiff();
+			case Activity.AllColors: return new TestAllColors();
 			}
 			return null;
 		}

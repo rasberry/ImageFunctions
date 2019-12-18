@@ -6,8 +6,9 @@ namespace test
 	public enum FileSet
 	{
 		None = 0,
-		OneOne, //one input, one output
-		TwoOne, //two input, one output
+		NoneOne, //no input, one output
+		OneOne,  //one input, one output
+		TwoOne,  //two input, one output
 	}
 
 	public interface IAmTest
