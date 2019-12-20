@@ -124,9 +124,11 @@ namespace ImageFunctions.AllColors
 
 			var cList = new List<Rgba32>(num);
 			for(int i=0; i<NumberOfColors; i++) {
-				int y = i / Options.FourKWidth;
-				int x = i % Options.FourKWidth;
-				if (!isEmpty && !rect.Contains(x,y)) { continue; }
+				if (!isEmpty) {
+					int y = i / Options.FourKWidth;
+					int x = i % Options.FourKWidth;
+					if (!rect.Contains(x,y)) { continue; }
+				}
 
 				var color = new Rgba32((uint)i);
 				color.A = 255;
