@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestZoomBlur : IAmTest
+	public class TestZoomBlur : IAmTestSomeOne
 	{
 		const Activity Which = Activity.ZoomBlur;
 		const int num = (int)Which;
@@ -17,13 +17,7 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void ZoomBlur(int index)
 		{
-			Helpers.RunTestWithInputFiles(
-				Which,
-				index,
-				GetImageNames(),
-				GetArgs(index),
-				AreImagesClose
-			);
+			Helpers.RunTestWithInputFiles(Which,index,this,AreImagesClose);
 		}
 
 		public string[] GetArgs(int index)

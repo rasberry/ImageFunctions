@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestAreaSmoother2 : IAmTest
+	public class TestAreaSmoother2 : IAmTestSomeOne
 	{
 		const Activity Which = Activity.AreaSmoother2;
 		const int num = (int)Which;
@@ -17,12 +17,7 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void AreaSmoother2(int index)
 		{
-			Helpers.RunTestWithInputFiles(
-				Which,
-				index,
-				GetImageNames(),
-				GetArgs(index)
-			);
+			Helpers.RunTestWithInputFiles(Which,index,this);
 		}
 
 		public string[] GetArgs(int index)

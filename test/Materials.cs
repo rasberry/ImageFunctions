@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using ImageFunctions.Helpers;
+using SixLabors.Primitives;
 
 namespace test
 {
@@ -39,8 +40,8 @@ namespace test
 				if (inst == null) { continue; }
 
 				string tbl = inst.Set == FileSet.NoneOne
-					? BuildGenExamplesTable(act, inst)
-					: BuildExamplesTable(act, inst);
+					? BuildGenExamplesTable(act, inst as IAmTestNoneOne)
+					: BuildExamplesTable(act, inst as IAmTestSomeOne);
 				;
 				sb.AppendFormat(TemplateExample, act.ToString(), tbl);
 			}
@@ -52,21 +53,28 @@ namespace test
 		//examples for activities with input images
 		//row = input images
 		//columns = parameters
-		static string BuildExamplesTable(Activity act, IAmTest inst)
+		static string BuildExamplesTable(Activity act, IAmTestSomeOne inst)
 		{
-			var tbl = new StringBuilder();
 			var images = inst.GetImageNames();
 			int imgLenMax = images.Max((s) => s.Enumerate<string>().Max((t) => t.Length));
 			int caseCount = inst.CaseCount;
 			var argsInCase = Enumerable.Range(0, caseCount)
-				.Select((i) => inst.GetArgs(i));
-
-			(string th1, string th2) = MakeTableHeader(imgLenMax, argsInCase);
-			tbl.AppendLine(th1).AppendLine(th2);
+				.Select(i => inst.GetArgs(i))
+				.Select(s => s.Length < 1 ? "Default" : string.Join(' ',s))
+			;
+			var tbl = new WikiTable();
+			var headerTxt = Enumerable.Concat(new string[] { "Image" },argsInCase);
+			tbl.SetHeader(headerTxt);
 
 			foreach (ITuple img in images) {
-				string row = MakeTableRow(act, img, imgLenMax, caseCount);
-				tbl.Append(row);
+				var rowTxt = new List<string>();
+				rowTxt.Add(TupleToLabel(img));
+				for(int i=0; i<caseCount; i++) {
+					string outFile = Helpers.CheckFile(act,img,i,true);
+					string cell = GetImageLink(TupleToString(img),outFile,i);
+					rowTxt.Add(cell);
+				}
+				tbl.AddRow(rowTxt);
 			}
 
 			return tbl.ToString();
@@ -75,13 +83,30 @@ namespace test
 		//examples for generator activies (no input images)
 		//row = parameters
 		//columns = output image
-		static string BuildGenExamplesTable(Activity act, IAmTest inst)
+		static string BuildGenExamplesTable(Activity act, IAmTestNoneOne inst)
 		{
-			var tbl = new StringBuilder();
 			int caseCount = inst.CaseCount;
 			var argsInCase = Enumerable.Range(0, caseCount)
-				.Select((i) => inst.GetArgs(i));
-			return ""; //TODO maybe rework make table to take a table data structure
+				.Select(i => inst.GetArgs(i))
+				.Select(s => s.Length < 1 ? "Default" : string.Join(' ',s))
+				.ToList()
+			;
+			var tbl = new WikiTable();
+			tbl.SetHeader(new string[] { "Example", "Image" });
+			for(int i=0; i<caseCount; i++) {
+				string name = inst.GetOutName(i);
+				string outFile = Helpers.CheckFile(act,name,i,true);
+				string cell = GetImageLink(name,outFile,i);
+				tbl.AddRow(new string[] { argsInCase[i], cell });
+			}
+
+			return tbl.ToString();
+		}
+
+		static string GetImageLink(string name, string link, int index)
+		{
+			string text = string.Format("![{0}-{2}]({1} \"{0}-{2}\")",name,link,index);
+			return text;
 		}
 
 		static void BuildImages()
@@ -90,30 +115,53 @@ namespace test
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
+				if (inst.Set == FileSet.NoneOne) {
+					BuildImagesNoneOne(act,inst as IAmTestNoneOne);
+				}
+				else {
+					BuildImagesSomeOne(act,inst as IAmTestSomeOne);
+				}
 
-				var images = inst.GetImageNames();
-				int count = inst.CaseCount;
+			}
+		}
 
-				foreach (ITuple img in images)
-				{
-					ITuple inFile = Helpers.InFile(img);
-					for(int c=0; c<count; c++)
-					{
-						string outFile = Helpers.CheckFile(act,img,c);
-						var args = Helpers.Append(inst.GetArgs(c),inFile,outFile);
-						// Helpers.Debug("act="+act+" img="+img+" c="+c+" args = "+string.Join(' ',args));
+		static void BuildImagesSomeOne(Activity act, IAmTestSomeOne inst)
+		{
+			var images = inst.GetImageNames();
+			int count = inst.CaseCount;
 
-						//only generate if missing
-						if (!File.Exists(outFile)) {
-							var func = Registry.Map(act); //must make a new instance each time or args get jumbled
-							if (!func.ParseArgs(args)) {
-								throw new ArgumentException("unable to parse arguments "+string.Join(' ',args));
-							}
-							func.Main();
-						}
-					}
+			foreach (ITuple img in images) {
+				ITuple inFile = Helpers.InFile(img);
+				for(int c=0; c<count; c++) {
+					string outFile = Helpers.CheckFile(act,img,c);
+					//only generate if missing
+					if (File.Exists(outFile)) { continue; }
+					var args = Helpers.Append(inst.GetArgs(c),inFile,outFile);
+					BuildImagesRun(act,args);
 				}
 			}
+		}
+
+		static void BuildImagesNoneOne(Activity act, IAmTestNoneOne inst)
+		{
+			int count = inst.CaseCount;
+			for(int c=0; c<count; c++) {
+				string outFile = Helpers.CheckFile(act,inst.GetOutName(c),c);
+				//only generate if missing
+				if (File.Exists(outFile)) { continue; }
+				var args = Helpers.Append(inst.GetArgs(c),outFile);
+				BuildImagesRun(act,args,inst.GetBounds(c));
+			}
+		}
+
+		static void BuildImagesRun(Activity act, string[] args, Rectangle? bounds = null)
+		{
+			var func = Registry.Map(act); //must make a new instance each time or args get jumbled
+			if (bounds != null) { func.Bounds = bounds.Value; }
+			if (!func.ParseArgs(args)) {
+				throw new ArgumentException("unable to parse arguments "+string.Join(' ',args));
+			}
+			func.Main();
 		}
 
 		//0 = usage text

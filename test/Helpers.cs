@@ -55,9 +55,12 @@ namespace test
 			return Path.Combine(WikiRoot,"img");
 		}}
 
-		public static void RunTestWithInputFiles(Activity act, int index, ITuple[] images, string[] argsForIndex,
+		public static void RunTestWithInputFiles(Activity act, int index, IAmTestSomeOne test,
 			Func<string,string,bool> fileComparer = null)
 		{
+			var images = test.GetImageNames();
+			var argsForIndex = test.GetArgs(index);
+			
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
 				var imgs = images[0];
@@ -70,9 +73,12 @@ namespace test
 			}
 		}
 
-		public static void RunTestGenerator(Activity act, int index, string name, string[] argsForIndex,
-			Rectangle? bounds, Func<string,string,bool> fileComparer = null)
+		public static void RunTestGenerator(Activity act, int index, IAmTestNoneOne test, Func<string,string,bool> fileComparer = null)
 		{
+			var argsForIndex = test.GetArgs(index);
+			string name = test.GetOutName(index);
+			var bounds = test.GetBounds(index);
+
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
 				string outFile = tempFile.TempFileName;

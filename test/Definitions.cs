@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.CompilerServices;
+using SixLabors.Primitives;
 
 namespace test
 {
@@ -11,11 +12,23 @@ namespace test
 		TwoOne,  //two input, one output
 	}
 
+
 	public interface IAmTest
 	{
-		ITuple[] GetImageNames();
 		int CaseCount { get; }
 		FileSet Set { get; }
 		string[] GetArgs(int index);
+
+	}
+
+	public interface IAmTestSomeOne : IAmTest
+	{
+		ITuple[] GetImageNames();
+	}
+
+	public interface IAmTestNoneOne : IAmTest
+	{
+		string GetOutName(int index);
+		Rectangle? GetBounds(int index);
 	}
 }

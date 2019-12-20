@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestPixelRules : IAmTest
+	public class TestPixelRules : IAmTestSomeOne
 	{
 		const Activity Which = Activity.PixelRules;
 		const int num = (int)Which;
@@ -17,12 +17,7 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void PixelRules(int index)
 		{
-			Helpers.RunTestWithInputFiles(
-				Which,
-				index,
-				GetImageNames(),
-				GetArgs(index)
-			);
+			Helpers.RunTestWithInputFiles(Which,index,this);
 		}
 
 		public string[] GetArgs(int index)

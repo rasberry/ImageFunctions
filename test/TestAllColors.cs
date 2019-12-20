@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace test
 {
 	[TestClass]
-	public class TestAllColors : IAmTest
+	public class TestAllColors : IAmTestNoneOne
 	{
 		const ImageFunctions.Activity Which = ImageFunctions.Activity.AllColors;
 
@@ -20,16 +20,7 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void AllColors(int index)
 		{
-			var args = GetArgs(index);
-			string name = args.Length == 4
-				? $"{args[1]}-{args[3].Replace(",","")}"
-				: $"Default"
-			;
-			Helpers.RunTestGenerator(
-				Which, index, name,
-				GetArgs(index),
-				new Rectangle(1920,1920,256,256)
-			);
+			Helpers.RunTestGenerator(Which, index, this);
 		}
 
 		public static IEnumerable<object[]> GetData()
@@ -38,14 +29,9 @@ namespace test
 				yield return new object[] { i };
 			}
 		}
-		const int _CaseCount = 7;
+		const int _CaseCount = 6;
 		public int CaseCount { get { return _CaseCount; }}
 		public FileSet Set { get { return  FileSet.NoneOne; }}
-
-		public ITuple[] GetImageNames()
-		{
-			return null;
-		}
 
 		public string[] GetArgs(int index)
 		{
@@ -57,9 +43,23 @@ namespace test
 			case 3: return new string[] { "-s","RGB","-so","2,3,1"};
 			case 4: return new string[] { "-s","YCbCr","-so","1,2,3"};
 			case 5: return new string[] { "-s","YCbCr","-so","3,1,2"};
-			case 6: return new string[] { "-s","YCbCr","-so","1,3,2"};
 			}
 			return null;
+		}
+
+		public string GetOutName(int index)
+		{
+			var args = GetArgs(index);
+			string name = args.Length == 4
+				? $"{args[1]}-{args[3].Replace(",","")}"
+				: $"Default"
+			;
+			return name;
+		}
+
+		public Rectangle? GetBounds(int index)
+		{
+			return new Rectangle(1920,1920,256,256);
 		}
 
 		//[DataTestMethod]

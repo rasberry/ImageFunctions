@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace test
 {
 	[TestClass]
-	public class TestImgDiff : IAmTest
+	public class TestImgDiff : IAmTestSomeOne
 	{
 		const Activity Which = Activity.ImgDiff;
 		const int num = (int)Which;
@@ -16,12 +16,7 @@ namespace test
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 		public void ImgDiff(int index)
 		{
-			Helpers.RunTestWithInputFiles(
-				Which,
-				index,
-				GetImageNames(),
-				GetArgs(index)
-			);
+			Helpers.RunTestWithInputFiles(Which,index,this);
 		}
 
 		public string[] GetArgs(int index)
