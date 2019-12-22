@@ -20,7 +20,8 @@ namespace ImageFunctions
 		Encrypt = 8,
 		PixelRules = 9,
 		ImgDiff = 10,
-		AllColors = 11
+		AllColors = 11,
+		SpearGraphic = 12
 	}
 
 	public interface IFunction
