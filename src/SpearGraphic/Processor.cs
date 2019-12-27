@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.ColorSpaces;
 using SixLabors.ImageSharp.ColorSpaces.Conversion;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
@@ -17,7 +18,11 @@ namespace ImageFunctions.SpearGraphic
 
 		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
+			//using the source image is a litle strange, but
+			//SixLabors doesn't have a frame-specific processing context
 			var img = this.Source;
+			img.Mutate(op => op.BackgroundColor(O.BackgroundColor));
+
 			switch(O.Spear)
 			{
 			case Graphic.First_Twist1:

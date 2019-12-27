@@ -9,28 +9,6 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class Second<TPixel> where TPixel : struct, IPixel<TPixel>
 	{
-		//private static void Draw(Options op)
-		//{
-		//	int w = op.Width;
-		//	int h = op.Height;
-		//	Bitmap bitmap = new Bitmap(w,h,PixelFormat.Format32bppArgb);
-		//	Graphics g = Graphics.FromImage(bitmap);
-//
-		//	g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-		//	g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.High;
-		//	g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-		//	
-		//	g.Clear(Color.Black);
-		//	switch(op.Type)
-		//	{
-		//	case Twist.One: Twist3(g,w,h); break;
-		//	case Twist.Two: Twist4(g,w,h); break;
-		//	}
-//
-		//	bitmap.Save(op.Name,ImageFormat.Png);
-		//}
-		
-		
 		public static void Twist3(Image<TPixel> image, int w, int h, int which = 2)
 		{
 			if (which == 0)
@@ -156,11 +134,11 @@ namespace ImageFunctions.SpearGraphic
 			
 			Color c;
 			if (f == FadeComp.R) {
-				c = new Rgba32(32,(byte)p,(byte)s,(byte)s);
+				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
 			} else if (f == FadeComp.G) {
-				c = new Rgba32(32,(byte)s,(byte)p,(byte)s);
+				c = new Rgba32((byte)s,(byte)p,(byte)s,32);
 			} else { //FadeComp.B
-				c = new Rgba32(32,(byte)s,(byte)s,(byte)p);
+				c = new Rgba32((byte)s,(byte)s,(byte)p,32);
 			}
 			return c;
 		}

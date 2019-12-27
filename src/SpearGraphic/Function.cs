@@ -29,6 +29,14 @@ namespace ImageFunctions.SpearGraphic
 					}
 					O.Spear = pat;
 				}
+				else if (curr == "-bg" && ++a<len) {
+					string clr = args[a];
+					if (!OptionsHelpers.TryParseColor(clr,out Color c)) {
+						Log.Error("invalid color \""+clr+"\"");
+						return false;
+					}
+					O.BackgroundColor = c;
+				}
 				else if (OutImage == null) {
 					OutImage = curr;
 				}
@@ -48,6 +56,7 @@ namespace ImageFunctions.SpearGraphic
 			sb.AppendLine(name + " [options] [output image]");
 			sb.AppendLine(" Creates a spear graphic");
 			sb.AppendLine(" -g (name)                   Choose which graphic to create");
+			sb.AppendLine(" -bg (color)                 Change Background color (default transparent)");
 			sb.AppendLine();
 			sb.AppendLine(" Available Graphics");
 
