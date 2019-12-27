@@ -142,27 +142,5 @@ namespace ImageFunctions.SpearGraphic
 			}
 			return c;
 		}
-
-		static Rgba32 GetRandomPen()
-		{
-			var color = new Rgba32(
-				Random(0,255),Random(0,255),Random(0,255),Random(0,255));
-			return color; //TODO this had line width 5.0f
-		}
-		
-		static Point GetRandomPoint(int w,int h)
-		{
-			return new Point(Random(0,w),Random(0,h));
-		}
-		
-		static Random rnd = null;
-		static int Random(int low, int high)
-		{
-			if (rnd == null) {
-				int seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
-				rnd = new Random(seed);
-			}
-			return rnd.Next(low,high);
-		}
 	}
 }
