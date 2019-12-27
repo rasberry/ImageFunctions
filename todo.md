@@ -7,6 +7,7 @@
   * is there a need for multiple-in / multiple-out ?
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
+* Add main option to show available colors (with explanation)
 
 ## Ideas ##
 * add noise functions
