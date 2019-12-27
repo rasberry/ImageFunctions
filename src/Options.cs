@@ -1,4 +1,5 @@
 using ImageFunctions.Helpers;
+using SixLabors.ImageSharp;
 using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
@@ -24,11 +25,7 @@ namespace ImageFunctions
 			sb.AppendLine(" --actions                   List possible actions");
 			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
 			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
-
-			if (showActions) {
-				sb.AppendLine().AppendLine("Actions:");
-				OptionsHelpers.PrintEnum<Activity>(sb);
-			}
+			sb.AppendLine(" --colors                    List available colors");
 
 			if (showFull)
 			{
@@ -38,6 +35,7 @@ namespace ImageFunctions
 				}
 				SamplerHelp(sb);
 				MetricHelp(sb);
+				ColorsHelp(sb);
 			}
 			else if (action != Activity.None)
 			{
@@ -48,6 +46,17 @@ namespace ImageFunctions
 				}
 				if ((func as IHasDistance) != null) {
 					MetricHelp(sb);
+				}
+			}
+			else
+			{
+				if (showActions) {
+					sb.AppendLine().AppendLine("Actions:");
+					OptionsHelpers.PrintEnum<Activity>(sb);
+				}
+
+				if (ShowColorList) {
+					ColorsHelp(sb);
 				}
 			}
 
@@ -68,6 +77,18 @@ namespace ImageFunctions
 			OptionsHelpers.PrintEnum<Metric>(sb, false, null, (m) => {
 				return m == Metric.Minkowski ? m + " (p-factor)" : m.ToString();
 			});
+		}
+
+		static void ColorsHelp(StringBuilder sb)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Note: Colors may be specified as a name or as a hex value");
+			sb.AppendLine("Available Colors:");
+			foreach(var kvp in OptionsHelpers.AllColors()) {
+				string name = kvp.Item1;
+				Color color = kvp.Item2;
+				sb.AppendLine($"{color.ToHex()}  {name}");
+			}
 		}
 
 		public static bool Parse(string[] args, out string[] prunedArgs)
@@ -110,6 +131,9 @@ namespace ImageFunctions
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
 				}
+				else if (curr == "--colors") {
+					ShowColorList = true;
+				}
 				else if (curr == "--max-threads" && ++a < len) {
 					if (!int.TryParse(args[a],out int num)) {
 						Log.Error("Could not parse "+args[a]);
@@ -134,7 +158,7 @@ namespace ImageFunctions
 				}
 			}
 
-			if (ShowFullHelp || ShowHelpActions || ShowActionHelp) {
+			if (ShowFullHelp || ShowHelpActions || ShowActionHelp || ShowColorList) {
 				Usage(Which);
 				return false;
 			}
@@ -156,6 +180,7 @@ namespace ImageFunctions
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;
+		static bool ShowColorList = true;
 		static Rectangle _Rect = Rectangle.Empty;
 	}
 }
