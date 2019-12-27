@@ -2,6 +2,8 @@ using System;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
 {
@@ -29,9 +31,8 @@ namespace ImageFunctions.SpearGraphic
 		//}
 		
 		
-		private static void Twist3(ImageFrame<TPixel> image, int w, int h)
+		public static void Twist3(Image<TPixel> image, int w, int h, int which = 2)
 		{
-			int which = 2;
 			if (which == 0)
 			{
 				int iter = 9;
@@ -64,9 +65,12 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		private static void Twist3Params (ImageFrame<TPixel> image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
+		static void Twist3Params(Image<TPixel> image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
 		{
 			double a,x,y,ox,oy;
+			var gop = new GraphicsOptions {
+				Antialias = true
+			};
 			for(double v=1; v<max; v++)
 			{
 				ox = o+(an+(am*(max-v)/max))*Math.Cos(v*Math.PI/aa);
@@ -75,16 +79,31 @@ namespace ImageFunctions.SpearGraphic
 				a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 				x = s * Math.Tan(a) + (v/t) + ox;
 				y = s * Math.Sin(a) + (v/t) + oy;
-				Pen p = ColorFade(v,max,FadeComp.G);
+				Rgba32 p = ColorFade(v,max,FadeComp.G);
 				if (x < w && y < h && x > 0 && y > 0) {
-					g.DrawRectangle(p,(float)x,(float)y,0.5f,0.5f);
-					g.DrawRectangle(p,(float)y,(float)x,0.5f,0.5f);
+					image.Mutate(op => {
+						DrawRectangle(op,gop,p,x,y);
+						DrawRectangle(op,gop,p,y,x);
+					});
 				}
 			}
 		}
 
-		private static void Twist4(Graphics g, int w, int h)
+		static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
 		{
+			PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
+			PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
+			PointF p2 = new PointF((float)x + 0.5f,(float)y + 0.5f);
+			PointF p3 = new PointF((float)x + 0.0f,(float)y + 0.5f);
+			op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
+		}
+
+		public static void Twist4(Image<TPixel> image, int w, int h)
+		{
+			var gop = new GraphicsOptions {
+				Antialias = true,
+			};
+
 			double max = w*9;
 			double s = w/32.0; //stretch x
 			double o = w/4.0; //offset
@@ -107,19 +126,28 @@ namespace ImageFunctions.SpearGraphic
 					if (dx <= dy)
 					{
 						double m2 = max/2;
-						Pen p = v > m2 ? ColorFade(v-m2,m2,FadeComp.B) : ColorFade(m2-v,m2,FadeComp.R);
+						Rgba32 p = v > m2 ? ColorFade(v-m2,m2,FadeComp.B) : ColorFade(m2-v,m2,FadeComp.R);
 						
-						g.DrawLine(p,(float)lx,(float)ly,(float)x-oo,(float)y-oo);
-						g.DrawLine(p,(float)ly,(float)lx,(float)y+oo,(float)x+oo);
+						image.Mutate(op => {
+							DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
+							DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
+						});
 					}
 					lx = x;
 					ly = y;
 				}
 			}
 		}
+
+		static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
+		{
+			var p0 = new PointF((float)x0,(float)y0);
+			var p1 = new PointF((float)x1,(float)y1);
+			op.DrawLines(gop,(Color)p,1.0f,p0,p1);
+		}
 		
-		private enum FadeComp { R, G, B }
-		private static Pen ColorFade(double i, double max, FadeComp f)
+		enum FadeComp { R, G, B }
+		static Rgba32 ColorFade(double i, double max, FadeComp f)
 		{
 			double p,s;
 			p = i < 1.0 * max / 2 ? 255
@@ -128,32 +156,32 @@ namespace ImageFunctions.SpearGraphic
 			
 			Color c;
 			if (f == FadeComp.R) {
-				c = Color.FromArgb(32,(int)p,(int)s,(int)s);
+				c = new Rgba32(32,(byte)p,(byte)s,(byte)s);
 			} else if (f == FadeComp.G) {
-				c = Color.FromArgb(32,(int)s,(int)p,(int)s);
-			} else {
-				c = Color.FromArgb(32,(int)s,(int)s,(int)p);
+				c = new Rgba32(32,(byte)s,(byte)p,(byte)s);
+			} else { //FadeComp.B
+				c = new Rgba32(32,(byte)s,(byte)s,(byte)p);
 			}
-			return new Pen(c);
+			return c;
 		}
 
-		private static Pen GetRandomPen()
+		static Rgba32 GetRandomPen()
 		{
-			Color color = Color.FromArgb(
+			var color = new Rgba32(
 				Random(0,255),Random(0,255),Random(0,255),Random(0,255));
-			return new Pen(color,5.0f);
+			return color; //TODO this had line width 5.0f
 		}
 		
-		private static Point GetRandomPoint(int w,int h)
+		static Point GetRandomPoint(int w,int h)
 		{
 			return new Point(Random(0,w),Random(0,h));
 		}
 		
-		private static Random rnd = null;
-		private static int Random(int low, int high)
+		static Random rnd = null;
+		static int Random(int low, int high)
 		{
-			int seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
 			if (rnd == null) {
+				int seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
 				rnd = new Random(seed);
 			}
 			return rnd.Next(low,high);

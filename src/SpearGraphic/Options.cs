@@ -8,7 +8,10 @@ namespace ImageFunctions.SpearGraphic
 		First_Twist1,
 		First_Twist2,
 		First_Twist3,
-		Second,
+		Second_Twist3a,
+		Second_Twist3b,
+		Second_Twist3c,
+		Second_Twist4,
 		Third,
 		Fourth
 	}
