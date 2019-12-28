@@ -13,7 +13,7 @@ namespace ImageFunctions.SpearGraphic
 		Second_Twist3b,
 		Second_Twist3c,
 		Second_Twist4,
-		Third_Twist1,
+		Third,
 		Fourth
 	}
 
