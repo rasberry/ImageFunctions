@@ -180,7 +180,7 @@ namespace ImageFunctions
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;
-		static bool ShowColorList = true;
+		static bool ShowColorList = false;
 		static Rectangle _Rect = Rectangle.Empty;
 	}
 }
