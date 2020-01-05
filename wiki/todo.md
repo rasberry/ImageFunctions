@@ -77,3 +77,8 @@
   * left to right / right to left
   * spiral in to out
 * add option to invert sort order
+
+## SpearGraphic ##
+* breakout Third and Fourth into their own generators
+* add a way to change the default control variable values
+
