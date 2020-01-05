@@ -97,7 +97,7 @@ namespace ImageFunctions.ImgDiff
 			sb.AppendLine(" -o (number)[%]              Overlay hilight color at given opacity");
 			sb.AppendLine(" -i                          Match identical pixels instead of differences");
 			sb.AppendLine(" -x                          Output original pixels instead of hilighting them");
-			sb.AppendLine(" -c (color)                  Change hilight color - hex value or name (default is magenta)");
+			sb.AppendLine(" -c (color)                  Change hilight color (default is magenta)");
 		}
 
 		public override void Main()

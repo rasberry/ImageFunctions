@@ -5,8 +5,9 @@ Usage ImageFunctions (action) [options]
  -h / --help                 Show full help
  (action) -h                 Action specific help
  --actions                   List possible actions
- -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)
+ -# / --rect ([x,y,]w,h)     Apply function to given rectagular area (defaults to entire image)
  --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)
+ --colors                    List available colors
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -93,31 +94,226 @@ Usage ImageFunctions (action) [options]
  -o (number)[%]              Overlay hilight color at given opacity
  -i                          Match identical pixels instead of differences
  -x                          Output original pixels instead of hilighting them
- -c (color)                  Change hilight color - hex value or name (default is magenta)
+ -c (color)                  Change hilight color (default is magenta)
+
+11. AllColors [options] [output image]
+ Creates an image with every possible 24-bit color ordered by chosen pattern.
+ -p (pattern)                Sort by Pattern (default BitOrder)
+ -s (space)                  Sort by color space components (instead of pattern)
+ -so (c,...)                 Change priority order of components (default 1,2,3,4)
+ -np                         Use single threaded sort function instead of parallel sort
+
+ Available Patterns
+ 1. BitOrder                Numeric order
+ 2. AERT                    AERT brightness
+ 3. HSP                     HSP color model brightness
+ 4. WCAG2                   WCAG2 relative luminance
+ 5. SMPTE240M               Luminance SMPTE 240M (1999)
+ 6. Luminance709            Luminance BT.709
+ 7. Luminance601            Luminance BT.601
+ 8. Luminance2020           Luminance BT.2020
+
+ Available Spaces
+  1. RGB                     
+  2. HSV                     
+  3. HSL                     
+  4. HSI                     
+  5. YCbCr                   
+  6. CieLab                  
+  7. CieLch                  
+  8. CieLchuv                
+  9. CieLuv                  
+ 10. CieXyy                  
+ 11. CieXyz                  
+ 12. Cmyk                    
+ 13. HunterLab               
+ 14. LinearRgb               
+ 15. Lms                     
+
+12. SpearGraphic [options] [output image]
+ Creates a spear graphic
+ -g (name)                   Choose which graphic to create
+ -bg (color)                 Change Background color (default transparent)
+
+ Available Graphics
+ 1. First_Twist1            
+ 2. First_Twist2            
+ 3. First_Twist3            
+ 4. Second_Twist3a          
+ 5. Second_Twist3b          
+ 6. Second_Twist3c          
+ 7. Second_Twist4           
+ 8. Third                   
+ 9. Fourth                  
 
 Available Samplers:
-1. NearestNeighbor
-2. Bicubic
-3. Box
-4. CatmullRom
-5. Hermite
-6. Lanczos2
-7. Lanczos3
-8. Lanczos5
-9. Lanczos8
-10. MitchellNetravali
-11. Robidoux
-12. RobidouxSharp
-13. Spline
-14. Triangle
-15. Welch
+ 1. NearestNeighbor           
+ 2. Bicubic                   
+ 3. Box                       
+ 4. CatmullRom                
+ 5. Hermite                   
+ 6. Lanczos2                  
+ 7. Lanczos3                  
+ 8. Lanczos5                  
+ 9. Lanczos8                  
+10. MitchellNetravali         
+11. Robidoux                  
+12. RobidouxSharp             
+13. Spline                    
+14. Triangle                  
+15. Welch                     
 
 Available Metrics:
-1. Manhattan
-2. Euclidean
-3. Chebyshev
-4. ChebyshevInv
-5. Minkowski (p-factor)
-6. Canberra
+1. Manhattan                 
+2. Euclidean                 
+3. Chebyshev                 
+4. ChebyshevInv              
+5. Minkowski (p-factor)      
+6. Canberra                  
+
+Note: Colors may be specified as a name or as a hex value
+Available Colors:
+F0F8FFFF  AliceBlue
+FAEBD7FF  AntiqueWhite
+00FFFFFF  Aqua
+7FFFD4FF  Aquamarine
+F0FFFFFF  Azure
+F5F5DCFF  Beige
+FFE4C4FF  Bisque
+000000FF  Black
+FFEBCDFF  BlanchedAlmond
+0000FFFF  Blue
+8A2BE2FF  BlueViolet
+A52A2AFF  Brown
+DEB887FF  BurlyWood
+5F9EA0FF  CadetBlue
+7FFF00FF  Chartreuse
+D2691EFF  Chocolate
+FF7F50FF  Coral
+6495EDFF  CornflowerBlue
+FFF8DCFF  Cornsilk
+DC143CFF  Crimson
+00FFFFFF  Cyan
+00008BFF  DarkBlue
+008B8BFF  DarkCyan
+B8860BFF  DarkGoldenrod
+A9A9A9FF  DarkGray
+006400FF  DarkGreen
+BDB76BFF  DarkKhaki
+8B008BFF  DarkMagenta
+556B2FFF  DarkOliveGreen
+FF8C00FF  DarkOrange
+9932CCFF  DarkOrchid
+8B0000FF  DarkRed
+E9967AFF  DarkSalmon
+8FBC8BFF  DarkSeaGreen
+483D8BFF  DarkSlateBlue
+2F4F4FFF  DarkSlateGray
+00CED1FF  DarkTurquoise
+9400D3FF  DarkViolet
+FF1493FF  DeepPink
+00BFFFFF  DeepSkyBlue
+696969FF  DimGray
+1E90FFFF  DodgerBlue
+B22222FF  Firebrick
+FFFAF0FF  FloralWhite
+228B22FF  ForestGreen
+FF00FFFF  Fuchsia
+DCDCDCFF  Gainsboro
+F8F8FFFF  GhostWhite
+FFD700FF  Gold
+DAA520FF  Goldenrod
+808080FF  Gray
+008000FF  Green
+ADFF2FFF  GreenYellow
+F0FFF0FF  Honeydew
+FF69B4FF  HotPink
+CD5C5CFF  IndianRed
+4B0082FF  Indigo
+FFFFF0FF  Ivory
+F0E68CFF  Khaki
+E6E6FAFF  Lavender
+FFF0F5FF  LavenderBlush
+7CFC00FF  LawnGreen
+FFFACDFF  LemonChiffon
+ADD8E6FF  LightBlue
+F08080FF  LightCoral
+E0FFFFFF  LightCyan
+FAFAD2FF  LightGoldenrodYellow
+D3D3D3FF  LightGray
+90EE90FF  LightGreen
+FFB6C1FF  LightPink
+FFA07AFF  LightSalmon
+20B2AAFF  LightSeaGreen
+87CEFAFF  LightSkyBlue
+778899FF  LightSlateGray
+B0C4DEFF  LightSteelBlue
+FFFFE0FF  LightYellow
+00FF00FF  Lime
+32CD32FF  LimeGreen
+FAF0E6FF  Linen
+FF00FFFF  Magenta
+800000FF  Maroon
+66CDAAFF  MediumAquamarine
+0000CDFF  MediumBlue
+BA55D3FF  MediumOrchid
+9370DBFF  MediumPurple
+3CB371FF  MediumSeaGreen
+7B68EEFF  MediumSlateBlue
+00FA9AFF  MediumSpringGreen
+48D1CCFF  MediumTurquoise
+C71585FF  MediumVioletRed
+191970FF  MidnightBlue
+F5FFFAFF  MintCream
+FFE4E1FF  MistyRose
+FFE4B5FF  Moccasin
+FFDEADFF  NavajoWhite
+000080FF  Navy
+FDF5E6FF  OldLace
+808000FF  Olive
+6B8E23FF  OliveDrab
+FFA500FF  Orange
+FF4500FF  OrangeRed
+DA70D6FF  Orchid
+EEE8AAFF  PaleGoldenrod
+98FB98FF  PaleGreen
+AFEEEEFF  PaleTurquoise
+DB7093FF  PaleVioletRed
+FFEFD5FF  PapayaWhip
+FFDAB9FF  PeachPuff
+CD853FFF  Peru
+FFC0CBFF  Pink
+DDA0DDFF  Plum
+B0E0E6FF  PowderBlue
+800080FF  Purple
+663399FF  RebeccaPurple
+FF0000FF  Red
+BC8F8FFF  RosyBrown
+4169E1FF  RoyalBlue
+8B4513FF  SaddleBrown
+FA8072FF  Salmon
+F4A460FF  SandyBrown
+2E8B57FF  SeaGreen
+FFF5EEFF  SeaShell
+A0522DFF  Sienna
+C0C0C0FF  Silver
+87CEEBFF  SkyBlue
+6A5ACDFF  SlateBlue
+708090FF  SlateGray
+FFFAFAFF  Snow
+00FF7FFF  SpringGreen
+4682B4FF  SteelBlue
+D2B48CFF  Tan
+008080FF  Teal
+D8BFD8FF  Thistle
+FF6347FF  Tomato
+FFFFFF00  Transparent
+40E0D0FF  Turquoise
+EE82EEFF  Violet
+F5DEB3FF  Wheat
+FFFFFFFF  White
+F5F5F5FF  WhiteSmoke
+FFFF00FF  Yellow
+9ACD32FF  YellowGreen
 
 ```

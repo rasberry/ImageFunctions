@@ -1,20 +1,34 @@
 using System;
 using System.Runtime.CompilerServices;
+using SixLabors.Primitives;
 
 namespace test
 {
 	public enum FileSet
 	{
 		None = 0,
-		OneOne, //one input, one output
-		TwoOne, //two input, one output
+		NoneOne, //no input, one output
+		OneOne,  //one input, one output
+		TwoOne,  //two input, one output
 	}
+
 
 	public interface IAmTest
 	{
-		ITuple[] GetImageNames();
 		int CaseCount { get; }
 		FileSet Set { get; }
 		string[] GetArgs(int index);
+
+	}
+
+	public interface IAmTestSomeOne : IAmTest
+	{
+		ITuple[] GetImageNames();
+	}
+
+	public interface IAmTestNoneOne : IAmTest
+	{
+		string GetOutName(int index);
+		Rectangle? GetBounds(int index);
 	}
 }

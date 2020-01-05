@@ -159,9 +159,8 @@ namespace ImageFunctions.Helpers
 				//Continue
 			}
 
-			if (ColorMap == null) {
-				PopColorMap();
-			}
+			PopColorMap();
+
 			if (ColorMap.TryGetValue(sub,out string ColorName)) {
 				if (TryGetColorByName(ColorName, out color)) {
 					return true;
@@ -171,17 +170,18 @@ namespace ImageFunctions.Helpers
 			return false;
 		}
 
-		static IDictionary<string,string> ColorMap = null;
+		static HashSet<string> ColorMap = null;
 		static void PopColorMap()
 		{
-			ColorMap = new Dictionary<string,string>(StringComparer.CurrentCultureIgnoreCase);
+			if (ColorMap != null) { return; }
+			ColorMap = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
 			var flags = BindingFlags.Public | BindingFlags.Static;
 			Type colorType = typeof(Color);
 			var fields = colorType.GetFields(flags);
 
 			foreach(var info in fields) {
 				if (colorType.Equals(info.FieldType)) {
-					ColorMap.Add(info.Name,info.Name);
+					ColorMap.Add(info.Name);
 				}
 			}
 		}
@@ -195,6 +195,15 @@ namespace ImageFunctions.Helpers
 			if (field == null) { return false; }
 			color = (Color)field.GetValue(null);
 			return true;
+		}
+
+		public static IEnumerable<(string,Color)> AllColors()
+		{
+			PopColorMap();
+			foreach(string name in ColorMap) {
+				if (!TryGetColorByName(name,out Color color)) { continue; }
+				yield return (name,color);
+			}
 		}
 
 		public static IEnumerable<T> EnumAll<T>(bool includeZero = false)

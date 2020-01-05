@@ -1,4 +1,5 @@
 using ImageFunctions.Helpers;
+using SixLabors.ImageSharp;
 using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,9 @@ namespace ImageFunctions
 			sb.AppendLine(" -h / --help                 Show full help");
 			sb.AppendLine(" (action) -h                 Action specific help");
 			sb.AppendLine(" --actions                   List possible actions");
-			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
+			sb.AppendLine(" -# / --rect ([x,y,]w,h)     Apply function to given rectagular area (defaults to entire image)");
 			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
-
-			if (showActions) {
-				sb.AppendLine().AppendLine("Actions:");
-				OptionsHelpers.PrintEnum<Activity>(sb);
-			}
+			sb.AppendLine(" --colors                    List available colors");
 
 			if (showFull)
 			{
@@ -38,6 +35,7 @@ namespace ImageFunctions
 				}
 				SamplerHelp(sb);
 				MetricHelp(sb);
+				ColorsHelp(sb);
 			}
 			else if (action != Activity.None)
 			{
@@ -48,6 +46,17 @@ namespace ImageFunctions
 				}
 				if ((func as IHasDistance) != null) {
 					MetricHelp(sb);
+				}
+			}
+			else
+			{
+				if (showActions) {
+					sb.AppendLine().AppendLine("Actions:");
+					OptionsHelpers.PrintEnum<Activity>(sb);
+				}
+
+				if (ShowColorList) {
+					ColorsHelp(sb);
 				}
 			}
 
@@ -70,6 +79,18 @@ namespace ImageFunctions
 			});
 		}
 
+		static void ColorsHelp(StringBuilder sb)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Note: Colors may be specified as a name or as a hex value");
+			sb.AppendLine("Available Colors:");
+			foreach(var kvp in OptionsHelpers.AllColors()) {
+				string name = kvp.Item1;
+				Color color = kvp.Item2;
+				sb.AppendLine($"{color.ToHex()}  {name}");
+			}
+		}
+
 		public static bool Parse(string[] args, out string[] prunedArgs)
 		{
 			prunedArgs = null;
@@ -89,16 +110,17 @@ namespace ImageFunctions
 				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
 					var parts = args[a].Split(new char[] { ',','x' },
 						StringSplitOptions.RemoveEmptyEntries);
-					if (parts.Length < 4) {
-						Log.Error("rectangle must contain four numbers");
+					if (parts.Length != 2 && parts.Length != 4) {
+						Log.Error("rectangle must contain two or four numbers");
 						return false;
 					}
-					for(int p=0; p<4; p++) {
+					bool isTwo = parts.Length == 2;
+					for(int p=0; p<parts.Length; p++) {
 						if (!int.TryParse(parts[p],out int n)) {
 							Log.Error("could not parse \""+parts[p]+"\" as a number");
 							return false;
 						}
-						switch(p) {
+						switch(p + (isTwo ? 2 : 0)) {
 						case 0: _Rect.X = n; break;
 						case 1: _Rect.Y = n; break;
 						case 2: _Rect.Width = n; break;
@@ -109,6 +131,9 @@ namespace ImageFunctions
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
+				}
+				else if (curr == "--colors") {
+					ShowColorList = true;
 				}
 				else if (curr == "--max-threads" && ++a < len) {
 					if (!int.TryParse(args[a],out int num)) {
@@ -134,7 +159,7 @@ namespace ImageFunctions
 				}
 			}
 
-			if (ShowFullHelp || ShowHelpActions || ShowActionHelp) {
+			if (ShowFullHelp || ShowHelpActions || ShowActionHelp || ShowColorList) {
 				Usage(Which);
 				return false;
 			}
@@ -156,6 +181,7 @@ namespace ImageFunctions
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowActionHelp = false;
+		static bool ShowColorList = false;
 		static Rectangle _Rect = Rectangle.Empty;
 	}
 }

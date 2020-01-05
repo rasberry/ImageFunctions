@@ -9,6 +9,7 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
 using ImageFunctions.Helpers;
+using SixLabors.Primitives;
 
 namespace test
 {
@@ -54,9 +55,12 @@ namespace test
 			return Path.Combine(WikiRoot,"img");
 		}}
 
-		public static void RunTestWithInputFiles(Activity act, int index, ITuple[] images, string[] argsForIndex,
+		public static void RunTestWithInputFiles(Activity act, int index, IAmTestSomeOne test,
 			Func<string,string,bool> fileComparer = null)
 		{
+			var images = test.GetImageNames();
+			var argsForIndex = test.GetArgs(index);
+			
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
 				var imgs = images[0];
@@ -65,22 +69,34 @@ namespace test
 				string checkFile = Helpers.CheckFile(act,imgs,index);
 				var args = Helpers.Append(argsForIndex,inFiles,outFile);
 
-				Helpers.RunImageFunction(act,args,outFile,checkFile,fileComparer);
+				Helpers.RunImageFunction(act,args,outFile,checkFile,null,fileComparer);
+			}
+		}
+
+		public static void RunTestGenerator(Activity act, int index, IAmTestNoneOne test, Func<string,string,bool> fileComparer = null)
+		{
+			var argsForIndex = test.GetArgs(index);
+			string name = test.GetOutName(index);
+			var bounds = test.GetBounds(index);
+
+			using(var tempFile = Helpers.CreateTempPngFile())
+			{
+				string outFile = tempFile.TempFileName;
+				string checkFile = Helpers.CheckFile(act,name,index);
+				var args = Helpers.Append(argsForIndex,outFile);
+
+				Helpers.RunImageFunction(act,args,outFile,checkFile,bounds,fileComparer);
 			}
 		}
 
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
-			Func<string,string,bool> fileComparer = null)
+			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
-				//fileComparer = (string one,string two) => {
-				//	double dist = Helpers.ImageDistance(one,two);
-				//	Log.Debug($"dist = {dist}");
-				//	return dist < 1.0;
-				//};
 			}
 			IFunction func = Registry.Map(act);
+			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked);
 
@@ -113,7 +129,6 @@ namespace test
 					}
 				}
 			}
-
 			return true;
 		}
 
@@ -126,7 +141,6 @@ namespace test
 
 			var sOne = one.GetPixelSpan();
 			var sTwo = two.GetPixelSpan();
-
 			return sOne.SequenceEqual(sTwo);
 		}
 
@@ -198,10 +212,14 @@ namespace test
 			return pathTuple;
 		}
 
-		public static string CheckFile(Activity which, ITuple tuple, int i,bool forweb = false) {
-			string name = string.Join('-',tuple.Enumerate<string>());
+		public static string CheckFile(Activity which, string name, int i, bool forweb = false) {
 			string file = string.Format("img-{0}-{1}-{2}.png",(int)which,name,i+1);
 			return forweb ? "img/" + file : Path.Combine(Helpers.ImgRoot,file);
+		}
+
+		public static string CheckFile(Activity which, ITuple tuple, int i,bool forweb = false) {
+			string name = string.Join('-',tuple.Enumerate<string>());
+			return CheckFile(which,name,i,forweb);
 		}
 
 		public static ITuple[] Tupleify<T>(this T[] array)
