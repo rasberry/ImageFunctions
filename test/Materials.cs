@@ -13,6 +13,26 @@ namespace test
 {
 	public class Materials
 	{
+		static IAmTest GetTestInstance(Activity which)
+		{
+			switch(which)
+			{
+			case Activity.PixelateDetails: return new TestPixelateDetails();
+			case Activity.Derivatives: return new TestDerivatives();
+			case Activity.AreaSmoother: return new TestAreaSmoother();
+			case Activity.AreaSmoother2: return new TestAreaSmoother2();
+			case Activity.ZoomBlur: return new TestZoomBlur();
+			case Activity.Swirl: return new TestSwirl();
+			case Activity.Deform: return new TestDeform();
+			case Activity.Encrypt: return new TestEncrypt();
+			case Activity.PixelRules: return new TestPixelRules();
+			case Activity.ImgDiff: return new TestImgDiff();
+			case Activity.AllColors: return new TestAllColors();
+			case Activity.SpearGraphic: return new TestSpearGraphic();
+			}
+			return null;
+		}
+
 		public static void BuildWiki()
 		{
 			BuildUsage();
@@ -247,25 +267,6 @@ namespace test
 		static string TupleToString(ITuple tuple)
 		{
 			return string.Join('-',tuple.Enumerate<string>());
-		}
-
-		static IAmTest GetTestInstance(Activity which)
-		{
-			switch(which)
-			{
-			case Activity.PixelateDetails: return new TestPixelateDetails();
-			case Activity.Derivatives: return new TestDerivatives();
-			case Activity.AreaSmoother: return new TestAreaSmoother();
-			case Activity.AreaSmoother2: return new TestAreaSmoother2();
-			case Activity.ZoomBlur: return new TestZoomBlur();
-			case Activity.Swirl: return new TestSwirl();
-			case Activity.Deform: return new TestDeform();
-			case Activity.Encrypt: return new TestEncrypt();
-			case Activity.PixelRules: return new TestPixelRules();
-			case Activity.ImgDiff: return new TestImgDiff();
-			case Activity.AllColors: return new TestAllColors();
-			}
-			return null;
 		}
 	}
 }
