@@ -1,11 +1,6 @@
 # Image Functions #
 A collection of various image processing functions
 
-## Pages ##
-* [Usage](usage)
-* [Examples](examples)
-* [TODO](todo)
-
 ## Commands ##
 * run project
   * ```dotnet run -p src --```
@@ -24,10 +19,8 @@ A collection of various image processing functions
   ```
   * **Linux**
   ```
-  export BUILDWIKI=1
   rm wiki/img/img-*.png
-  dotnet test --filter TestBuildWiki
-  export BUILDWIKI=0
+  BUILDWIKI=1 dotnet test --filter TestBuildWiki
   ```
 
 ## Notes ##
