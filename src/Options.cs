@@ -23,7 +23,7 @@ namespace ImageFunctions
 			sb.AppendLine(" -h / --help                 Show full help");
 			sb.AppendLine(" (action) -h                 Action specific help");
 			sb.AppendLine(" --actions                   List possible actions");
-			sb.AppendLine(" -# / --rect (x,y,w,h)       Apply function to given rectagular area (defaults to entire image)");
+			sb.AppendLine(" -# / --rect ([x,y,]w,h)     Apply function to given rectagular area (defaults to entire image)");
 			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
 			sb.AppendLine(" --colors                    List available colors");
 
@@ -110,16 +110,17 @@ namespace ImageFunctions
 				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
 					var parts = args[a].Split(new char[] { ',','x' },
 						StringSplitOptions.RemoveEmptyEntries);
-					if (parts.Length < 4) {
-						Log.Error("rectangle must contain four numbers");
+					if (parts.Length != 2 && parts.Length != 4) {
+						Log.Error("rectangle must contain two or four numbers");
 						return false;
 					}
-					for(int p=0; p<4; p++) {
+					bool isTwo = parts.Length == 2;
+					for(int p=0; p<parts.Length; p++) {
 						if (!int.TryParse(parts[p],out int n)) {
 							Log.Error("could not parse \""+parts[p]+"\" as a number");
 							return false;
 						}
-						switch(p) {
+						switch(p + (isTwo ? 2 : 0)) {
 						case 0: _Rect.X = n; break;
 						case 1: _Rect.Y = n; break;
 						case 2: _Rect.Width = n; break;
