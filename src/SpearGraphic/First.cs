@@ -9,26 +9,34 @@ namespace ImageFunctions.SpearGraphic
 	{
 		public static void Twist1(ImageFrame<TPixel> image,int w,int h)
 		{
-			double max = w*3;
-			for(int v=0; v<max; v++)
+			double max = w * 3;
+			using (var progress = new ProgressBar())
 			{
-				double x = (w/10.0)*Math.Cos(v*Math.PI/w)+(v/10.0)+(w/8.0);
-				double y = (w/20.0)*Math.Sin(v*Math.PI/(w/2.0))+(v/10.0)+(w/8.0);
-				int c = GreenFade(v,max);
-				DrawDot(image,(int)x,(int)y,c);
+				for(int v=0; v<max; v++)
+				{
+					double x = (w/10.0)*Math.Cos(v*Math.PI/w)+(v/10.0)+(w/8.0);
+					double y = (w/20.0)*Math.Sin(v*Math.PI/(w/2.0))+(v/10.0)+(w/8.0);
+					int c = GreenFade(v,max);
+					DrawDot(image,(int)x,(int)y,c);
+					progress.Report((double)v/max);
+				}
 			}
 		}
 
 		public static void Twist2(ImageFrame<TPixel> image,int w,int h)
 		{
 			double max = w * 10;
-			for(int v=1; v<max; v++)
+			using (var progress = new ProgressBar())
 			{
-				double a = (max - v)*Math.PI/(max/(max-v/32.0))+Math.PI;
-				double x = (w/32.0)*Math.Cos(a)+(v/10.0);
-				double y = (w/32.0)*Math.Sin(a)+(v/10.0);
-				int c = GreenFade(v,max);
-				DrawDot(image,(int)x,(int)y,c);
+				for(int v=1; v<max; v++)
+				{
+					double a = (max - v)*Math.PI/(max/(max-v/32.0))+Math.PI;
+					double x = (w/32.0)*Math.Cos(a)+(v/10.0);
+					double y = (w/32.0)*Math.Sin(a)+(v/10.0);
+					int c = GreenFade(v,max);
+					DrawDot(image,(int)x,(int)y,c);
+					progress.Report((double)v/max);
+				}
 			}
 		}
 
@@ -38,17 +46,22 @@ namespace ImageFunctions.SpearGraphic
 			double s = w/32.0;
 			double o = w/10.0;
 			double t = 12;
-			for(int v=1; v<max; v++)
+			using (var progress = new ProgressBar())
 			{
-				double a = (max - v)*Math.PI/(max/(max - v/32.0))+Math.PI;
-				double x = s*Math.Tan(a)+(v/t)+o;
-				double y = s*Math.Sin(a)+(v/t)+o;
-				int c = GreenFade(v,max);
-				DrawDot(image,(int)x,(int)y,c);
+				for(int v=1; v<max; v++)
+				{
+					double a = (max - v)*Math.PI/(max/(max - v/32.0))+Math.PI;
+					double x = s*Math.Tan(a)+(v/t)+o;
+					double y = s*Math.Sin(a)+(v/t)+o;
+					int c = GreenFade(v,max);
+					DrawDot(image,(int)x,(int)y,c);
 
-				x = s*Math.Sin(a)+(v/t)+o;
-				y = s*Math.Tan(a)+(v/t)+o;
-				DrawDot(image,(int)x,(int)y,c);
+					x = s*Math.Sin(a)+(v/t)+o;
+					y = s*Math.Tan(a)+(v/t)+o;
+					DrawDot(image,(int)x,(int)y,c);
+					
+					progress.Report((double)v/max);
+				}
 			}
 		}
 

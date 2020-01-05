@@ -94,40 +94,45 @@ namespace ImageFunctions.SpearGraphic
 
 			var gop = new GraphicsOptions { Antialias = true };
 
-			while(true)
+			using (var progress = new ProgressBar())
 			{
-				double x = Math.Cos(ang) * rad + cen.X;
-				double y = Math.Sin(ang) * rad + cen.Y;
+				while(true)
+				{
+					double x = Math.Cos(ang) * rad + cen.X;
+					double y = Math.Sin(ang) * rad + cen.Y;
 
-				if (Math.Abs(penw - penwtarget) < p.PenRateMax) {
-					penwtarget = Random(p.PenWMin,p.PenWMax);
-					penrate = Random(p.PenRateMin,p.PenRateMax);
-					if (penw > penwtarget) { penrate = -penrate; }
+					if (Math.Abs(penw - penwtarget) < p.PenRateMax) {
+						penwtarget = Random(p.PenWMin,p.PenWMax);
+						penrate = Random(p.PenRateMin,p.PenRateMax);
+						if (penw > penwtarget) { penrate = -penrate; }
+					}
+					penw += penrate;
+
+					Rgba32 c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
+					//Rgba32 pen = new Pen(c,(float)penw);
+					//g.DrawLine(pen,(float)lx,(float)ly,(float)x,(float)y);
+					image.Mutate(op => {
+						var p0 = new PointF((float)lx,(float)ly);
+						var p1 = new PointF((float)x,(float)y);
+						op.DrawLines(gop,c,(float)penw,p0,p1);
+					});
+
+					double dist = Dist(cen,new DPoint(x,y));
+					if (dist < 1.0) {
+						break;
+					}
+					progress.Report((maxrad - dist) / maxrad);
+
+					lx = x; ly = y;
+					ang += p.RotRate;
+					if (ang > pi2d) {
+						ang -= pi2d;
+						if (--rev <= 0) { break; }
+						//Console.WriteLine(rev);
+					}
+					double radrate = Random(p.RadRatemin,p.RadRateMax);
+					rad = Math.Max(rad - radrate,0);
 				}
-				penw += penrate;
-
-				Rgba32 c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
-				//Rgba32 pen = new Pen(c,(float)penw);
-				//g.DrawLine(pen,(float)lx,(float)ly,(float)x,(float)y);
-				image.Mutate(op => {
-					var p0 = new PointF((float)lx,(float)ly);
-					var p1 = new PointF((float)x,(float)y);
-					op.DrawLines(gop,c,(float)penw,p0,p1);
-				});
-
-				if (Dist(cen,new DPoint(x,y)) < 1.0) {
-					break;
-				}
-
-				lx = x; ly = y;
-				ang += p.RotRate;
-				if (ang > pi2d) {
-					ang -= pi2d;
-					if (--rev <= 0) { break; }
-					Console.WriteLine(rev);
-				}
-				double radrate = Random(p.RadRatemin,p.RadRateMax);
-				rad = Math.Max(rad - radrate,0);
 			}
 		}
 

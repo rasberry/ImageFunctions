@@ -29,70 +29,74 @@ namespace ImageFunctions.SpearGraphic
 			//	new DPoint(0
 			//}
 			DPoint dest = default(DPoint);
-			for(int r=0; r<reps; r++)
+			using (var progress = new ProgressBar())
 			{
-				int iter = 0;
-				//random near current point
-				dest = new DPoint(
-					Random(PumpAt(margin,curr.X-nextRepDist),CapAt(curr.X+nextRepDist,w-margin))
-					,Random(PumpAt(margin,curr.Y-nextRepDist),CapAt(curr.Y+nextRepDist,h-margin))
-				);
-
-				//random on a grid
-				//DPoint ndest;
-				//do {
-				//	ndest = new DPoint(
-				//		Decimate(Random(margin,w-margin),-2)
-				//		,Decimate(Random(margin,h-margin),-2)
-				//	);
-				//} while(Dist(dest,ndest) < 10.0);
-				//dest = ndest;
-
-				//g.DrawArc(Pens.Red,(int)(dest.X-2),(int)(dest.Y-2),4,4,0,(int)(2*Math.PI));
-				angadd = Random(0.01,0.1);
-				speed = Random(1.0,5.0);
-				mindist = speed / Math.Tan(angadd);
-				FadeComp fcolor = RandEnum<FadeComp>();
-
-				while(true)
+				for(int r=0; r<reps; r++)
 				{
-					if (++iter >= maxiter) { break; }
-					double dist = Dist(dest,curr);
-					//Console.WriteLine(dist);
-					if (dist < mindist) { break; }
-					//Pen p1 = RandomColorFade(dist,colorDistMax,false);
-					//Pen p2 = RandomColorFade(dist,colorDistMax,true);
-					Rgba32 p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
-					Rgba32 p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
-					image.Mutate(op => {
-						DrawLine(op,gop,p2,last.X,last.Y,curr.X,curr.Y);
-						DrawLine(op,gop,p2,dest.X,dest.Y,curr.X,curr.Y);
-						DPoint ext = Move(curr,2*Math.PI-dir,100);
-						DrawLine(op,gop,p1,ext.X,ext.Y,curr.X,curr.Y);
-					});
+					int iter = 0;
+					//random near current point
+					dest = new DPoint(
+						Random(PumpAt(margin,curr.X-nextRepDist),CapAt(curr.X+nextRepDist,w-margin))
+						,Random(PumpAt(margin,curr.Y-nextRepDist),CapAt(curr.Y+nextRepDist,h-margin))
+					);
 
-					//if (dist < 100 && angadd > 0.01) {
-					//	angadd -= 0.01;
-					//} else if (dist > 500 && angadd < 0.1) {
-					//	angadd += 0.01;
-					//}
+					//random on a grid
+					//DPoint ndest;
+					//do {
+					//	ndest = new DPoint(
+					//		Decimate(Random(margin,w-margin),-2)
+					//		,Decimate(Random(margin,h-margin),-2)
+					//	);
+					//} while(Dist(dest,ndest) < 10.0);
+					//dest = ndest;
 
-					double newdirP = dir + angadd;
-					double newdirN = dir - angadd;
-					DPoint mP = Move(curr,newdirP,speed);
-					DPoint mN = Move(curr,newdirN,speed);
-					double distP = Dist(dest,mP);
-					double distN = Dist(dest,mN);
-					last = curr;
-					if (distP < distN) {
-						curr = mP;
-						dir = newdirP;
-					} else {
-						curr = mN;
-						dir = newdirN;
+					//g.DrawArc(Pens.Red,(int)(dest.X-2),(int)(dest.Y-2),4,4,0,(int)(2*Math.PI));
+					angadd = Random(0.01,0.1);
+					speed = Random(1.0,5.0);
+					mindist = speed / Math.Tan(angadd);
+					FadeComp fcolor = RandEnum<FadeComp>();
+
+					while(true)
+					{
+						if (++iter >= maxiter) { break; }
+						double dist = Dist(dest,curr);
+						//Console.WriteLine(dist);
+						if (dist < mindist) { break; }
+						//Pen p1 = RandomColorFade(dist,colorDistMax,false);
+						//Pen p2 = RandomColorFade(dist,colorDistMax,true);
+						Rgba32 p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
+						Rgba32 p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
+						image.Mutate(op => {
+							DrawLine(op,gop,p2,last.X,last.Y,curr.X,curr.Y);
+							DrawLine(op,gop,p2,dest.X,dest.Y,curr.X,curr.Y);
+							DPoint ext = Move(curr,2*Math.PI-dir,100);
+							DrawLine(op,gop,p1,ext.X,ext.Y,curr.X,curr.Y);
+						});
+
+						//if (dist < 100 && angadd > 0.01) {
+						//	angadd -= 0.01;
+						//} else if (dist > 500 && angadd < 0.1) {
+						//	angadd += 0.01;
+						//}
+
+						double newdirP = dir + angadd;
+						double newdirN = dir - angadd;
+						DPoint mP = Move(curr,newdirP,speed);
+						DPoint mN = Move(curr,newdirN,speed);
+						double distP = Dist(dest,mP);
+						double distN = Dist(dest,mN);
+						last = curr;
+						if (distP < distN) {
+							curr = mP;
+							dir = newdirP;
+						} else {
+							curr = mN;
+							dir = newdirN;
+						}
+
+						progress.Report((double)r/reps);
 					}
 				}
-				Console.WriteLine(r+" "+curr);
 			}
 		}
 

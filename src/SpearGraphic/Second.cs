@@ -49,20 +49,25 @@ namespace ImageFunctions.SpearGraphic
 			var gop = new GraphicsOptions {
 				Antialias = true
 			};
-			for(double v=1; v<max; v++)
+
+			using (var progress = new ProgressBar())
 			{
-				ox = o+(an+(am*(max-v)/max))*Math.Cos(v*Math.PI/aa);
-				oy = o+(an+(am*(max-v)/max))*Math.Sin(v*Math.PI/aa);
-				
-				a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
-				x = s * Math.Tan(a) + (v/t) + ox;
-				y = s * Math.Sin(a) + (v/t) + oy;
-				Rgba32 p = ColorFade(v,max,FadeComp.G);
-				if (x < w && y < h && x > 0 && y > 0) {
-					image.Mutate(op => {
-						DrawRectangle(op,gop,p,x,y);
-						DrawRectangle(op,gop,p,y,x);
-					});
+				for(double v=1; v<max; v++)
+				{
+					ox = o+(an+(am*(max-v)/max))*Math.Cos(v*Math.PI/aa);
+					oy = o+(an+(am*(max-v)/max))*Math.Sin(v*Math.PI/aa);
+					
+					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
+					x = s * Math.Tan(a) + (v/t) + ox;
+					y = s * Math.Sin(a) + (v/t) + oy;
+					Rgba32 p = ColorFade(v,max,FadeComp.G);
+					if (x < w && y < h && x > 0 && y > 0) {
+						image.Mutate(op => {
+							DrawRectangle(op,gop,p,x,y);
+							DrawRectangle(op,gop,p,y,x);
+						});
+					}
+					progress.Report(v/max);
 				}
 			}
 		}
@@ -90,29 +95,35 @@ namespace ImageFunctions.SpearGraphic
 			double lx=0,ly=0;
 			double oos = w * 0.088; //offset size
 			
-			for(double v=1; v<max; v++)
+			using (var progress = new ProgressBar())
 			{
-				a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
-				x = s * Math.Tan(a) + (v/t) + o;
-				y = s * Math.Sin(a) + (v/t) + o;
-				
-				if (v != 1 && x < w && y < h && x > 0 && y > 0)
+				for(double v=1; v<max; v++)
 				{
-					float oo = (float)(oos*Math.Sin(((max-v)/max)*2*Math.PI));
-					double dx = Math.Abs(lx - x);
-					double dy = Math.Abs(ly - y);
-					if (dx <= dy)
+					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
+					x = s * Math.Tan(a) + (v/t) + o;
+					y = s * Math.Sin(a) + (v/t) + o;
+					
+					if (v != 1 && x < w && y < h && x > 0 && y > 0)
 					{
-						double m2 = max/2;
-						Rgba32 p = v > m2 ? ColorFade(v-m2,m2,FadeComp.B) : ColorFade(m2-v,m2,FadeComp.R);
-						
-						image.Mutate(op => {
-							DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
-							DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
-						});
+						float oo = (float)(oos*Math.Sin(((max-v)/max)*2*Math.PI));
+						double dx = Math.Abs(lx - x);
+						double dy = Math.Abs(ly - y);
+						if (dx <= dy)
+						{
+							double m2 = max/2;
+							Rgba32 p = v > m2
+								? ColorFade(v-m2,m2,FadeComp.B)
+								: ColorFade(m2-v,m2,FadeComp.R);
+							
+							image.Mutate(op => {
+								DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
+								DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
+							});
+						}
+						lx = x;
+						ly = y;
 					}
-					lx = x;
-					ly = y;
+					progress.Report(v/max);
 				}
 			}
 		}
