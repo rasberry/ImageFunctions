@@ -36,7 +36,9 @@ namespace test
 		public static void BuildWiki()
 		{
 			BuildUsage();
+			BuildSideBar();
 			BuildExamples();
+			BuildIndividualExamples();
 			BuildImages();
 		}
 
@@ -49,25 +51,49 @@ namespace test
 			File.WriteAllText(file,usage);
 		}
 
+		static void BuildSideBar()
+		{
+			var sb = new StringBuilder();
+			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			{
+				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
+				sb.AppendLine("  * "+link);
+			}
+
+			string text = string.Format(TemplateSideBar,sb.ToString());
+			string file = Path.Combine(Helpers.WikiRoot,"_Sidebar.md");
+			File.WriteAllText(file,text);
+		}
+
 		static void BuildExamples()
 		{
 			var sb = new StringBuilder();
-			sb.Append(TemplateExamplesHeader);
+			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			{
+				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
+				sb.AppendLine("* "+link);
+			}
+			string text = string.Format(TemplateExamples,sb.ToString());
+			string file = Path.Combine(Helpers.WikiRoot,"examples.md");
+			File.WriteAllText(file,text);
+		}
 
+		static void BuildIndividualExamples()
+		{
 			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
 
+				var sb = new StringBuilder();
 				string tbl = inst.Set == FileSet.NoneOne
 					? BuildGenExamplesTable(act, inst as IAmTestNoneOne)
 					: BuildExamplesTable(act, inst as IAmTestSomeOne);
 				;
 				sb.AppendFormat(TemplateExample, act.ToString(), tbl);
+				string file = Path.Combine(Helpers.WikiRoot,GetExampleLinkName(act)+".md");
+				File.WriteAllText(file,sb.ToString());
 			}
-
-			string file = Path.Combine(Helpers.WikiRoot,"examples.md");
-			File.WriteAllText(file,sb.ToString());
 		}
 
 		//examples for activities with input images
@@ -125,8 +151,21 @@ namespace test
 
 		static string GetImageLink(string name, string link, int index)
 		{
-			string text = string.Format("![{0}-{2}]({1} \"{0}-{2}\")",name,link,index);
+			string linkName = $"{name}-{index}";
+			string linkLink = $"{link} \"{linkName}\"";
+			string text = $"![{linkName}]({linkLink})";
 			return text;
+		}
+
+		static string GetPageLink(string name, string link)
+		{
+			string text = $"[{name}]({link})";
+			return text;
+		}
+
+		static string GetExampleLinkName(Activity act)
+		{
+			return "ex_"+act.ToString().ToLowerInvariant();
 		}
 
 		static void BuildImages()
@@ -193,18 +232,25 @@ namespace test
 			+"\n```"
 		;
 
-		const string TemplateExamplesHeader =
+		const string TemplateExamples =
 			   "# Examples #"
 			+"\n"
 			+"\nExamples are categorized by Action"
-			+"\n"
+			+"\n{0}"
 		;
 		// 0 = activity name 1 = image table
 		const string TemplateExample =
-			"<details><summary>{0}</summary>"
+			   "# {0} #"
 			+"\n"
 			+"\n{1}"
-			+"\n</details>"
+		;
+
+		const string TemplateSideBar =
+			   "* [Home](home)"
+			+"\n* [Usage](usage)"
+			+"\n* [Examples](examples)"
+			+"\n{0}"
+			+  "* [TODO](todo)"
 		;
 
 		static (string,string) MakeTableHeader(int imgLenMax, IEnumerable<string[]> argsInCase)
@@ -253,8 +299,7 @@ namespace test
 			for(int i=0; i<argCount; i++)
 			{
 				string outFile = Helpers.CheckFile(which,images,i,true);
-				sb.AppendFormat("![{0}-{2}]({1} \"{0}-{2}\")|"
-					,TupleToString(images),outFile,i);
+				sb.Append(GetImageLink(TupleToString(images),outFile,i));
 			}
 			return sb.AppendLine().ToString();
 		}
