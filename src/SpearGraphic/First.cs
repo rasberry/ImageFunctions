@@ -7,15 +7,26 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class First<TPixel> where TPixel : struct, IPixel<TPixel>
 	{
+		//-1mm - max multiple
+		//-1dw - divisor for width
+		//-1dh - divisor for height
 		public static void Twist1(ImageFrame<TPixel> image,int w,int h)
 		{
-			double max = w * 3;
+			double maxmult = 6;
+			double vdiv = 10.0;
+			double wdiv = 8.0;
+			double xdiv = 10.0;
+			double ydiv = 20.0;
+			double xyr = 2.0;
+
+			double max = w * maxmult;
 			using (var progress = new ProgressBar())
 			{
 				for(int v=0; v<max; v++)
 				{
-					double x = (w/10.0)*Math.Cos(v*Math.PI/w)+(v/10.0)+(w/8.0);
-					double y = (w/20.0)*Math.Sin(v*Math.PI/(w/2.0))+(v/10.0)+(w/8.0);
+					double add = (v/vdiv)+(w/wdiv);
+					double x = (w/xdiv)*Math.Cos(v*Math.PI/w)+add;
+					double y = (w/ydiv)*Math.Sin(v*Math.PI/(w/xyr))+add;
 					int c = GreenFade(v,max);
 					DrawDot(image,(int)x,(int)y,c);
 					progress.Report((double)v/max);
@@ -25,14 +36,18 @@ namespace ImageFunctions.SpearGraphic
 
 		public static void Twist2(ImageFrame<TPixel> image,int w,int h)
 		{
-			double max = w * 10;
+			double maxmult = 10;
+			double wdiv = 32.0;
+			double vdiv = 10.0;
+
+			double max = w * maxmult;
 			using (var progress = new ProgressBar())
 			{
 				for(int v=1; v<max; v++)
 				{
-					double a = (max - v)*Math.PI/(max/(max-v/32.0))+Math.PI;
-					double x = (w/32.0)*Math.Cos(a)+(v/10.0);
-					double y = (w/32.0)*Math.Sin(a)+(v/10.0);
+					double a = (max - v)*Math.PI/(max/(max-v/wdiv))+Math.PI;
+					double x = (w/wdiv)*Math.Cos(a)+(v/vdiv);
+					double y = (w/wdiv)*Math.Sin(a)+(v/vdiv);
 					int c = GreenFade(v,max);
 					DrawDot(image,(int)x,(int)y,c);
 					progress.Report((double)v/max);
@@ -42,22 +57,28 @@ namespace ImageFunctions.SpearGraphic
 
 		public static void Twist3(ImageFrame<TPixel> image, int w, int h)
 		{
-			double max = w * 9.5; //9,10,11 do different things
-			double s = w/32.0;
-			double o = w/10.0;
-			double t = 12;
+			double maxmult = 9.5;  //9,10,11 do different things
+			double wdiv = 32.0;
+			double vdiv = 10.0;
+			double tnum = 12.0;
+
+			double max = w * maxmult;
+			double s = w/wdiv;
+			double o = w/vdiv;
+
 			using (var progress = new ProgressBar())
 			{
 				for(int v=1; v<max; v++)
 				{
-					double a = (max - v)*Math.PI/(max/(max - v/32.0))+Math.PI;
-					double x = s*Math.Tan(a)+(v/t)+o;
-					double y = s*Math.Sin(a)+(v/t)+o;
+					double add = (v/tnum)+o;
+					double a = (max - v)*Math.PI/(max/(max - v/wdiv))+Math.PI;
+					double x = s*Math.Tan(a)+add;
+					double y = s*Math.Sin(a)+add;
 					int c = GreenFade(v,max);
 					DrawDot(image,(int)x,(int)y,c);
 
-					x = s*Math.Sin(a)+(v/t)+o;
-					y = s*Math.Tan(a)+(v/t)+o;
+					x = s*Math.Sin(a)+add;
+					y = s*Math.Tan(a)+add;
 					DrawDot(image,(int)x,(int)y,c);
 					
 					progress.Report((double)v/max);
