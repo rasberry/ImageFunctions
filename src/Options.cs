@@ -9,7 +9,6 @@ namespace ImageFunctions
 {
 	public static class Options
 	{
-
 		public static void Usage(Activity action = Activity.None)
 		{
 			string text = GetUsageText(action,ShowFullHelp,ShowHelpActions);
@@ -104,7 +103,7 @@ namespace ImageFunctions
 						ShowFullHelp = true;
 					}
 					else {
-						ShowActionHelp = true;
+						ShowHelpActions = true;
 					}
 				}
 				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
@@ -159,7 +158,7 @@ namespace ImageFunctions
 				}
 			}
 
-			if (ShowFullHelp || ShowHelpActions || ShowActionHelp || ShowColorList) {
+			if (ShowFullHelp || ShowHelpActions || ShowColorList) {
 				Usage(Which);
 				return false;
 			}
@@ -180,7 +179,6 @@ namespace ImageFunctions
 
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
-		static bool ShowActionHelp = false;
 		static bool ShowColorList = false;
 		static Rectangle _Rect = Rectangle.Empty;
 	}

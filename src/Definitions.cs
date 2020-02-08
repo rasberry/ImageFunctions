@@ -21,7 +21,8 @@ namespace ImageFunctions
 		PixelRules = 9,
 		ImgDiff = 10,
 		AllColors = 11,
-		SpearGraphic = 12
+		SpearGraphic = 12,
+		ColatzVis = 13
 	}
 
 	public interface IFunction

@@ -224,5 +224,21 @@ namespace ImageFunctions.Helpers
 
 			return (H,S,I);
 		}
+
+		public static void FillWithColor<TPixel>(ImageFrame<TPixel> frame,Rectangle rect,TPixel color)
+			where TPixel : struct, IPixel<TPixel>
+		{
+			var bounds = frame.Bounds();
+			bounds.Intersect(rect);
+			var span = frame.GetPixelSpan();
+
+			//MoreHelpers.ThreadPixels(bounds,4,
+			for(int y=bounds.Top; y<bounds.Bottom; y++) {
+				for(int x=bounds.Left; x<bounds.Right; x++) {
+					int off = y * frame.Width + x;
+					span[off] = color;
+				}
+			}
+		}
 	}
 }

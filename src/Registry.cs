@@ -23,6 +23,7 @@ namespace ImageFunctions
 			case Activity.ImgDiff: return new ImgDiff.Function();
 			case Activity.AllColors: return new AllColors.Function();
 			case Activity.SpearGraphic: return new SpearGraphic.Function();
+			case Activity.ColatzVis: return new ColatzVis.Function();
 			}
 			throw new ArgumentException("E: Unmapped action "+action);
 		}
