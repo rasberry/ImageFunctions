@@ -98,23 +98,6 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		public static int IntCeil(int num, int den)
-		{
-			int floor = num / den;
-			int extra = num % den == 0 ? 0 : 1;
-			return floor + extra;
-		}
-
-		public static double Fractional(this double number)
-		{
-			//return number - Math.Truncate(number); //TODO returns negative numbers - don't know why
-			return Math.Abs(number % 1.0);
-		}
-		public static double Integral(this double number)
-		{
-			return Math.Truncate(number);
-		}
-
 		public static void ParalellSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
 		{
 			var ps = new ParallelSort<T>(array,comp,progress);

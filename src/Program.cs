@@ -12,6 +12,10 @@ namespace ImageFunctions
 				Options.Usage();
 				return;
 			}
+			if (args[0] == "test") {
+				RunTest();
+				return;
+			}
 
 			//parse initial options - determines which action to do
 			if (!Options.Parse(args, out var pruned)) {
@@ -63,6 +67,15 @@ namespace ImageFunctions
 
 			func.MaxDegreeOfParallelism = Options.MaxDegreeOfParallelism;
 			return true;
+		}
+
+		static void RunTest()
+		{
+			for(int i=0; i<=80; i++) {
+				var (x,y) = Helpers.MathHelpers.SpiralSquareToXY(i);
+				var p = Helpers.MathHelpers.XYToSpiralSquare(x,y);
+				Console.WriteLine($"i={i} x={x} y={y} p={p}");
+			}
 		}
 	}
 }
