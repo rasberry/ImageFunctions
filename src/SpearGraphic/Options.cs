@@ -21,5 +21,6 @@ namespace ImageFunctions.SpearGraphic
 	{
 		public Graphic Spear = Graphic.None;
 		public Color BackgroundColor = Color.Transparent;
+		public int? RandomSeed = null;
 	}
 }

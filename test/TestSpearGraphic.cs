@@ -18,15 +18,23 @@ namespace test
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
-		public void SpearGraphic(int index)
+		public void SpearGraphic(int index, double closeness = 0.0)
 		{
-			Helpers.RunTestGenerator(Which, index, this);
+			Func<string,string,bool> func = null;
+			if (closeness > double.Epsilon) {
+				func = (a,b) => {
+					double d = Helpers.ImageDistance(a,b);
+					Console.WriteLine($"{a} vs {b} dist = {d}");
+					return d < closeness;
+				};
+			}
+			Helpers.RunTestGenerator(Which, index, this, func);
 		}
 
 		public static IEnumerable<object[]> GetData()
 		{
 			for(int i=0; i<_CaseCount; i++) {
-				yield return new object[] { i };
+				yield return new object[] { i, GetAccuracy(i) };
 			}
 		}
 		const int _CaseCount = 9;
@@ -44,10 +52,20 @@ namespace test
 			case 4: return new string[] { "-g","Second_Twist3b"};
 			case 5: return new string[] { "-g","Second_Twist3c"};
 			case 6: return new string[] { "-g","Second_Twist4"};
-			case 7: return new string[] { "-g","Third"};
-			case 8: return new string[] { "-g","Fourth"};
+			case 7: return new string[] { "-g","Third","-rs","531"};
+			case 8: return new string[] { "-g","Fourth","-rs","531"};
 			}
 			return null;
+		}
+
+		static double GetAccuracy(int index)
+		{
+			switch(index)
+			{
+			case 7: return 0.01;
+			case 8: return 0.01;
+			}
+			return 0.0;
 		}
 
 		public string GetOutName(int index)

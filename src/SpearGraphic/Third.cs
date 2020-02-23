@@ -9,8 +9,10 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class Third<TPixel> where TPixel : struct, IPixel<TPixel>
 	{
-		public static void Twist1(Image<TPixel> image, int w, int h)
+		public static void Twist1(Image<TPixel> image, int w, int h, int? seed = null)
 		{
+			InitRandom(seed);
+
 			int reps = 100;
 			int margin = 10;
 			DPoint curr = new DPoint(Random(margin,w-margin),Random(margin,h-margin));
@@ -198,23 +200,26 @@ namespace ImageFunctions.SpearGraphic
 			return (E)((object)i);
 		}
 
+		static void InitRandom(int? seed = null)
+		{
+			if (rnd == null) {
+				if (!seed.HasValue) {
+					seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
+				}
+				rnd = new Random(seed.Value);
+			}
+		}
+
 		static Random rnd = null;
 		static int Random(int low, int high)
 		{
-			int seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
-			if (rnd == null) {
-				rnd = new Random(seed);
-			}
+			InitRandom();
 			return rnd.Next(low,high);
 		}
 
 		static double Random(double low, double high)
 		{
-			int seed = (int)(DateTime.Now.Ticks - DateTime.Today.Ticks);
-			if (rnd == null) {
-				rnd = new Random(seed);
-			}
-
+			InitRandom();
 			return rnd.NextDouble() * (high-low) + low;
 		}
 	}

@@ -40,9 +40,9 @@ namespace ImageFunctions.SpearGraphic
 			case Graphic.Second_Twist4:
 				Second<TPixel>.Twist4(img,img.Width,img.Height); break;
 			case Graphic.Third:
-				Third<TPixel>.Twist1(img,img.Width,img.Width); break;
+				Third<TPixel>.Twist1(img,img.Width,img.Width,O.RandomSeed); break;
 			case Graphic.Fourth:
-				Fourth<TPixel>.Draw(img,img.Width,img.Height); break;
+				Fourth<TPixel>.Draw(img,img.Width,img.Height,O.RandomSeed); break;
 			}
 		}
 	}
