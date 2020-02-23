@@ -355,3 +355,4 @@ MigrationBackup/
 *.txt
 *.jpg
 test.sh
+/stuff

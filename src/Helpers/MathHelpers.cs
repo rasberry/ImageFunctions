@@ -60,29 +60,6 @@ namespace ImageFunctions.Helpers
 			//solve([x = p - (t * (t - 1)) / 2, y = ((t - 1)*(t / 2 + 1)) - p],[p,t]);
 			//p1=(y^2+x*(2*y+3)+y+x^2)/2
 
-			///p    x y t x+y p
-			/// 0 - 0 0 1 0    0
-			/// 1 - 0 1 2 1    1
-			/// 2 - 1 0 2 1    2
-			/// 3 - 0 2 3 2    3
-			/// 4 - 1 1 3 2    4
-			/// 5 - 2 0 3 2    5
-			/// 6 - 0 3 4 3    6
-			/// 7 - 1 2 4 3    7
-			/// 8 - 2 1 4 3    8
-			/// 9 - 3 0 4 3    9
-			///10 - 0 4 5 4   10
-			///11 - 1 3 5 4   11
-			///12 - 2 2 5 4   12
-			///13 - 3 1 5 4   13
-			///14 - 4 0 5 4   14
-			///15 - 0 5 6 5   15
-			///16 - 1 4 6 5   16
-			///17 - 2 3 6 5   17
-			///18 - 3 2 6 5   18
-			///19 - 4 1 6 5   19
-			///20 - 5 0 6 5   20
-
 			long pos = (y*y + x*(2*y + 3) + y + x*x)/2;
 			return pos;
 		}
@@ -100,31 +77,34 @@ namespace ImageFunctions.Helpers
 			if (position >= m-t) {
 				var x = k-(m-position);
 				var y = k;
-				return ((int)x,(int)y);
+				return ((int)x+cx,(int)y+cy);
 			}
 			m -= t;
 			if (position >= m-t) {
 				var x = -k;
 				var y = k-(m-position);
-				return ((int)x,(int)y);
+				return ((int)x+cx,(int)y+cy);
 			}
 			m -= t;
 			if (position >= m-t) {
 				var x = -k+(m-position);
 				var y = -k;
-				return ((int)x,(int)y);
+				return ((int)x+cx,(int)y+cy);
 			}
 			else {
 				var x = k;
 				var y = -k+(m-position-t);
-				return ((int)x,(int)y);
+				return ((int)x+cx,(int)y+cy);
 			}
 		}
 
 		public static long XYToSpiralSquare(int x,int y, int cx = 0, int cy = 0)
 		{
-			y = -y;
 			// https://www.reddit.com/r/dailyprogrammer/comments/3ggli3/20150810_challenge_227_easy_square_spirals/
+			x -= cx;
+			y -= cy;
+			
+			y = -y; //original is CW i need CCW
 			if (x >= y) {
 				if (x > -y) {
 					long m = 2*x-1; m *= m;
