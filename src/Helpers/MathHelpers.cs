@@ -51,8 +51,7 @@ namespace ImageFunctions.Helpers
 
 			long t = (long)Math.Floor((1.0 + Math.Sqrt(1.0 + 8.0 * position))/2.0);
 			int x = (int)(position - (t * (t - 1)) / 2);
-			//int y = (int)((t - 1)*(t / 2 + 1) - position); // the t/2 messes up the calc
-			int y = (int)((t * t + t - 2 * position - 2)/2);
+			int y = (int)((t * (t + 1) - 2 * position - 2)/2);
 			return (x,y);
 		}
 
