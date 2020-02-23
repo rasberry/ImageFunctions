@@ -72,8 +72,8 @@ namespace ImageFunctions
 		static void RunTest()
 		{
 			for(int i=0; i<=80; i++) {
-				var (x,y) = Helpers.MathHelpers.SpiralSquareToXY(i);
-				var p = Helpers.MathHelpers.XYToSpiralSquare(x,y);
+				var (x,y) = Helpers.MathHelpers.DiagonalToXY(i);
+				var p = Helpers.MathHelpers.XYToDiagonal(x,y);
 				Console.WriteLine($"i={i} x={x} y={y} p={p}");
 			}
 		}
