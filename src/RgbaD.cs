@@ -4,6 +4,9 @@ using SixLabors.ImageSharp.PixelFormats;
 
 namespace ImageFunctions
 {
+	/// <summary>
+	/// Color Type that uses IEEE 64-bit float to store color values
+	/// </summary>
 	public struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 	{
 		public RgbaD(double r,double g,double b,double a)

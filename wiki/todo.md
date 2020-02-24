@@ -89,3 +89,6 @@
 * breakout Third and Fourth into their own generators
 * add a way to change the default control variable values
 * add support for rectangle option '-#'
+
+## ColatzVis ##
+* not really working well.. need a new visualization

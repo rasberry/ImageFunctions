@@ -22,7 +22,8 @@ namespace ImageFunctions
 		ImgDiff = 10,
 		AllColors = 11,
 		SpearGraphic = 12,
-		ColatzVis = 13
+		ColatzVis = 13,
+		UlamSpiral = 14
 	}
 
 	public interface IFunction

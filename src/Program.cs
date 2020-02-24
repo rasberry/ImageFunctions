@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using SixLabors.Primitives;
 
 namespace ImageFunctions
@@ -71,10 +72,22 @@ namespace ImageFunctions
 
 		static void RunTest()
 		{
-			for(int i=0; i<=80; i++) {
-				var (x,y) = Helpers.MathHelpers.DiagonalToXY(i);
-				var p = Helpers.MathHelpers.XYToDiagonal(x,y);
-				Console.WriteLine($"i={i} x={x} y={y} p={p}");
+			//for(int i=0; i<=80; i++) {
+			//	var (x,y) = Helpers.MathHelpers.DiagonalToXY(i);
+			//	var p = Helpers.MathHelpers.XYToDiagonal(x,y);
+			//	Console.WriteLine($"i={i} x={x} y={y} p={p}");
+			//}
+
+			for(long i=0; i<100; i++) {
+				var sb = new StringBuilder();
+				long n = i;
+				while(true) {
+					long c = UlamSpiral.Primes.IsCompositeWhy(n);
+					sb.Append($" {c}");
+					if (c < 2) { break; }
+					n /= c;
+				}
+				Log.Debug($"i={i} [{sb.ToString()}]");
 			}
 		}
 	}
