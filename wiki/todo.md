@@ -43,6 +43,7 @@
   * option for starting at a different prime
   * option for coloring multiples
   * option for switching direction (ccw vs cw)
+  * try it with XY to diagonal
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
 
