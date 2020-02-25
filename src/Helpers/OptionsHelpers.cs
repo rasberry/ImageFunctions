@@ -6,6 +6,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Linq;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.Helpers
 {
@@ -231,6 +232,35 @@ namespace ImageFunctions.Helpers
 				string pdsc = descriptionMap == null ? "" : descriptionMap(e);
 				sb.AppendLine($"{npad}{pnum}. {pname}{ppad}{pdsc}");
 			}
+		}
+
+		//args = [x,y,]w,h
+		//Note: negative width and height are allowed to allow w,h to be used as a point
+		public static bool TryParseRectangle(string arg, out Rectangle rect)
+		{
+			rect = Rectangle.Empty;
+			if (String.IsNullOrWhiteSpace(arg)) { return false; }
+
+			var parts = arg.Split(new char[] { ',','x' },
+				StringSplitOptions.RemoveEmptyEntries);
+			if (parts.Length != 2 && parts.Length != 4) {
+				//Log.Error("rectangle must contain two or four numbers");
+				return false;
+			}
+			bool isTwo = parts.Length == 2;
+			for(int p=0; p<parts.Length; p++) {
+				if (!int.TryParse(parts[p],out int n)) {
+					//Log.Error("could not parse \""+parts[p]+"\" as a number");
+					return false;
+				}
+				switch(p + (isTwo ? 2 : 0)) {
+				case 0: rect.X = n; break;
+				case 1: rect.Y = n; break;
+				case 2: rect.Width = n; break;
+				case 3: rect.Height = n; break;
+				}
+			}
+			return true;
 		}
 	}
 }

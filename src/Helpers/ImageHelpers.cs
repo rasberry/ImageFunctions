@@ -232,7 +232,6 @@ namespace ImageFunctions.Helpers
 			bounds.Intersect(rect);
 			var span = frame.GetPixelSpan();
 
-			//MoreHelpers.ThreadPixels(bounds,4,
 			for(int y=bounds.Top; y<bounds.Bottom; y++) {
 				for(int x=bounds.Left; x<bounds.Right; x++) {
 					int off = y * frame.Width + x;

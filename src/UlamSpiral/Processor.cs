@@ -18,7 +18,7 @@ namespace ImageFunctions.UlamSpiral
 		{
 			var span = frame.GetPixelSpan();
 			var black = Color.Black.ToPixel<TPixel>();
-			ImageHelpers.FillWithColor(frame,rect,black);
+			ImageHelpers.FillWithColor(frame,rect,O.ColorBack.ToPixel<TPixel>());
 
 			if (O.UseFactorCount) {
 				DrawFactors(frame,rect,config);
@@ -28,13 +28,20 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		static void DrawFactors(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		(int,int) GetCenterXY(ImageFrame<TPixel> frame, Rectangle rect)
 		{
-			int cx = rect.Width / 2;
-			int cy = rect.Height / 2;
+			int cx = (rect.Width / 2) - O.CenterX.GetValueOrDefault(0);
+			int cy = (rect.Height / 2) - O.CenterY.GetValueOrDefault(0);
+			return (cx,cy);
+		}
+
+		void DrawFactors(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		{
+			var (cx,cy) = GetCenterXY(frame,rect);
 			int maxFactor = int.MinValue;
 			object maxLock = new object();
 
+			//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
 			var pb1 = new ProgressBar() { Prefix = "Step 1 " };
 			using (pb1) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
@@ -50,40 +57,33 @@ namespace ImageFunctions.UlamSpiral
 			}
 			//Log.Debug($"maxFactor={maxFactor}");
 
+			var fcolor = O.ColorComposite.ToPixel<TPixel>();
+			var bcolor = O.ColorBack.ToPixel<TPixel>();
 			double factor = 1.0 / maxFactor;
 			var pb2 = new ProgressBar() { Prefix = "Step 2 " };
 			using (pb2) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
 					long num = MathHelpers.XYToSpiralSquare(x,y,cx,cy);
 					int count = Primes.CountFactors(num);
-					frame[x,y] = IncPixel(frame[x,y], count * factor);
+					var color = ImageHelpers.BetweenColor(bcolor,fcolor,count * factor);
+					frame[x,y] = color;
 				},pb2);
 			}
 		}
 
-		static void DrawPrimes(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		void DrawPrimes(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
 		{
-			int cx = rect.Width / 2 + rect.Left;
-			int cy = rect.Height / 2 + rect.Top;
-			var white = Color.White.ToPixel<TPixel>();
+			var color = O.ColorPrime.ToPixel<TPixel>();
+			var (cx,cy) = GetCenterXY(frame,rect);
 			var progress = new ProgressBar();
 			using (progress) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
 					long num = MathHelpers.XYToSpiralSquare(x,y,cx,cy);
 					if (Primes.IsPrime(num)) {
-						frame[x,y] = white;
+						frame[x,y] = color;
 					}
 				},progress);
 			}
-		}
-
-		static TPixel IncPixel(TPixel pixel, double factor)
-		{
-			var rgba = ImageHelpers.ToColor(pixel);
-			rgba.R += factor;
-			rgba.G += factor;
-			rgba.B += factor;
-			return ImageHelpers.FromColor<TPixel>(rgba);
 		}
 	}
 }

@@ -107,26 +107,16 @@ namespace ImageFunctions
 					}
 				}
 				else if ((curr == "-#" || curr == "--rect") && ++a < len) {
-					var parts = args[a].Split(new char[] { ',','x' },
-						StringSplitOptions.RemoveEmptyEntries);
-					if (parts.Length != 2 && parts.Length != 4) {
-						Log.Error("rectangle must contain two or four numbers");
+					if (!OptionsHelpers.TryParseRectangle(args[a],out var rect)) {
+						Log.Error($"invalid rectangle '{args[a]}'");
 						return false;
 					}
-					bool isTwo = parts.Length == 2;
-					for(int p=0; p<parts.Length; p++) {
-						if (!int.TryParse(parts[p],out int n)) {
-							Log.Error("could not parse \""+parts[p]+"\" as a number");
-							return false;
-						}
-						switch(p + (isTwo ? 2 : 0)) {
-						case 0: _Rect.X = n; break;
-						case 1: _Rect.Y = n; break;
-						case 2: _Rect.Width = n; break;
-						case 3: _Rect.Height = n; break;
-						}
+					if (rect.Height < 1 || rect.Width < 1 || rect.X < 0 || rect.Y < 0) {
+						Log.Error($"invalid rectangle '{args[a]}'");
+						return false;
 					}
-					Log.Debug(_Rect.ToString());
+					_Rect = rect;
+					Log.Debug(rect.ToString());
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;
