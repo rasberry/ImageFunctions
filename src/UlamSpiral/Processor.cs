@@ -30,9 +30,27 @@ namespace ImageFunctions.UlamSpiral
 
 		(int,int) GetCenterXY(ImageFrame<TPixel> frame, Rectangle rect)
 		{
-			int cx = (rect.Width / 2) - O.CenterX.GetValueOrDefault(0);
-			int cy = (rect.Height / 2) - O.CenterY.GetValueOrDefault(0);
+			int cx = -O.CenterX.GetValueOrDefault(0);
+			int cy = -O.CenterY.GetValueOrDefault(0);
+			if (O.Mapping == PickMapping.Spiral) {
+				cx = (rect.Width / 2) - cx;
+				cy = (rect.Height / 2) - cy;
+			}
 			return (cx,cy);
+		}
+
+		long MapXY(int x,int y,int cx,int cy, int w = 0)
+		{
+			switch(O.Mapping)
+			{
+			case PickMapping.Linear:
+				return MathHelpers.XYToLinear(x,y,w,cx,cy);
+			case PickMapping.Diagonal:
+				return MathHelpers.XYToDiagonal(x,y,cx,cy);
+			case PickMapping.Spiral:
+				return MathHelpers.XYToSpiralSquare(x,y,cx,cy);
+			}
+			return -1;
 		}
 
 		void DrawFactors(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
@@ -45,7 +63,7 @@ namespace ImageFunctions.UlamSpiral
 			var pb1 = new ProgressBar() { Prefix = "Step 1 " };
 			using (pb1) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
-					long num = MathHelpers.XYToSpiralSquare(x,y,cx,cy);
+					long num = MapXY(x,y,cx,cy,rect.Width);
 					int count = Primes.CountFactors(num);
 					if (count > maxFactor) {
 						//the lock ensures we don't accidentally miss a larger value
@@ -63,7 +81,7 @@ namespace ImageFunctions.UlamSpiral
 			var pb2 = new ProgressBar() { Prefix = "Step 2 " };
 			using (pb2) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
-					long num = MathHelpers.XYToSpiralSquare(x,y,cx,cy);
+					long num = MapXY(x,y,cx,cy,rect.Width);
 					int count = Primes.CountFactors(num);
 					var color = ImageHelpers.BetweenColor(bcolor,fcolor,count * factor);
 					frame[x,y] = color;
@@ -78,7 +96,7 @@ namespace ImageFunctions.UlamSpiral
 			var progress = new ProgressBar();
 			using (progress) {
 				MoreHelpers.ThreadPixels(rect,config.MaxDegreeOfParallelism,(x,y) => {
-					long num = MathHelpers.XYToSpiralSquare(x,y,cx,cy);
+					long num = MapXY(x,y,cx,cy,rect.Width);
 					if (Primes.IsPrime(num)) {
 						frame[x,y] = color;
 					}
