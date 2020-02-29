@@ -62,15 +62,16 @@ namespace ImageFunctions.UlamSpiral
 		//	return count;
 		//}
 
-		public static int CountFactors(long num)
+		public static int CountFactors(long num, int max = int.MaxValue)
 		{
 			int count = 0;
-			while(true) {
+			while(count < max) {
 				long factor = IsCompositeWhy(num);
-				if (factor < 2) { return count; }
+				if (factor < 2) { break; }
 				num /= factor;
 				count++;
 			}
+			return count;
 		}
 
 		static long NextPrime(long num)

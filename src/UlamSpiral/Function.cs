@@ -68,6 +68,28 @@ namespace ImageFunctions.UlamSpiral
 					}
 					O.ColorBack = bg;
 				}
+				else if (curr == "-s" && ++a < len) {
+					if (!OptionsHelpers.TryParse(args[a],out int space)) {
+						Log.Error($"invalid number {args[a]}");
+						return false;
+					}
+					if (space < 1) {
+						Log.Error("spacing must be at least one");
+						return false;
+					}
+					O.Spacing = space;
+				}
+				else if (curr == "-ds" && ++a < len) {
+					if (!OptionsHelpers.ParseNumberPercent(args[a],out double num)) {
+						Log.Error($"Invalid number/percent {args[a]}");
+						return false;
+					}
+					if (num < double.Epsilon) {
+						Log.Error("dot size must be greater than zero");
+						return false;
+					}
+					O.DotSize = num;
+				}
 				else if (OutImage == null) {
 					OutImage = curr;
 				}
@@ -92,6 +114,8 @@ namespace ImageFunctions.UlamSpiral
 			sb.AppendLine(" -f                          Color pixel based on number of divisors");
 			sb.AppendLine(" -c (x,y)                    Center x,y coordinate (default 0,0)");
 			sb.AppendLine(" -m (mapping)                Mapping used to translate x,y into an index number (default spiral)");
+			sb.AppendLine(" -s (number)                 Spacing between points (default 1)");
+			sb.AppendLine(" -ds (number)[%]             Maximum dot size (absolute or relative) (default 100%)");
 			sb.AppendLine(" -cp (color)                 Color of primes (default white)");
 			sb.AppendLine(" -cf (color)                 Color of composites (default white)");
 			sb.AppendLine(" -bg (color)                 Background color (default black)");

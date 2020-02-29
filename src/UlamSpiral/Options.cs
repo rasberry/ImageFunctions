@@ -15,6 +15,8 @@ namespace ImageFunctions.UlamSpiral
 		public bool UseFactorCount = false;
 		public int? CenterX = null;
 		public int? CenterY = null;
+		public int Spacing = 1;
+		public double DotSize = 1.0;
 		public PickMapping Mapping = PickMapping.None;
 		public Color ColorPrime = Color.White;
 		public Color ColorComposite = Color.White;

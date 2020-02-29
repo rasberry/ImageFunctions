@@ -7,6 +7,7 @@
   * is there a need for multiple-in / multiple-out ?
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
+* refactor wiki generator to use msbuild task instead of tests
 
 ## Ideas ##
 * add noise functions
@@ -89,7 +90,5 @@
 * not really working well.. need a new visualization
 
 ## UlamSpiral ##
-* try it with XY to diagonal
-* try it with XY to linear
 * add spacing between x,y points so we can draw dots with size based number of factors
 * add support for color pallete

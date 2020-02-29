@@ -21,6 +21,11 @@ namespace ImageFunctions.Helpers
 			return Math.Truncate(number);
 		}
 
+		public static bool IsCloseTo(this double number, double check, double epsilon = double.Epsilon)
+		{
+			return Math.Abs(number - check) < epsilon;
+		}
+
 		//start: top left
 		//run  : right to left
 		//fill : top to bottom
