@@ -167,14 +167,16 @@ namespace ImageFunctions.UlamSpiral
 
 		long MapXY(int x,int y,int cx,int cy, int w = 0)
 		{
+			x+=1; //offset to correct x coord
+			//these are all 1+ since ulams spiral starts at 1 not 0
 			switch(O.Mapping)
 			{
 			case PickMapping.Linear:
-				return MathHelpers.XYToLinear(x,y,w,cx,cy);
+				return 1 + MathHelpers.XYToLinear(x,y,w,cx,cy);
 			case PickMapping.Diagonal:
-				return MathHelpers.XYToDiagonal(x,y,cx,cy);
+				return 1 + MathHelpers.XYToDiagonal(x,y,cx,cy);
 			case PickMapping.Spiral:
-				return MathHelpers.XYToSpiralSquare(x,y,cx,cy);
+				return 1 + MathHelpers.XYToSpiralSquare(x,y,cx,cy);
 			}
 			return -1;
 		}

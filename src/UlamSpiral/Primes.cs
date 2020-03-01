@@ -7,6 +7,7 @@ namespace ImageFunctions.UlamSpiral
 	{
 		public static bool IsPrime(long num)
 		{
+			if (num < 2) { return false; }
 			return IsCompositeWhy(num) < 2;
 		}
 
