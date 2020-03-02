@@ -29,7 +29,13 @@ namespace ImageFunctions.UlamSpiral
 			{
 				string curr = args[a];
 				if (curr == "-f") {
-					O.UseFactorCount = true;
+					O.ColorComposites = true;
+				}
+				else if (curr == "-6m") {
+					O.ColorPrimesBy6m = true;
+				}
+				else if (curr == "-p") {
+					O.ColorPrimesForce = true;
 				}
 				else if (curr == "-c" && ++a < len) {
 					if (!OptionsHelpers.TryParseRectangle(args[a],out var rect)) {
@@ -47,26 +53,17 @@ namespace ImageFunctions.UlamSpiral
 					}
 					O.Mapping = m;
 				}
-				else if (curr == "-cp" && ++a < len) {
-					if (!OptionsHelpers.TryParseColor(args[a],out Color cp)) {
+				else if ((curr == "-c1" || curr == "-c2" || curr == "-c3" || curr == "-c4") && ++a < len) {
+					if (!OptionsHelpers.TryParseColor(args[a],out Color color)) {
 						Log.Error($"invalid color '{args[a]}'");
 						return false;
 					}
-					O.ColorPrime = cp;
-				}
-				else if (curr == "-cf" && ++a < len) {
-					if (!OptionsHelpers.TryParseColor(args[a],out Color cf)) {
-						Log.Error($"invalid color '{args[a]}'");
-						return false;
+					switch(curr) {
+						case "-c1": O.Color1 = color; break;
+						case "-c2": O.Color2 = color; break;
+						case "-c3": O.Color3 = color; break;
+						case "-c4": O.Color4 = color; break;
 					}
-					O.ColorComposite = cf;
-				}
-				else if (curr == "-bg" && ++a < len) {
-					if (!OptionsHelpers.TryParseColor(args[a],out Color bg)) {
-						Log.Error($"invalid color '{args[a]}'");
-						return false;
-					}
-					O.ColorBack = bg;
 				}
 				else if (curr == "-s" && ++a < len) {
 					if (!OptionsHelpers.TryParse(args[a],out int space)) {
@@ -80,8 +77,8 @@ namespace ImageFunctions.UlamSpiral
 					O.Spacing = space;
 				}
 				else if (curr == "-ds" && ++a < len) {
-					if (!OptionsHelpers.ParseNumberPercent(args[a],out double num)) {
-						Log.Error($"Invalid number/percent {args[a]}");
+					if (!OptionsHelpers.TryParse(args[a],out double num)) {
+						Log.Error($"Invalid number {args[a]}");
 						return false;
 					}
 					if (num < double.Epsilon) {
@@ -95,12 +92,26 @@ namespace ImageFunctions.UlamSpiral
 				}
 			}
 
+			//option defaults
 			if (String.IsNullOrEmpty(OutImage)) {
 				OutImage = OptionsHelpers.CreateOutputFileName(nameof(UlamSpiral));
 			}
 			if (O.Mapping == PickMapping.None) {
 				O.Mapping = PickMapping.Spiral;
 			}
+			if (O.ColorPrimesBy6m && O.ColorPrimesForce) {
+				O.ColorPrimesForce = false; //this is redundant when using -6m so turn it off
+			}
+
+			if (O.ColorPrimesBy6m) {
+				if (!O.Color2.HasValue) { O.Color2 = Color.LimeGreen; }
+				if (!O.Color4.HasValue) { O.Color4 = Color.IndianRed; }
+			}
+			if (O.ColorComposites) {
+				if (!O.Color3.HasValue) { O.Color3 = Color.White; }
+			}
+			if (!O.Color1.HasValue) { O.Color1 = Color.Black; }
+			if (!O.Color2.HasValue) { O.Color2 = Color.White; }
 
 			return true;
 		}
@@ -111,14 +122,19 @@ namespace ImageFunctions.UlamSpiral
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] [output image]");
 			sb.AppendLine(" Creates an Ulam spiral graphic ");
-			sb.AppendLine(" -f                          Color pixel based on number of divisors");
+			sb.AppendLine(" -p                          Color pixel if prime (true if -f not specified)");
+			sb.AppendLine(" -f                          Color pixel based on number of divisors; dot size is proportional to divisor count");
+			sb.AppendLine(" -6m                         Color primes depending on if they are 6*m+1 or 6*m-1");
 			sb.AppendLine(" -c (x,y)                    Center x,y coordinate (default 0,0)");
 			sb.AppendLine(" -m (mapping)                Mapping used to translate x,y into an index number (default spiral)");
 			sb.AppendLine(" -s (number)                 Spacing between points (default 1)");
-			sb.AppendLine(" -ds (number)[%]             Maximum dot size (absolute or relative) (default 100%)");
-			sb.AppendLine(" -cp (color)                 Color of primes (default white)");
-			sb.AppendLine(" -cf (color)                 Color of composites (default white)");
-			sb.AppendLine(" -bg (color)                 Background color (default black)");
+			sb.AppendLine(" -ds (number)                Maximum dot size in pixels; partials allowed (default 1.0)");
+			sb.AppendLine(" -c(1,2,3,4) (color)         Colors to be used depending on mode. (setting any of the colors is optional)");
+			sb.AppendLine();
+			sb.AppendLine(" Color Mappings");
+			sb.AppendLine(" default: c1=background  c2=primes");
+			sb.AppendLine(" -f     : c1=background  c2=primes  c3=composites");
+			sb.AppendLine(" -6m    : c1=background  c2=6m-1    c3=composites  c4=6m+1");
 			sb.AppendLine();
 			sb.AppendLine(" Available Mappings:");
 			OptionsHelpers.PrintEnum<PickMapping>(sb,true,MappingDesc,null);

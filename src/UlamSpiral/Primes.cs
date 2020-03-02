@@ -11,57 +11,29 @@ namespace ImageFunctions.UlamSpiral
 			return IsCompositeWhy(num) < 2;
 		}
 
+		// returns first factor that makes a number non-prime or 1 if it is prime
 		public static long IsCompositeWhy(long num)
 		{
 			if (num < 2) { return 1; }
-			int i = IndexOf(num);
+			int i = IndexOf(num); //is it a known prime?
 			if (i >= 0) { return 1; }
 
+			//does it divide a known prime?
 			long sqrt = (long)Math.Sqrt(num);
 			foreach(long p in FirstPrimes) {
 				if (p > sqrt) { break; }
 				if (num % p == 0) { return p; }
 			}
 
+			//keep looking through all the odds above the last known prime
 			long test = FirstPrimes[FirstPrimes.Length - 1];
 			while(test <= sqrt) {
+				//note: this might return non-prime factors, but not sure
 				if (num % test == 0) { return test; }
 				test += 2;
 			}
-			return 1;
+			return 1; //if we've reached here the number is prime
 		}
-
-		//slow version
-		//public static int CountFactors(long num)
-		//{
-		//	long sqrt = (long)Math.Sqrt(num);
-		//	long next = 2;
-		//	int count = 0;
-		//	while(next <= sqrt) {
-		//		if (num % next == 0) { count++; }
-		//		next = NextPrime(next);
-		//	}
-		//	return count;
-		//}
-
-		//a little faster
-		//public static int CountFactors(long num)
-		//{
-		//	long sqrt = (long)Math.Sqrt(num);
-		//	int count = 0;
-		//
-		//	foreach(long p in FirstPrimes) {
-		//		if (p > sqrt) { break; }
-		//		if (num % p == 0) { count++; }
-		//	}
-		//
-		//	long next = FirstPrimes[FirstPrimes.Length - 1];
-		//	while(next <= sqrt) {
-		//		if (num % next == 0) { count++; }
-		//		next += 2;
-		//	}
-		//	return count;
-		//}
 
 		public static int CountFactors(long num, int max = int.MaxValue)
 		{
@@ -75,6 +47,15 @@ namespace ImageFunctions.UlamSpiral
 			return count;
 		}
 
+		//returns if prime is 6m-1 or 6m+1 or neither
+		public static (bool,bool) IsPrime6m(long num)
+		{
+			if (num < 5) { return (false,false); }
+			bool isp1 = (num + 1) % 6 == 0;
+			bool ism1 = (num - 1) % 6 == 0;
+			return (ism1,isp1);
+		}
+
 		static long NextPrime(long num)
 		{
 			num += (num % 2 == 0 ? 1 : 2);
@@ -82,11 +63,6 @@ namespace ImageFunctions.UlamSpiral
 				if (IsPrime(num)) { return num; }
 				num += 2;
 			}
-		}
-
-		static bool FirstContains(long num)
-		{
-			return IndexOf(num) >= 0;
 		}
 
 		static int IndexOf(long num)
