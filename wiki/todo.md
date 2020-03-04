@@ -90,7 +90,5 @@
 * not really working well.. need a new visualization
 
 ## UlamSpiral ##
-* add spacing between x,y points so we can draw dots with size based number of factors
 * add support for color pallete
 * add option to invert dot size - dot size for primes is max, and smallest for many divisors
-* add option to switch between sphere and disk dots
