@@ -29,6 +29,7 @@ namespace test
 			case Activity.ImgDiff: return new TestImgDiff();
 			case Activity.AllColors: return new TestAllColors();
 			case Activity.SpearGraphic: return new TestSpearGraphic();
+			case Activity.UlamSpiral: return new TestUlamSpiral();
 			}
 			return null;
 		}

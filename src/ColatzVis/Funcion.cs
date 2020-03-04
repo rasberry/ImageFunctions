@@ -45,6 +45,8 @@ namespace ImageFunctions.ColatzVis
 
 		public override void Usage(StringBuilder sb)
 		{
+			return; //TODO disabled for now
+			
 			string name = OptionsHelpers.FunctionName(Activity.ColatzVis);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] [output image]");
