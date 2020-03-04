@@ -28,6 +28,9 @@ namespace ImageFunctions.UlamSpiral
 			var (cx, cy) = GetCenterXY(srect);
 			bool drawSlow = O.DotSize > O.Spacing;
 			var list = new List<(int,int,int)>();
+			bool drawPrimes = O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m);
+			bool drawComp = O.ColorComposites;
+			double primeFactor = O.ColorComposites ? 0.0 : 1.0;
 
 			//using a closure is not my favorite way of dong this,
 			// but easier than passing tons of argments to a function
@@ -51,12 +54,12 @@ namespace ImageFunctions.UlamSpiral
 					var color = GetColor(PickColor.Back);
 					if (ism1) { color = GetColor(PickColor.Prime); }
 					if (isp1) { color = GetColor(PickColor.Prime2); }
-					drawFunc(frame, x, y, color, 1.0);
+					drawFunc(frame, x, y, color, primeFactor);
 				}
-				if (O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m)) {
+				if (drawPrimes) {
 					if (!Primes.IsPrime(num)) { return; }
 					var color = GetColor(PickColor.Prime);
-					drawFunc(frame, x, y, color, 1.0);
+					drawFunc(frame, x, y, color, primeFactor);
 				}
 			};
 
@@ -96,37 +99,6 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		#if false
-		void DrawFast(ImageFrame<TPixel> frame, Configuration config, Rectangle srect, double factor, ProgressBar pb2)
-		{
-			var bcolor = GetColor(1);
-			var fcolor = GetColor(2);
-			var drawFunc = GetDrawFunc();
-			var (cx, cy) = GetCenterXY(srect);
-			bool drawSlow = O.DotSize > O.Spacing;
-
-			MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) => {
-				long num = MapXY(x, y, cx, cy, srect.Width);
-				if (O.ColorComposites) {
-					int count = Primes.CountFactors(num);
-					var color = ImageHelpers.BetweenColor(GetColor(1), GetColor(3), count * factor);
-					drawFunc(frame, x, y, color, count * factor);
-				}
-				if (O.ColorPrimesBy6m) {
-					var (ism1,isp1) = Primes.IsPrime6m(num);
-					var color = GetColor(1);
-					if (ism1) { color = GetColor(2); }
-					if (isp1) { color = GetColor(4); }
-					drawFunc(frame,x,y,color,1.0);
-				}
-				if (O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m)) {
-					var color = GetColor(2);
-					drawFunc(frame,x,y,color,1.0);
-				}
-			}, pb2);
-		}
-		#endif
-
 		int FindMaxFactor(Rectangle srect, Configuration config)
 		{
 			//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
@@ -152,96 +124,6 @@ namespace ImageFunctions.UlamSpiral
 			}
 			return maxFactor;
 		}
-
-		#if false
-		void DrawFactors(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
-		{
-			var srect = GetSpacedRectangle(rect);
-			var (cx, cy) = GetCenterXY(srect);
-			int maxFactor = FindMaxFactor(rect,config);
-			//Log.Debug($"maxFactor={maxFactor}");
-
-			double factor = 1.0 / maxFactor;
-			var drawFunc = GetDrawFunc();
-			//int maxThreads = O.DotSize > O.Spacing ? 1 : config.MaxDegreeOfParallelism;
-
-			var pb2 = new ProgressBar() { Prefix = "Step 2 " };
-			using(pb2) {
-				if (O.DotSize > O.Spacing) {
-					DrawFactorsSlow(frame, config, srect, cx, cy, factor, drawFunc, pb2);
-				}
-				else {
-					DrawFactorsFast(frame, config, srect, cx, cy, factor, drawFunc, pb2);
-				}
-			}
-		}
-
-		void DrawFactorsFast(ImageFrame<TPixel> frame, Configuration config, Rectangle srect, int cx, int cy, double factor, Action<ImageFrame<TPixel>, int, int, TPixel, double> drawFunc, ProgressBar pb2)
-		{
-			var bcolor = GetColor(1);
-			var fcolor = GetColor(2);
-			MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) =>
-			{
-				long num = MapXY(x, y, cx, cy, srect.Width);
-				int count = Primes.CountFactors(num);
-				var color = ImageHelpers.BetweenColor(bcolor, fcolor, count * factor);
-				drawFunc(frame, x, y, color, count * factor);
-			}, pb2);
-		}
-
-		void DrawFactorsSlow(ImageFrame<TPixel> frame, Configuration config, Rectangle srect, int cx, int cy, double factor, Action<ImageFrame<TPixel>, int, int, TPixel, double> drawFunc, ProgressBar pb2)
-		{
-			int s = O.Spacing;
-			var list = new List<(int,int,int)>();
-			double pbmax = srect.Width * srect.Height;
-			var bcolor = GetColor(1);
-			var fcolor = GetColor(2);
-
-			double pbcount = 0;
-			for(int y = srect.Top; y < srect.Bottom; y++) {
-				for(int x = srect.Left; x < srect.Right; x++) {
-					long num = MapXY(x, y, cx, cy, srect.Width);
-					int count = Primes.CountFactors(num);
-					if (count > s) {
-						list.Add((count,x,y));
-					}
-					else {
-						var color = ImageHelpers.BetweenColor(bcolor, fcolor, count * factor);
-						drawFunc(frame, x, y, color, count * factor);
-						pb2.Report(++pbcount/pbmax);
-					}
-				}
-			}
-
-			//Log.Debug($"leftover count: {list.Count}");
-			list.Sort((a,b) => a.Item1 - b.Item1);
-
-			foreach(var item in list) {
-				var (count,x,y) = item;
-				var color = ImageHelpers.BetweenColor(bcolor, fcolor, count * factor);
-				drawFunc(frame, x, y, color, count * factor);
-				pb2.Report(++pbcount/pbmax);
-			}
-		}
-
-		void DrawPrimes(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
-		{
-			var srect = GetSpacedRectangle(rect);
-			var color = GetColor(2);
-			var (cx,cy) = GetCenterXY(srect);
-			var drawFunc = GetDrawFunc();
-			int maxThreads = O.DotSize > O.Spacing ? 1 : config.MaxDegreeOfParallelism;
-
-			using (var progress = new ProgressBar()) {
-				MoreHelpers.ThreadPixels(srect,maxThreads,(x,y) => {
-					long num = MapXY(x,y,cx,cy,srect.Width);
-					if (Primes.IsPrime(num)) {
-						drawFunc(frame,x,y,color,1.0);
-					}
-				},progress);
-			}
-		}
-		#endif
 
 		(int,int) GetCenterXY(Rectangle rect)
 		{
@@ -294,22 +176,19 @@ namespace ImageFunctions.UlamSpiral
 		void DrawDotPixel(ImageFrame<TPixel> frame, int x, int y, TPixel color, double factor)
 		{
 			int s = O.Spacing;
+			//scale up with spacing and center so we get a nice border
 			x = x * s + s/2; y = y * s + s/2;
 			frame[x,y] = color;
 		}
 
-		//static TPixel _black = Color.Black.ToPixel<TPixel>();
-		//static TPixel _white = Color.White.ToPixel<TPixel>();
 		void DrawDotSpere(ImageFrame<TPixel> frame, int x, int y, TPixel color, double factor)
 		{
 			int s = O.Spacing;
 			double d = O.DotSize * Math.Pow(factor,2);
+			//scale up with spacing and center so we get a nice border
 			x = x * s + s/2; y = y * s + s/2;
 
 			if (d <= 1.0) {
-				//var ec = frame[x,y];
-				//if (IsBigger(color,ec)) { frame[x,y] = color; }
-				//var c = ImageHelpers.BetweenColor(color,ec,ratio);
 				frame[x,y] = color;
 				return;
 			}
@@ -320,29 +199,27 @@ namespace ImageFunctions.UlamSpiral
 			for(int dy = r.Top; dy < r.Bottom; dy++) {
 				for(int dx = r.Left; dx < r.Right; dx++) {
 					if (!bounds.Contains(dx,dy)) { continue; }
-					//TODO add option to switch between sphere and disk
-					double ratio = MetricHelpers.DistanceEuclidean(dx,dy,x,y) * 2.0 / d;
-					if (ratio > 0.9) { continue; }
-					//var ec = frame[dx,dy];
-					//var c = ImageHelpers.BetweenColor(color,ec,ratio);
-					var c = color;
-					//if (IsBigger(c,ec)) { frame[dx,dy] = c; }
-					frame[dx,dy] = c;
+
+					switch(O.WhichDot) {
+						case PickDot.Square: {
+							frame[dx,dy] = color;
+							break;
+						}
+						case PickDot.Circle: {
+							double dist = MetricHelpers.DistanceEuclidean(dx,dy,x,y);
+							if (dist <= d2) { frame[dx,dy] = color; }
+							break;
+						}
+						case PickDot.Blob: {
+							double ratio = MetricHelpers.DistanceEuclidean(dx,dy,x,y) * 2.0 / d;
+							var ec = frame[dx,dy];
+							var c = ImageHelpers.BetweenColor(color,ec,ratio);
+							frame[dx,dy] = c;
+							break;
+						}
+					}
 				}
 			}
-		}
-
-		static ColorSpaceConverter ColorConverter = new ColorSpaceConverter();
-		bool IsBigger(TPixel a, TPixel b)
-		{
-			Rgba32 ra = default(Rgba32);
-			a.ToRgba32(ref ra);
-			Rgba32 rb = default(Rgba32);
-			b.ToRgba32(ref rb);
-
-			var ha = ColorConverter.ToHsl(ra);
-			var hb = ColorConverter.ToHsl(rb);
-			return ha.L > hb.L;
 		}
 
 		static TPixel[] c_color = new TPixel[4];

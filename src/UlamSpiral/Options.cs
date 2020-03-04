@@ -18,6 +18,13 @@ namespace ImageFunctions.UlamSpiral
 		Prime2 = 4
 	}
 
+	public enum PickDot {
+		None = 0,
+		Blob = 1,
+		Circle = 2,
+		Square = 3
+	}
+
 	public class Options
 	{
 		public bool ColorComposites = false;
@@ -27,6 +34,7 @@ namespace ImageFunctions.UlamSpiral
 		public int? CenterY = null;
 		public int Spacing = 1;
 		public double DotSize = 1.0;
+		public PickDot WhichDot = PickDot.None;
 		public PickMapping Mapping = PickMapping.None;
 		public Color? Color1 = null;
 		public Color? Color2 = null;

@@ -87,6 +87,13 @@ namespace ImageFunctions.UlamSpiral
 					}
 					O.DotSize = num;
 				}
+				else if (curr == "-dt" && ++a < len) {
+					if (!OptionsHelpers.TryParse(args[a],out PickDot dot)) {
+						Log.Error($"invalid dot type {args[a]}");
+						return false;
+					}
+					O.WhichDot = dot;
+				}
 				else if (OutImage == null) {
 					OutImage = curr;
 				}
@@ -99,10 +106,12 @@ namespace ImageFunctions.UlamSpiral
 			if (O.Mapping == PickMapping.None) {
 				O.Mapping = PickMapping.Spiral;
 			}
+			if (O.WhichDot == PickDot.None) {
+				O.WhichDot = PickDot.Circle;
+			}
 			if (O.ColorPrimesBy6m && O.ColorPrimesForce) {
 				O.ColorPrimesForce = false; //this is redundant when using -6m so turn it off
 			}
-
 			if (O.ColorPrimesBy6m) {
 				if (!O.Color2.HasValue) { O.Color2 = Color.LimeGreen; }
 				if (!O.Color4.HasValue) { O.Color4 = Color.IndianRed; }
@@ -128,7 +137,8 @@ namespace ImageFunctions.UlamSpiral
 			sb.AppendLine(" -c (x,y)                    Center x,y coordinate (default 0,0)");
 			sb.AppendLine(" -m (mapping)                Mapping used to translate x,y into an index number (default spiral)");
 			sb.AppendLine(" -s (number)                 Spacing between points (default 1)");
-			sb.AppendLine(" -ds (number)                Maximum dot size in pixels; partials allowed (default 1.0)");
+			sb.AppendLine(" -ds (number)                Maximum dot size in pixels; decimals allowed (default 1.0)");
+			sb.AppendLine(" -dt (dot type)              Dot used for drawing (default circle)");
 			sb.AppendLine(" -c(1,2,3,4) (color)         Colors to be used depending on mode. (setting any of the colors is optional)");
 			sb.AppendLine();
 			sb.AppendLine(" Color Mappings");
@@ -137,16 +147,30 @@ namespace ImageFunctions.UlamSpiral
 			sb.AppendLine(" -6m    : c1=background  c2=6m-1    c3=composites  c4=6m+1");
 			sb.AppendLine();
 			sb.AppendLine(" Available Mappings:");
-			OptionsHelpers.PrintEnum<PickMapping>(sb,true,MappingDesc,null);
+			OptionsHelpers.PrintEnum<PickMapping>(sb,true,DescMapping,null);
+			sb.AppendLine();
+			sb.AppendLine(" Available Dot Types:");
+			OptionsHelpers.PrintEnum<PickDot>(sb,true,DescDotType,null);
 		}
 
-		static string MappingDesc(PickMapping m)
+		static string DescMapping(PickMapping m)
 		{
 			switch(m)
 			{
 			case PickMapping.Diagonal: return "Diagonal winding from top left";
 			case PickMapping.Linear:   return "Linear mapping left to right, top to bottom";
 			case PickMapping.Spiral:   return "Spiral mapping inside to outside";
+			}
+			return "";
+		}
+
+		static string DescDotType(PickDot m)
+		{
+			switch(m)
+			{
+			case PickDot.Blob:   return "Draws a spherical fading dot";
+			case PickDot.Circle: return "Draws a regular circle";
+			case PickDot.Square: return "Draws a regular square";
 			}
 			return "";
 		}
