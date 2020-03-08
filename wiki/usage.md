@@ -134,6 +134,7 @@ Usage ImageFunctions (action) [options]
  Creates a spear graphic
  -g (name)                   Choose which graphic to create
  -bg (color)                 Change Background color (default transparent)
+ -rs (number)                Random Int32 seed value (defaults to system picked)
 
  Available Graphics
  1. First_Twist1            
@@ -145,6 +146,33 @@ Usage ImageFunctions (action) [options]
  7. Second_Twist4           
  8. Third                   
  9. Fourth                  
+
+14. UlamSpiral [options] [output image]
+ Creates an Ulam spiral graphic 
+ -p                          Color pixel if prime (true if -f not specified)
+ -f                          Color pixel based on number of divisors; dot size is proportional to divisor count
+ -6m                         Color primes depending on if they are 6*m+1 or 6*m-1
+ -c (x,y)                    Center x,y coordinate (default 0,0)
+ -m (mapping)                Mapping used to translate x,y into an index number (default spiral)
+ -s (number)                 Spacing between points (default 1)
+ -ds (number)                Maximum dot size in pixels; decimals allowed (default 1.0)
+ -dt (dot type)              Dot used for drawing (default circle)
+ -c(1,2,3,4) (color)         Colors to be used depending on mode. (setting any of the colors is optional)
+
+ Color Mappings
+ default: c1=background  c2=primes
+ -f     : c1=background  c2=primes  c3=composites
+ -6m    : c1=background  c2=6m-1    c3=composites  c4=6m+1
+
+ Available Mappings:
+ 1. Linear                  Linear mapping left to right, top to bottom
+ 2. Diagonal                Diagonal winding from top left
+ 3. Spiral                  Spiral mapping inside to outside
+
+ Available Dot Types:
+ 1. Blob                    Draws a spherical fading dot
+ 2. Circle                  Draws a regular circle
+ 3. Square                  Draws a regular square
 
 Available Samplers:
  1. NearestNeighbor           

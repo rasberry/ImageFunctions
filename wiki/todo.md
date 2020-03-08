@@ -7,6 +7,7 @@
   * is there a need for multiple-in / multiple-out ?
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
+* refactor wiki generator to use msbuild task instead of tests
 
 ## Ideas ##
 * add noise functions
@@ -19,11 +20,20 @@
       1. add gradients
       1. save border points for next area
       1. repeat
-* maybe do a tree ring expanding from random cener points
-  * for each pixel
-  * find nearest starting point (trie?) - dotnet add package KdTree
-  * calculate distance to point
-  * color pixel based on distance
+* distance map
+  * maybe do a tree ring expanding from random cener points
+    * for each pixel
+    * find nearest starting point (trie?) - dotnet add package KdTree
+    * calculate distance to point
+    * color pixel based on distance
+  * create distance map - foreach pixel - find nearest prime by spiraling from coordinate; calc distance; draw color based on distance
+    * probably should use kd-tree or trie to find closest neighbor
+    * have pre-defined point layouts
+      * ulam spiral primes
+      * random
+      * evenly spaced grid
+      * any number sequesnce from https://oeis.org/ - plot in a spiral ?
+    * allow csv, or external points list to be passed in
 * take a look at https://en.wikipedia.org/wiki/Rose_(mathematics)
   * https://en.wikipedia.org/wiki/Spirograph
   * https://en.wikipedia.org/wiki/Maurer_rose
@@ -38,11 +48,6 @@
   * plot result of x^2 + y^2 distance from whole number
   * add option to change exponent (2 is the only one that has answers to x^2+y^2=z^2)
   * add option to change starting point
-* ulam spiral
-  * https://en.wikipedia.org/wiki/Ulam_spiral
-  * option for starting at a different prime
-  * option for coloring multiples
-  * option for switching direction (ccw vs cw)
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
 
@@ -55,12 +60,6 @@
 * add a mode where borders inside of boxes are added
   * border color options [average, original, user specified color]
   * fill options [average, original, user specified color]
-  * need to come up with color input parser
-    * rgb 0-255    : "127,63,255"
-    * rgb decimals : "0.5,0.25,1.0"
-    * rgb percent  : "50%,25%,100%"
-    * rgb Hex      : "#7F3FFF"
-    * other color spaces ?
   * maybe include option to specify which boders to render ? (nesw) or (trbl)
 
 ## Derivatives ##
@@ -89,3 +88,11 @@
 * breakout Third and Fourth into their own generators
 * add a way to change the default control variable values
 * add support for rectangle option '-#'
+
+## ColatzVis ##
+* not really working well.. need a new visualization
+
+## UlamSpiral ##
+* add support for color pallete
+  * see https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
+

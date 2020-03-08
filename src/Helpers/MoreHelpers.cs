@@ -41,6 +41,7 @@ namespace ImageFunctions.Helpers
 		{
 			long done = 0;
 			long max = (long)rect.Width * rect.Height;
+			//Log.Debug("r = "+rect.ToString()+" );
 			var po = new ParallelOptions {
 				MaxDegreeOfParallelism = maxThreads
 			};

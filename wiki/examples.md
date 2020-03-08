@@ -13,3 +13,5 @@ Examples are categorized by Action
 * [ImgDiff](ex_imgdiff)
 * [AllColors](ex_allcolors)
 * [SpearGraphic](ex_speargraphic)
+* [ColatzVis](ex_colatzvis)
+* [UlamSpiral](ex_ulamspiral)

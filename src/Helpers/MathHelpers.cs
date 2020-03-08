@@ -21,25 +21,31 @@ namespace ImageFunctions.Helpers
 			return Math.Truncate(number);
 		}
 
+		public static bool IsCloseTo(this double number, double check, double epsilon = double.Epsilon)
+		{
+			return Math.Abs(number - check) < epsilon;
+		}
+
 		//start: top left
 		//run  : right to left
 		//fill : top to bottom
-		public static (int,int) LinearToXY(long position, int width)
+		public static (int,int) LinearToXY(long position, int width, int cx = 0, int cy = 0)
 		{
 			int y = (int)(position / width);
 			int x = (int)(position % width);
-			return (x,y);
+			return (x + cx,y + cy);
 		}
 
-		public static long XYToLinear(int x, int y, int width)
+		public static long XYToLinear(int x, int y, int width, int cx = 0, int cy = 0)
 		{
+			x -= cx; y -= cy;
 			return (long)y * width + x;
 		}
 
 		//start: top left
 		//run  : diagonal right + up
 		//fill : top left to bottom right
-		public static (int,int) DiagonalToXY(long position)
+		public static (int,int) DiagonalToXY(long position, int cx = 0, int cy = 0)
 		{
 			if (position < 0) {
 				throw new ArgumentOutOfRangeException("position must be positive");
@@ -52,14 +58,15 @@ namespace ImageFunctions.Helpers
 			long t = (long)Math.Floor((1.0 + Math.Sqrt(1.0 + 8.0 * position))/2.0);
 			int x = (int)(position - (t * (t - 1)) / 2);
 			int y = (int)((t * (t + 1) - 2 * position - 2)/2);
-			return (x,y);
+			return (x + cx,y + cy);
 		}
 
-		public static long XYToDiagonal(int x, int y)
+		public static long XYToDiagonal(int x, int y, int cx = 0, int cy = 0)
 		{
 			//solve([x = p - (t * (t - 1)) / 2, y = ((t - 1)*(t / 2 + 1)) - p],[p,t]);
 			//p1=(y^2+x*(2*y+3)+y+x^2)/2
 
+			x -= cx; y -= cy;
 			long pos = (y*y + x*(2*y + 3) + y + x*x)/2;
 			return pos;
 		}
