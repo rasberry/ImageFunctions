@@ -48,6 +48,10 @@
   * plot result of x^2 + y^2 distance from whole number
   * add option to change exponent (2 is the only one that has answers to x^2+y^2=z^2)
   * add option to change starting point
+* ulam spiral
+  * option for starting at a different prime
+  * option for coloring multiples
+  * option for switching direction (ccw vs cw)
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
 
