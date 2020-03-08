@@ -20,11 +20,20 @@
       1. add gradients
       1. save border points for next area
       1. repeat
-* maybe do a tree ring expanding from random cener points
-  * for each pixel
-  * find nearest starting point (trie?) - dotnet add package KdTree
-  * calculate distance to point
-  * color pixel based on distance
+* distance map
+  * maybe do a tree ring expanding from random cener points
+    * for each pixel
+    * find nearest starting point (trie?) - dotnet add package KdTree
+    * calculate distance to point
+    * color pixel based on distance
+  * create distance map - foreach pixel - find nearest prime by spiraling from coordinate; calc distance; draw color based on distance
+    * probably should use kd-tree or trie to find closest neighbor
+    * have pre-defined point layouts
+      * ulam spiral primes
+      * random
+      * evenly spaced grid
+      * any number sequesnce from https://oeis.org/ - plot in a spiral ?
+    * allow csv, or external points list to be passed in
 * take a look at https://en.wikipedia.org/wiki/Rose_(mathematics)
   * https://en.wikipedia.org/wiki/Spirograph
   * https://en.wikipedia.org/wiki/Maurer_rose
@@ -86,5 +95,3 @@
 ## UlamSpiral ##
 * add support for color pallete
 * add option to invert dot size - dot size for primes is max, and smallest for many divisors
-* create distance map - foreach pixel - find nearest prime by spiraling from coordinate; calc distance; draw color based on distance
-
