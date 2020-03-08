@@ -47,6 +47,7 @@ namespace ImageFunctions.ColatzVis
 		{
 			return; //TODO disabled for now
 			
+			#if false
 			string name = OptionsHelpers.FunctionName(Activity.ColatzVis);
 			sb.AppendLine();
 			sb.AppendLine(name + " [options] [output image]");
@@ -54,6 +55,7 @@ namespace ImageFunctions.ColatzVis
 			//sb.AppendLine(" -g (name)                   Choose which graphic to create");
 			//sb.AppendLine(" -bg (color)                 Change Background color (default transparent)");
 			sb.AppendLine();
+			#endif
 		}
 
 		public override void Main()
