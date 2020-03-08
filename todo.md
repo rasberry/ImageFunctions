@@ -94,4 +94,5 @@
 
 ## UlamSpiral ##
 * add support for color pallete
-* add option to invert dot size - dot size for primes is max, and smallest for many divisors
+  * see https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
+
