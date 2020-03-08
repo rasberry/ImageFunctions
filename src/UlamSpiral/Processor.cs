@@ -26,10 +26,9 @@ namespace ImageFunctions.UlamSpiral
 			double factor = 1.0 / maxFactor;
 			var drawFunc = GetDrawFunc();
 			var (cx, cy) = GetCenterXY(srect);
-			bool drawSlow = O.DotSize > O.Spacing;
-			var list = new List<(int,int,int)>();
+			bool drawSlow = O.DotSize > O.Spacing; //turn off multithreading since threads might overlap
+			var list = new List<(int,int,int)>(); //used to order dots by size
 			bool drawPrimes = O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m);
-			bool drawComp = O.ColorComposites;
 			double primeFactor = O.ColorComposites ? 0.0 : 1.0;
 
 			//using a closure is not my favorite way of dong this,
@@ -42,22 +41,21 @@ namespace ImageFunctions.UlamSpiral
 						list.Add((count,x,y));
 					}
 					else {
-						var bg = GetColor(PickColor.Back);
-						var fg = GetColor(PickColor.Comp);
-						var color = ImageHelpers.BetweenColor(bg, fg, count * factor);
-						drawFunc(frame, x, y, color, count * factor);
+						DrawComposite(frame, count * factor, x, y, drawFunc);
 					}
 				}
+				//the next modes require the number to be prime
+				if (!Primes.IsPrime(num)) { return; }
+
 				if (O.ColorPrimesBy6m) {
-					if (!Primes.IsPrime(num)) { return; }
 					var (ism1,isp1) = Primes.IsPrime6m(num);
 					var color = GetColor(PickColor.Back);
 					if (ism1) { color = GetColor(PickColor.Prime); }
 					if (isp1) { color = GetColor(PickColor.Prime2); }
 					drawFunc(frame, x, y, color, primeFactor);
 				}
-				if (drawPrimes) {
-					if (!Primes.IsPrime(num)) { return; }
+				//only one prime coloring mode is allowed
+				else if (drawPrimes) {
 					var color = GetColor(PickColor.Prime);
 					drawFunc(frame, x, y, color, primeFactor);
 				}
@@ -82,12 +80,9 @@ namespace ImageFunctions.UlamSpiral
 						list.Sort((a,b) => a.Item1 - b.Item1);
 
 						foreach(var item in list) {
-							var (count,x,y) = item;
-							var bg = GetColor(PickColor.Back);
-							var fg = GetColor(PickColor.Comp);
-							var color = ImageHelpers.BetweenColor(bg, fg, count * factor);
-							drawFunc(frame, x, y, color, count * factor);
-							pb2.Report(++pbcount/pbmax);
+							var (count, x, y) = item;
+							DrawComposite(frame, count * factor, x, y, drawFunc);
+							pb2.Report(++pbcount / pbmax);
 						}
 					}
 				}
@@ -99,6 +94,15 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
+		//a little messy, but didn't want the same code in two places
+		void DrawComposite(ImageFrame<TPixel> frame, double amount, int x, int y, Action<ImageFrame<TPixel>, int, int, TPixel, double> drawFunc)
+		{
+			var bg = GetColor(PickColor.Back);
+			var fg = GetColor(PickColor.Comp);
+			var color = ImageHelpers.BetweenColor(bg, fg, amount);
+			drawFunc(frame, x, y, color, amount);
+		}
+
 		int FindMaxFactor(Rectangle srect, Configuration config)
 		{
 			//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
@@ -107,14 +111,11 @@ namespace ImageFunctions.UlamSpiral
 			var (cx, cy) = GetCenterXY(srect);
 			
 			var pb1 = new ProgressBar() { Prefix = "Calculating " };
-			using (pb1)
-			{
-				MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) =>
-				{
+			using (pb1) {
+				MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) => {
 					long num = MapXY(x, y, cx, cy, srect.Width);
 					int count = Primes.CountFactors(num);
-					if (count > maxFactor)
-					{
+					if (count > maxFactor) {
 						//the lock ensures we don't accidentally miss a larger value
 						lock (maxLock) {
 							if (count > maxFactor) { maxFactor = count; }
@@ -184,7 +185,8 @@ namespace ImageFunctions.UlamSpiral
 		void DrawDotSpere(ImageFrame<TPixel> frame, int x, int y, TPixel color, double factor)
 		{
 			int s = O.Spacing;
-			double d = O.DotSize * Math.Pow(factor,2);
+			//circle size = max*f^2 (squared so it feels like a sphere)
+			double d = O.DotSize * factor * factor;
 			//scale up with spacing and center so we get a nice border
 			x = x * s + s/2; y = y * s + s/2;
 
@@ -212,7 +214,7 @@ namespace ImageFunctions.UlamSpiral
 						}
 						case PickDot.Blob: {
 							double ratio = MetricHelpers.DistanceEuclidean(dx,dy,x,y) * 2.0 / d;
-							var ec = frame[dx,dy];
+							var ec = frame[dx,dy]; //merge with background
 							var c = ImageHelpers.BetweenColor(color,ec,ratio);
 							frame[dx,dy] = c;
 							break;

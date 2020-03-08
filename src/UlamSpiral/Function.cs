@@ -24,6 +24,7 @@ namespace ImageFunctions.UlamSpiral
 
 		public override bool ParseArgs(string[] args)
 		{
+			//Log.Debug($"args=[{String.Join(",",args)}]");
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
