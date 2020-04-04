@@ -65,35 +65,16 @@ namespace ImageFunctions.Helpers
 			return true;
 		}
 
-		//TODO I think i decided against using this for now
-		public static bool ParseDelimitedValues<V>(string arg, out V[] items,char sep = ',') where V : IConvertible
-		{
-			items = null;
-			if (arg == null) { return false; }
-
-			string[] tokens = arg.Split(sep,4); //NOTE change 4 to more if needed
-			items = new V[tokens.Length];
-
-			for(int i=0; i<tokens.Length; i++) {
-				if (TryParse(tokens[i],out V val)) {
-					items[i] = val;
-				} else {
-					items[i] = default(V);
-				}
-			}
-			return true;
-		}
-
 		public static string FunctionName(Activity a)
 		{
-			return ((int)a).ToString() + ". " + a.ToString();
+			return $"{((int)a)}. {a}";
 		}
 
 		public static string CreateOutputFileName(string input)
 		{
 			//string ex = Path.GetExtension(input);
 			string name = Path.GetFileNameWithoutExtension(input);
-			string outFile = name+"-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".png";
+			string outFile = $"{name}-{DateTime.Now.ToString("yyyyMMdd-HHmmss")}.png";
 			return outFile;
 		}
 
@@ -118,12 +99,12 @@ namespace ImageFunctions.Helpers
 		}
 
 
-		public static bool TryParse<V>(string sub, out V val) where V : IConvertible
+		public static bool TryParse<V>(string sub, out V val)
 		{
 			val = default(V);
-			TypeCode tc = val.GetTypeCode();
 			Type t = typeof(V);
 
+			//normal types
 			if (t.IsEnum) {
 				if (Enum.TryParse(t,sub,true,out object o)) {
 					val = (V)o;
@@ -131,6 +112,15 @@ namespace ImageFunctions.Helpers
 				}
 				return false;
 			}
+			else if (val is Rectangle) {
+				bool y = TryParseRectangle(sub,out var rect);
+				return y;
+			}
+
+			//IConvertible types (usually built-in ones)
+			IConvertible tic = t as IConvertible;
+			if (tic == null) { return false; }
+			var tc = tic.GetTypeCode();
 
 			switch(tc)
 			{
@@ -236,22 +226,20 @@ namespace ImageFunctions.Helpers
 
 		//args = [x,y,]w,h
 		//Note: negative width and height are allowed to allow w,h to be used as a point
-		public static bool TryParseRectangle(string arg, out Rectangle rect)
+		static bool TryParseRectangle(string arg, out Rectangle rect)
 		{
 			rect = Rectangle.Empty;
 			if (String.IsNullOrWhiteSpace(arg)) { return false; }
 
-			var parts = arg.Split(new char[] { ',','x' },
+			var parts = arg.Split(new char[] { ' ',',','x' },
 				StringSplitOptions.RemoveEmptyEntries);
 			if (parts.Length != 2 && parts.Length != 4) {
-				//Log.Error("rectangle must contain two or four numbers");
-				return false;
+				return false; //must be 2 or 4 numbers
 			}
 			bool isTwo = parts.Length == 2;
 			for(int p=0; p<parts.Length; p++) {
 				if (!int.TryParse(parts[p],out int n)) {
-					//Log.Error("could not parse \""+parts[p]+"\" as a number");
-					return false;
+					return false; //we only like numbers
 				}
 				switch(p + (isTwo ? 2 : 0)) {
 				case 0: rect.X = n; break;
@@ -260,7 +248,64 @@ namespace ImageFunctions.Helpers
 				case 3: rect.Height = n; break;
 				}
 			}
+
+			//sanity check
+			if (rect.Height < 1 || rect.Width < 1 || rect.X < 0 || rect.Y < 0) { return false; }
 			return true;
 		}
+
+		const int ColumnOffset = 30;
+		public static StringBuilder WL(this StringBuilder sb, int level, string def, string desc)
+		{
+			int pad = level;
+			return sb
+				.Append(' ',pad)
+				.Append(def)
+				.Append(' ',ColumnOffset - def.Length - pad)
+				.AppendWrap(ColumnOffset,desc);
+		}
+
+		public static StringBuilder WL(this StringBuilder sb, int level, string def)
+		{
+			int pad = level;
+			return sb
+				.Append(' ',pad)
+				.AppendWrap(pad,def);
+		}
+
+		public static StringBuilder WL(this StringBuilder sb, string s = null)
+		{
+			return s == null ? sb.AppendLine() : sb.AppendWrap(0,s);
+		}
+
+		public static StringBuilder AppendWrap(this StringBuilder self, int offset, string m)
+		{
+			int w = Console.IsOutputRedirected
+				? int.MaxValue
+				: Console.BufferWidth - 1 - offset
+			;
+			int c = 0;
+			int l = m.Length;
+
+			while(c < l) {
+				//need spacing after first line
+				string o = c > 0 ? new string(' ',offset) : "";
+				//this is the last iteration
+				if (c + w >= l) {
+					string s = m.Substring(c);
+					c += w;
+					self.Append(o).AppendLine(s);
+				}
+				//we're in the middle
+				else {
+					string s = m.Substring(c,w);
+					c += w;
+					self.Append(o).AppendLine(s);
+				}
+			}
+			//StringBuilder likes to chain
+			return self;
+		}
+
 	}
 }

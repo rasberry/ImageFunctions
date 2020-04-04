@@ -25,13 +25,16 @@ namespace ImageFunctions
 		}
 
 		// check for existance of a single parameter
-		public Result Has(string @switch)
+		public Result Has(params string[] @switch)
 		{
-			int i = Args.IndexOf(@switch);
-			if (i != -1) {
-				Args.RemoveAt(i);
+			int i = -1;
+			foreach(string sw in @switch) {
+				i = Args.IndexOf(sw);
+				if (i != -1) {
+					Args.RemoveAt(i);
+				}
 			}
-			return i != -1 ? Result.Good : Result.Missing;
+			return i == -1 ? Result.Missing : Result.Good;
 		}
 
 		// check for a non-qualified (leftover) parameter
@@ -45,7 +48,7 @@ namespace ImageFunctions
 		}
 
 		//find or default a parameter with one argument
-		public Result Default<T>(string @switch,out T val,T def = default(T)) where T : IConvertible
+		public Result Default<T>(string @switch,out T val,T def = default(T))
 		{
 			val = def;
 			int i = Args.IndexOf(@switch);
@@ -63,6 +66,18 @@ namespace ImageFunctions
 			Args.RemoveAt(i+1);
 			Args.RemoveAt(i);
 			return Result.Good;
+		}
+
+		public Result Default<T>(string[] @switch,out T val,T def = default(T))
+		{
+			val = default(T);
+			Result rr = Result.Missing;
+			foreach(string sw in @switch) {
+				var r = Default<T>(sw,out val,def);
+				if (r == Result.Invalid) { return r; }
+				if (r == Result.Good) { rr = r; }
+			}
+			return rr;
 		}
 
 		//find or default a parameter with two arguments
@@ -135,7 +150,7 @@ namespace ImageFunctions
 		}
 
 		// consolidated the tryparse here - trying to make the code a bit more portable
-		bool TryParse<T>(string item, out T val) where T : IConvertible
+		bool TryParse<T>(string item, out T val)
 		{
 			return Helpers.OptionsHelpers.TryParse(item,out val);
 		}

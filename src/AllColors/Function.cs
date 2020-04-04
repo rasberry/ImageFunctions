@@ -83,9 +83,7 @@ namespace ImageFunctions.AllColors
 			sb.AppendLine();
 			sb.AppendLine(" Available Patterns");
 
-			OptionsHelpers.PrintEnum<Pattern>(sb,true,(e) => {
-				return GetPatternDescription(e);
-			});
+			OptionsHelpers.PrintEnum<Pattern>(sb,true,GetPatternDescription);
 
 			sb.AppendLine();
 			sb.AppendLine(" Available Spaces");

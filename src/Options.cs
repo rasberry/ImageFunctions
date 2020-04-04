@@ -18,13 +18,13 @@ namespace ImageFunctions
 		public static string GetUsageText(Activity action, bool showFull, bool showActions)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine("Usage "+nameof(ImageFunctions)+" (action) [options]");
-			sb.AppendLine(" -h / --help                 Show full help");
-			sb.AppendLine(" (action) -h                 Action specific help");
-			sb.AppendLine(" --actions                   List possible actions");
-			sb.AppendLine(" -# / --rect ([x,y,]w,h)     Apply function to given rectagular area (defaults to entire image)");
-			sb.AppendLine(" --max-threads (number)      Restrict parallel processing to a given number of threads (defaults to # of cores)");
-			sb.AppendLine(" --colors                    List available colors");
+			sb.WL(0,"Usage "+nameof(ImageFunctions)+" (action) [options]");
+			sb.WL(1,"-h / --help"            ,"Show full help");
+			sb.WL(1,"(action) -h"            ,"Action specific help");
+			sb.WL(1,"--actions"              ,"List possible actions");
+			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectagular area (defaults to entire image)");
+			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
+			sb.WL(1,"--colors"               ,"List available colors");
 
 			if (showFull)
 			{
@@ -50,7 +50,8 @@ namespace ImageFunctions
 			else
 			{
 				if (showActions) {
-					sb.AppendLine().AppendLine("Actions:");
+					sb.WL();
+					sb.WL(0,"Actions:");
 					OptionsHelpers.PrintEnum<Activity>(sb);
 				}
 
@@ -64,15 +65,15 @@ namespace ImageFunctions
 
 		static void SamplerHelp(StringBuilder sb)
 		{
-			sb.AppendLine();
-			sb.AppendLine("Available Samplers:");
+			sb.WL();
+			sb.WL(0,"Available Samplers:");
 			OptionsHelpers.PrintEnum<Sampler>(sb);
 		}
 
 		static void MetricHelp(StringBuilder sb)
 		{
-			sb.AppendLine();
-			sb.AppendLine("Available Metrics:");
+			sb.WL();
+			sb.WL(0,"Available Metrics:");
 			OptionsHelpers.PrintEnum<Metric>(sb, false, null, (m) => {
 				return m == Metric.Minkowski ? m + " (p-factor)" : m.ToString();
 			});
@@ -80,14 +81,54 @@ namespace ImageFunctions
 
 		static void ColorsHelp(StringBuilder sb)
 		{
-			sb.AppendLine();
-			sb.AppendLine("Note: Colors may be specified as a name or as a hex value");
-			sb.AppendLine("Available Colors:");
+			sb.WL();
+			sb.WL(0,"Note: Colors may be specified as a name or as a hex value");
+			sb.WL(0,"Available Colors:");
 			foreach(var kvp in OptionsHelpers.AllColors()) {
 				string name = kvp.Item1;
 				Color color = kvp.Item2;
-				sb.AppendLine($"{color.ToHex()}  {name}");
+				sb.WL(0,color.ToHex(),name);
 			}
+		}
+
+		public static bool Parse(string[] args, out string[] prunedArgs)
+		{
+			var p = new Params(args);
+			prunedArgs = null;
+			
+			if (p.Has("-h","--help").IsGood()) {
+				if (Which == Activity.None) {
+					ShowFullHelp = true;
+				}
+				else {
+					ShowHelpActions = true;
+				}
+			}
+			if (p.Has("--actions").IsGood()) {
+				ShowHelpActions = true;
+			}
+			if (p.Has("--colors").IsGood()) {
+				ShowColorList = true;
+			}
+			if (p.Default(new string[] { "-#","--rect"},out Rectangle _Rect).IsInvalid()) {
+				return false;
+			}
+			{
+				var mtr = p.Default("--max-threads",out int mdop, 0);
+				if (mtr.IsInvalid()) {
+					return false;
+				}
+				else if(mtr.IsGood()) {
+					if (mdop < 1) {
+						Tell.MaxThreadsGreaterThanZero();
+						return false;
+					}
+					MaxDegreeOfParallelism = mdop;
+				}
+			}
+
+			prunedArgs = p.Remaining();
+			return true;
 		}
 
 		public static bool Parse(string[] args, out string[] prunedArgs)
