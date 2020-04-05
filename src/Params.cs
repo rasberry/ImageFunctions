@@ -27,14 +27,15 @@ namespace ImageFunctions
 		// check for existance of a single parameter
 		public Result Has(params string[] @switch)
 		{
-			int i = -1;
+			int ii = -1;
 			foreach(string sw in @switch) {
-				i = Args.IndexOf(sw);
+				int i = Args.IndexOf(sw);
 				if (i != -1) {
 					Args.RemoveAt(i);
+					ii = i;
 				}
 			}
-			return i == -1 ? Result.Missing : Result.Good;
+			return ii == -1 ? Result.Missing : Result.Good;
 		}
 
 		// check for a non-qualified (leftover) parameter
@@ -109,14 +110,19 @@ namespace ImageFunctions
 			return Result.Good;
 		}
 
-		public Result Expect(out string val, string name)
+		public Result Expect<T>(out T val, string name)
 		{
-			if (Result.Good != Has(out val) || String.IsNullOrWhiteSpace(val)) {
+			val = default(T);
+			if (Result.Good != Has(out string curr) || String.IsNullOrWhiteSpace(curr)) {
 				Tell.MustProvideInput(name);
+				return Result.Invalid;
+			}
+			if (!TryParse<T>(curr,out val)) {
 				return Result.Invalid;
 			}
 			return Result.Good;
 		}
+
 
 		public Result Expect(string @switch)
 		{
@@ -132,7 +138,9 @@ namespace ImageFunctions
 		{
 			var has = Default(@switch,out val);
 			if (Result.Good != has) {
-				if (has == Result.Missing) { Tell.MustProvideInput(@switch); }
+				if (has == Result.Missing) {
+					Tell.MustProvideInput(@switch);
+				}
 				return Result.Invalid;
 			}
 			return Result.Good;

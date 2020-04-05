@@ -61,5 +61,68 @@ namespace test
 			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
 			Assert.IsFalse(worked);
 		}
+
+		[DataTestMethod]
+		[DataRow("0.01",0.01)]
+		[DataRow("1e-3",0.001)]
+		[DataRow("12345.6",12345.6)]
+		[DataRow("-1.6",-1.6)]
+		public void TestTryParseDouble(string s, double d)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out double val);
+			Assert.IsTrue(worked);
+			Assert.AreEqual(d,val);
+		}
+
+		[DataTestMethod]
+		[DataRow("bad")]
+		[DataRow("1.0a")]
+		public void TestTryParseBadDouble(string s)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out double val);
+			Assert.IsFalse(worked);
+		}
+
+		[DataTestMethod]
+		[DataRow("1",ImageFunctions.Activity.PixelateDetails)]
+		[DataRow("PixelateDetails",ImageFunctions.Activity.PixelateDetails)]
+		[DataRow("pixelatedetails",ImageFunctions.Activity.PixelateDetails)]
+		public void TestTryParseEnum(string s, ImageFunctions.Activity a)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out ImageFunctions.Activity val);
+			Assert.IsTrue(worked);
+			Assert.AreEqual(a,val);
+		}
+
+		[DataTestMethod]
+		[DataRow("0,0,10,10",0,0,10,10)]
+		[DataRow("10,10,20,20",10,10,20,20)]
+		[DataRow("10x10,20x20",10,10,20,20)]
+		[DataRow("10 10 20 20",10,10,20,20)]
+		public void TestTryParseRect(string s, int x,int y,int w,int h)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
+			Assert.IsTrue(worked);
+			Assert.AreEqual(new SixLabors.Primitives.Rectangle(x,y,w,h),val);
+		}
+
+		[DataTestMethod]
+		[DataRow("-1,-1,10,10")]
+		[DataRow("10,10,-2,-2")]
+		[DataRow("10-10-20-20")]
+		[DataRow("0,0,0,0")]
+		public void TestTryParseBadRect(string s)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
+			Assert.IsFalse(worked);
+		}
+
+		public void TestTryParseString()
+		{
+			string arg = "opt1";
+			bool worked = OptionsHelpers.TryParse(arg,out string val);
+			Assert.IsTrue(worked);
+			Assert.AreEqual(arg,val);
+		}
 	}
 }

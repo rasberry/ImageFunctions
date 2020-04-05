@@ -39,7 +39,7 @@ namespace ImageFunctions.UlamSpiral
 					O.ColorPrimesForce = true;
 				}
 				else if (curr == "-c" && ++a < len) {
-					if (!OptionsHelpers.TryParseRectangle(args[a],out var rect)) {
+					if (!OptionsHelpers.TryParse(args[a],out Rectangle rect)) {
 						Log.Error($"invalid point '{args[a]}'");
 						return false;
 					}

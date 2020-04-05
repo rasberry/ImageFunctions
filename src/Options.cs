@@ -110,27 +110,45 @@ namespace ImageFunctions
 			if (p.Has("--colors").IsGood()) {
 				ShowColorList = true;
 			}
-			if (p.Default(new string[] { "-#","--rect"},out Rectangle _Rect).IsInvalid()) {
+
+			var orect = p.Default(new string[] { "-#","--rect"},out Rectangle rect);
+			if (orect.IsInvalid()) {
 				return false;
 			}
-			{
-				var mtr = p.Default("--max-threads",out int mdop, 0);
-				if (mtr.IsInvalid()) {
+			else if (orect.IsGood()) {
+				Bounds = rect;
+			}
+
+			var omtr = p.Default("--max-threads",out int mdop, 0);
+			if (omtr.IsInvalid()) {
+				return false;
+			}
+			else if(omtr.IsGood()) {
+				if (mdop < 1) {
+					Tell.MaxThreadsGreaterThanZero();
 					return false;
 				}
-				else if(mtr.IsGood()) {
-					if (mdop < 1) {
-						Tell.MaxThreadsGreaterThanZero();
-						return false;
-					}
-					MaxDegreeOfParallelism = mdop;
+				MaxDegreeOfParallelism = mdop;
+			}
+
+			if (ShowFullHelp || ShowHelpActions || ShowColorList) {
+				Usage(Which);
+				return false;
+			}
+
+			if (Which == Activity.None) {
+				Activity w;
+				if (p.Expect(out w,"activity").IsBad()) {
+					return false;
 				}
+				Which = w;
 			}
 
 			prunedArgs = p.Remaining();
 			return true;
 		}
 
+		#if false
 		public static bool Parse(string[] args, out string[] prunedArgs)
 		{
 			prunedArgs = null;
@@ -156,7 +174,7 @@ namespace ImageFunctions
 						Log.Error($"invalid rectangle '{args[a]}'");
 						return false;
 					}
-					_Rect = rect;
+					Bounds = rect;
 					Log.Debug(rect.ToString());
 				}
 				else if (curr == "--actions") {
@@ -202,15 +220,15 @@ namespace ImageFunctions
 			prunedArgs = pArgs.ToArray();
 			return true;
 		}
+		#endif
 
 		public static Activity Which { get; private set; } = Activity.None;
-		public static Rectangle Bounds { get { return _Rect; }}
+		public static Rectangle Bounds { get; private set; } = Rectangle.Empty;
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		public static object OptionHelpers { get; private set; }
 
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;
 		static bool ShowColorList = false;
-		static Rectangle _Rect = Rectangle.Empty;
 	}
 }

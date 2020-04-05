@@ -114,11 +114,12 @@ namespace ImageFunctions.Helpers
 			}
 			else if (val is Rectangle) {
 				bool y = TryParseRectangle(sub,out var rect);
+				if (y) { val = (V)((object)rect); }
 				return y;
 			}
 
 			//IConvertible types (usually built-in ones)
-			IConvertible tic = t as IConvertible;
+			IConvertible tic = val as IConvertible;
 			if (tic == null) { return false; }
 			var tc = tic.GetTypeCode();
 
@@ -133,6 +134,10 @@ namespace ImageFunctions.Helpers
 				if (int.TryParse(sub,out int b)) {
 					val = (V)((object)b); return true;
 				} break;
+			}
+			//including string as a no-op
+			case TypeCode.String: {
+				val = (V)((object)sub); return true;
 			}
 			//add others as needed
 			}
