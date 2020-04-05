@@ -98,48 +98,34 @@ namespace ImageFunctions.Helpers
 			return true;
 		}
 
-
 		public static bool TryParse<V>(string sub, out V val)
 		{
 			val = default(V);
 			Type t = typeof(V);
 
-			//normal types
 			if (t.IsEnum) {
 				if (Enum.TryParse(t,sub,true,out object o)) {
 					val = (V)o;
 					return Enum.IsDefined(t,o);
 				}
-				return false;
 			}
-			else if (val is Rectangle) {
+			else if (t.Equals(typeof(double))) {
+				if (double.TryParse(sub,out double b)) {
+					val = (V)((object)b); return true;
+				}
+			}
+			else if (t.Equals(typeof(int))) {
+				if (int.TryParse(sub,out int b)) {
+					val = (V)((object)b); return true;
+				}
+			}
+			else if (t.Equals(typeof(string))) {
+				val = (V)((object)sub); return true;
+			}
+			else if (t.Equals(typeof(Rectangle))) {
 				bool y = TryParseRectangle(sub,out var rect);
 				if (y) { val = (V)((object)rect); }
 				return y;
-			}
-
-			//IConvertible types (usually built-in ones)
-			IConvertible tic = val as IConvertible;
-			if (tic == null) { return false; }
-			var tc = tic.GetTypeCode();
-
-			switch(tc)
-			{
-			case TypeCode.Double: {
-				if (double.TryParse(sub,out double b)) {
-					val = (V)((object)b); return true;
-				} break;
-			}
-			case TypeCode.Int32: {
-				if (int.TryParse(sub,out int b)) {
-					val = (V)((object)b); return true;
-				} break;
-			}
-			//including string as a no-op
-			case TypeCode.String: {
-				val = (V)((object)sub); return true;
-			}
-			//add others as needed
 			}
 			return false;
 		}
@@ -212,7 +198,7 @@ namespace ImageFunctions.Helpers
 			};
 		}
 
-		public static void PrintEnum<T>(StringBuilder sb, bool nested = false, Func<T,string> descriptionMap = null,
+		public static void PrintEnum<T>(this StringBuilder sb, int level = 0, Func<T,string> descriptionMap = null,
 			Func<T,string> nameMap = null) where T : struct
 		{
 			var allEnums = EnumAll<T>().ToList();
@@ -220,12 +206,11 @@ namespace ImageFunctions.Helpers
 			foreach(T e in allEnums) {
 				int inum = (int)((object)e);
 				string pnum = inum.ToString();
-				string npad = pnum.Length < numLen ? new string(' ',numLen - pnum.Length) : "";
-				if (nested) { npad = " "+npad; }
+				int lpad = pnum.Length < numLen ? numLen - pnum.Length : 0;
+				string npad = new string(' ',lpad);
 				string pname = nameMap == null ? e.ToString() : nameMap(e);
-				string ppad = new string(' ',(nested ? 24 : 26) - pname.Length);
 				string pdsc = descriptionMap == null ? "" : descriptionMap(e);
-				sb.AppendLine($"{npad}{pnum}. {pname}{ppad}{pdsc}");
+				sb.WL(level,$"{npad}{pnum}. {pname}",pdsc);
 			}
 		}
 
@@ -308,6 +293,12 @@ namespace ImageFunctions.Helpers
 					self.Append(o).AppendLine(s);
 				}
 			}
+
+			//we always want a newline even if m is emptys
+			if (l < 1) {
+				self.AppendLine();
+			}
+
 			//StringBuilder likes to chain
 			return self;
 		}

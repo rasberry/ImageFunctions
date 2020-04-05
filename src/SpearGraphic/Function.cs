@@ -68,7 +68,7 @@ namespace ImageFunctions.SpearGraphic
 			sb.AppendLine();
 			sb.AppendLine(" Available Graphics");
 
-			OptionsHelpers.PrintEnum<Graphic>(sb,true);
+			OptionsHelpers.PrintEnum<Graphic>(sb,1);
 		}
 
 		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)

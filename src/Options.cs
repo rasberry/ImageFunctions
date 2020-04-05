@@ -74,7 +74,7 @@ namespace ImageFunctions
 		{
 			sb.WL();
 			sb.WL(0,"Available Metrics:");
-			OptionsHelpers.PrintEnum<Metric>(sb, false, null, (m) => {
+			sb.PrintEnum<Metric>(0, null, (m) => {
 				return m == Metric.Minkowski ? m + " (p-factor)" : m.ToString();
 			});
 		}
@@ -82,12 +82,10 @@ namespace ImageFunctions
 		static void ColorsHelp(StringBuilder sb)
 		{
 			sb.WL();
-			sb.WL(0,"Note: Colors may be specified as a name or as a hex value");
 			sb.WL(0,"Available Colors:");
-			foreach(var kvp in OptionsHelpers.AllColors()) {
-				string name = kvp.Item1;
-				Color color = kvp.Item2;
-				sb.WL(0,color.ToHex(),name);
+			sb.WL(0,"Note: Colors may be specified as a name or as a hex value");
+			foreach(var (name,color) in OptionsHelpers.AllColors()) {
+				sb.WL(0,name,color.ToHex());
 			}
 		}
 
@@ -95,9 +93,13 @@ namespace ImageFunctions
 		{
 			var p = new Params(args);
 			prunedArgs = null;
-			
+			Activity w = Activity.None;
+
+			//do an initial check for activity
+			p.Default(out w,Activity.None);
+
 			if (p.Has("-h","--help").IsGood()) {
-				if (Which == Activity.None) {
+				if (w == Activity.None) {
 					ShowFullHelp = true;
 				}
 				else {
@@ -132,17 +134,16 @@ namespace ImageFunctions
 			}
 
 			if (ShowFullHelp || ShowHelpActions || ShowColorList) {
-				Usage(Which);
+				Usage(w);
 				return false;
 			}
 
-			if (Which == Activity.None) {
-				Activity w;
+			if (w == Activity.None) {
 				if (p.Expect(out w,"activity").IsBad()) {
 					return false;
 				}
-				Which = w;
 			}
+			Which = w;
 
 			prunedArgs = p.Remaining();
 			return true;

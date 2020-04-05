@@ -148,10 +148,10 @@ namespace ImageFunctions.UlamSpiral
 			sb.AppendLine(" -6m    : c1=background  c2=6m-1    c3=composites  c4=6m+1");
 			sb.AppendLine();
 			sb.AppendLine(" Available Mappings:");
-			OptionsHelpers.PrintEnum<PickMapping>(sb,true,DescMapping,null);
+			OptionsHelpers.PrintEnum<PickMapping>(sb,1,DescMapping,null);
 			sb.AppendLine();
 			sb.AppendLine(" Available Dot Types:");
-			OptionsHelpers.PrintEnum<PickDot>(sb,true,DescDotType,null);
+			OptionsHelpers.PrintEnum<PickDot>(sb,1,DescDotType,null);
 		}
 
 		static string DescMapping(PickMapping m)

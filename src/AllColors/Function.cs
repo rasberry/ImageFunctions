@@ -18,6 +18,62 @@ namespace ImageFunctions.AllColors
 
 		public override bool ParseArgs(string[] args)
 		{
+			var p = new Params(args);
+
+			var ppat = p.Default("-p",out Pattern pat);
+			if (ppat.IsInvalid()) {
+				return false;
+			}
+			else if (ppat.IsGood()) {
+				O.SortBy = pat;
+			}
+
+			var psp = p.Default("-s",out Space sp);
+			if (psp.IsInvalid()) {
+				return false;
+			}
+			else if (psp.IsGood()) {
+				O.WhichSpace = sp;
+			}
+
+			var pso = p.Default("-so",out string pri);
+			if (pso.IsInvalid()) {
+				return false;
+			}
+			else if (pso.IsGood()) {
+				string[] items = (pri??"").Split(',');
+				if (items.Length < 1) {
+					Tell.MustHaveOnePriority();
+					return false;
+				}
+				int[] priorities = new int[items.Length];
+				for(int i=0; i<items.Length; i++) {
+					if (!int.TryParse(items[i],out var num)) {
+						Tell.PriorityMustBeNumber();
+						return false;
+					}
+					priorities[i] = num;
+				}
+				O.Order = priorities;
+			}
+
+			if (p.Has("-np").IsGood()) {
+				O.NoParallelSort = true;
+			}
+
+			if (p.Default(out OutImage).IsBad()) {
+				OutImage = OptionsHelpers.CreateOutputFileName(nameof(AllColors));
+			}
+
+			if (O.SortBy == Pattern.None && O.WhichSpace == Space.None) {
+				O.SortBy = Pattern.BitOrder;
+			}
+			return true;
+		}
+
+		#if false
+		public override bool ParseArgs(string[] args)
+		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
@@ -69,25 +125,24 @@ namespace ImageFunctions.AllColors
 			}
 			return true;
 		}
+		#endif
 
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.AllColors);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] [output image]");
-			sb.AppendLine(" Creates an image with every possible 24-bit color ordered by chosen pattern.");
-			sb.AppendLine(" -p (pattern)                Sort by Pattern (default BitOrder)");
-			sb.AppendLine(" -s (space)                  Sort by color space components (instead of pattern)");
-			sb.AppendLine(" -so (c,...)                 Change priority order of components (default 1,2,3,4)");
-			sb.AppendLine(" -np                         Use single threaded sort function instead of parallel sort");
-			sb.AppendLine();
-			sb.AppendLine(" Available Patterns");
-
-			OptionsHelpers.PrintEnum<Pattern>(sb,true,GetPatternDescription);
-
-			sb.AppendLine();
-			sb.AppendLine(" Available Spaces");
-			OptionsHelpers.PrintEnum<Space>(sb,true);
+			sb.WL();
+			sb.WL(0,name + " [options] [output image]");
+			sb.WL(1,"Creates an image with every possible 24-bit color ordered by chosen pattern.");
+			sb.WL(1,"-p (pattern)","Sort by Pattern (default BitOrder)");
+			sb.WL(1,"-s (space)"  ,"Sort by color space components (instead of pattern)");
+			sb.WL(1,"-so (n,...)" ,"Change priority order of components (default 1,2,3,4)");
+			sb.WL(1,"-np"         ,"Use single threaded sort function instead of parallel sort");
+			sb.WL();
+			sb.WL(1,"Available Patterns");
+			sb.PrintEnum<Pattern>(1,GetPatternDescription);
+			sb.WL();
+			sb.WL(1,"Available Spaces");
+			sb.PrintEnum<Space>(1);
 		}
 
 		static string GetPatternDescription(Pattern p)
@@ -106,17 +161,17 @@ namespace ImageFunctions.AllColors
 			return "";
 		}
 
-		static IEnumerable<Pattern> AllPatterns(out int max)
-		{
-			var list = new List<Pattern>();
-			max = int.MinValue;
-			foreach(Pattern p in OptionsHelpers.EnumAll<Pattern>()) {
-				list.Add(p);
-				if ((int)p > max) { max = (int)p; }
-			}
-			list.Sort((a,b) => (int)a - (int)b);
-			return list;
-		}
+		//static IEnumerable<Pattern> AllPatterns(out int max)
+		//{
+		//	var list = new List<Pattern>();
+		//	max = int.MinValue;
+		//	foreach(Pattern p in OptionsHelpers.EnumAll<Pattern>()) {
+		//		list.Add(p);
+		//		if ((int)p > max) { max = (int)p; }
+		//	}
+		//	list.Sort((a,b) => (int)a - (int)b);
+		//	return list;
+		//}
 
 		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
 		{

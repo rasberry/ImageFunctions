@@ -20,5 +20,11 @@ namespace ImageFunctions
 		public static void MaxThreadsGreaterThanZero() {
 			Log.Error("max-threads must be greater than zero");
 		}
+		public static void MustHaveOnePriority() {
+			Log.Error("You must provide at least one priority");
+		}
+		public static void PriorityMustBeNumber() {
+			Log.Error("Each priority must be a number");
+		}
 	}
 }

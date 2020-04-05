@@ -39,11 +39,14 @@ namespace ImageFunctions
 		}
 
 		// check for a non-qualified (leftover) parameter
-		public Result Has(out string val, string def = null)
+		public Result Default<T>(out T val, T def = default(T))
 		{
 			val = def;
 			if (Args.Count <= 0) { return Result.Missing; }
-			val = Args[0];
+			string curr = Args[0];
+			if (!TryParse<T>(curr,out val)) {
+				return Result.Invalid;
+			}
 			Args.RemoveAt(0);
 			return Result.Good;
 		}
@@ -112,23 +115,20 @@ namespace ImageFunctions
 
 		public Result Expect<T>(out T val, string name)
 		{
-			val = default(T);
-			if (Result.Good != Has(out string curr) || String.IsNullOrWhiteSpace(curr)) {
+			if (Result.Good != Default(out val)) {
 				Tell.MustProvideInput(name);
-				return Result.Invalid;
-			}
-			if (!TryParse<T>(curr,out val)) {
 				return Result.Invalid;
 			}
 			return Result.Good;
 		}
 
-
 		public Result Expect(string @switch)
 		{
 			var has = Has(@switch);
 			if (Result.Good != has) {
-				if (has == Result.Missing) { Tell.MustProvideInput(@switch); }
+				if (has == Result.Missing) {
+					Tell.MustProvideInput(@switch);
+				}
 				return Result.Invalid;
 			}
 			return Result.Good;
@@ -151,7 +151,9 @@ namespace ImageFunctions
 		{
 			var has = Default(@switch,out tval,out uval);
 			if (Result.Good != has) {
-				if (has == Result.Missing) { Tell.MustProvideInput(@switch); }
+				if (has == Result.Missing) {
+					Tell.MustProvideInput(@switch);
+				}
 				return Result.Invalid;
 			}
 			return Result.Good;
@@ -160,7 +162,9 @@ namespace ImageFunctions
 		// consolidated the tryparse here - trying to make the code a bit more portable
 		bool TryParse<T>(string item, out T val)
 		{
-			return Helpers.OptionsHelpers.TryParse(item,out val);
+			bool worked = Helpers.OptionsHelpers.TryParse(item,out val);
+			//Log.Debug($"parse {item} as {typeof(T).Name} = {worked}");
+			return worked;
 		}
 	}
 
