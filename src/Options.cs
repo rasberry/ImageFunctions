@@ -127,7 +127,7 @@ namespace ImageFunctions
 			}
 			else if(omtr.IsGood()) {
 				if (mdop < 1) {
-					Tell.MaxThreadsGreaterThanZero();
+					Tell.MustBeGreaterThanZero("max-threads");
 					return false;
 				}
 				MaxDegreeOfParallelism = mdop;

@@ -17,14 +17,17 @@ namespace ImageFunctions
 		public static void MissingArgument(string name) {
 			Log.Error($"not enough arguments for '{name}'");
 		}
-		public static void MaxThreadsGreaterThanZero() {
-			Log.Error("max-threads must be greater than zero");
-		}
 		public static void MustHaveOnePriority() {
 			Log.Error("You must provide at least one priority");
 		}
 		public static void PriorityMustBeNumber() {
 			Log.Error("Each priority must be a number");
+		}
+		public static void MustBeGreaterThanZero(string name) {
+			Log.Error($"{name} must be greater than zero");
+		}
+		public static void CannotFindFile(string path) {
+			Log.Error($"cannot find input image '{path}'");
 		}
 	}
 }

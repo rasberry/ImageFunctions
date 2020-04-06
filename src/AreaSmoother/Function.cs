@@ -15,6 +15,54 @@ namespace ImageFunctions.AreaSmoother
 	{
 		public override bool ParseArgs(string[] args)
 		{
+			var p = new Params(args);
+			var pttt = p.Default("-t",out int totalTries,7);
+			if (pttt.IsInvalid()) {
+				return false;
+			}
+			else if (pttt.IsGood()) {
+				if (totalTries < 1) {
+					Tell.MustBeGreaterThanZero("-t");
+					return false;
+				}
+				O.TotalTries = totalTries;
+			}
+
+			var ps = p.DefaultSampler(out IResampler samp);
+			if (ps.IsInvalid()) {
+				return false;
+			}
+			else if (ps.IsGood()) {
+				O.Sampler = samp;
+			}
+			
+			var pm = p.DefaultMetric(out IMeasurer met);
+			if (pm.IsInvalid()) {
+				return false;
+			}
+			else if (pm.IsGood()) {
+				O.Measurer = met;
+			}
+
+			if (p.Expect(out InImage,"input image").IsBad()) {
+				return false;
+			}
+
+			if (!File.Exists(InImage)) {
+				Tell.CannotFindFile(InImage);
+				return false;
+			}
+
+			if (p.Default(out OutImage).IsBad()) {
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
+			}
+
+			return true;
+		}
+
+		#if false
+		public override bool ParseArgs(string[] args)
+		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
@@ -63,14 +111,15 @@ namespace ImageFunctions.AreaSmoother
 			}
 			return true;
 		}
+		#endif
 
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.AreaSmoother);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
-			sb.AppendLine(" -t (number)                 Number of times to run fit function (default 7)");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
+			sb.WL(1,"-t (number)","Number of times to run fit function (default 7)");
 			sb.SamplerHelpLine();
 			sb.MetricHelpLine();
 		}

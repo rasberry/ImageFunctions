@@ -85,8 +85,9 @@ namespace ImageFunctions
 		}
 
 		//find or default a parameter with two arguments
+		//Condition function determines when second argument is required (defaults to always true)
 		public Result Default<T,U>(string @switch,out T tval, out U uval,
-			T tdef = default(T), U udef = default(U))
+			T tdef = default(T), U udef = default(U), Func<T,bool> Cond = null)
 			where T : IConvertible where U : IConvertible
 		{
 			tval = tdef;
@@ -95,12 +96,24 @@ namespace ImageFunctions
 			if (i == -1) {
 				return Result.Missing;
 			}
-			if (i+2 >= Args.Count) {
+			if (i+1 >= Args.Count) {
 				Tell.MissingArgument(@switch);
 				return Result.Invalid;
 			}
 			if (!TryParse(Args[i+1],out tval)) {
 				Tell.CouldNotParse(@switch,Args[i+1]);
+				return Result.Invalid;
+			}
+
+			//if condition function returns false - we don't look for a second arg
+			if (Cond != null && !Cond(tval)) {
+				Args.RemoveAt(i+1);
+				Args.RemoveAt(i);
+				return Result.Good;
+			}
+
+			if (i+2 >= Args.Count) {
+				Tell.MissingArgument(@switch);
 				return Result.Invalid;
 			}
 			if (!TryParse(Args[i+2],out uval)) {

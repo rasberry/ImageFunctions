@@ -20,7 +20,7 @@ namespace ImageFunctions.AllColors
 		{
 			var p = new Params(args);
 
-			var ppat = p.Default("-p",out Pattern pat);
+			var ppat = p.Default("-p",out Pattern pat,Pattern.None);
 			if (ppat.IsInvalid()) {
 				return false;
 			}
@@ -28,7 +28,7 @@ namespace ImageFunctions.AllColors
 				O.SortBy = pat;
 			}
 
-			var psp = p.Default("-s",out Space sp);
+			var psp = p.Default("-s",out Space sp,Space.None);
 			if (psp.IsInvalid()) {
 				return false;
 			}

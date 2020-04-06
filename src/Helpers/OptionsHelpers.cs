@@ -12,11 +12,23 @@ namespace ImageFunctions.Helpers
 {
 	public static class OptionsHelpers
 	{
-		public static void SamplerHelpLine(this System.Text.StringBuilder sb)
+		public static void SamplerHelpLine(this StringBuilder sb)
 		{
-			sb.AppendLine(" --sampler (name)            Use given sampler (defaults to nearest pixel)");
+			sb.WL(1,"--sampler (name)","Use given sampler (defaults to nearest pixel)");
 		}
 
+		public static Params.Result DefaultSampler(this Params p, out IResampler s, IResampler def = null)
+		{
+			s = def;
+			var r = p.Default("--sampler",out Sampler sam);
+			if (r.IsBad()) {
+				return r;
+			}
+			s = Registry.Map(sam);
+			return r;
+		}
+
+		// #if false
 		public static bool HasSamplerArg(string[] args, ref int a)
 		{
 			return args[a] == "--sampler" && ++a < args.Length;
@@ -33,12 +45,31 @@ namespace ImageFunctions.Helpers
 			sampler = Registry.Map(which);
 			return true;
 		}
+		// #endif
 
 		public static void MetricHelpLine(this System.Text.StringBuilder sb)
 		{
-			sb.AppendLine(" --metric (name) [args]      Use alterntive distance function");
+			sb.WL(1,"--metric (name) [args]","Use alterntive distance function");
 		}
 
+		public static Params.Result DefaultMetric(this Params p, out IMeasurer m, IMeasurer def = null)
+		{
+			m = null;
+			Func<Metric,bool> hasTwo = (Metric mm) => mm == Metric.Minkowski;
+
+			var r = p.Default("--metric",out Metric metric,out double pfactor,Metric.None,0.0,hasTwo);
+			if (r.IsGood()) {
+				if (hasTwo(metric)) {
+					m = Registry.Map(metric,pfactor);
+				}
+				else {
+					m = Registry.Map(metric);
+				}
+			}
+			return r;
+		}
+
+		// #if false
 		public static bool HasMetricArg(string[] args, ref int a)
 		{
 			return args[a] == "--metric" && ++a < args.Length;
@@ -64,6 +95,7 @@ namespace ImageFunctions.Helpers
 			}
 			return true;
 		}
+		// #endif
 
 		public static string FunctionName(Activity a)
 		{
