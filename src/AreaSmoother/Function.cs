@@ -25,8 +25,8 @@ namespace ImageFunctions.AreaSmoother
 					Tell.MustBeGreaterThanZero("-t");
 					return false;
 				}
-				O.TotalTries = totalTries;
 			}
+			O.TotalTries = totalTries;
 
 			var ps = p.DefaultSampler(out IResampler samp);
 			if (ps.IsInvalid()) {

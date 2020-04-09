@@ -24,17 +24,13 @@ namespace ImageFunctions.AllColors
 			if (ppat.IsInvalid()) {
 				return false;
 			}
-			else if (ppat.IsGood()) {
-				O.SortBy = pat;
-			}
+			O.SortBy = pat;
 
 			var psp = p.Default("-s",out Space sp,Space.None);
 			if (psp.IsInvalid()) {
 				return false;
 			}
-			else if (psp.IsGood()) {
-				O.WhichSpace = sp;
-			}
+			O.WhichSpace = sp;
 
 			var pso = p.Default("-so",out string pri);
 			if (pso.IsInvalid()) {
