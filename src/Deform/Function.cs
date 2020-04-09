@@ -26,6 +26,72 @@ namespace ImageFunctions.Deform
 
 		public override bool ParseArgs(string[] args)
 		{
+			var p = new Params(args);
+			var pcp = p.Default("-cp",out double ppx, out double ppy,
+				tpar:OptionsHelpers.ParseNumberPercent,
+				upar:OptionsHelpers.ParseNumberPercent
+			);
+			if (pcp.IsInvalid()) {
+				return false;
+			}
+			else if(pcp.IsGood()) {
+				O.CenterPp = new PointF((float)ppx,(float)ppy);
+			}
+
+			var pcx = p.Default("-cx",out int cx, out int cy);
+			if (pcx.IsInvalid()) {
+				return false;
+			}
+			else if (pcx.IsGood()) {
+				O.CenterPx = new Point(cx,cy);
+			}
+
+			var ppw = p.Default("-e",out int power);
+			if (ppw.IsInvalid()) {
+				return false;
+			}
+			else if (ppw.IsGood()) {
+				O.Power = power;
+			}
+
+			var ppm = p.Default("-m",out Mode mode,Mode.None);
+			if (ppm.IsInvalid()) {
+				return false;
+			}
+			else if (ppm.IsGood()) {
+				O.WhichMode = mode;
+			}
+
+			var psam = p.DefaultSampler(out IResampler sampler);
+			if (psam.IsInvalid()) {
+				return false;
+			}
+			else if(psam.IsGood()) {
+				O.Sampler = sampler;
+			}
+
+			if (p.Expect(out InImage,"input image").IsBad()) {
+				return false;
+			}
+			if (p.Default(out OutImage).IsBad()) {
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
+			}
+
+			if (!File.Exists(InImage)) {
+				Tell.CannotFindFile(InImage);
+				return false;
+			}
+
+			if (O.CenterPx == null && O.CenterPp == null) {
+				O.CenterPp = new PointF(0.5f,0.5f);
+			}
+
+			return true;
+		}
+
+		#if false
+		public override bool ParseArgs(string[] args)
+		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
@@ -98,22 +164,23 @@ namespace ImageFunctions.Deform
 
 			return true;
 		}
+		#endif
 
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.Deform);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Warps an image using a mapping function");
-			sb.AppendLine(" -cc (number) (number)       Coordinates of center in pixels");
-			sb.AppendLine(" -cp (number)[%] (number)[%] Coordinates of center by proportion (default 50% 50%)");
-			sb.AppendLine(" -e (number)                 (e) Power Exponent (default 2.0)");
-			sb.AppendLine(" -m (mode)                   Choose mode (default Polynomial)");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Warps an image using a mapping function");
+			sb.WL(1,"-cc (number) (number)"      ,"Coordinates of center in pixels");
+			sb.WL(1,"-cp (number)[%] (number)[%]","Coordinates of center by proportion (default 50% 50%)");
+			sb.WL(1,"-e (number)"                ,"(e) Power Exponent (default 2.0)");
+			sb.WL(1,"-m (mode)"                  ,"Choose mode (default Polynomial)");
 			sb.SamplerHelpLine();
-			sb.AppendLine();
-			sb.AppendLine(" Available Modes");
-			sb.AppendLine(" 1. Polynomial - x^e/w, y^e/h");
-			sb.AppendLine(" 2. Inverted   - n/x, n/y; n = (x^e + y^e)");
+			sb.WL();
+			sb.WL(1,"Available Modes");
+			sb.WL(1,"1. Polynomial","x^e/w, y^e/h");
+			sb.WL(1,"2. Inverted"  ,"n/x, n/y; n = (x^e + y^e)");
  		}
 
 		public override void Main()

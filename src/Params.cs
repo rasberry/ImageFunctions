@@ -12,6 +12,8 @@ namespace ImageFunctions
 			Good = 2
 		}
 
+		public delegate bool Parser<T>(string inp, out T val);
+
 		public Params(string[] args)
 		{
 			Args = new List<string>(args);
@@ -39,12 +41,13 @@ namespace ImageFunctions
 		}
 
 		// check for a non-qualified (leftover) parameter
-		public Result Default<T>(out T val, T def = default(T))
+		public Result Default<T>(out T val, T def = default(T),Parser<T> par = null)
 		{
 			val = def;
 			if (Args.Count <= 0) { return Result.Missing; }
 			string curr = Args[0];
-			if (!TryParse<T>(curr,out val)) {
+			if (par == null) { par = TryParse; }
+			if (!par(curr,out val)) {
 				return Result.Invalid;
 			}
 			Args.RemoveAt(0);
@@ -52,7 +55,7 @@ namespace ImageFunctions
 		}
 
 		//find or default a parameter with one argument
-		public Result Default<T>(string @switch,out T val,T def = default(T))
+		public Result Default<T>(string @switch,out T val,T def = default(T),Parser<T> par = null)
 		{
 			val = def;
 			int i = Args.IndexOf(@switch);
@@ -63,7 +66,8 @@ namespace ImageFunctions
 				Tell.MissingArgument(@switch);
 				return Result.Invalid;
 			}
-			if (!TryParse(Args[i+1],out val)) {
+			if (par == null) { par = TryParse; }
+			if (!par(Args[i+1],out val)) {
 				Tell.CouldNotParse(@switch,Args[i+1]);
 				return Result.Invalid;
 			}
@@ -72,12 +76,12 @@ namespace ImageFunctions
 			return Result.Good;
 		}
 
-		public Result Default<T>(string[] @switch,out T val,T def = default(T))
+		public Result Default<T>(string[] @switch,out T val,T def = default(T),Parser<T> par = null)
 		{
 			val = default(T);
 			Result rr = Result.Missing;
 			foreach(string sw in @switch) {
-				var r = Default<T>(sw,out val,def);
+				var r = Default<T>(sw,out val,def,par);
 				if (r == Result.Invalid) { return r; }
 				if (r == Result.Good) { rr = r; }
 			}
@@ -87,7 +91,8 @@ namespace ImageFunctions
 		//find or default a parameter with two arguments
 		//Condition function determines when second argument is required (defaults to always true)
 		public Result Default<T,U>(string @switch,out T tval, out U uval,
-			T tdef = default(T), U udef = default(U), Func<T,bool> Cond = null)
+			T tdef = default(T), U udef = default(U), Func<T,bool> Cond = null,
+			Parser<T> tpar = null, Parser<U> upar = null)
 			where T : IConvertible where U : IConvertible
 		{
 			tval = tdef;
@@ -100,7 +105,8 @@ namespace ImageFunctions
 				Tell.MissingArgument(@switch);
 				return Result.Invalid;
 			}
-			if (!TryParse(Args[i+1],out tval)) {
+			if (tpar == null) { tpar = TryParse; }
+			if (!tpar(Args[i+1],out tval)) {
 				Tell.CouldNotParse(@switch,Args[i+1]);
 				return Result.Invalid;
 			}
@@ -116,7 +122,8 @@ namespace ImageFunctions
 				Tell.MissingArgument(@switch);
 				return Result.Invalid;
 			}
-			if (!TryParse(Args[i+2],out uval)) {
+			if (upar == null) { upar = TryParse; }
+			if (!upar(Args[i+2],out uval)) {
 				Tell.CouldNotParse(@switch,Args[i+2]);
 				return Result.Invalid;
 			}
@@ -147,9 +154,9 @@ namespace ImageFunctions
 			return Result.Good;
 		}
 
-		public Result Expect<T>(string @switch, out T val) where T : IConvertible
+		public Result Expect<T>(string @switch, out T val,Parser<T> par = null) where T : IConvertible
 		{
-			var has = Default(@switch,out val);
+			var has = Default(@switch,out val, par:par);
 			if (Result.Good != has) {
 				if (has == Result.Missing) {
 					Tell.MustProvideInput(@switch);
@@ -159,10 +166,10 @@ namespace ImageFunctions
 			return Result.Good;
 		}
 
-		public Result Expect<T,U>(string @switch, out T tval, out U uval)
+		public Result Expect<T,U>(string @switch, out T tval, out U uval,Parser<T> tpar = null,Parser<U> upar = null)
 			where T : IConvertible where U : IConvertible
 		{
-			var has = Default(@switch,out tval,out uval);
+			var has = Default(@switch,out tval,out uval, tpar:tpar, upar:upar);
 			if (Result.Good != has) {
 				if (has == Result.Missing) {
 					Tell.MustProvideInput(@switch);
