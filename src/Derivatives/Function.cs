@@ -14,6 +14,32 @@ namespace ImageFunctions.Derivatives
 	{
 		public override bool ParseArgs(string[] args)
 		{
+			var p = new Params(args);
+
+			if (p.Has("-p").IsGood()) {
+				O.DoGrayscale = true;
+			}
+			if (p.Has("-a").IsGood()) {
+				O.UseABS = true;
+			}
+
+			if (p.Expect(out InImage,"input image").IsBad()) {
+				return false;
+			}
+			if (p.Default(out OutImage).IsBad()) {
+				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
+			}
+
+			if (!File.Exists(InImage)) {
+				Tell.CannotFindFile(InImage);
+				return false;
+			}
+			return true;
+		}
+
+		#if false
+		public override bool ParseArgs(string[] args)
+		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
@@ -45,15 +71,16 @@ namespace ImageFunctions.Derivatives
 			}
 			return true;
 		}
+		#endif
 
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.Derivatives);
-			sb.AppendLine();
-			sb.AppendLine(name+" [options] (input image) [output image]");
-			sb.AppendLine(" Computes the color change rate - similar to edge detection");
-			sb.AppendLine(" -g                          Grayscale output");
-			sb.AppendLine(" -a                          Calculate absolute value difference");
+			sb.WL();
+			sb.WL(0,name+" [options] (input image) [output image]");
+			sb.WL(1,"Computes the color change rate - similar to edge detection");
+			sb.WL(1,"-g","Grayscale output");
+			sb.WL(1,"-a","Calculate absolute value difference");
 		}
 
 		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
