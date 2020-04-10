@@ -175,9 +175,14 @@ namespace ImageFunctions.Helpers
 				val = (V)((object)sub); return true;
 			}
 			else if (t.Equals(typeof(Rectangle))) {
-				bool y = TryParseRectangle(sub,out var rect);
-				if (y) { val = (V)((object)rect); }
-				return y;
+				if (TryParseRectangle(sub,out var rect)) {
+					val = (V)((object)rect); return true;
+				}
+			}
+			else if (t.Equals(typeof(Color))) {
+				if (TryParseColor(sub,out var clr)) {
+					val = (V)((object)clr); return true;
+				}
 			}
 			return false;
 		}
