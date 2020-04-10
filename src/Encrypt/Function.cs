@@ -27,37 +27,17 @@ namespace ImageFunctions.Encrypt
 			if (p.Has("-test").IsGood()) {
 				O.TestMode = true;
 			}
-
-			var piv = p.Default("-iv",out O.IVBytes,Encryptor.DefaultIV,Encryptor.TryStringToBytes);
-			if (piv.IsInvalid()) {
+			if (p.Default("-iv",out O.IVBytes,Encryptor.DefaultIV,Encryptor.TryStringToBytes)
+				.BeSizeInBytes("-iv",O.IVBytes,Encryptor.BlockSizeInBytes).IsInvalid()) {
 				return false;
 			}
-			else if (piv.IsGood()) {
-				if (O.IVBytes != null && O.IVBytes.Length != Encryptor.BlockSizeInBytes) {
-					Tell.MustBeSizeInBytes("IV",Encryptor.BlockSizeInBytes);
-					return false;
-				}
-			}
-
-			var psal = p.Default("-salt",out O.SaltBytes,Encryptor.DefaultSalt,Encryptor.TryStringToBytes);
-			if (piv.IsInvalid()) {
+			if(p.Default("-salt",out O.SaltBytes,Encryptor.DefaultSalt,Encryptor.TryStringToBytes)
+				.BeSizeInBytes("-salt",O.SaltBytes,Encryptor.MinSaltBytes,true).IsInvalid()) {
 				return false;
 			}
-			else if (piv.IsGood()) {
-				if (O.SaltBytes != null && O.SaltBytes.Length < Encryptor.MinSaltBytes) {
-					Tell.MustBeSizeInBytes("Salt",Encryptor.MinSaltBytes,true);
-					return false;
-				}
-			}
-
-			var pit = p.Default("-iter",out O.PasswordIterations,Encryptor.DefaultIterations);
-			if (pit.IsInvalid()) {
+			if(p.Default("-iter",out O.PasswordIterations,Encryptor.DefaultIterations)
+				.BeGreaterThanZero("-iter",O.PasswordIterations).IsInvalid()) {
 				return false;
-			}
-			else if (pit.IsGood()) {
-				if (O.PasswordIterations < 1) {
-					Tell.MustBeGreaterThanZero("-iter");
-				}
 			}
 
 			var ppass = p.Default("-p",out O.UserPassword);

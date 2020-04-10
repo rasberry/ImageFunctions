@@ -16,18 +16,10 @@ namespace ImageFunctions.AreaSmoother
 		public override bool ParseArgs(string[] args)
 		{
 			var p = new Params(args);
-			var pttt = p.Default("-t",out int totalTries,7);
-			if (pttt.IsInvalid()) {
+			if (p.Default("-t",out O.TotalTries,7)
+				.BeGreaterThanZero("-t",O.TotalTries).IsInvalid()) {
 				return false;
 			}
-			else if (pttt.IsGood()) {
-				if (totalTries < 1) {
-					Tell.MustBeGreaterThanZero("-t");
-					return false;
-				}
-			}
-			O.TotalTries = totalTries;
-
 			if (p.DefaultSampler(out O.Sampler).IsInvalid()) {
 				return false;
 			}

@@ -48,6 +48,34 @@ namespace ImageFunctions.Helpers
 			return Params.Result.Good;
 		}
 
+		public static Params.Result BeGreaterThanZero(this Params.Result r, string name, double val)
+		{
+			if (r.IsGood() && val < double.Epsilon) {
+				Tell.MustBeGreaterThanZero(name);
+				return Params.Result.Invalid;
+			}
+			return r;
+		}
+
+		public static Params.Result BeGreaterThanZero(this Params.Result r, string name, int val)
+		{
+			if (r.IsGood() && val < 1) {
+				Tell.MustBeGreaterThanZero(name);
+				return Params.Result.Invalid;
+			}
+			return r;
+		}
+
+		public static Params.Result BeSizeInBytes(this Params.Result r, string name,
+			byte[] val, int sizeInBytes, bool isMin = false)
+		{
+			if (r.IsGood() && val != null && val.Length < sizeInBytes) {
+				Tell.MustBeSizeInBytes(name,sizeInBytes,isMin);
+				return Params.Result.Invalid;
+			}
+			return r;
+		}
+
 		// #if false
 		public static bool HasSamplerArg(string[] args, ref int a)
 		{
