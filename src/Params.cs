@@ -204,5 +204,11 @@ namespace ImageFunctions
 		{
 			return r == Params.Result.Invalid;
 		}
+
+		public static bool IsMissing(this Params.Result r)
+		{
+			return r == Params.Result.Missing;
+		}
+
 	}
 }

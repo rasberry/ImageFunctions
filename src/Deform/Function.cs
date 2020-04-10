@@ -46,39 +46,20 @@ namespace ImageFunctions.Deform
 				O.CenterPx = new Point(cx,cy);
 			}
 
-			var ppw = p.Default("-e",out int power);
-			if (ppw.IsInvalid()) {
+			if (p.Default("-e",out O.Power,2.0).IsInvalid()) {
 				return false;
 			}
-			else if (ppw.IsGood()) {
-				O.Power = power;
-			}
-
-			var ppm = p.Default("-m",out Mode mode,Mode.None);
-			if (ppm.IsInvalid()) {
+			if (p.Default("-m",out O.WhichMode,Mode.None).IsInvalid()) {
 				return false;
 			}
-			else if (ppm.IsGood()) {
-				O.WhichMode = mode;
-			}
-
-			var psam = p.DefaultSampler(out IResampler sampler);
-			if (psam.IsInvalid()) {
+			if (p.DefaultSampler(out O.Sampler).IsInvalid()) {
 				return false;
 			}
-			else if(psam.IsGood()) {
-				O.Sampler = sampler;
-			}
 
-			if (p.Expect(out InImage,"input image").IsBad()) {
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (p.Default(out OutImage).IsBad()) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
-			}
-
-			if (!File.Exists(InImage)) {
-				Tell.CannotFindFile(InImage);
+			if (p.DefaultFile(out OutImage,InImage).IsInvalid()) {
 				return false;
 			}
 

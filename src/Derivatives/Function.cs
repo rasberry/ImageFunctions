@@ -26,14 +26,10 @@ namespace ImageFunctions.Derivatives
 			if (p.Expect(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (p.Default(out OutImage).IsBad()) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
-			}
-
-			if (!File.Exists(InImage)) {
-				Tell.CannotFindFile(InImage);
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
 				return false;
 			}
+
 			return true;
 		}
 

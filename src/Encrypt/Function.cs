@@ -16,6 +16,101 @@ namespace ImageFunctions.Encrypt
 	{
 		public override bool ParseArgs(string[] args)
 		{
+			var p = new Params(args);
+
+			if (p.Has("-raw").IsGood()) {
+				O.TreatPassAsRaw = true;
+			}
+			if (p.Has("-d").IsGood()) {
+				O.DoDecryption = true;
+			}
+			if (p.Has("-test").IsGood()) {
+				O.TestMode = true;
+			}
+
+			var piv = p.Default("-iv",out O.IVBytes,Encryptor.DefaultIV,Encryptor.TryStringToBytes);
+			if (piv.IsInvalid()) {
+				return false;
+			}
+			else if (piv.IsGood()) {
+				if (O.IVBytes != null && O.IVBytes.Length != Encryptor.BlockSizeInBytes) {
+					Tell.MustBeSizeInBytes("IV",Encryptor.BlockSizeInBytes);
+					return false;
+				}
+			}
+
+			var psal = p.Default("-salt",out O.SaltBytes,Encryptor.DefaultSalt,Encryptor.TryStringToBytes);
+			if (piv.IsInvalid()) {
+				return false;
+			}
+			else if (piv.IsGood()) {
+				if (O.SaltBytes != null && O.SaltBytes.Length < Encryptor.MinSaltBytes) {
+					Tell.MustBeSizeInBytes("Salt",Encryptor.MinSaltBytes,true);
+					return false;
+				}
+			}
+
+			var pit = p.Default("-iter",out O.PasswordIterations,Encryptor.DefaultIterations);
+			if (pit.IsInvalid()) {
+				return false;
+			}
+			else if (pit.IsGood()) {
+				if (O.PasswordIterations < 1) {
+					Tell.MustBeGreaterThanZero("-iter");
+				}
+			}
+
+			var ppass = p.Default("-p",out O.UserPassword);
+			if (ppass.IsInvalid()) {
+				return false;
+			}
+			else if (ppass.IsMissing() && p.Has("-pi").IsGood()) {
+				if (!TryPromptForPassword(out O.UserPassword)) {
+					Tell.InvalidPassword();
+					return false;
+				}
+			}
+
+			bool goodPass = false;
+			if (!String.IsNullOrEmpty(O.UserPassword)) {
+				if (O.TreatPassAsRaw) {
+					O.Password = Encoding.UTF8.GetBytes(O.UserPassword);
+					goodPass = true;
+				}
+				else if (Encryptor.TryStringToBytes(O.UserPassword,out O.Password)) {
+					goodPass = true;
+				}
+			}
+			if (!goodPass) {
+				Tell.InvalidPassword();
+				return false;
+			}
+
+			if (O.TestMode) {
+				Log.Message(
+					"Password: "
+					+"\n "+BytesAsHex(O.Password)
+					+"\nIV:"
+					+"\n "+BytesAsHex(O.IVBytes ?? Encryptor.DefaultIV)
+					+"\nSalt:"
+					+"\n "+BytesAsHex(O.SaltBytes ?? Encryptor.DefaultSalt)
+				);
+				return false; //stop the program
+			}
+
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
+				return false;
+			}
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
+				return false;
+			}
+
+			return true;
+		}
+
+		#if false
+		public override bool ParseArgs(string[] args)
+		{
 			int len = args.Length;
 			for(int a=0; a<len; a++)
 			{
@@ -118,6 +213,7 @@ namespace ImageFunctions.Encrypt
 
 			return true;
 		}
+		#endif
 
 		bool TryPromptForPassword(out string pass)
 		{
@@ -130,6 +226,9 @@ namespace ImageFunctions.Encrypt
 				sb.Append(key.KeyChar);
 			}
 			pass = sb.ToString();
+			if (String.IsNullOrWhiteSpace(pass)) {
+				return false;
+			}
 			return true;
 		}
 
@@ -162,18 +261,18 @@ namespace ImageFunctions.Encrypt
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.Encrypt);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Encrypt or Decrypts all or parts of an image");
-			sb.AppendLine(" Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
-			sb.AppendLine(" -d                          Enable decryption (default is to encrypt)");
-			sb.AppendLine(" -p (text)                   Password used to encrypt / decrypt image");
-			sb.AppendLine(" -pi                         Ask for the password on the command prompt (instead of -p)");
-			sb.AppendLine(" -raw                        Treat password text as a raw string (shell escaping still applies)");
-			sb.AppendLine(" -iv (text)                  Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
-			sb.AppendLine(" -salt (text)                Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
-			sb.AppendLine(" -iter (number)              Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
-			sb.AppendLine(" -test                       Print out any specified (text) inputs as hex and exit");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Encrypt or Decrypts all or parts of an image");
+			sb.WL(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
+			sb.WL(1,"-d"            ,"Enable decryption (default is to encrypt)");
+			sb.WL(1,"-p (text)"     ,"Password used to encrypt / decrypt image");
+			sb.WL(1,"-pi"           ,"Ask for the password on the command prompt (instead of -p)");
+			sb.WL(1,"-raw"          ,"Treat password text as a raw string (shell escaping still applies)");
+			sb.WL(1,"-iv (text)"    ,"Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
+			sb.WL(1,"-salt (text)"  ,"Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
+			sb.WL(1,"-iter (number)","Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
+			sb.WL(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
 		}
 
 		public override void Main()

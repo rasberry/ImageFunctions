@@ -20,17 +20,13 @@ namespace ImageFunctions.AllColors
 		{
 			var p = new Params(args);
 
-			var ppat = p.Default("-p",out Pattern pat,Pattern.None);
-			if (ppat.IsInvalid()) {
+			if (p.Default("-p",out O.SortBy,Pattern.None).IsInvalid()) {
 				return false;
 			}
-			O.SortBy = pat;
 
-			var psp = p.Default("-s",out Space sp,Space.None);
-			if (psp.IsInvalid()) {
+			if (p.Default("-s",out O.WhichSpace,Space.None).IsInvalid()) {
 				return false;
 			}
-			O.WhichSpace = sp;
 
 			var pso = p.Default("-so",out string pri);
 			if (pso.IsInvalid()) {
@@ -57,8 +53,8 @@ namespace ImageFunctions.AllColors
 				O.NoParallelSort = true;
 			}
 
-			if (p.Default(out OutImage).IsBad()) {
-				OutImage = OptionsHelpers.CreateOutputFileName(nameof(AllColors));
+			if (p.DefaultFile(out OutImage,nameof(AllColors)).IsBad()) {
+				return false;
 			}
 
 			if (O.SortBy == Pattern.None && O.WhichSpace == Space.None) {

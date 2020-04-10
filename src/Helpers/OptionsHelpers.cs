@@ -28,6 +28,26 @@ namespace ImageFunctions.Helpers
 			return r;
 		}
 
+		public static Params.Result ExpectFile(this Params p, out string fileName, string name)
+		{
+			var r = p.Expect(out fileName, name);
+			if (r.IsBad()) { return r; }
+
+			if (!File.Exists(fileName)) {
+				Tell.CannotFindFile(fileName);
+				return Params.Result.Invalid;
+			}
+			return Params.Result.Good;
+		}
+
+		public static Params.Result DefaultFile(this Params p,out string fileName, string template)
+		{
+			if (p.Default(out fileName).IsBad()) {
+				fileName = CreateOutputFileName(template);
+			}
+			return Params.Result.Good;
+		}
+
 		// #if false
 		public static bool HasSamplerArg(string[] args, ref int a)
 		{

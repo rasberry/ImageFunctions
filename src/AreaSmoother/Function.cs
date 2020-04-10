@@ -28,33 +28,17 @@ namespace ImageFunctions.AreaSmoother
 			}
 			O.TotalTries = totalTries;
 
-			var ps = p.DefaultSampler(out IResampler samp);
-			if (ps.IsInvalid()) {
+			if (p.DefaultSampler(out O.Sampler).IsInvalid()) {
 				return false;
 			}
-			else if (ps.IsGood()) {
-				O.Sampler = samp;
-			}
-			
-			var pm = p.DefaultMetric(out IMeasurer met);
-			if (pm.IsInvalid()) {
+			if (p.DefaultMetric(out O.Measurer).IsInvalid()) {
 				return false;
 			}
-			else if (pm.IsGood()) {
-				O.Measurer = met;
-			}
-
-			if (p.Expect(out InImage,"input image").IsBad()) {
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-
-			if (!File.Exists(InImage)) {
-				Tell.CannotFindFile(InImage);
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
 				return false;
-			}
-
-			if (p.Default(out OutImage).IsBad()) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 
 			return true;

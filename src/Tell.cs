@@ -29,5 +29,11 @@ namespace ImageFunctions
 		public static void CannotFindFile(string path) {
 			Log.Error($"cannot find input image '{path}'");
 		}
+		public static void MustBeSizeInBytes(string name, int sizeInBytes, bool isMin = false) {
+			Log.Error($"{name} must be {(isMin?"at least ":"")}{sizeInBytes} bytes");
+		}
+		public static void InvalidPassword() {
+			Log.Error("password is missing or invalid");
+		}
 	}
 }

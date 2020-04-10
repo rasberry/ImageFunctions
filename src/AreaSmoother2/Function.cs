@@ -21,17 +21,13 @@ namespace ImageFunctions.AreaSmoother2
 			if (p.Has("-V").IsGood()) {
 				O.VOnly = true;
 			}
-			if (p.Expect(out InImage,"input image").IsBad()) {
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (p.Default(out OutImage).IsBad()) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
+				return false;
 			}
 
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
-				return false;
-			}
 			return true;
 		}
 
