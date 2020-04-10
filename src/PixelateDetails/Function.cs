@@ -30,27 +30,13 @@ namespace ImageFunctions.PixelateDetails
 			if (p.Has("-p").IsGood()) {
 				O.UseProportionalSplit = true;
 			}
-
-			var psp = p.Default("-s",out O.ImageSplitFactor,2.0);
-			if (psp.IsInvalid()) {
+			if (p.Default("-s",out O.ImageSplitFactor,2.0)
+				.BeGreaterThanZero("-s",O.ImageSplitFactor).IsInvalid()) {
 				return false;
 			}
-			else if (psp.IsGood()) {
-				if (O.ImageSplitFactor < double.Epsilon) {
-					Tell.MustBeGreaterThanZero("-s");
-					return false;
-				}
-			}
-
-			var prs = p.Default("-r",out O.DescentFactor,0.5);
-			if (prs.IsInvalid()) {
+			if(p.Default("-r",out O.DescentFactor,0.5)
+				.BeGreaterThanZero("-r",O.DescentFactor).IsInvalid()) {
 				return false;
-			}
-			else if (prs.IsGood()) {
-				if (O.DescentFactor < double.Epsilon) {
-					Tell.MustBeGreaterThanZero("-r");
-					return false;
-				}
 			}
 
 			if (p.ExpectFile(out InImage,"input image").IsBad()) {

@@ -34,16 +34,9 @@ namespace ImageFunctions.ImgDiff
 				O.OutputOriginal = true;
 			}
 
-			var pop = p.Default("-o",out double hop, par:OptionsHelpers.ParseNumberPercent);
-			if (pop.IsInvalid()) {
+			if(p.Default("-o",out O.HilightOpacity, par:OptionsHelpers.ParseNumberPercent)
+				.BeGreaterThanZero("-o",O.HilightOpacity).IsInvalid()) {
 				return false;
-			}
-			else if (pop.IsGood()) {
-				if (hop < double.Epsilon) {
-					Tell.MustBeGreaterThanZero("-o");
-					return false;
-				}
-				O.HilightOpacity = hop;
 			}
 
 			if (p.Default("-c",out O.HilightColor,Color.Magenta).IsInvalid()) {

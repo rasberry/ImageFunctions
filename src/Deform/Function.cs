@@ -46,13 +46,18 @@ namespace ImageFunctions.Deform
 				O.CenterPx = new Point(cx,cy);
 			}
 
+			// -cp and -cx are either/or options so choose a default if neither were specified
+			if (O.CenterPx == null && O.CenterPp == null) {
+				O.CenterPp = new PointF(0.5f,0.5f);
+			}
+
 			if (p.Default("-e",out O.Power,2.0).IsInvalid()) {
 				return false;
 			}
 			if (p.Default("-m",out O.WhichMode,Mode.None).IsInvalid()) {
 				return false;
 			}
-			if (p.DefaultSampler(out O.Sampler).IsInvalid()) {
+			if (p.DefaultSampler(out O.Sampler,Registry.DefaultResampler).IsInvalid()) {
 				return false;
 			}
 
@@ -61,10 +66,6 @@ namespace ImageFunctions.Deform
 			}
 			if (p.DefaultFile(out OutImage,InImage).IsInvalid()) {
 				return false;
-			}
-
-			if (O.CenterPx == null && O.CenterPp == null) {
-				O.CenterPp = new PointF(0.5f,0.5f);
 			}
 
 			return true;

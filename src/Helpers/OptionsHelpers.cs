@@ -19,60 +19,12 @@ namespace ImageFunctions.Helpers
 
 		public static Params.Result DefaultSampler(this Params p, out IResampler s, IResampler def = null)
 		{
-			s = def;
+			s = def ?? Registry.DefaultResampler;
 			var r = p.Default("--sampler",out Sampler sam);
 			if (r.IsBad()) {
 				return r;
 			}
 			s = Registry.Map(sam);
-			return r;
-		}
-
-		public static Params.Result ExpectFile(this Params p, out string fileName, string name)
-		{
-			var r = p.Expect(out fileName, name);
-			if (r.IsBad()) { return r; }
-
-			if (!File.Exists(fileName)) {
-				Tell.CannotFindFile(fileName);
-				return Params.Result.Invalid;
-			}
-			return Params.Result.Good;
-		}
-
-		public static Params.Result DefaultFile(this Params p,out string fileName, string template)
-		{
-			if (p.Default(out fileName).IsBad()) {
-				fileName = CreateOutputFileName(template);
-			}
-			return Params.Result.Good;
-		}
-
-		public static Params.Result BeGreaterThanZero(this Params.Result r, string name, double val)
-		{
-			if (r.IsGood() && val < double.Epsilon) {
-				Tell.MustBeGreaterThanZero(name);
-				return Params.Result.Invalid;
-			}
-			return r;
-		}
-
-		public static Params.Result BeGreaterThanZero(this Params.Result r, string name, int val)
-		{
-			if (r.IsGood() && val < 1) {
-				Tell.MustBeGreaterThanZero(name);
-				return Params.Result.Invalid;
-			}
-			return r;
-		}
-
-		public static Params.Result BeSizeInBytes(this Params.Result r, string name,
-			byte[] val, int sizeInBytes, bool isMin = false)
-		{
-			if (r.IsGood() && val != null && val.Length < sizeInBytes) {
-				Tell.MustBeSizeInBytes(name,sizeInBytes,isMin);
-				return Params.Result.Invalid;
-			}
 			return r;
 		}
 
@@ -102,7 +54,7 @@ namespace ImageFunctions.Helpers
 
 		public static Params.Result DefaultMetric(this Params p, out IMeasurer m, IMeasurer def = null)
 		{
-			m = null;
+			m = def ?? Registry.DefaultMetric;
 			Func<Metric,bool> hasTwo = (Metric mm) => mm == Metric.Minkowski;
 
 			var r = p.Default("--metric",out Metric metric,out double pfactor,Metric.None,0.0,hasTwo);
@@ -145,6 +97,61 @@ namespace ImageFunctions.Helpers
 		}
 		// #endif
 
+
+		public static Params.Result ExpectFile(this Params p, out string fileName, string name)
+		{
+			var r = p.Expect(out fileName, name);
+			if (r.IsBad()) { return r; }
+
+			if (!File.Exists(fileName)) {
+				Tell.CannotFindFile(fileName);
+				return Params.Result.Invalid;
+			}
+			return Params.Result.Good;
+		}
+
+		public static Params.Result DefaultFile(this Params p,out string fileName, string template)
+		{
+			if (p.Default(out fileName).IsBad()) {
+				fileName = CreateOutputFileName(template);
+			}
+			return Params.Result.Good;
+		}
+
+		public static Params.Result BeGreaterThanZero<T>(this Params.Result r, string name, T val)
+		{
+			if (r.IsBad()) { return r; }
+
+			var t = typeof(T);
+			var nullType = Nullable.GetUnderlyingType(t);
+			if (nullType != null) { t = nullType; }
+
+			if (t.Equals(typeof(double))) {
+				double v = (double)((object)val);
+				if (v >= double.Epsilon) {
+					return Params.Result.Good;
+				}
+			}
+			else if (t.Equals(typeof(int))) {
+				int v = (int)((object)val);
+				if (v > 0) {
+					return Params.Result.Good;
+				}
+			}
+
+			throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(BeGreaterThanZero)}");
+		}
+
+		public static Params.Result BeSizeInBytes(this Params.Result r, string name,
+			byte[] val, int sizeInBytes, bool isMin = false)
+		{
+			if (r.IsGood() && val != null && val.Length < sizeInBytes) {
+				Tell.MustBeSizeInBytes(name,sizeInBytes,isMin);
+				return Params.Result.Invalid;
+			}
+			return r;
+		}
+
 		public static string FunctionName(Activity a)
 		{
 			return $"{((int)a)}. {a}";
@@ -156,6 +163,14 @@ namespace ImageFunctions.Helpers
 			string name = Path.GetFileNameWithoutExtension(input);
 			string outFile = $"{name}-{DateTime.Now.ToString("yyyyMMdd-HHmmss")}.png";
 			return outFile;
+		}
+
+		public static bool ParseNumberPercent(string num, out double? val)
+		{
+			val = null;
+			bool worked = ParseNumberPercent(num,out double v);
+			if (worked) { val = v; }
+			return worked;
 		}
 
 		public static bool ParseNumberPercent(string num, out double val)
@@ -182,6 +197,9 @@ namespace ImageFunctions.Helpers
 		{
 			val = default(V);
 			Type t = typeof(V);
+
+			var nullType = Nullable.GetUnderlyingType(t);
+			if (nullType != null) { t = nullType; }
 
 			if (t.IsEnum) {
 				if (Enum.TryParse(t,sub,true,out object o)) {
@@ -212,7 +230,8 @@ namespace ImageFunctions.Helpers
 					val = (V)((object)clr); return true;
 				}
 			}
-			return false;
+
+			throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(TryParse)}");
 		}
 
 		public static bool TryParseColor(string sub, out Color color)
