@@ -23,8 +23,10 @@ namespace ImageFunctions.AllColors
 			if (p.Default("-p",out O.SortBy,Pattern.None).IsInvalid()) {
 				return false;
 			}
-
 			if (p.Default("-s",out O.WhichSpace,Space.None).IsInvalid()) {
+				return false;
+			}
+			if (p.Default("-np",out O.NoParallelSort,false).IsInvalid()) {
 				return false;
 			}
 
@@ -47,10 +49,6 @@ namespace ImageFunctions.AllColors
 					priorities[i] = num;
 				}
 				O.Order = priorities;
-			}
-
-			if (p.Has("-np").IsGood()) {
-				O.NoParallelSort = true;
 			}
 
 			if (p.DefaultFile(out OutImage,nameof(AllColors)).IsBad()) {
