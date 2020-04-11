@@ -16,7 +16,7 @@ namespace ImageFunctions.Derivatives
 		{
 			var p = new Params(args);
 
-			if (p.Has("-p").IsGood()) {
+			if (p.Has("-g").IsGood()) {
 				O.DoGrayscale = true;
 			}
 			if (p.Has("-a").IsGood()) {

@@ -26,8 +26,8 @@ namespace ImageFunctions.AllColors
 			if (p.Default("-s",out O.WhichSpace,Space.None).IsInvalid()) {
 				return false;
 			}
-			if (p.Default("-np",out O.NoParallelSort,false).IsInvalid()) {
-				return false;
+			if (p.Has("-so").IsGood()) {
+				O.NoParallelSort = true;
 			}
 
 			var pso = p.Default("-so",out string pri);
