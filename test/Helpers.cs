@@ -92,7 +92,7 @@ namespace test
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
 			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
-			// Log.Debug($"act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
+			Log.Debug($"act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
 
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;

@@ -28,7 +28,7 @@ namespace ImageFunctions.Helpers
 			return r;
 		}
 
-		// #if false
+		#if false
 		public static bool HasSamplerArg(string[] args, ref int a)
 		{
 			return args[a] == "--sampler" && ++a < args.Length;
@@ -45,7 +45,7 @@ namespace ImageFunctions.Helpers
 			sampler = Registry.Map(which);
 			return true;
 		}
-		// #endif
+		#endif
 
 		public static void MetricHelpLine(this System.Text.StringBuilder sb)
 		{
@@ -69,7 +69,7 @@ namespace ImageFunctions.Helpers
 			return r;
 		}
 
-		// #if false
+		#if false
 		public static bool HasMetricArg(string[] args, ref int a)
 		{
 			return args[a] == "--metric" && ++a < args.Length;
@@ -95,8 +95,7 @@ namespace ImageFunctions.Helpers
 			}
 			return true;
 		}
-		// #endif
-
+		#endif
 
 		public static Params.Result ExpectFile(this Params p, out string fileName, string name)
 		{

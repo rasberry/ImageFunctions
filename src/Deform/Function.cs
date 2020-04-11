@@ -54,7 +54,7 @@ namespace ImageFunctions.Deform
 			if (p.Default("-e",out O.Power,2.0).IsInvalid()) {
 				return false;
 			}
-			if (p.Default("-m",out O.WhichMode,Mode.None).IsInvalid()) {
+			if (p.Default("-m",out O.WhichMode,Mode.Polynomial).IsInvalid()) {
 				return false;
 			}
 			if (p.DefaultSampler(out O.Sampler,Registry.DefaultResampler).IsInvalid()) {
