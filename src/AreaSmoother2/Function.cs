@@ -31,42 +31,6 @@ namespace ImageFunctions.AreaSmoother2
 			return true;
 		}
 
-		#if false
-		public override bool ParseArgs(string[] args)
-		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-H") {
-					O.HOnly = true;
-				}
-				else if (curr == "-V") {
-					O.VOnly = true;
-				}
-				else if (InImage == null) {
-					InImage = curr;
-				}
-				else if (OutImage == null) {
-					OutImage = curr;
-				}
-			}
-
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
-				return false;
-			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
-				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
-			}
-			return true;
-		}
-		#endif
-
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.AreaSmoother2);

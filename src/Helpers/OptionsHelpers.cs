@@ -28,25 +28,6 @@ namespace ImageFunctions.Helpers
 			return r;
 		}
 
-		#if false
-		public static bool HasSamplerArg(string[] args, ref int a)
-		{
-			return args[a] == "--sampler" && ++a < args.Length;
-		}
-
-		public static bool TryParseSampler(string[] args, ref int a, out IResampler sampler)
-		{
-			sampler = null;
-			Sampler which;
-			if (!OptionsHelpers.TryParse<Sampler>(args[a],out which)) {
-				Log.Error("unknown sampler \""+args[a]+"\"");
-				return false;
-			}
-			sampler = Registry.Map(which);
-			return true;
-		}
-		#endif
-
 		public static void MetricHelpLine(this System.Text.StringBuilder sb)
 		{
 			sb.WL(1,"--metric (name) [args]","Use alterntive distance function");
@@ -68,34 +49,6 @@ namespace ImageFunctions.Helpers
 			}
 			return r;
 		}
-
-		#if false
-		public static bool HasMetricArg(string[] args, ref int a)
-		{
-			return args[a] == "--metric" && ++a < args.Length;
-		}
-
-		public static bool TryParseMetric(string[] args, ref int a, out IMeasurer mf)
-		{
-			mf = null;
-			Metric which;
-			if (!OptionsHelpers.TryParse<Metric>(args[a],out which)) {
-				Log.Error("unknown metric \""+args[a]+"\"");
-				return false;
-			}
-			if (which == Metric.Minkowski && ++a < args.Length) {
-				if (!double.TryParse(args[a],out double p)) {
-					Log.Error("could not parse p-factor");
-					return false;
-				}
-				mf = Registry.Map(which,p);
-			}
-			else {
-				mf = Registry.Map(which);
-			}
-			return true;
-		}
-		#endif
 
 		public static Params.Result ExpectFile(this Params p, out string fileName, string name)
 		{

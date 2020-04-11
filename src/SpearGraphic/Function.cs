@@ -35,48 +35,6 @@ namespace ImageFunctions.SpearGraphic
 			return true;
 		}
 
-		#if false
-		public override bool ParseArgs(string[] args)
-		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-g" && ++a < len) {
-					if (!OptionsHelpers.TryParse<Graphic>(args[a],out Graphic pat)) {
-						Log.Error("invalid graphic "+args[a]);
-						return false;
-					}
-					O.Spear = pat;
-				}
-				else if (curr == "-bg" && ++a<len) {
-					string clr = args[a];
-					if (!OptionsHelpers.TryParseColor(clr,out Color c)) {
-						Log.Error("invalid color \""+clr+"\"");
-						return false;
-					}
-					O.BackgroundColor = c;
-				}
-				else if (curr == "-rs" && ++a<len) {
-					if (!OptionsHelpers.TryParse<int>(args[a],out int rnd)) {
-						Log.Error($"invalid number {curr}");
-						return false;
-					}
-					O.RandomSeed = rnd;
-				}
-				else if (OutImage == null) {
-					OutImage = curr;
-				}
-			}
-
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(nameof(SpearGraphic));
-			}
-
-			return true;
-		}
-		#endif
-
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.SpearGraphic);

@@ -61,62 +61,6 @@ namespace ImageFunctions.AllColors
 			return true;
 		}
 
-		#if false
-		public override bool ParseArgs(string[] args)
-		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-p" && ++a < len) {
-					if (!OptionsHelpers.TryParse<Pattern>(args[a],out Pattern pat)) {
-						Log.Error("invalid pattern "+args[a]);
-						return false;
-					}
-					O.SortBy = pat;
-				}
-				else if (curr == "-s" && ++a < len) {
-					if (!OptionsHelpers.TryParse<Space>(args[a],out Space choose)) {
-						Log.Error("invalid color space "+args[a]);
-						return false;
-					}
-					O.WhichSpace = choose;
-				}
-				else if (curr == "-so" && ++a < len) {
-					string[] items = args[a].Split(',');
-					if (items.Length < 1) {
-						Log.Error("You must provide at least one priority");
-						return false;
-					}
-					int[] priorities = new int[items.Length];
-					for(int i=0; i<items.Length; i++) {
-						if (!int.TryParse(items[i],out var num)) {
-							Log.Error("Each priority must be a number");
-							return false;
-						}
-						priorities[i] = num;
-					}
-					O.Order = priorities;
-				}
-				else if (curr == "-np") {
-					O.NoParallelSort = true;
-				}
-				else if (OutImage == null) {
-					OutImage = curr;
-				}
-			}
-
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(nameof(AllColors));
-			}
-
-			if (O.SortBy == Pattern.None && O.WhichSpace == Space.None) {
-				O.SortBy = Pattern.BitOrder;
-			}
-			return true;
-		}
-		#endif
-
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.AllColors);

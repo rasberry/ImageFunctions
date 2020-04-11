@@ -49,58 +49,6 @@ namespace ImageFunctions.PixelateDetails
 			return true;
 		}
 
-		#if false
-		public override bool ParseArgs(string[] args)
-		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-p") {
-					O.UseProportionalSplit = true;
-				}
-				else if (curr == "-s" && ++a<len) {
-					string num = args[a];
-					OptionsHelpers.ParseNumberPercent(num,out double d);
-					if (d < double.Epsilon) {
-						Log.Error("invalid splitting factor \""+d+"\"");
-						return false;
-					}
-					O.ImageSplitFactor = d;
-				}
-				else if (curr == "-r" && ++a<len) {
-					string num = args[a];
-					OptionsHelpers.ParseNumberPercent(num,out double d);
-					if (d < double.Epsilon) {
-						Log.Error("invalid re-split factor \""+d+"\"");
-						return false;
-					}
-					O.DescentFactor = d;
-				}
-				else if (String.IsNullOrEmpty(InImage)) {
-					InImage = curr;
-				}
-				else if (String.IsNullOrEmpty(OutImage)) {
-					OutImage = curr;
-				}
-			}
-
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
-				return false;
-			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
-				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
-			}
-
-			return true;
-		}
-		#endif
-
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.PixelateDetails);
