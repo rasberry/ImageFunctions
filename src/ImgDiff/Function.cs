@@ -35,7 +35,7 @@ namespace ImageFunctions.ImgDiff
 			}
 
 			if(p.Default("-o",out O.HilightOpacity, par:OptionsHelpers.ParseNumberPercent)
-				.BeGreaterThanZero("-o",O.HilightOpacity).IsInvalid()) {
+				.BeGreaterThanZero("-o",O.HilightOpacity,true).IsInvalid()) {
 				return false;
 			}
 

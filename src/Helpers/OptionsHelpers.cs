@@ -118,28 +118,39 @@ namespace ImageFunctions.Helpers
 			return Params.Result.Good;
 		}
 
-		public static Params.Result BeGreaterThanZero<T>(this Params.Result r, string name, T val)
+		public static Params.Result BeGreaterThanZero<T>(this Params.Result r, string name, T val, bool includeZero = false)
 		{
 			if (r.IsBad()) { return r; }
 
 			var t = typeof(T);
 			var nullType = Nullable.GetUnderlyingType(t);
 			if (nullType != null) { t = nullType; }
+			bool isInvalid = false;
 
 			if (t.Equals(typeof(double))) {
 				double v = (double)((object)val);
-				if (v >= double.Epsilon) {
+				if ((!includeZero && v >= double.Epsilon)
+					|| (includeZero && v >= 0.0)) {
 					return Params.Result.Good;
 				}
+				isInvalid = true;
 			}
 			else if (t.Equals(typeof(int))) {
 				int v = (int)((object)val);
-				if (v > 0) {
+				if ((!includeZero && v > 0)
+					|| (includeZero && v >= 0)) {
 					return Params.Result.Good;
 				}
+				isInvalid = true;
 			}
 
-			throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(BeGreaterThanZero)}");
+			if (isInvalid) {
+				Tell.MustBeGreaterThanZero(name,includeZero);
+				return Params.Result.Invalid;
+			}
+			else {
+				throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(BeGreaterThanZero)}");
+			}
 		}
 
 		public static Params.Result BeSizeInBytes(this Params.Result r, string name,
@@ -209,7 +220,10 @@ namespace ImageFunctions.Helpers
 			}
 			else if (t.Equals(typeof(double))) {
 				if (double.TryParse(sub,out double b)) {
-					val = (V)((object)b); return true;
+					if (!double.IsInfinity(b) && !double.IsNaN(b)) {
+						val = (V)((object)b);
+						return true;
+					}
 				}
 			}
 			else if (t.Equals(typeof(int))) {
@@ -218,7 +232,10 @@ namespace ImageFunctions.Helpers
 				}
 			}
 			else if (t.Equals(typeof(string))) {
-				val = (V)((object)sub); return true;
+				if (!String.IsNullOrWhiteSpace(sub)) {
+					val = (V)((object)sub);
+					return true;
+				}
 			}
 			else if (t.Equals(typeof(Rectangle))) {
 				if (TryParseRectangle(sub,out var rect)) {
@@ -231,27 +248,26 @@ namespace ImageFunctions.Helpers
 				}
 			}
 
-			//throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(TryParse)}");
 			return false;
 		}
 
 		public static bool TryParseColor(string sub, out Color color)
 		{
 			color = default(Color);
-			try {
-				color = Color.FromHex(sub);
-				return true;
-			}
-			catch(ArgumentException) {
-				//Continue
-			}
-
 			PopColorMap();
 
 			if (ColorMap.TryGetValue(sub,out string ColorName)) {
 				if (TryGetColorByName(ColorName, out color)) {
 					return true;
 				}
+			}
+
+			try {
+				color = Color.FromHex(sub);
+				return true;
+			}
+			catch(ArgumentException) {
+				//don't crash here - follow the convention of returning false
 			}
 
 			return false;

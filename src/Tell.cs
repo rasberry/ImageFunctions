@@ -23,8 +23,8 @@ namespace ImageFunctions
 		public static void PriorityMustBeNumber() {
 			Log.Error("Each priority must be a number");
 		}
-		public static void MustBeGreaterThanZero(string name) {
-			Log.Error($"{name} must be greater than zero");
+		public static void MustBeGreaterThanZero(string name, bool includeZero = false) {
+			Log.Error($"{name} must be greater than {(includeZero?"or equal to ":"")}zero");
 		}
 		public static void CannotFindFile(string path) {
 			Log.Error($"cannot find input image '{path}'");

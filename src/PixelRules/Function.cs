@@ -55,7 +55,7 @@ namespace ImageFunctions.PixelRules
 
 			return true;
 		}
-		
+
 		#if false
 		public override bool ParseArgs(string[] args)
 		{
