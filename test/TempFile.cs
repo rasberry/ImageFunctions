@@ -31,7 +31,7 @@ namespace test
 		public void Dispose()
 		{
 			if (File.Exists(FileName)) {
-				// File.Delete(FileName);
+				File.Delete(FileName);
 			}
 		}
 	}
