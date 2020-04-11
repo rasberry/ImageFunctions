@@ -176,7 +176,7 @@ namespace ImageFunctions
 						return false;
 					}
 					Bounds = rect;
-					Log.Debug(rect.ToString());
+					// Log.Debug(rect.ToString());
 				}
 				else if (curr == "--actions") {
 					ShowHelpActions = true;

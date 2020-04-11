@@ -26,7 +26,7 @@ namespace ImageFunctions.AllColors
 			if (p.Default("-s",out O.WhichSpace,Space.None).IsInvalid()) {
 				return false;
 			}
-			if (p.Has("-so").IsGood()) {
+			if (p.Has("-np").IsGood()) {
 				O.NoParallelSort = true;
 			}
 
