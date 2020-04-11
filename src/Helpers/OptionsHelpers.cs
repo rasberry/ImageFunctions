@@ -231,7 +231,8 @@ namespace ImageFunctions.Helpers
 				}
 			}
 
-			throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(TryParse)}");
+			//throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(TryParse)}");
+			return false;
 		}
 
 		public static bool TryParseColor(string sub, out Color color)
