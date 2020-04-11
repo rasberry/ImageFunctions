@@ -16,64 +16,38 @@ namespace ImageFunctions.Encrypt
 	{
 		public override bool ParseArgs(string[] args)
 		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-p" && ++a<len) {
-					O.UserPassword = args[a];
-				}
-				else if (curr == "-pi") {
-					if (!TryPromptForPassword(out O.UserPassword)) {
-						Log.Error("invalid password");
-						return false;
-					}
-				}
-				else if (curr == "-raw") {
-					O.TreatPassAsRaw = true;
-				}
-				else if (curr == "-d") {
-					O.DoDecryption = true;
-				}
-				else if (curr == "-iv" && ++a<len) {
-					if (!Encryptor.TryStringToBytes(args[a],out O.IVBytes)) {
-						Log.Error("Invalid IV value");
-						return false;
-					}
-					if (O.IVBytes != null && O.IVBytes.Length != Encryptor.BlockSizeInBytes) {
-						Log.Error("IV must be "+Encryptor.BlockSizeInBytes+" bytes");
-						return false;
-					}
-				}
-				else if (curr == "-salt" && ++a<len) {
-					if (!Encryptor.TryStringToBytes(args[a],out O.SaltBytes)) {
-						Log.Error("Invalid Salt value");
-						return false;
-					}
-					if (O.SaltBytes != null && O.SaltBytes.Length < Encryptor.MinSaltBytes) {
-						Log.Error("Salt must be at least "+Encryptor.MinSaltBytes+" bytes");
-						return false;
-					}
-				}
-				else if (curr == "-iter" && ++a<len) {
-					if (!OptionsHelpers.TryParse(args[a],out int iter)) {
-						Log.Error("Invalid number of iterations");
-						return false;
-					}
-					if (iter < 1) {
-						Log.Error("Iterations must be greater than zero");
-						return false;
-					}
-					O.PasswordIterations = iter;
-				}
-				else if (curr == "-test") {
-					O.TestMode = true;
-				}
-				else if (String.IsNullOrEmpty(InImage)) {
-					InImage = curr;
-				}
-				else if (String.IsNullOrEmpty(OutImage)) {
-					OutImage = curr;
+			var p = new Params(args);
+
+			if (p.Has("-raw").IsGood()) {
+				O.TreatPassAsRaw = true;
+			}
+			if (p.Has("-d").IsGood()) {
+				O.DoDecryption = true;
+			}
+			if (p.Has("-test").IsGood()) {
+				O.TestMode = true;
+			}
+			if (p.Default("-iv",out O.IVBytes,Encryptor.DefaultIV,Encryptor.TryStringToBytes)
+				.BeSizeInBytes("-iv",O.IVBytes,Encryptor.BlockSizeInBytes).IsInvalid()) {
+				return false;
+			}
+			if(p.Default("-salt",out O.SaltBytes,Encryptor.DefaultSalt,Encryptor.TryStringToBytes)
+				.BeSizeInBytes("-salt",O.SaltBytes,Encryptor.MinSaltBytes,true).IsInvalid()) {
+				return false;
+			}
+			if(p.Default("-iter",out O.PasswordIterations,Encryptor.DefaultIterations)
+				.BeGreaterThanZero("-iter",O.PasswordIterations).IsInvalid()) {
+				return false;
+			}
+
+			var ppass = p.Default("-p",out O.UserPassword);
+			if (ppass.IsInvalid()) {
+				return false;
+			}
+			else if (ppass.IsMissing() && p.Has("-pi").IsGood()) {
+				if (!TryPromptForPassword(out O.UserPassword)) {
+					Tell.InvalidPassword();
+					return false;
 				}
 			}
 
@@ -88,7 +62,7 @@ namespace ImageFunctions.Encrypt
 				}
 			}
 			if (!goodPass) {
-				Log.Error("missing or invalid password");
+				Tell.InvalidPassword();
 				return false;
 			}
 
@@ -104,16 +78,11 @@ namespace ImageFunctions.Encrypt
 				return false; //stop the program
 			}
 
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
 				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 
 			return true;
@@ -130,6 +99,9 @@ namespace ImageFunctions.Encrypt
 				sb.Append(key.KeyChar);
 			}
 			pass = sb.ToString();
+			if (String.IsNullOrWhiteSpace(pass)) {
+				return false;
+			}
 			return true;
 		}
 
@@ -162,18 +134,18 @@ namespace ImageFunctions.Encrypt
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.Encrypt);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Encrypt or Decrypts all or parts of an image");
-			sb.AppendLine(" Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
-			sb.AppendLine(" -d                          Enable decryption (default is to encrypt)");
-			sb.AppendLine(" -p (text)                   Password used to encrypt / decrypt image");
-			sb.AppendLine(" -pi                         Ask for the password on the command prompt (instead of -p)");
-			sb.AppendLine(" -raw                        Treat password text as a raw string (shell escaping still applies)");
-			sb.AppendLine(" -iv (text)                  Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
-			sb.AppendLine(" -salt (text)                Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
-			sb.AppendLine(" -iter (number)              Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
-			sb.AppendLine(" -test                       Print out any specified (text) inputs as hex and exit");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Encrypt or Decrypts all or parts of an image");
+			sb.WL(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
+			sb.WL(1,"-d"            ,"Enable decryption (default is to encrypt)");
+			sb.WL(1,"-p (text)"     ,"Password used to encrypt / decrypt image");
+			sb.WL(1,"-pi"           ,"Ask for the password on the command prompt (instead of -p)");
+			sb.WL(1,"-raw"          ,"Treat password text as a raw string (shell escaping still applies)");
+			sb.WL(1,"-iv (text)"    ,"Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
+			sb.WL(1,"-salt (text)"  ,"Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
+			sb.WL(1,"-iter (number)","Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
+			sb.WL(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
 		}
 
 		public override void Main()

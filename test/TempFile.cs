@@ -23,9 +23,9 @@ namespace test
 		{
 			string pr = Helpers.ProjectRoot;
 			string tempFile = Path.GetTempFileName();
-			File.Move(tempFile,tempFile+".png");
-			tempFile += ".png";
-			FileName = tempFile;
+			string tempPng = tempFile + ".png";
+			File.Move(tempFile,tempPng);
+			FileName = tempPng;
 		}
 
 		public void Dispose()

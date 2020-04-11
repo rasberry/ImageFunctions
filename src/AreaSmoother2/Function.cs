@@ -14,46 +14,31 @@ namespace ImageFunctions.AreaSmoother2
 	{
 		public override bool ParseArgs(string[] args)
 		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-H") {
-					O.HOnly = true;
-				}
-				else if (curr == "-V") {
-					O.VOnly = true;
-				}
-				else if (InImage == null) {
-					InImage = curr;
-				}
-				else if (OutImage == null) {
-					OutImage = curr;
-				}
+			var p = new Params(args);
+			if (p.Has("-H").IsGood()) {
+				O.HOnly = true;
+			}
+			if (p.Has("-V").IsGood()) {
+				O.VOnly = true;
+			}
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
+				return false;
+			}
+			if (p.DefaultFile(out OutImage,InImage).IsBad()) {
+				return false;
 			}
 
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
-				return false;
-			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
-				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
-			}
 			return true;
 		}
 
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.AreaSmoother2);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
-			sb.AppendLine(" -H                          Horizontal only");
-			sb.AppendLine(" -V                          Vertical only");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
+			sb.WL(1,"-H","Horizontal only");
+			sb.WL(1,"-V","Vertical only");
 		}
 
 		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)

@@ -25,63 +25,32 @@ namespace ImageFunctions.ImgDiff
 
 		public override bool ParseArgs(string[] args)
 		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-i") {
-					O.MatchSamePixels = true;
-				}
-				else if (curr == "-x") {
-					O.OutputOriginal = true;
-				}
-				else if (curr == "-o" && ++a<len) {
-					string num = args[a];
-					if (!OptionsHelpers.ParseNumberPercent(num,out double d)
-						|| d < double.Epsilon)
-					{
-						Log.Error("invalid opacity \""+num+"\"");
-						return false;
-					}
-					O.HilightOpacity = d;
-				}
-				else if (curr == "-c" && ++a<len) {
-					string clr = args[a];
-					if (!OptionsHelpers.TryParseColor(clr,out Color c)) {
-						Log.Error("invalid color \""+clr+"\"");
-						return false;
-					}
-					O.HilightColor = c;
-				}
-				else if (String.IsNullOrEmpty(InImage)) {
-					InImage = curr;
-				}
-				else if (String.IsNullOrEmpty(O.CompareImage)) {
-					O.CompareImage = curr;
-				}
-				else if (String.IsNullOrEmpty(OutImage)) {
-					OutImage = curr;
-				}
+			var p = new Params(args);
+
+			if (p.Has("-i").IsGood()) {
+				O.MatchSamePixels = true;
+			}
+			if (p.Has("-x").IsGood()) {
+				O.OutputOriginal = true;
 			}
 
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("first image must be provided");
+			if(p.Default("-o",out O.HilightOpacity, par:OptionsHelpers.ParseNumberPercent)
+				.BeGreaterThanZero("-o",O.HilightOpacity,true).IsInvalid()) {
 				return false;
 			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find image \""+InImage+"\"");
+
+			if (p.Default("-c",out O.HilightColor,Color.Magenta).IsInvalid()) {
 				return false;
 			}
-			if (String.IsNullOrEmpty(O.CompareImage)) {
-				Log.Error("second image must be provided");
+			if (p.ExpectFile(out InImage,"first image").IsBad()) {
 				return false;
 			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find image \""+O.CompareImage+"\"");
+			if (p.ExpectFile(out O.CompareImage,"second image").IsBad()) {
 				return false;
 			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage+"-"+O.CompareImage);
+			string outDef = $"{Path.GetFileNameWithoutExtension(InImage)}-{Path.GetFileNameWithoutExtension(O.CompareImage)}";
+			if (p.DefaultFile(out OutImage,outDef).IsInvalid()) {
+				return false;
 			}
 
 			return true;
@@ -90,14 +59,14 @@ namespace ImageFunctions.ImgDiff
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.ImgDiff);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (image one) (image two) [output image]");
-			sb.AppendLine(" Highlights differences between two images.");
-			sb.AppendLine(" By default differeces are hilighted based on distance ranging from hilight color to white");
-			sb.AppendLine(" -o (number)[%]              Overlay hilight color at given opacity");
-			sb.AppendLine(" -i                          Match identical pixels instead of differences");
-			sb.AppendLine(" -x                          Output original pixels instead of hilighting them");
-			sb.AppendLine(" -c (color)                  Change hilight color (default is magenta)");
+			sb.WL();
+			sb.WL(0,name + " [options] (image one) (image two) [output image]");
+			sb.WL(1,"Highlights differences between two images.");
+			sb.WL(1,"By default differeces are hilighted based on distance ranging from hilight color to white");
+			sb.WL(1,"-o (number)[%]","Overlay hilight color at given opacity");
+			sb.WL(1,"-i"            ,"Match identical pixels instead of differences");
+			sb.WL(1,"-x"            ,"Output original pixels instead of hilighting them");
+			sb.WL(1,"-c (color)"    ,"Change hilight color (default is magenta)");
 		}
 
 		public override void Main()

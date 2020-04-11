@@ -25,49 +25,25 @@ namespace ImageFunctions.PixelateDetails
 
 		public override bool ParseArgs(string[] args)
 		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-p") {
-					O.UseProportionalSplit = true;
-				}
-				else if (curr == "-s" && ++a<len) {
-					string num = args[a];
-					OptionsHelpers.ParseNumberPercent(num,out double d);
-					if (d < double.Epsilon) {
-						Log.Error("invalid splitting factor \""+d+"\"");
-						return false;
-					}
-					O.ImageSplitFactor = d;
-				}
-				else if (curr == "-r" && ++a<len) {
-					string num = args[a];
-					OptionsHelpers.ParseNumberPercent(num,out double d);
-					if (d < double.Epsilon) {
-						Log.Error("invalid re-split factor \""+d+"\"");
-						return false;
-					}
-					O.DescentFactor = d;
-				}
-				else if (String.IsNullOrEmpty(InImage)) {
-					InImage = curr;
-				}
-				else if (String.IsNullOrEmpty(OutImage)) {
-					OutImage = curr;
-				}
+			var p = new Params(args);
+
+			if (p.Has("-p").IsGood()) {
+				O.UseProportionalSplit = true;
+			}
+			if (p.Default("-s",out O.ImageSplitFactor,2.0)
+				.BeGreaterThanZero("-s",O.ImageSplitFactor).IsInvalid()) {
+				return false;
+			}
+			if(p.Default("-r",out O.DescentFactor,0.5)
+				.BeGreaterThanZero("-r",O.DescentFactor).IsInvalid()) {
+				return false;
 			}
 
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
+			if (p.DefaultFile(out OutImage,InImage).IsInvalid()) {
 				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 
 			return true;
@@ -76,12 +52,12 @@ namespace ImageFunctions.PixelateDetails
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.PixelateDetails);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Creates areas of flat color by recusively splitting high detail chunks");
-			sb.AppendLine(" -p                          Use proportianally sized sections (default is square sized sections)");
-			sb.AppendLine(" -s (number)[%]              Multiple or percent of image dimension used for splitting (default 2.0)");
-			sb.AppendLine(" -r (number)[%]              Count or percent or sections to re-split (default 50%)");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Creates areas of flat color by recusively splitting high detail chunks");
+			sb.WL(1,"-p"            ,"Use proportianally sized sections (default is square sized sections)");
+			sb.WL(1,"-s (number)[%]","Multiple or percent of image dimension used for splitting (default 2.0)");
+			sb.WL(1,"-r (number)[%]","Count or percent or sections to re-split (default 50%)");
 		}
 
 		public override void Main()

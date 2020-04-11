@@ -19,7 +19,8 @@ namespace ImageFunctions
 			foreach (ImageFrame<TPixel> sourceFrame in Source.Frames) {
 				var rect = Bounds;
 				if (rect.IsEmpty) { rect = sourceFrame.Bounds(); }
-				rect.X = 0; rect.Y = 0; //ignore passed in x,y so we don't get index out of bound errors
+				//TODO breaks allcolors - added for ulam
+				// rect.X = 0; rect.Y = 0; //ignore passed in x,y so we don't get index out of bound errors
 
 				this.Apply(sourceFrame, rect, config);
 			}

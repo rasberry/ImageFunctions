@@ -26,68 +26,31 @@ namespace ImageFunctions.PixelRules
 
 		public override bool ParseArgs(string[] args)
 		{
-			int len = args.Length;
-			for(int a=0; a<len; a++)
-			{
-				string curr = args[a];
-				if (curr == "-n" && ++a<len) {
-					if (!Helpers.OptionsHelpers.TryParse(args[a],out O.Passes)) {
-						Log.Error("invalid passes");
-						return false;
-					}
-					if (O.Passes < 1) {
-						Log.Error("passes must be greater than zero");
-						return false;
-					}
-				}
-				else if (curr == "-m" && ++a<len) {
-					Mode which;
-					if (!OptionsHelpers.TryParse<Mode>(args[a],out which)) {
-						Log.Error("unkown mode \""+args[a]+"\"");
-						return false;
-					}
-					O.WhichMode = which;
-				}
-				else if (curr == "-x" && ++a<len) {
-					if (!Helpers.OptionsHelpers.TryParse(args[a],out O.MaxIters)) {
-						Log.Error("invalid max iterations");
-						return false;
-					}
-					if (O.MaxIters < 1) {
-						Log.Error("max iterations must be greater than zero");
-						return false;
-					}
-				}
-				else if (OptionsHelpers.HasSamplerArg(args,ref a)) {
-					if (!OptionsHelpers.TryParseSampler(args,ref a,out IResampler sampler)) {
-						return false;
-					}
-					O.Sampler = sampler;
-				}
-				else if (OptionsHelpers.HasMetricArg(args,ref a)) {
-					if (!OptionsHelpers.TryParseMetric(args, ref a, out IMeasurer mf)) {
-						return false;
-					}
-					O.Measurer = mf;
-				}
-				else if (String.IsNullOrEmpty(InImage)) {
-					InImage = curr;
-				}
-				else if (String.IsNullOrEmpty(OutImage)) {
-					OutImage = curr;
-				}
+			var p = new Params(args);
+
+			if (p.Default("-n",out O.Passes,1)
+				.BeGreaterThanZero("-n",O.Passes).IsInvalid()) {
+				return false;
+			}
+			if (p.Default("-m",out O.WhichMode,Function.Mode.StairCaseDescend).IsInvalid()) {
+				return false;
+			}
+			if (p.Default("-x",out O.MaxIters,100)
+				.BeGreaterThanZero("-x",O.MaxIters).IsInvalid()) {
+				return false;
+			}
+			if (p.DefaultSampler(out O.Sampler).IsInvalid()) {
+				return false;
+			}
+			if (p.DefaultMetric(out O.Measurer).IsInvalid()) {
+				return false;
 			}
 
-			if (String.IsNullOrEmpty(InImage)) {
-				Log.Error("input image must be provided");
+			if (p.ExpectFile(out InImage,"input image").IsBad()) {
 				return false;
 			}
-			if (!File.Exists(InImage)) {
-				Log.Error("cannot find input image \""+InImage+"\"");
+			if (p.DefaultFile(out OutImage,InImage).IsInvalid()) {
 				return false;
-			}
-			if (String.IsNullOrEmpty(OutImage)) {
-				OutImage = OptionsHelpers.CreateOutputFileName(InImage);
 			}
 
 			return true;
@@ -96,20 +59,17 @@ namespace ImageFunctions.PixelRules
 		public override void Usage(StringBuilder sb)
 		{
 			string name = OptionsHelpers.FunctionName(Activity.PixelRules);
-			sb.AppendLine();
-			sb.AppendLine(name + " [options] (input image) [output image]");
-			sb.AppendLine(" Average a set of pixels by following a minimaztion function");
-			sb.AppendLine(" -m (mode)                   Which mode to use (default StairCaseDescend)");
-			sb.AppendLine(" -n (number)                 Number of times to apply operation (default 1)");
-			sb.AppendLine(" -x (number)                 Maximum number of iterations - in case of infinte loops (default 100)");
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Average a set of pixels by following a minimaztion function");
+			sb.WL(1,"-m (mode)"  ,"Which mode to use (default StairCaseDescend)");
+			sb.WL(1,"-n (number)","Number of times to apply operation (default 1)");
+			sb.WL(1,"-x (number)","Maximum number of iterations - in case of infinte loops (default 100)");
 			sb.SamplerHelpLine();
 			sb.MetricHelpLine();
-			sb.AppendLine();
-			sb.AppendLine(" Available Modes");
-			sb.AppendLine(" 1. StairCaseDescend         move towards smallest distance");
-			sb.AppendLine(" 2. StairCaseAscend          move towards largest distance");
-			sb.AppendLine(" 3. StairCaseClosest         move towards closest distance");
-			sb.AppendLine(" 4. StairCaseFarthest        move towards farthest distance");
+			sb.WL();
+			sb.WL(1,"Available Modes");
+			sb.PrintEnum<Mode>(1,ModeDesc);
 		}
 
 		public IMeasurer Measurer { get { return O.Measurer; }}
@@ -121,6 +81,18 @@ namespace ImageFunctions.PixelRules
 			StairCaseAscend = 2,
 			StairCaseClosest = 3,
 			StairCaseFarthest = 4
+		}
+
+		static string ModeDesc(Mode m)
+		{
+			switch(m)
+			{
+			case Mode.StairCaseDescend:  return "move towards smallest distance";
+			case Mode.StairCaseAscend:   return "move towards largest distance";
+			case Mode.StairCaseClosest:  return "move towards closest distance";
+			case Mode.StairCaseFarthest: return "move towards farthest distance";
+			}
+			return "";
 		}
 
 		public override void Main()

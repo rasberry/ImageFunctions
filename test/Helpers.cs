@@ -60,7 +60,7 @@ namespace test
 		{
 			var images = test.GetImageNames();
 			var argsForIndex = test.GetArgs(index);
-			
+
 			using(var tempFile = Helpers.CreateTempPngFile())
 			{
 				var imgs = images[0];
@@ -92,6 +92,8 @@ namespace test
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
 			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
+			Log.Debug($"act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
+
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
@@ -112,6 +114,7 @@ namespace test
 
 		public static bool AreImagesEqual(string one, string two)
 		{
+			// Log.Debug($"AreImagesEqual one={one} two={two}");
 			var iOne = Image.Load<Rgba32>(one);
 			var iTwo = Image.Load<Rgba32>(two);
 			using (iOne) using(iTwo) {

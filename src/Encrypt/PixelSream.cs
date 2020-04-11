@@ -72,6 +72,7 @@ namespace ImageFunctions.Encrypt
 			int pos = (int)(Position / 4);
 			int elem = (int)(Position % 4);
 
+			//only supporting 24bit(+alpha) color for now
 			Rgba32 c = default(Rgba32);
 			Image.GetPixelSpan()[pos].ToRgba32(ref c);
 			byte comp;

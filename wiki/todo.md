@@ -8,6 +8,7 @@
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
 * refactor wiki generator to use msbuild task instead of tests
+* add a Point type TryParse - several functions use 'x y' and could use 'x,y' instead - also would be good to consolidate this code
 
 ## Ideas ##
 * add noise functions
@@ -99,4 +100,3 @@
 ## UlamSpiral ##
 * add support for color pallete
   * see https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
-
