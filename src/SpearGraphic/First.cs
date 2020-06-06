@@ -1,4 +1,5 @@
 using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -80,7 +81,7 @@ namespace ImageFunctions.SpearGraphic
 					x = s*Math.Sin(a)+add;
 					y = s*Math.Tan(a)+add;
 					DrawDot(image,(int)x,(int)y,c);
-					
+
 					progress.Report((double)v/max);
 				}
 			}

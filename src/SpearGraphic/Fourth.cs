@@ -1,4 +1,5 @@
 using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -184,7 +185,7 @@ namespace ImageFunctions.SpearGraphic
 			p = i < 1.0 * max / 2 ? 255
 				: 255 - (i - max/2) * (255 / max * 2);
 			s = 1.0 * i < max/2 ? 255 - i * (255 / max * 2) : 0;
-			
+
 			Rgba32 c;
 			if (f == FadeComp.R) {
 				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
@@ -249,12 +250,12 @@ namespace ImageFunctions.SpearGraphic
 				(byte)Random(0,255),(byte)Random(0,255),(byte)Random(0,255),(byte)a);
 			return color;
 		}
-		
+
 		static Point GetRandomPoint(int w,int h)
 		{
 			return new Point(Random(0,w),Random(0,h));
 		}
-		
+
 		static void InitRandom(int? seed = null)
 		{
 			if (rnd == null) {

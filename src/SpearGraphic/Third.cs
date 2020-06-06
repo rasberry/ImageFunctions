@@ -1,4 +1,5 @@
 using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -155,7 +156,7 @@ namespace ImageFunctions.SpearGraphic
 			p = i < 1.0 * max / 2 ? 255
 				: 255 - (i - max/2) * (255 / max * 2);
 			s = 1.0 * i < max/2 ? 255 - i * (255 / max * 2) : 0;
-			
+
 			Color c;
 			if (f == FadeComp.R) {
 				c = new Rgba32((byte)p,(byte)s,(byte)s,32);

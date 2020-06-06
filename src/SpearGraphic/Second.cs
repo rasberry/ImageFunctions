@@ -1,4 +1,5 @@
 using System;
+using ImageFunctions.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
@@ -56,7 +57,7 @@ namespace ImageFunctions.SpearGraphic
 				{
 					ox = o+(an+(am*(max-v)/max))*Math.Cos(v*Math.PI/aa);
 					oy = o+(an+(am*(max-v)/max))*Math.Sin(v*Math.PI/aa);
-					
+
 					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 					x = s * Math.Tan(a) + (v/t) + ox;
 					y = s * Math.Sin(a) + (v/t) + oy;
@@ -94,7 +95,7 @@ namespace ImageFunctions.SpearGraphic
 			double a,x,y;
 			double lx=0,ly=0;
 			double oos = w * 0.088; //offset size
-			
+
 			using (var progress = new ProgressBar())
 			{
 				for(double v=1; v<max; v++)
@@ -102,7 +103,7 @@ namespace ImageFunctions.SpearGraphic
 					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 					x = s * Math.Tan(a) + (v/t) + o;
 					y = s * Math.Sin(a) + (v/t) + o;
-					
+
 					if (v != 1 && x < w && y < h && x > 0 && y > 0)
 					{
 						float oo = (float)(oos*Math.Sin(((max-v)/max)*2*Math.PI));
@@ -114,7 +115,7 @@ namespace ImageFunctions.SpearGraphic
 							Rgba32 p = v > m2
 								? ColorFade(v-m2,m2,FadeComp.B)
 								: ColorFade(m2-v,m2,FadeComp.R);
-							
+
 							image.Mutate(op => {
 								DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
 								DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
@@ -134,7 +135,7 @@ namespace ImageFunctions.SpearGraphic
 			var p1 = new PointF((float)x1,(float)y1);
 			op.DrawLines(gop,(Color)p,1.0f,p0,p1);
 		}
-		
+
 		enum FadeComp { R, G, B }
 		static Rgba32 ColorFade(double i, double max, FadeComp f)
 		{
@@ -142,7 +143,7 @@ namespace ImageFunctions.SpearGraphic
 			p = i < 1.0 * max / 2 ? 255
 				: 255 - (i - max/2) * (255 / max * 2);
 			s = 1.0 * i < max/2 ? 255 - i * (255 / max * 2) : 0;
-			
+
 			Color c;
 			if (f == FadeComp.R) {
 				c = new Rgba32((byte)p,(byte)s,(byte)s,32);

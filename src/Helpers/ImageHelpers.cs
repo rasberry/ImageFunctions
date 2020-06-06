@@ -70,6 +70,22 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
+		public static void BlitImage(this IFImage dstImg, IFImage srcImg,
+			IFRectangle dstRect = default(IFRectangle), IFPoint srcPoint = default(IFPoint))
+		{
+			//TODO this needs to be tested better
+
+			for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
+				int cy = y - dstRect.Top + srcPoint.Y;
+				for(int x = dstRect.Left; x < dstRect.Right; x++) {
+					int cx = x - dstRect.Left + srcPoint.X;
+					int dstoff = y * dstImg.Width + x;
+					int srcoff = cy * dstRect.Width + cx;
+					dstImg[x,y] = srcImg[cx,cy];
+				}
+			}
+		}
+
 		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -78,6 +94,13 @@ namespace ImageFunctions.Helpers
 			int off = py * img.Width + px;
 			//Log.Debug("GPS off = "+off);
 			return img.GetPixelSpan()[off];
+		}
+
+		public static IFColor GetPixelSafe(this IFImage img, int x, int y)
+		{
+			int px = Math.Clamp(x,0,img.Width - 1);
+			int py = Math.Clamp(y,0,img.Height - 1);
+			return img[px,py];
 		}
 
 		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
@@ -91,6 +114,12 @@ namespace ImageFunctions.Helpers
 				TPixel pixc = SampleComplex(img,locX,locY,sampler);
 				return pixc;
 			}
+		}
+
+		public static IFColor Sample(this IFImage img, double locX, double locY)
+		{
+			//TODO re-implement samplers without SixLabors
+			return GetPixelSafe(img,(int)locX,(int)locY);
 		}
 
 		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)

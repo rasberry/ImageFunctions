@@ -10,6 +10,88 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ZoomBlur
 {
+	public class Processor : IFAbstractProcessor
+	{
+		public Options O = null;
+
+		public override void Apply()
+		{
+			using (var progress = new ProgressBar())
+			{
+				Iic = Engines.Engine.GetConfig();
+				using (var canvas = Iic.NewImage(Bounds.Width,Bounds.Height)) {
+					double w2 = Bounds.Width / 2.0;
+					double h2 = Bounds.Height / 2.0;
+
+					if (O.CenterPx.HasValue) {
+						w2 = O.CenterPx.Value.X;
+						h2 = O.CenterPx.Value.Y;
+					}
+					else if (O.CenterRt.HasValue) {
+						w2 = Bounds.Width * O.CenterRt.Value.X;
+						h2 = Bounds.Height * O.CenterRt.Value.Y;
+					}
+
+					MoreHelpers.ThreadPixels(Bounds, MaxDegreeOfParallelism, (x,y) => {
+						IFColor nc = ZoomPixel(canvas,Bounds,x,y,w2,h2);
+						int cy = y - Bounds.Top;
+						int cx = x - Bounds.Left;
+						canvas[cx,cy] = nc;
+					},progress);
+
+					Source.BlitImage(canvas,Bounds);
+				}
+			}
+		}
+
+		IFColor ZoomPixel(IFImage frame, IFRectangle rect, int x, int y,double cx, double cy)
+		{
+			double dist = O.Measurer.Measure(x,y,cx,cy);
+			int idist = (int)Math.Ceiling(dist);
+
+			List<IFColor> vector = new List<IFColor>(idist);
+			double ang = Math.Atan2(y - cy, x - cx);
+			double sd = dist;
+			double ed = dist * O.ZoomAmount;
+
+			for (double d = sd; d < ed; d++)
+			{
+				double px = Math.Cos(ang) * d + cx;
+				double py = Math.Sin(ang) * d + cy;
+				IFColor c = ImageHelpers.Sample(frame,px,py);
+				vector.Add(c);
+			}
+
+			IFColor avg;
+			int count = vector.Count;
+			if (count < 1) {
+				avg = ImageHelpers.Sample(frame,x,y);
+			}
+			else if (count == 1) {
+				avg = vector[0];
+			}
+			else {
+				double cr = 0, cg = 0, cb = 0, ca = 0;
+				foreach (IFColor tpc in vector)
+				{
+					cr += tpc.R; cg += tpc.G; cb += tpc.B;
+					ca += tpc.A;
+				}
+				avg = new IFColor {
+					R = (float)(cr / count),
+					G = (float)(cg / count),
+					B = (float)(cb / count),
+					A = (float)(ca / count)
+				};
+			}
+			return avg;
+		}
+
+		public override void Dispose() {}
+		IFImageConfig Iic = null;
+	}
+
+	#if false
 	public class Processor<TPixel> : AbstractProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
@@ -104,7 +186,7 @@ namespace ImageFunctions.ZoomBlur
 				,c21 = GetExtendedPixel(lb,x+0,y+1)
 				,c22 = GetExtendedPixel(lb,x+1,y+1)
 			;
-			
+
 			double d1 = 1.0/16.0;
 			double d2 = 2.0/16.0;
 			double d4 = 4.0/16.0;
@@ -141,4 +223,5 @@ namespace ImageFunctions.ZoomBlur
 		}
 		#endif
 	}
+	#endif
 }

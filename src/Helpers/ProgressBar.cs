@@ -3,7 +3,7 @@ using System.Text;
 using System.Threading;
 
 // https://gist.github.com/DanielSWolf/0ab6a96899cc5377bf54
-namespace ImageFunctions
+namespace ImageFunctions.Helpers
 {
 	/// <summary>
 	/// An ASCII progress bar

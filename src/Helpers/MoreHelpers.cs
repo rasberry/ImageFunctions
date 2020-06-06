@@ -54,6 +54,24 @@ namespace ImageFunctions.Helpers
 			});
 		}
 
+		public static void ThreadPixels(IFRectangle rect,int? maxThreads,Action<int,int> callback,
+			IProgress<double> progress = null)
+		{
+			long done = 0;
+			long max = (long)rect.Width * rect.Height;
+			//Log.Debug("r = "+rect.ToString()+" );
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads.GetValueOrDefault(1)
+			};
+			Parallel.For(0,max,po,num => {
+				int y = (int)(num / (long)rect.Width);
+				int x = (int)(num % (long)rect.Width);
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
+				callback(x + rect.Left,y + rect.Top);
+			});
+		}
+
 		public static void ThreadRows(Rectangle rect, int maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
 		{
