@@ -13,10 +13,10 @@ namespace ImageFunctions
 
 	public struct IFColor
 	{
-		public float R;
-		public float G;
-		public float B;
-		public float A;
+		public double R;
+		public double G;
+		public double B;
+		public double A;
 	}
 
 	public interface IFFunction

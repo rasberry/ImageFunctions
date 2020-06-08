@@ -33,9 +33,12 @@ namespace ImageFunctions.ZoomBlur
 					}
 
 					MoreHelpers.ThreadPixels(Bounds, MaxDegreeOfParallelism, (x,y) => {
-						IFColor nc = ZoomPixel(canvas,Bounds,x,y,w2,h2);
+						var d = Source[x,y];
+						//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
+						IFColor nc = ZoomPixel(Source,Bounds,x,y,w2,h2);
 						int cy = y - Bounds.Top;
 						int cx = x - Bounds.Left;
+						//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 						canvas[cx,cy] = nc;
 					},progress);
 

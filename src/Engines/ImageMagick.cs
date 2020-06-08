@@ -1,7 +1,8 @@
 using System;
 using System.IO;
 using ImageMagick;
-using System.Linq;
+//using System.Linq;
+using QType = System.Single;
 
 namespace ImageFunctions.Engines.ImageMagick
 {
@@ -10,15 +11,13 @@ namespace ImageFunctions.Engines.ImageMagick
 		static IMImageConfig()
 		{
 			MagickNET.SetTempDirectory(Environment.CurrentDirectory);
+			//Log.Debug($"Quantum = {Quantum.Depth} {Quantum.Max}");
 		}
 
 		public IFImage LoadImage(string file)
 		{
-			var fs = File.Open(file,FileMode.Open,FileAccess.Read);
-			using (fs) {
-				var image = new MagickImage(fs);
-				return new IMImage(image);
-			}
+			var image = new MagickImage(file);
+			return new IMImage(image);
 		}
 
 		public IFImage NewImage(int width, int height)
@@ -48,29 +47,60 @@ namespace ImageFunctions.Engines.ImageMagick
 
 		public IFColor this[int x, int y] {
 			get {
-				IPixel<float> p = Pixels[x,y];
-				IMagickColor<float> c = p.ToColor();
+				//Log.Debug("PP1: "+printpixel(Pixels.GetPixel(20,20)));
+				var vals = Pixels.GetValue(x,y);
+				//Log.Debug(printpixel(new Pixel(x,y,vals)));
+				IPixel<QType> p = Pixels.GetPixel(x,y);
+				//Log.Debug(printpixel(p));
+				IMagickColor<QType> c = p.ToColor();
 				if (c.IsCmyk) {
 					throw new NotSupportedException("CMYK is not supported");
 				}
-				return new IFColor { R = c.R, G = c.G, B = c.B, A = c.A };
+				//Log.Debug($"Get Pixel @ [{x},{y}] ({c.R} {c.G} {c.B} {c.A}]");
+				return ConvertToInternal(c);
 			}
 			set {
-				IPixel<float> p = Pixels[x,y];
-
-				var mc = new MagickColor(value.R,value.G,value.B,value.A);
-				float[] pix = null;
-				switch(ChannelCount) {
-					case 1: pix = new float[] { value.R }; break;
-					case 2: pix = new float[] { value.R, value.A }; break;
-					case 3: pix = new float[] { value.R, value.G, value.B }; break;
-					case 4: pix = new float[] { value.R, value.G, value.B, value.A }; break;
-					default:
-						throw new NotSupportedException($"Channel Count {ChannelCount} is not supported");
-				}
-				p.SetValues(pix);
+				IPixel<QType> p = Pixels[x,y];
+				QType[] color = ConvertToExternal(value,ChannelCount);
+				p.SetValues(color);
 			}
 		}
+
+		static IFColor ConvertToInternal(IMagickColor<QType> x)
+		{
+			double max = Quantum.Max;
+			double ir = Math.Clamp((double)x.R / max,0.0,1.0);
+			double ig = Math.Clamp((double)x.G / max,0.0,1.0);
+			double ib = Math.Clamp((double)x.B / max,0.0,1.0);
+			double ia = Math.Clamp((double)x.A / max,0.0,1.0);
+			var color = new IFColor { R = ir, G = ig, B = ib, A = ia };
+			return color;
+		}
+
+		static QType[] ConvertToExternal(IFColor i, int channelCount)
+		{
+			double max = Quantum.Max;
+			QType xr = (QType)(i.R * max);
+			QType xg = (QType)(i.G * max);
+			QType xb = (QType)(i.B * max);
+			QType xa = (QType)(i.A * max);
+
+			QType[] color;
+			switch(channelCount) {
+				case 1: color = new QType[] { xr }; break;
+				case 2: color = new QType[] { xr, xa }; break;
+				case 3: color = new QType[] { xr, xg, xb }; break;
+				case 4: color = new QType[] { xr, xg, xb, xa }; break;
+				default:
+					throw new NotSupportedException($"Channel Count {channelCount} is not supported");
+			}
+			return color;
+		}
+
+		//string printpixel(IPixel<QType> p)
+		//{
+		//	return $"pix {p.Channels} [{p.X} {p.Y}] ({String.Join(',',p.ToArray())})";
+		//}
 
 		public void Save(string path)
 		{
@@ -93,21 +123,21 @@ namespace ImageFunctions.Engines.ImageMagick
 		public int Width { get { return NativeImage.Width; }}
 		public int Height { get { return NativeImage.Height; }}
 
-		void Init(IMagickImage<float> image)
+		void Init(IMagickImage<QType> image)
 		{
 			NativeImage = image;
-			var cp = image.GetColorProfile();
-			if (cp != null && cp.ColorSpace != ColorSpace.RGB) {
-				image.SetProfile(ColorProfile.SRGB);
-			}
-			ChannelCount = image.Channels.Count();
-			Pixels = NativeImage.GetPixels();
+			//var cp = image.GetColorProfile();
+			//if (cp != null && cp.ColorSpace != ColorSpace.RGB) {
+			//	image.SetProfile(ColorProfile.SRGB);
+			//}
+			ChannelCount = image.ChannelCount;
+			Pixels = image.GetPixels();
+			//Log.Debug("PP1: "+printpixel(Pixels.GetPixel(20,20)));
 		}
 
 		int ChannelCount;
-		IMagickImage<float> NativeImage;
-		IPixelCollection<float> Pixels;
-
+		IMagickImage<QType> NativeImage;
+		IPixelCollection<QType> Pixels;
 	}
 }
 
