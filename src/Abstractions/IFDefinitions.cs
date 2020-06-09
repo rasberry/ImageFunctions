@@ -61,7 +61,7 @@ namespace ImageFunctions
 	{
 		IFImage LoadImage(string path);
 		void SaveImage(IFImage img, string path);
-		IFImage NewImage(int width, int Height);
+		IFImage NewImage(int width, int height);
 	}
 
 	public interface IFGenerator

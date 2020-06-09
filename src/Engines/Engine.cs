@@ -22,6 +22,8 @@ namespace ImageFunctions.Engines
 			{
 			case PickEngine.ImageMagick:
 				return new Engines.ImageMagick.IMImageConfig();
+			case PickEngine.SixLabors:
+				return new Engines.SixLabors.SLImageConfig();
 			}
 			throw new NotSupportedException($"Engine {WhichEngine} is not supported");
 		}
