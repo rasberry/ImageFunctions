@@ -13,6 +13,11 @@ namespace ImageFunctions
 
 	public struct IFColor
 	{
+		public IFColor(double r, double g, double b, double a)
+		{
+			R = r; G = g; B = b; A = a;
+		}
+
 		public double R;
 		public double G;
 		public double B;
@@ -30,6 +35,12 @@ namespace ImageFunctions
 
 	public struct IFRectangle
 	{
+		public IFRectangle(int x,int y,int w,int h)
+		{
+			X = x; Y = y;
+			Width = w; Height = h;
+		}
+
 		public int X;
 		public int Y;
 		public int Width;
@@ -42,6 +53,38 @@ namespace ImageFunctions
 
 		public bool IsEmpty { get {
 			return X == 0 && Y == 0 && Width == 0 && Height == 0;
+		}}
+
+		public IFRectangle Intersect(IFRectangle rect)
+		{
+			return Intersect(this,rect);
+		}
+
+		public bool Contains(int x,int y)
+		{
+			return
+				X <= x &&
+				Y <= y &&
+				x < X + Width &&
+				y < Y + Height
+			;
+		}
+
+		public static IFRectangle Intersect(IFRectangle a, IFRectangle b)
+		{
+			int x1 = Math.Max(a.X, b.X);
+			int x2 = Math.Min(a.X + a.Width, b.X + b.Width);
+			int y1 = Math.Max(a.Y, b.Y);
+			int y2 = Math.Min(a.Y + a.Height, b.Y + b.Height);
+
+			if (x2 >= x1 && y2 >= y1) {
+				return new IFRectangle(x1, y1, x2 - x1, y2 - y1);
+			}
+			return Empty;
+		}
+
+		public static IFRectangle Empty { get {
+			return new IFRectangle(0,0,0,0);
 		}}
 	}
 

@@ -233,6 +233,20 @@ namespace ImageFunctions.Helpers
 			return btw.FromColor<TPixel>();
 		}
 
+		//ratio 0.0 = 100% a
+		//ratio 1.0 = 100% b
+		public static IFColor BetweenColor(IFColor a, IFColor b, double ratio)
+		{
+			ratio = Math.Clamp(ratio,0.0,1.0);
+			double nr = (1.0 - ratio) * a.R + ratio * b.R;
+			double ng = (1.0 - ratio) * a.G + ratio * b.G;
+			double nb = (1.0 - ratio) * a.B + ratio * b.B;
+			double na = (1.0 - ratio) * a.A + ratio * b.A;
+			var btw = new IFColor(nr,ng,nb,na);
+			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
+			return btw;
+		}
+
 		public static (double,double,double) ConvertToHSI(Rgba32 c)
 		{
 			int max = Math.Max(c.R,Math.Max(c.G,c.B));
@@ -268,5 +282,18 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+
+		public static void FillWithColor(IFImage frame,IFRectangle rect,IFColor color)
+		{
+			var bounds = new IFRectangle(0,0,frame.Width,frame.Height);
+			bounds.Intersect(rect);
+
+			for(int y=bounds.Top; y<bounds.Bottom; y++) {
+				for(int x=bounds.Left; x<bounds.Right; x++) {
+					frame[x,y] = color;
+				}
+			}
+		}
+
 	}
 }

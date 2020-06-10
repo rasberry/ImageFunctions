@@ -1,5 +1,4 @@
 using System;
-using SixLabors.ImageSharp;
 
 namespace ImageFunctions.UlamSpiral
 {
@@ -36,9 +35,9 @@ namespace ImageFunctions.UlamSpiral
 		public double DotSize = 1.0;
 		public PickDot WhichDot = PickDot.None;
 		public PickMapping Mapping = PickMapping.None;
-		public Color? Color1 = null;
-		public Color? Color2 = null;
-		public Color? Color3 = null;
-		public Color? Color4 = null;
+		public IFColor? Color1 = null;
+		public IFColor? Color2 = null;
+		public IFColor? Color3 = null;
+		public IFColor? Color4 = null;
 	}
 }
