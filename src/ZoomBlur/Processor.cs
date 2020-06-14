@@ -1,11 +1,6 @@
 using System;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using System.Drawing;
 using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ZoomBlur
@@ -47,7 +42,7 @@ namespace ImageFunctions.ZoomBlur
 			}
 		}
 
-		IFColor ZoomPixel(IFImage frame, IFRectangle rect, int x, int y,double cx, double cy)
+		IFColor ZoomPixel(IFImage frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
 			double dist = O.Measurer.Measure(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
@@ -61,14 +56,14 @@ namespace ImageFunctions.ZoomBlur
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				IFColor c = ImageHelpers.Sample(frame,px,py);
+				IFColor c = ImageHelpers.Sample(frame,px,py,O.Sampler);
 				vector.Add(c);
 			}
 
 			IFColor avg;
 			int count = vector.Count;
 			if (count < 1) {
-				avg = ImageHelpers.Sample(frame,x,y);
+				avg = ImageHelpers.Sample(frame,x,y,O.Sampler);
 			}
 			else if (count == 1) {
 				avg = vector[0];

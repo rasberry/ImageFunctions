@@ -28,6 +28,17 @@ namespace ImageFunctions.Helpers
 			return r;
 		}
 
+		public static Params.Result DefaultSampler(this Params p, out IFResampler s, IFResampler def = null)
+		{
+			s = def ?? Registry.DefaultIFResampler;
+			var r = p.Default("--sampler",out Sampler sam);
+			if (r.IsBad()) {
+				return r;
+			}
+			s = Registry.IFMap(sam);
+			return r;
+		}
+
 		public static void MetricHelpLine(this System.Text.StringBuilder sb)
 		{
 			sb.WL(1,"--metric (name) [args]","Use alterntive distance function");

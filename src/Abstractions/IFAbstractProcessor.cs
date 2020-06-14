@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 
 namespace ImageFunctions
 {
@@ -9,6 +10,6 @@ namespace ImageFunctions
 
 		public IFImage Source { get; set; }
 		public int? MaxDegreeOfParallelism { get; set; }
-		public IFRectangle Bounds { get; set; }
+		public Rectangle Bounds { get; set; }
 	}
 }

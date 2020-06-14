@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Text;
 using ImageFunctions.Helpers;
 
@@ -6,8 +7,8 @@ namespace ImageFunctions.UlamSpiral
 {
 	public class Function : IFAbstractFunction, IFGenerator
 	{
-		public IFSize StartingSize { get {
-			return new IFSize { Width = 1024, Height = 1024 };
+		public Size StartingSize { get {
+			return new Size { Width = 1024, Height = 1024 };
 		}}
 
 		public override bool ParseArgs(string[] args)
@@ -24,7 +25,7 @@ namespace ImageFunctions.UlamSpiral
 				O.ColorPrimesForce = true;
 			}
 
-			var pre = p.Default("-c",out IFRectangle rect);
+			var pre = p.Default("-c",out Rectangle rect);
 			if (pre.IsInvalid()) {
 				return false;
 			}

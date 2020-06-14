@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
@@ -26,7 +25,7 @@ namespace ImageFunctions
 
 				proc.Source = img;
 				if (Bounds.IsEmpty) {
-					Bounds = new IFRectangle { Width = img.Width, Height = img.Height };
+					Bounds = new System.Drawing.Rectangle { Width = img.Width, Height = img.Height };
 				}
 				proc.Bounds = Bounds;
 				proc.Apply();
@@ -34,17 +33,17 @@ namespace ImageFunctions
 			}
 		}
 
-		public IFRectangle Bounds { get; set; }
+		public System.Drawing.Rectangle Bounds { get; set; }
 		public int? MaxDegreeOfParallelism { get; set; }
-		Rectangle IFunction.Bounds {
+		SixLabors.Primitives.Rectangle IFunction.Bounds {
 			get {
-				return new Rectangle {
+				return new SixLabors.Primitives.Rectangle {
 					X = Bounds.X, Y = Bounds.Y,
 					Width = Bounds.Width, Height = Bounds.Height
 				};
 			}
 			set {
-				Bounds = new IFRectangle {
+				Bounds = new System.Drawing.Rectangle {
 					X = value.X, Y = value.Y,
 					Width = value.Width, Height = value.Height
 				};

@@ -5,7 +5,6 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Helpers
 {
@@ -52,7 +51,8 @@ namespace ImageFunctions.Helpers
 		}
 
 		public static void BlitImage<TPixel>(this ImageFrame<TPixel> dstImg, ImageFrame<TPixel> srcImg,
-			Rectangle dstRect = default(Rectangle), Point srcPoint = default(Point))
+			SixLabors.Primitives.Rectangle dstRect = default(SixLabors.Primitives.Rectangle),
+			SixLabors.Primitives.Point srcPoint = default(SixLabors.Primitives.Point))
 			where TPixel : struct, IPixel<TPixel>
 		{
 			//TODO this needs to be tested better
@@ -71,7 +71,8 @@ namespace ImageFunctions.Helpers
 		}
 
 		public static void BlitImage(this IFImage dstImg, IFImage srcImg,
-			IFRectangle dstRect = default(IFRectangle), IFPoint srcPoint = default(IFPoint))
+			System.Drawing.Rectangle dstRect = default(System.Drawing.Rectangle),
+			System.Drawing.Point srcPoint = default(System.Drawing.Point))
 		{
 			//TODO this needs to be tested better
 
@@ -116,10 +117,12 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		public static IFColor Sample(this IFImage img, double locX, double locY)
+		public static IFColor Sample(this IFImage img, double locX, double locY, IFResampler sampler = null)
 		{
-			//TODO re-implement samplers without SixLabors
-			return GetPixelSafe(img,(int)locX,(int)locY);
+			return sampler == null
+				? GetPixelSafe(img,(int)locX,(int)locY)
+				: SampleHelpers.GetSample(img,sampler,(int)locX,(int)locY)
+			;
 		}
 
 		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
@@ -268,7 +271,7 @@ namespace ImageFunctions.Helpers
 			return (H,S,I);
 		}
 
-		public static void FillWithColor<TPixel>(ImageFrame<TPixel> frame,Rectangle rect,TPixel color)
+		public static void FillWithColor<TPixel>(ImageFrame<TPixel> frame, SixLabors.Primitives.Rectangle rect,TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
 			var bounds = frame.Bounds();
@@ -283,9 +286,9 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		public static void FillWithColor(IFImage frame,IFRectangle rect,IFColor color)
+		public static void FillWithColor(IFImage frame, System.Drawing.Rectangle rect,IFColor color)
 		{
-			var bounds = new IFRectangle(0,0,frame.Width,frame.Height);
+			var bounds = new System.Drawing.Rectangle(0,0,frame.Width,frame.Height);
 			bounds.Intersect(rect);
 
 			for(int y=bounds.Top; y<bounds.Bottom; y++) {

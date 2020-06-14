@@ -110,7 +110,7 @@ namespace ImageFunctions.Helpers
 			// https://www.reddit.com/r/dailyprogrammer/comments/3ggli3/20150810_challenge_227_easy_square_spirals/
 			x -= cx;
 			y -= cy;
-			
+
 			y = -y; //original is CW i need CCW
 			if (x >= y) {
 				if (x > -y) {
@@ -132,6 +132,17 @@ namespace ImageFunctions.Helpers
 					return m + Math.Abs(5*x) - y - 1;
 				}
 			}
+		}
+
+		//https://en.wikipedia.org/wiki/Sinc_function
+		public static double SinC(double v)
+		{
+			if (Math.Abs(v) < double.Epsilon) {
+				return 1.0;
+			}
+			v *= Math.PI; //normalization factor
+			double s = Math.Sin(v) / v;
+			return Math.Abs(s) < double.Epsilon ? 0.0 : s;
 		}
 	}
 }

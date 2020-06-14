@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using System.Text;
 
 namespace ImageFunctions
@@ -28,11 +29,12 @@ namespace ImageFunctions
 	{
 		void Usage(StringBuilder sb);
 		bool ParseArgs(string[] args);
-		IFRectangle Bounds { get; set; }
+		Rectangle Bounds { get; set; }
 		int? MaxDegreeOfParallelism { get; set; }
 		void Main();
 	}
 
+	#if false
 	public struct IFRectangle
 	{
 		public IFRectangle(int x,int y,int w,int h)
@@ -99,6 +101,7 @@ namespace ImageFunctions
 		public int Width;
 		public int Height;
 	}
+	#endif
 
 	public interface IFImageConfig
 	{
@@ -109,6 +112,6 @@ namespace ImageFunctions
 
 	public interface IFGenerator
 	{
-		IFSize StartingSize { get; }
+		Size StartingSize { get; }
 	}
 }

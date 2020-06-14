@@ -60,6 +60,12 @@ namespace ImageFunctions
 		IResampler Sampler { get; }
 	}
 
+	public interface IFResampler
+	{
+		double Radius { get; }
+		double GetAmount(double x);
+	}
+
 	public enum Metric
 	{
 		None = 0,

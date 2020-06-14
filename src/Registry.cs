@@ -53,8 +53,17 @@ namespace ImageFunctions
 			}
 		}
 
+		public static IFResampler IFMap(Sampler sampler)
+		{
+			return SampleHelpers.Map(sampler);
+		}
+
 		public static IResampler DefaultResampler { get {
 			return Map(Sampler.NearestNeighbor);
+		}}
+
+		public static IFResampler DefaultIFResampler { get {
+			return IFMap(Sampler.NearestNeighbor);
 		}}
 
 		public static IMeasurer Map(Metric m, double pFactor = 2.0) {

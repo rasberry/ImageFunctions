@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using System.Threading;
 using ImageFunctions.Helpers;
@@ -97,13 +98,13 @@ namespace ImageFunctions.UlamSpiral
 			drawFunc(frame, x, y, color, amount);
 		}
 
-		int FindMaxFactor(IFRectangle srect)
+		int FindMaxFactor(Rectangle srect)
 		{
 			//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
 			int maxFactor = int.MinValue;
 			object maxLock = new object();
 			var (cx, cy) = GetCenterXY(srect);
-			
+
 			var pb1 = new ProgressBar() { Prefix = "Calculating " };
 			using (pb1) {
 				MoreHelpers.ThreadPixels(srect, MaxDegreeOfParallelism, (x, y) => {
@@ -120,7 +121,7 @@ namespace ImageFunctions.UlamSpiral
 			return maxFactor;
 		}
 
-		(int,int) GetCenterXY(IFRectangle rect)
+		(int,int) GetCenterXY(Rectangle rect)
 		{
 			int cx = -O.CenterX.GetValueOrDefault(0);
 			int cy = -O.CenterY.GetValueOrDefault(0);
@@ -147,9 +148,9 @@ namespace ImageFunctions.UlamSpiral
 			return -1;
 		}
 
-		IFRectangle GetSpacedRectangle(IFRectangle rect)
+		Rectangle GetSpacedRectangle(Rectangle rect)
 		{
-			IFRectangle srect = new IFRectangle(
+			Rectangle srect = new Rectangle(
 				rect.X * O.Spacing,
 				rect.Y * O.Spacing,
 				rect.Width / O.Spacing,
@@ -189,9 +190,9 @@ namespace ImageFunctions.UlamSpiral
 				return;
 			}
 
-			var bounds = new IFRectangle(0,0,frame.Width,frame.Height);
+			var bounds = new Rectangle(0,0,frame.Width,frame.Height);
 			int d2 = (int)(d/2);
-			IFRectangle r = new IFRectangle(x - d2, y - d2, (int)d, (int)d);
+			Rectangle r = new Rectangle(x - d2, y - d2, (int)d, (int)d);
 			for(int dy = r.Top; dy < r.Bottom; dy++) {
 				for(int dx = r.Left; dx < r.Right; dx++) {
 					if (!bounds.Contains(dx,dy)) { continue; }
@@ -337,7 +338,7 @@ namespace ImageFunctions.UlamSpiral
 			int maxFactor = int.MinValue;
 			object maxLock = new object();
 			var (cx, cy) = GetCenterXY(srect);
-			
+
 			var pb1 = new ProgressBar() { Prefix = "Calculating " };
 			using (pb1) {
 				MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) => {
