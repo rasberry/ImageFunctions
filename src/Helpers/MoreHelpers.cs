@@ -86,6 +86,22 @@ namespace ImageFunctions.Helpers
 			});
 		}
 
+		public static void ThreadRows(System.Drawing.Rectangle rect, int? maxThreads, Action<int> callback,
+			IProgress<double> progress = null)
+		{
+			int done = 0;
+			int max = rect.Bottom - rect.Top;
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads.GetValueOrDefault(1)
+			};
+			Parallel.For(rect.Top,rect.Bottom,po,num => {
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
+				callback(num);
+			});
+		}
+
+
 		public static void ThreadColumns(SixLabors.Primitives.Rectangle rect, int maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
 		{
@@ -93,6 +109,21 @@ namespace ImageFunctions.Helpers
 			int max = rect.Right - rect.Left;
 			var po = new ParallelOptions {
 				MaxDegreeOfParallelism = maxThreads
+			};
+			Parallel.For(rect.Left,rect.Right,po,num => {
+				Interlocked.Add(ref done,1);
+				progress?.Report((double)done/max);
+				callback(num);
+			});
+		}
+
+		public static void ThreadColumns(System.Drawing.Rectangle rect, int? maxThreads, Action<int> callback,
+			IProgress<double> progress = null)
+		{
+			int done = 0;
+			int max = rect.Right - rect.Left;
+			var po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads.GetValueOrDefault(1)
 			};
 			Parallel.For(rect.Left,rect.Right,po,num => {
 				Interlocked.Add(ref done,1);

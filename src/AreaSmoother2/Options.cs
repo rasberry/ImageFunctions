@@ -1,3 +1,5 @@
+using System;
+
 namespace ImageFunctions.AreaSmoother2
 {
 	public class Options
