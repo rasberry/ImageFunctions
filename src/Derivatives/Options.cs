@@ -1,3 +1,5 @@
+using System;
+
 namespace ImageFunctions.Derivatives
 {
 	public class Options

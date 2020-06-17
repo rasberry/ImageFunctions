@@ -26,6 +26,13 @@ namespace ImageFunctions.Helpers
 			return vGray.FromColor<TPixel>();
 		}
 
+		public static IFColor ToGrayScale(IFColor c)
+		{
+			double val = c.R * 0.2126 + c.G * 0.7152 + c.B * 0.0722;
+			var vGray = new IFColor(val,val,val,c.A);
+			return vGray;
+		}
+
 		public static RgbaD ToColor<TPixel>(this TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
