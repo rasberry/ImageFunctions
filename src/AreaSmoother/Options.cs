@@ -1,11 +1,11 @@
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using System;
 
 namespace ImageFunctions.AreaSmoother
 {
 	public class Options
 	{
 		public int TotalTries = 7;
-		public IResampler Sampler = Registry.DefaultResampler;
+		public IFResampler Sampler = Registry.DefaultIFResampler;
 		public IMeasurer Measurer = Registry.DefaultMetric;
 	}
 }
