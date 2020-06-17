@@ -1,3 +1,5 @@
+using System;
+
 namespace ImageFunctions.PixelateDetails
 {
 	public class Options
