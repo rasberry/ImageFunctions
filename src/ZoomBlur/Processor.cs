@@ -11,34 +11,32 @@ namespace ImageFunctions.ZoomBlur
 
 		public override void Apply()
 		{
+			Iic = Engines.Engine.GetConfig();
 			using (var progress = new ProgressBar())
-			{
-				Iic = Engines.Engine.GetConfig();
-				using (var canvas = Iic.NewImage(Bounds.Width,Bounds.Height)) {
-					double w2 = Bounds.Width / 2.0;
-					double h2 = Bounds.Height / 2.0;
+			using (var canvas = Iic.NewImage(Bounds.Width,Bounds.Height)) {
+				double w2 = Bounds.Width / 2.0;
+				double h2 = Bounds.Height / 2.0;
 
-					if (O.CenterPx.HasValue) {
-						w2 = O.CenterPx.Value.X;
-						h2 = O.CenterPx.Value.Y;
-					}
-					else if (O.CenterRt.HasValue) {
-						w2 = Bounds.Width * O.CenterRt.Value.X;
-						h2 = Bounds.Height * O.CenterRt.Value.Y;
-					}
-
-					MoreHelpers.ThreadPixels(Bounds, MaxDegreeOfParallelism, (x,y) => {
-						var d = Source[x,y];
-						//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
-						IFColor nc = ZoomPixel(Source,Bounds,x,y,w2,h2);
-						int cy = y - Bounds.Top;
-						int cx = x - Bounds.Left;
-						//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
-						canvas[cx,cy] = nc;
-					},progress);
-
-					Source.BlitImage(canvas,Bounds);
+				if (O.CenterPx.HasValue) {
+					w2 = O.CenterPx.Value.X;
+					h2 = O.CenterPx.Value.Y;
 				}
+				else if (O.CenterRt.HasValue) {
+					w2 = Bounds.Width * O.CenterRt.Value.X;
+					h2 = Bounds.Height * O.CenterRt.Value.Y;
+				}
+
+				MoreHelpers.ThreadPixels(Bounds, MaxDegreeOfParallelism, (x,y) => {
+					var d = Source[x,y];
+					//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
+					IFColor nc = ZoomPixel(Source,Bounds,x,y,w2,h2);
+					int cy = y - Bounds.Top;
+					int cx = x - Bounds.Left;
+					//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
+					canvas[cx,cy] = nc;
+				},progress);
+
+				Source.BlitImage(canvas,Bounds);
 			}
 		}
 

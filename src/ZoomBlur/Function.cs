@@ -6,7 +6,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ZoomBlur
 {
-	public class Function : IFAbstractFunction
+	public class Function : IFAbstractFunction, IFHasResampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -77,6 +77,8 @@ namespace ImageFunctions.ZoomBlur
 			return proc;
 		}
 
+		public IFResampler Sampler { get { return O.Sampler; }}
+		public IMeasurer Measurer { get { return O.Measurer; }}
 		Options O = new Options();
 	}
 

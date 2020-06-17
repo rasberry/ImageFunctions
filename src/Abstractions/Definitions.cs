@@ -60,6 +60,11 @@ namespace ImageFunctions
 		IResampler Sampler { get; }
 	}
 
+	public interface IFHasResampler
+	{
+		IFResampler Sampler { get; }
+	}
+
 	public interface IFResampler
 	{
 		double Radius { get; }

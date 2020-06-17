@@ -36,6 +36,7 @@ namespace ImageFunctions.Helpers
 		{
 			public SamplerRaft(Sampler s, SamplerCalc calc) {
 				WhichSampler = s;
+				Calc = calc;
 			}
 
 			public double Radius { get {
