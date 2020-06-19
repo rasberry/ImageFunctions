@@ -1,5 +1,5 @@
 using System;
-using SixLabors.ImageSharp;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.SpearGraphic
 {
@@ -20,7 +20,7 @@ namespace ImageFunctions.SpearGraphic
 	public class Options
 	{
 		public Graphic Spear = Graphic.None;
-		public Color BackgroundColor = Color.Transparent;
+		public IFColor BackgroundColor = Colors.Transparent;
 		public int? RandomSeed = null;
 	}
 }

@@ -1,16 +1,12 @@
 using System;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public static class Second<TPixel> where TPixel : struct, IPixel<TPixel>
+	public static class Second
 	{
-		public static void Twist3(Image<TPixel> image, int w, int h, int which = 2)
+		public static void Twist3(IFImage image, int w, int h, int which = 2)
 		{
 			if (which == 0)
 			{
@@ -44,12 +40,9 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void Twist3Params(Image<TPixel> image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
+		static void Twist3Params(IFImage image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
 		{
 			double a,x,y,ox,oy;
-			var gop = new GraphicsOptions {
-				Antialias = true
-			};
 
 			using (var progress = new ProgressBar())
 			{
@@ -61,33 +54,31 @@ namespace ImageFunctions.SpearGraphic
 					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 					x = s * Math.Tan(a) + (v/t) + ox;
 					y = s * Math.Sin(a) + (v/t) + oy;
-					Rgba32 p = ColorFade(v,max,FadeComp.G);
+					Color p = ColorFade(v,max,FadeComp.G);
 					if (x < w && y < h && x > 0 && y > 0) {
+						/* //TODO need replacement for DrawRectangle
 						image.Mutate(op => {
 							DrawRectangle(op,gop,p,x,y);
 							DrawRectangle(op,gop,p,y,x);
 						});
+						*/
 					}
 					progress.Report(v/max);
 				}
 			}
 		}
 
-		static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
-		{
-			PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
-			PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
-			PointF p2 = new PointF((float)x + 0.5f,(float)y + 0.5f);
-			PointF p3 = new PointF((float)x + 0.0f,(float)y + 0.5f);
-			op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
-		}
+		//static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
+		//{
+		//	PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
+		//	PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
+		//	PointF p2 = new PointF((float)x + 0.5f,(float)y + 0.5f);
+		//	PointF p3 = new PointF((float)x + 0.0f,(float)y + 0.5f);
+		//	op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
+		//}
 
-		public static void Twist4(Image<TPixel> image, int w, int h)
+		public static void Twist4(IFImage image, int w, int h)
 		{
-			var gop = new GraphicsOptions {
-				Antialias = true,
-			};
-
 			double max = w*9;
 			double s = w/32.0; //stretch x
 			double o = w/4.0; //offset
@@ -112,14 +103,16 @@ namespace ImageFunctions.SpearGraphic
 						if (dx <= dy)
 						{
 							double m2 = max/2;
-							Rgba32 p = v > m2
+							Color p = v > m2
 								? ColorFade(v-m2,m2,FadeComp.B)
 								: ColorFade(m2-v,m2,FadeComp.R);
 
+							/* TODO need replacement for DrawLine
 							image.Mutate(op => {
 								DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
 								DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
 							});
+							*/
 						}
 						lx = x;
 						ly = y;
@@ -129,15 +122,15 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
-		{
-			var p0 = new PointF((float)x0,(float)y0);
-			var p1 = new PointF((float)x1,(float)y1);
-			op.DrawLines(gop,(Color)p,1.0f,p0,p1);
-		}
+		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
+		//{
+		//	var p0 = new PointF((float)x0,(float)y0);
+		//	var p1 = new PointF((float)x1,(float)y1);
+		//	op.DrawLines(gop,(Color)p,1.0f,p0,p1);
+		//}
 
 		enum FadeComp { R, G, B }
-		static Rgba32 ColorFade(double i, double max, FadeComp f)
+		static Color ColorFade(double i, double max, FadeComp f)
 		{
 			double p,s;
 			p = i < 1.0 * max / 2 ? 255
@@ -146,11 +139,11 @@ namespace ImageFunctions.SpearGraphic
 
 			Color c;
 			if (f == FadeComp.R) {
-				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
+				c = Color.FromArgb(32,(int)p,(int)s,(int)s);
 			} else if (f == FadeComp.G) {
-				c = new Rgba32((byte)s,(byte)p,(byte)s,32);
+				c = Color.FromArgb(32,(int)s,(int)p,(int)s);
 			} else { //FadeComp.B
-				c = new Rgba32((byte)s,(byte)s,(byte)p,32);
+				c = Color.FromArgb(32,(int)s,(int)s,(int)p);
 			}
 			return c;
 		}

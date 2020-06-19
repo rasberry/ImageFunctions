@@ -1,17 +1,15 @@
 using System;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public static class First<TPixel> where TPixel : struct, IPixel<TPixel>
+	public static class First
 	{
 		//-1mm - max multiple
 		//-1dw - divisor for width
 		//-1dh - divisor for height
-		public static void Twist1(ImageFrame<TPixel> image,int w,int h)
+		public static void Twist1(IFImage image,int w,int h)
 		{
 			double maxmult = 6;
 			double vdiv = 10.0;
@@ -35,7 +33,7 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		public static void Twist2(ImageFrame<TPixel> image,int w,int h)
+		public static void Twist2(IFImage image,int w,int h)
 		{
 			double maxmult = 10;
 			double wdiv = 32.0;
@@ -56,7 +54,7 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		public static void Twist3(ImageFrame<TPixel> image, int w, int h)
+		public static void Twist3(IFImage image, int w, int h)
 		{
 			double maxmult = 9.5;  //9,10,11 do different things
 			double wdiv = 32.0;
@@ -143,7 +141,7 @@ namespace ImageFunctions.SpearGraphic
 			return Irgb(r,g,b,a);
 		}
 
-		static void DrawDot(ImageFrame<TPixel> image, int x, int y, int c)
+		static void DrawDot(IFImage image, int x, int y, int c)
 		{
 			int c40 = MoveAlpha(c,0.6);
 			SetPixel(image,x+1,y,c40);
@@ -160,18 +158,11 @@ namespace ImageFunctions.SpearGraphic
 			SetPixel(image,x,y,MoveAlpha(c,1.0));
 		}
 
-		static void SetPixel(ImageFrame<TPixel> image, int x, int y, int c)
+		static void SetPixel(IFImage image, int x, int y, int c)
 		{
 			var (r,g,b,a) = Orgb(c);
-			var rgb = new Rgba32((byte)r,(byte)g,(byte)b,(byte)a);
-			//Log.Debug($"setpixel [{x},{y}]={rgb.ToHex()} ({r},{g},{b},{a})");
-			TPixel p = default(TPixel);
-			p.FromRgba32(rgb);
-
-			var span = image.GetPixelSpan();
-			int off = y * image.Width + x;
-			if (off < 0 || off >= span.Length) { return; }
-			span[off] = p;
+			var nc = ImageHelpers.RgbaToNative(Color.FromArgb(a,r,g,b));
+			image[x,y] = nc;
 		}
 	}
 }

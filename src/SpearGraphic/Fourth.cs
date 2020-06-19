@@ -1,16 +1,12 @@
 using System;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public static class Fourth<TPixel> where TPixel : struct, IPixel<TPixel>
+	public static class Fourth
 	{
-		public static void Draw(Image<TPixel> image,int w,int h, int? seed = null)
+		public static void Draw(IFImage image,int w,int h, int? seed = null)
 		{
 			InitRandom(seed);
 
@@ -19,8 +15,8 @@ namespace ImageFunctions.SpearGraphic
 				,RadRatemin = 0.01
 				,RotRate = 0.05
 				,MaxRevs = 200
-				,PenStart = new Rgba32(255,0,0,0)
-				,PenEnd = new Rgba32(255,0,0,127)
+				,PenStart = Color.FromArgb(0,255,0,0)
+				,PenEnd = Color.FromArgb(127,255,0,0)
 				,PenWMin = 1.0
 				,PenWMax = 10.0
 				,PenRateMin = 0.1
@@ -34,8 +30,8 @@ namespace ImageFunctions.SpearGraphic
 				,RadRatemin = 0.01
 				,RotRate = 0.05
 				,MaxRevs = 200
-				,PenStart = new Rgba32(127,192,0,0)
-				,PenEnd = new Rgba32(192,127,0,127)
+				,PenStart = Color.FromArgb(0,127,192,0)
+				,PenEnd = Color.FromArgb(127,192,127,0)
 				,PenWMin = 1.0
 				,PenWMax = 10.0
 				,PenRateMin = 0.1
@@ -49,8 +45,8 @@ namespace ImageFunctions.SpearGraphic
 				,RadRatemin = 0.01
 				,RotRate = 0.05
 				,MaxRevs = 200
-				,PenStart = new Rgba32(192,127,0,0)
-				,PenEnd = new Rgba32(192,127,0,127)
+				,PenStart = Color.FromArgb(0,192,127,0)
+				,PenEnd = Color.FromArgb(127,192,127,0)
 				,PenWMin = 1.0
 				,PenWMax = 10.0
 				,PenRateMin = 0.1
@@ -76,11 +72,11 @@ namespace ImageFunctions.SpearGraphic
 			public double PenWMin { get; set; }
 			public double PenRateMax { get; set; }
 			public double PenRateMin { get; set; }
-			public Rgba32 PenEnd { get; set; }
-			public Rgba32 PenStart { get; set; }
+			public Color PenEnd { get; set; }
+			public Color PenStart { get; set; }
 		}
 
-		static void Twist1(Image<TPixel> image, int w, int h, Twist1Params p)
+		static void Twist1(IFImage image, int w, int h, Twist1Params p)
 		{
 			DPoint cen = new DPoint(w / 2.0,h / 2.0);
 
@@ -95,7 +91,7 @@ namespace ImageFunctions.SpearGraphic
 			double penrate = Random(p.PenRateMin,p.PenRateMax);
 			double penw = penwtarget;
 
-			var gop = new GraphicsOptions { Antialias = true };
+			//var gop = new GraphicsOptions { Antialias = true };
 
 			using (var progress = new ProgressBar())
 			{
@@ -111,14 +107,16 @@ namespace ImageFunctions.SpearGraphic
 					}
 					penw += penrate;
 
-					Rgba32 c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
+					Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
 					//Rgba32 pen = new Pen(c,(float)penw);
 					//g.DrawLine(pen,(float)lx,(float)ly,(float)x,(float)y);
+					/* //TODO need replacement for line drawing
 					image.Mutate(op => {
 						var p0 = new PointF((float)lx,(float)ly);
 						var p1 = new PointF((float)x,(float)y);
 						op.DrawLines(gop,c,(float)penw,p0,p1);
 					});
+					*/
 
 					double dist = Dist(cen,new DPoint(x,y));
 					if (dist < 1.0) {
@@ -179,36 +177,36 @@ namespace ImageFunctions.SpearGraphic
 
 		enum FadeComp { None=0, R=1, G=2, B=3 }
 
-		static Rgba32 ColorFade(double i, double max, FadeComp f)
+		static Color ColorFade(double i, double max, FadeComp f)
 		{
 			double p,s;
 			p = i < 1.0 * max / 2 ? 255
 				: 255 - (i - max/2) * (255 / max * 2);
 			s = 1.0 * i < max/2 ? 255 - i * (255 / max * 2) : 0;
 
-			Rgba32 c;
+			Color c;
 			if (f == FadeComp.R) {
-				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
+				c = Color.FromArgb(32,(int)p,(int)s,(int)s);
 			} else if (f == FadeComp.G) {
-				c = new Rgba32((byte)s,(byte)p,(byte)s,32);
+				c = Color.FromArgb(32,(int)s,(int)p,(int)s);
 			} else {
-				c = new Rgba32((byte)s,(byte)s,(byte)p,32);
+				c = Color.FromArgb(32,(int)s,(int)s,(int)p);
 			}
 			return c;
 		}
 
-		static Rgba32 ColorMix(Rgba32 one, Rgba32 two)
+		static Color ColorMix(Color one, Color two)
 		{
 			int r = one.R + two.R / 2;
 			int g = one.G + two.G / 2;
 			int b = one.R + two.R / 2;
 			int a = one.A + two.A / 2;
 
-			Rgba32 f = new Rgba32(r,g,b,a);
+			Color f = Color.FromArgb(a,r,g,b);
 			return f;
 		}
 
-		static Rgba32 TweenColor(Rgba32 start, Rgba32 end, double max, double min, double curr)
+		static Color TweenColor(Color start, Color end, double max, double min, double curr)
 		{
 			double p = (curr - min) / (max - min);
 
@@ -217,10 +215,11 @@ namespace ImageFunctions.SpearGraphic
 			double g = (end.G - start.G) * p + start.G;
 			double b = (end.B - start.B) * p + start.B;
 
-			return new Rgba32((byte)r,(byte)g,(byte)b,(byte)a);
+			Color f = Color.FromArgb((int)a,(int)r,(int)g,(int)b);
+			return f;
 		}
 
-		static Rgba32 RandomColorFade(double dist, double max, bool invert, FadeComp component = FadeComp.None)
+		static Color RandomColorFade(double dist, double max, bool invert, FadeComp component = FadeComp.None)
 		{
 			double start = invert
 				? PumpAt(max-dist,0)
@@ -231,7 +230,7 @@ namespace ImageFunctions.SpearGraphic
 				component = RandEnum<FadeComp>();
 			}
 
-			Rgba32 p = ColorFade(start,max,component);
+			Color p = ColorFade(start,max,component);
 			return p;
 		}
 
@@ -242,12 +241,12 @@ namespace ImageFunctions.SpearGraphic
 			return (E)((object)i);
 		}
 
-		static Rgba32 RandomColor(int? alpha = null)
+		static Color RandomColor(int? alpha = null)
 		{
 			int a = alpha == null ? Random(0,255) : alpha.Value;
 
-			Rgba32 color = new Rgba32(
-				(byte)Random(0,255),(byte)Random(0,255),(byte)Random(0,255),(byte)a);
+			Color color = Color.FromArgb(
+				Random(0,255),Random(0,255),Random(0,255),a);
 			return color;
 		}
 

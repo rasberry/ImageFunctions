@@ -1,16 +1,12 @@
 using System;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public static class Third<TPixel> where TPixel : struct, IPixel<TPixel>
+	public static class Third
 	{
-		public static void Twist1(Image<TPixel> image, int w, int h, int? seed = null)
+		public static void Twist1(IFImage image, int w, int h, int? seed = null)
 		{
 			InitRandom(seed);
 
@@ -26,7 +22,7 @@ namespace ImageFunctions.SpearGraphic
 			int nextRepDist = 400;
 			int colorDistMax = 500;
 
-			var gop = new GraphicsOptions { Antialias = true };
+			//var gop = new GraphicsOptions { Antialias = true };
 
 			//DPoint[] ways = new DPoint[] {
 			//	new DPoint(0
@@ -67,14 +63,16 @@ namespace ImageFunctions.SpearGraphic
 						if (dist < mindist) { break; }
 						//Pen p1 = RandomColorFade(dist,colorDistMax,false);
 						//Pen p2 = RandomColorFade(dist,colorDistMax,true);
-						Rgba32 p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
-						Rgba32 p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
+						Color p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
+						Color p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
+						/* // TODO need replacement for DrawLine
 						image.Mutate(op => {
 							DrawLine(op,gop,p2,last.X,last.Y,curr.X,curr.Y);
 							DrawLine(op,gop,p2,dest.X,dest.Y,curr.X,curr.Y);
 							DPoint ext = Move(curr,2*Math.PI-dir,100);
 							DrawLine(op,gop,p1,ext.X,ext.Y,curr.X,curr.Y);
 						});
+						*/
 
 						//if (dist < 100 && angadd > 0.01) {
 						//	angadd -= 0.01;
@@ -103,12 +101,12 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
-		{
-			var p0 = new PointF((float)x0,(float)y0);
-			var p1 = new PointF((float)x1,(float)y1);
-			op.DrawLines(gop,(Color)p,1.0f,p0,p1);
-		}
+		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
+		//{
+		//	var p0 = new PointF((float)x0,(float)y0);
+		//	var p1 = new PointF((float)x1,(float)y1);
+		//	op.DrawLines(gop,(Color)p,1.0f,p0,p1);
+		//}
 
 		static double Dist(DPoint one,DPoint two)
 		{
@@ -150,7 +148,7 @@ namespace ImageFunctions.SpearGraphic
 
 		enum FadeComp { None=0, R=1, G=2, B=3 }
 
-		static Rgba32 ColorFade(double i, double max, FadeComp f)
+		static Color ColorFade(double i, double max, FadeComp f)
 		{
 			double p,s;
 			p = i < 1.0 * max / 2 ? 255
@@ -159,27 +157,27 @@ namespace ImageFunctions.SpearGraphic
 
 			Color c;
 			if (f == FadeComp.R) {
-				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
+				c = Color.FromArgb(32,(int)p,(int)s,(int)s);
 			} else if (f == FadeComp.G) {
-				c = new Rgba32((byte)s,(byte)p,(byte)s,32);
+				c = Color.FromArgb(32,(int)s,(int)p,(int)s);
 			} else {
-				c = new Rgba32((byte)s,(byte)s,(byte)p,32);
+				c = Color.FromArgb(32,(int)s,(int)s,(int)p);
 			}
 			return c;
 		}
 
-		static Rgba32 ColorMix(Rgba32 one, Rgba32 two)
+		static Color ColorMix(Color one, Color two)
 		{
 			int r = one.R + two.R / 2;
 			int g = one.G + two.G / 2;
 			int b = one.R + two.R / 2;
 			int a = one.A + two.A / 2;
 
-			Rgba32 f = new Rgba32(r,g,b,a);
+			Color f = Color.FromArgb(a,r,g,b);
 			return f;
 		}
 
-		static Rgba32 RandomColorFade(double dist, double max, bool invert, FadeComp component = FadeComp.None)
+		static Color RandomColorFade(double dist, double max, bool invert, FadeComp component = FadeComp.None)
 		{
 			double start = invert
 				? PumpAt(max-dist,0)
@@ -190,7 +188,7 @@ namespace ImageFunctions.SpearGraphic
 				component = RandEnum<FadeComp>();
 			}
 
-			Rgba32 p = ColorFade(start,max,component);
+			Color p = ColorFade(start,max,component);
 			return p;
 		}
 
