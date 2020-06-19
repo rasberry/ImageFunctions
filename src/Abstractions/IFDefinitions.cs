@@ -23,6 +23,9 @@ namespace ImageFunctions
 		public double G;
 		public double B;
 		public double A;
+
+		//public static double MinValue = 0.0;
+		//public static double MaxValue = 1.0;
 	}
 
 	public interface IFFunction

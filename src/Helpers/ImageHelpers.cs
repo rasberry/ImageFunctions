@@ -33,6 +33,28 @@ namespace ImageFunctions.Helpers
 			return vGray;
 		}
 
+		//(val - from.min) * ((to.max - to.min)/(from.max - from.min)) + (to.min)
+		public static System.Drawing.Color NativeToRgba(IFColor color)
+		{
+			return System.Drawing.Color.FromArgb(
+				(int)(color.A * 255.0),
+				(int)(color.R * 255.0),
+				(int)(color.G * 255.0),
+				(int)(color.B * 255.0)
+			);
+		}
+
+		public static IFColor RgbaToNative(System.Drawing.Color color)
+		{
+			return new IFColor(
+				color.R / 255.0,
+				color.G / 255.0,
+				color.B / 255.0,
+				color.A / 255.0
+			);
+		}
+
+
 		public static RgbaD ToColor<TPixel>(this TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
