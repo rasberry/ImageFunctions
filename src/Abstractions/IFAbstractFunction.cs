@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Drawing;
 using ImageFunctions.Helpers;
 
 namespace ImageFunctions
 {
-	public abstract class IFAbstractFunction : IFFunction, IFunction
+	public abstract class IFAbstractFunction : IFFunction
 	{
 		public void Main()
 		{
@@ -25,7 +26,7 @@ namespace ImageFunctions
 
 				proc.Source = img;
 				if (Bounds.IsEmpty) {
-					Bounds = new System.Drawing.Rectangle { Width = img.Width, Height = img.Height };
+					Bounds = new Rectangle { Width = img.Width, Height = img.Height };
 				}
 				proc.Bounds = Bounds;
 				proc.Apply();
@@ -33,22 +34,8 @@ namespace ImageFunctions
 			}
 		}
 
-		public System.Drawing.Rectangle Bounds { get; set; }
+		public Rectangle Bounds { get; set; }
 		public int? MaxDegreeOfParallelism { get; set; }
-		SixLabors.Primitives.Rectangle IFunction.Bounds {
-			get {
-				return new SixLabors.Primitives.Rectangle {
-					X = Bounds.X, Y = Bounds.Y,
-					Width = Bounds.Width, Height = Bounds.Height
-				};
-			}
-			set {
-				Bounds = new System.Drawing.Rectangle {
-					X = value.X, Y = value.Y,
-					Width = value.Width, Height = value.Height
-				};
-			}
-		}
 
 		public abstract void Usage(StringBuilder sb);
 		public abstract bool ParseArgs(string[] args);

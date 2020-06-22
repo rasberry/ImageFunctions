@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using SixLabors.Primitives;
+using System.Drawing;
 
 namespace ImageFunctions
 {
@@ -24,7 +24,7 @@ namespace ImageFunctions
 			}
 
 			//map / parse action specific arguments
-			IFunction func = Registry.Map(Options.Which);
+			IFFunction func = Registry.Map(Options.Which);
 			if (!MapOptions(func)) {
 				return;
 			}
@@ -45,7 +45,7 @@ namespace ImageFunctions
 			}
 		}
 
-		static bool MapOptions(IFunction func)
+		static bool MapOptions(IFFunction func)
 		{
 			IGenerator iGen = func as IGenerator;
 			//generators must be given a size

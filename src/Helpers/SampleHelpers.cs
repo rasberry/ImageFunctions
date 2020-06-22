@@ -6,6 +6,8 @@ namespace ImageFunctions.Helpers
 
 	public static class SampleHelpers
 	{
+
+		//Don't use this Map function, use Registry.Map instead
 		internal static IFResampler Map(Sampler s)
 		{
 			SamplerCalc c = null;

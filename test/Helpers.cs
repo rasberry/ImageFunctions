@@ -95,7 +95,7 @@ namespace test
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
-			IFunction func = Registry.Map(act);
+			IFFunction func = Registry.Map(act);
 			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked);
@@ -112,71 +112,68 @@ namespace test
 
 		public static bool AreImagesEqual(string one, string two)
 		{
+			var iis = ImageFunctions.Engines.Engine.GetConfig();
 			// Log.Debug($"AreImagesEqual one={one} two={two}");
-			var iOne = Image.Load<Rgba32>(one);
-			var iTwo = Image.Load<Rgba32>(two);
+			var iOne = iis.LoadImage(one);
+			var iTwo = iis.LoadImage(two);
 			using (iOne) using(iTwo) {
-				if (!iOne.Bounds().Equals(iTwo.Bounds())) {
+				if (iOne.Width != iTwo.Width || iOne.Height != iTwo.Height) {
 					return false;
 				}
-				if (iOne.Frames.Count != iTwo.Frames.Count) {
+				if (!AreFramesEqual(iOne,iTwo)) {
 					return false;
-				}
-				for(int f=0; f<iOne.Frames.Count; f++) {
-					var fOne = iOne.Frames[f];
-					var fTwo = iTwo.Frames[f];
-					if (!AreFramesEqual(fOne,fTwo)) {
-						return false;
-					}
 				}
 			}
 			return true;
 		}
 
-		public static bool AreFramesEqual<TPixel>(ImageFrame<TPixel> one, ImageFrame<TPixel> two)
-			where TPixel : struct, IPixel<TPixel>
+		public static bool AreFramesEqual(IFImage one, IFImage two)
 		{
-			if (!one.Bounds().Equals(two.Bounds())) {
+			if (one.Width != two.Width || one.Height != two.Height) {
 				return false;
 			}
 
-			var sOne = one.GetPixelSpan();
-			var sTwo = two.GetPixelSpan();
-			return sOne.SequenceEqual(sTwo);
+			for(int y = 0; y < one.Height; y++) {
+				for(int x = 0; x < one.Width; x++) {
+					var po = one[x,y];
+					var pt = two[x,y];
+					bool same = 
+					 	po.A == pt.A &&
+						po.R == pt.R &&
+						po.G == pt.G &&
+						po.B == pt.B
+					;
+					if (!same) { return false; }
+				}
+			}
+			return true;
 		}
 
 		public static double ImageDistance(string one, string two)
 		{
-			var iOne = Image.Load<RgbaD>(one);
-			var iTwo = Image.Load<RgbaD>(two);
+			var iis = ImageFunctions.Engines.Engine.GetConfig();
+			var iOne = iis.LoadImage(one);
+			var iTwo = iis.LoadImage(two);
 			using (iOne) using(iTwo) {
-				if (iOne.Frames.Count != iTwo.Frames.Count) {
-					return double.MaxValue;
-				}
-				double total = 0.0;
-				for(int f=0; f<iOne.Frames.Count; f++) {
-					var fOne = iOne.Frames[f];
-					var fTwo = iTwo.Frames[f];
-					total += FrameDistance(fOne,fTwo);
-				}
+				var total = FrameDistance(iOne,iTwo);
 				return total;
 			}
 		}
 
-		public static double FrameDistance<TPixel>(ImageFrame<TPixel> one, ImageFrame<TPixel> two)
-			where TPixel : struct, IPixel<TPixel>
+		public static double FrameDistance(IFImage one, IFImage two)
 		{
-			var sOne = one.GetPixelSpan();
-			var sTwo = two.GetPixelSpan();
-			int maxLen = Math.Max(sOne.Length,sTwo.Length);
-			var black = Color.Black.ToPixel<TPixel>();
+			var black = Colors.Black;
+			int mw = Math.Max(one.Width,two.Width);
+			int mh = Math.Max(one.Height,two.Height);
 
 			double total = 0.0;
-			for(int p=0; p<maxLen; p++) {
-				var pOne = p < sOne.Length ? sOne[p] : black;
-				var pTwo = p < sTwo.Length ? sTwo[p] : black;
-				double dist = MetricHelpers.ColorDistance(pOne,pTwo);
-				total += dist;
+			for(int y = 0; y < mh; y++) {
+				for(int x = 0; x < mw; x++) {
+					var pOne = one.Width < x && one.Width < y ? one[x,y] : black;
+					var pTwo = two.Width < x && two.Width < y ? two[x,y] : black;
+					double dist = MetricHelpers.ColorDistance(pOne,pTwo);
+					total += dist;
+				}
 			}
 			return total;
 		}

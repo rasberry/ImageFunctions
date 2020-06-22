@@ -1,9 +1,8 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions
 {
@@ -29,7 +28,7 @@ namespace ImageFunctions
 			if (showFull)
 			{
 				foreach(Activity a in OptionsHelpers.EnumAll<Activity>()) {
-					IFunction func = Registry.Map(a);
+					IFFunction func = Registry.Map(a);
 					func.Usage(sb);
 				}
 				SamplerHelp(sb);
@@ -38,9 +37,9 @@ namespace ImageFunctions
 			}
 			else if (action != Activity.None)
 			{
-				IFunction func = Registry.Map(action);
+				IFFunction func = Registry.Map(action);
 				func.Usage(sb);
-				if ((func as IHasResampler) != null) {
+				if ((func as IFHasResampler) != null) {
 					SamplerHelp(sb);
 				}
 				if ((func as IHasDistance) != null) {

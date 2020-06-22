@@ -1,9 +1,8 @@
 using System;
+using System.Drawing;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
@@ -26,6 +25,7 @@ namespace ImageFunctions
 		UlamSpiral = 14
 	}
 
+	#if false
 	public interface IFunction
 	{
 		void Usage(StringBuilder sb);
@@ -34,6 +34,7 @@ namespace ImageFunctions
 		int? MaxDegreeOfParallelism { get; set; }
 		void Main();
 	}
+	#endif
 
 	public enum Sampler
 	{
@@ -55,10 +56,12 @@ namespace ImageFunctions
 		Welch = 15
 	}
 
+	#if false
 	public interface IHasResampler
 	{
 		IResampler Sampler { get; }
 	}
+	#endif
 
 	public interface IFHasResampler
 	{

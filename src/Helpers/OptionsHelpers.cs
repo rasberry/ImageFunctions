@@ -17,17 +17,6 @@ namespace ImageFunctions.Helpers
 			sb.WL(1,"--sampler (name)","Use given sampler (defaults to nearest pixel)");
 		}
 
-		public static Params.Result DefaultSampler(this Params p, out IResampler s, IResampler def = null)
-		{
-			s = def ?? Registry.DefaultResampler;
-			var r = p.Default("--sampler",out Sampler sam);
-			if (r.IsBad()) {
-				return r;
-			}
-			s = Registry.Map(sam);
-			return r;
-		}
-
 		public static Params.Result DefaultSampler(this Params p, out IFResampler s, IFResampler def = null)
 		{
 			s = def ?? Registry.DefaultIFResampler;
@@ -35,7 +24,7 @@ namespace ImageFunctions.Helpers
 			if (r.IsBad()) {
 				return r;
 			}
-			s = Registry.IFMap(sam);
+			s = Registry.Map(sam);
 			return r;
 		}
 

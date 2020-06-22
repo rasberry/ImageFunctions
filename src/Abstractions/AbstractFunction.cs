@@ -2,14 +2,10 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
+	#if false
 	public abstract class AbstractFunction : IFunction, IImageProcessor
 	{
 		public abstract void Main();
@@ -55,4 +51,5 @@ namespace ImageFunctions
 		protected string InImage = null;
 		protected string OutImage = null;
 	}
+	#endif
 }

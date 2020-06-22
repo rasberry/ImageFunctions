@@ -1,13 +1,12 @@
 using System;
+using System.Linq;
+using System.IO;
+using System.Drawing;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using ImageFunctions.AllColors;
 using ImageFunctions.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SixLabors.ImageSharp.PixelFormats;
-using System.Linq;
-using SixLabors.Primitives;
-using System.IO;
-using System.Collections.Generic;
 
 namespace test
 {

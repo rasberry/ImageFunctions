@@ -154,6 +154,17 @@ namespace ImageFunctions.Helpers
 			return dist;
 
 		}
+		public static double ColorDistance(IFColor one, IFColor two, IMeasurer measurer = null)
+		{
+			if (measurer == null) {
+				measurer = DefaultColorDistanceMeasurer;
+			}
+			double[] vOne = new double[] { one.R, one.G, one.B, one.A };
+			double[] vTwo = new double[] { two.R, two.G, two.B, two.A };
+			double dist = measurer.Measure(vOne,vTwo);
+			return dist;
+
+		}
 		static IMeasurer DefaultColorDistanceMeasurer = Registry.Map(Metric.Euclidean);
 
 		//Don't use this. use Registry Map instead - so that things stay consistent

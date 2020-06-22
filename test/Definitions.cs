@@ -12,7 +12,6 @@ namespace test
 		TwoOne,  //two input, one output
 	}
 
-
 	public interface IAmTest
 	{
 		int CaseCount { get; }

@@ -1,12 +1,8 @@
 using System;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions
 {
+	#if false
 	public abstract class AbstractProcessor<TPixel> : IImageProcessor<TPixel>
 		where TPixel : struct, IPixel<TPixel>
 	{
@@ -33,4 +29,5 @@ namespace ImageFunctions
 		public Rectangle Bounds { private get; set; } //don't let subclasses read this - should be relying on the one passed in
 		public int? MaxDegreeOfParallelism { get; set; }
 	}
+	#endif
 }
