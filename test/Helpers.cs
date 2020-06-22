@@ -1,15 +1,13 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using ImageFunctions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
 using ImageFunctions.Helpers;
-using SixLabors.Primitives;
+
 
 namespace test
 {

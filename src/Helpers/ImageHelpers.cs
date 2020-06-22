@@ -279,7 +279,7 @@ namespace ImageFunctions.Helpers
 			return btw;
 		}
 
-		public static (double,double,double) ConvertToHSI(Rgba32 c)
+		public static (double,double,double) ConvertToHSI(System.Drawing.Color c)
 		{
 			int max = Math.Max(c.R,Math.Max(c.G,c.B));
 			int min = Math.Min(c.R,Math.Min(c.G,c.B));
