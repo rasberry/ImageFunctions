@@ -1,7 +1,3 @@
-
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -19,13 +15,16 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
+		/*
 		public static string DebugString(this SixLabors.Primitives.Rectangle r)
 		{
 			return "X="+r.X+" Y="+r.Y+" W="+r.Width+" H="+r.Height
 				+" T="+r.Top+" B="+r.Bottom+" L="+r.Left+" R="+r.Right
 			;
 		}
+		*/
 
+		/*
 		public static void SetMaxDegreeOfParallelism<TPixel>(this Image<TPixel> image,int? max)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -34,7 +33,9 @@ namespace ImageFunctions.Helpers
 				config.MaxDegreeOfParallelism = max.Value;
 			}
 		}
+		*/
 
+		/*
 		public static void ThreadPixels(SixLabors.Primitives.Rectangle rect,int maxThreads,Action<int,int> callback,
 			IProgress<double> progress = null)
 		{
@@ -52,6 +53,7 @@ namespace ImageFunctions.Helpers
 				callback(x + rect.Left,y + rect.Top);
 			});
 		}
+		*/
 
 		public static void ThreadPixels(System.Drawing.Rectangle rect,int? maxThreads,Action<int,int> callback,
 			IProgress<double> progress = null)
@@ -71,6 +73,7 @@ namespace ImageFunctions.Helpers
 			});
 		}
 
+		/*
 		public static void ThreadRows(SixLabors.Primitives.Rectangle rect, int maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
 		{
@@ -85,6 +88,7 @@ namespace ImageFunctions.Helpers
 				callback(num);
 			});
 		}
+		*/
 
 		public static void ThreadRows(System.Drawing.Rectangle rect, int? maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
@@ -101,7 +105,7 @@ namespace ImageFunctions.Helpers
 			});
 		}
 
-
+		/*
 		public static void ThreadColumns(SixLabors.Primitives.Rectangle rect, int maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
 		{
@@ -116,6 +120,7 @@ namespace ImageFunctions.Helpers
 				callback(num);
 			});
 		}
+		*/
 
 		public static void ThreadColumns(System.Drawing.Rectangle rect, int? maxThreads, Action<int> callback,
 			IProgress<double> progress = null)
@@ -132,6 +137,7 @@ namespace ImageFunctions.Helpers
 			});
 		}
 
+		/*
 		public static void IteratePixels(SixLabors.Primitives.Rectangle rect,Action<int,int> callback,
 			IProgress<double> progress = null)
 		{
@@ -146,6 +152,7 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+		*/
 
 		public static void ParalellSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
 		{

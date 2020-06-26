@@ -1,12 +1,10 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Linq;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Helpers
 {
@@ -203,9 +201,9 @@ namespace ImageFunctions.Helpers
 			return false;
 		}
 
-		public static bool TryParseColor(string sub, out Color color)
+		public static bool TryParseColor(string sub, out IFColor color)
 		{
-			color = default(Color);
+			color = Colors.Transparent;
 			PopColorMap();
 
 			if (ColorMap.TryGetValue(sub,out string ColorName)) {
@@ -215,7 +213,7 @@ namespace ImageFunctions.Helpers
 			}
 
 			try {
-				color = Color.FromHex(sub);
+				color = Colors.FromHex(sub);
 				return true;
 			}
 			catch(ArgumentException) {
@@ -241,22 +239,23 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		static bool TryGetColorByName(string name, out Color color)
+		//TODO this is broken now
+		static bool TryGetColorByName(string name, out IFColor color)
 		{
-			color = default(Color);
-			var flags = BindingFlags.Public | BindingFlags.Static;
-			Type colorType = typeof(Color);
-			var field = colorType.GetField(name,flags);
-			if (field == null) { return false; }
-			color = (Color)field.GetValue(null);
+			color = Colors.Transparent;
+			//var flags = BindingFlags.Public | BindingFlags.Static;
+			//Type colorType = typeof(Color);
+			//var field = colorType.GetField(name,flags);
+			//if (field == null) { return false; }
+			//color = (Color)field.GetValue(null);
 			return true;
 		}
 
-		public static IEnumerable<(string,Color)> AllColors()
+		public static IEnumerable<(string,IFColor)> AllColors()
 		{
 			PopColorMap();
 			foreach(string name in ColorMap) {
-				if (!TryGetColorByName(name,out Color color)) { continue; }
+				if (!TryGetColorByName(name,out IFColor color)) { continue; }
 				yield return (name,color);
 			}
 		}

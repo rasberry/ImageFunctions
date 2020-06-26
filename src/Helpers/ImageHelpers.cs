@@ -1,22 +1,20 @@
 using System;
 using System.Numerics;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions.Helpers
 {
 	public static class ImageHelpers
 	{
+		/*
 		public static void SaveAsPng(string fileName, Image image)
 		{
 			PngEncoder encoder = new PngEncoder();
 			encoder.CompressionLevel = 9;
 			image.Save(fileName,encoder);
 		}
+		*/
 
+		/*
 		public static TPixel ToGrayScale<TPixel>(TPixel c)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -25,6 +23,7 @@ namespace ImageFunctions.Helpers
 			var vGray = new RgbaD(val,val,val,v.A);
 			return vGray.FromColor<TPixel>();
 		}
+		*/
 
 		public static IFColor ToGrayScale(IFColor c)
 		{
@@ -54,7 +53,7 @@ namespace ImageFunctions.Helpers
 			);
 		}
 
-
+		/*
 		public static RgbaD ToColor<TPixel>(this TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -65,7 +64,9 @@ namespace ImageFunctions.Helpers
 			c.FromScaledVector4(color.ToScaledVector4());
 			return c;
 		}
+		*/
 
+		/*
 		public static TPixel FromColor<TPixel>(this RgbaD color)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -78,7 +79,9 @@ namespace ImageFunctions.Helpers
 			}
 			return p;
 		}
+		*/
 
+		/*
 		public static void BlitImage<TPixel>(this ImageFrame<TPixel> dstImg, ImageFrame<TPixel> srcImg,
 			SixLabors.Primitives.Rectangle dstRect = default(SixLabors.Primitives.Rectangle),
 			SixLabors.Primitives.Point srcPoint = default(SixLabors.Primitives.Point))
@@ -98,6 +101,7 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+		*/
 
 		public static void BlitImage(this IFImage dstImg, IFImage srcImg,
 			System.Drawing.Rectangle dstRect = default(System.Drawing.Rectangle),
@@ -116,6 +120,7 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
+		/*
 		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -125,6 +130,7 @@ namespace ImageFunctions.Helpers
 			//Log.Debug("GPS off = "+off);
 			return img.GetPixelSpan()[off];
 		}
+		*/
 
 		public static IFColor GetPixelSafe(this IFImage img, int x, int y)
 		{
@@ -133,6 +139,7 @@ namespace ImageFunctions.Helpers
 			return img[px,py];
 		}
 
+		/*
 		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -145,6 +152,7 @@ namespace ImageFunctions.Helpers
 				return pixc;
 			}
 		}
+		*/
 
 		public static IFColor Sample(this IFImage img, double locX, double locY, IFResampler sampler = null)
 		{
@@ -154,6 +162,7 @@ namespace ImageFunctions.Helpers
 			;
 		}
 
+		/*
 		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -197,6 +206,7 @@ namespace ImageFunctions.Helpers
 			//Log.Debug("pix = "+pixi);
 			return pixi;
 		}
+		*/
 
 		static double CalcSample(double v0,double v1,double v2,double v3,double dx, double dy)
 		{
@@ -207,6 +217,7 @@ namespace ImageFunctions.Helpers
 			return vf;
 		}
 
+		/*
 		static void FillQuadrantColors<TPixel>(
 			ImageFrame<TPixel> img, bool xIsPos, bool yIsPos,double px, double py,
 			out TPixel q0, out TPixel q1, out TPixel q2, out TPixel q3)
@@ -247,7 +258,9 @@ namespace ImageFunctions.Helpers
 			q2 = img.GetPixelSafe(px2,py2);
 			q3 = img.GetPixelSafe(px3,py3);
 		}
+		*/
 
+		/*
 		//ratio 0.0 = 100% a
 		//ratio 1.0 = 100% b
 		public static TPixel BetweenColor<TPixel>(TPixel a, TPixel b, double ratio)
@@ -264,6 +277,7 @@ namespace ImageFunctions.Helpers
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw.FromColor<TPixel>();
 		}
+		*/
 
 		//ratio 0.0 = 100% a
 		//ratio 1.0 = 100% b
@@ -300,6 +314,7 @@ namespace ImageFunctions.Helpers
 			return (H,S,I);
 		}
 
+		/*
 		public static void FillWithColor<TPixel>(ImageFrame<TPixel> frame, SixLabors.Primitives.Rectangle rect,TPixel color)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -314,6 +329,7 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+		*/
 
 		public static void FillWithColor(IFImage frame, System.Drawing.Rectangle rect,IFColor color)
 		{

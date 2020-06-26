@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.ColorSpaces;
-using SixLabors.ImageSharp.ColorSpaces.Conversion;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.SpearGraphic
 {

@@ -1,7 +1,7 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
+using ImageFunctions;
 
 namespace test
 {
@@ -45,7 +45,7 @@ namespace test
 		[DataRow("#aabbcc00","AABBCC00")]
 		public void TestTryParseColor(string color,string expected)
 		{
-			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
+			bool worked = OptionsHelpers.TryParseColor(color,out IFColor c);
 			Assert.IsTrue(worked);
 			Assert.AreEqual(expected,c.ToHex());
 		}
@@ -58,7 +58,7 @@ namespace test
 		[DataRow("#white")]
 		public void TestTryBadParseColor(string color)
 		{
-			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
+			bool worked = OptionsHelpers.TryParseColor(color,out IFColor c);
 			Assert.IsFalse(worked);
 		}
 

@@ -2,13 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Encrypt
 {

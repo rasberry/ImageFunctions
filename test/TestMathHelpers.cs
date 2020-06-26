@@ -1,7 +1,6 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
 using System.Collections.Generic;
 
 namespace test
