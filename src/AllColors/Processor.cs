@@ -84,24 +84,24 @@ namespace ImageFunctions.AllColors
 			//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order);
 			//case Space.CieXyy:
 			//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order);
-			//case Space.CieXyz:
-			//	return ConvertAndSort(c => _Converter.ToCieXyz(c),ComparersCieXyz(),rect,order);
-			//case Space.Cmyk:
-			//	return ConvertAndSort(c => _Converter.ToCmyk(c),ComparersCmyk(),rect,order);
+			case Space.CieXyz:
+				return ConvertAndSort(GetConverter(new ColorSpaceCie1931()),CompareI3Color(),rect,order);
+			case Space.Cmyk:
+				return ConvertAndSort(GetConverter(new ColorSpaceCmyk()),CompareI4Color(),rect,order);
 			case Space.HSI:
-				return ConvertAndSort(c => ImageHelpers.ConvertToHSI(c),ComparersHsi(),rect,order);
-			//case Space.HSL:
-			//	return ConvertAndSort(c => _Converter.ToHsl(c),ComparersHsl(),rect,order);
-			//case Space.HSV:
-			//	return ConvertAndSort(c => _Converter.ToHsv(c),ComparersHsv(),rect,order);
+				return ConvertAndSort(GetConverter(new ColorSpaceHsi()),CompareI3Color(),rect,order);
+			case Space.HSL:
+				return ConvertAndSort(GetConverter(new ColorSpaceHsl()),CompareI3Color(),rect,order);
+			case Space.HSV:
+				return ConvertAndSort(GetConverter(new ColorSpaceHsv()),CompareI3Color(),rect,order);
 			//case Space.HunterLab:
 			//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order);
 			//case Space.LinearRgb:
 			//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order);
 			//case Space.Lms:
 			//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order);
-			//case Space.YCbCr:
-			//	return ConvertAndSort(c => _Converter.ToYCbCr(c),ComparersYCbCr(),rect,order);
+			case Space.YCbCr:
+				return ConvertAndSort(GetConverter(new ColorSpaceYCbCrJpeg()),CompareI3Color(),rect,order);
 			}
 
 			throw new NotImplementedException($"Space {space} is not implemented");
@@ -140,7 +140,6 @@ namespace ImageFunctions.AllColors
 
 		List<Color> ConvertAndSort<T>(Func<Color,T> conv, Func<T,T,int>[] compList,
 			Rectangle rect, int[] order = null)
-			where T : struct
 		{
 			var colorList = PatternBitOrder(rect);
 			var tempList = new List<(Color,T)>(colorList.Count);
@@ -214,7 +213,37 @@ namespace ImageFunctions.AllColors
 			return 0;
 		}
 
-		//static ColorSpaceConverter _Converter = new ColorSpaceConverter();
+		static Func<Color,I3Color> GetConverter(I3ColorSpace space)
+		{
+			var c = new Converter3Helper() { Space = space };
+			return c.Convert;
+		}
+
+		class Converter3Helper
+		{
+			public I3ColorSpace Space;
+			public I3Color Convert(Color c)
+			{
+				var ic = ImageHelpers.RgbaToNative(c);
+				return Space.ToSpace(ic);
+			}
+		}
+
+		static Func<Color,I4Color> GetConverter(I4ColorSpace space)
+		{
+			var c = new Converter4Helper() { Space = space };
+			return c.Convert;
+		}
+
+		class Converter4Helper
+		{
+			public I4ColorSpace Space;
+			public I4Color Convert(Color c)
+			{
+				var ic = ImageHelpers.RgbaToNative(c);
+				return Space.ToSpace(ic);
+			}
+		}
 
 		static Func<double,double,int>[] ComparersLuminance()
 		{
@@ -294,6 +323,37 @@ namespace ImageFunctions.AllColors
 				(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
 				(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
 				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<IFColor,IFColor,int>[] CompareIFColor()
+		{
+			var arr = new Func<IFColor,IFColor,int>[] {
+				(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
+				(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
+				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<I3Color,I3Color,int>[] CompareI3Color()
+		{
+			var arr = new Func<I3Color,I3Color,int>[] {
+				(a,b) => a._1 > b._1 ? 1 : a._1 < b._1 ? -1 : 0,
+				(a,b) => a._2 > b._2 ? 1 : a._2 < b._2 ? -1 : 0,
+				(a,b) => a._3 > b._3 ? 1 : a._3 < b._3 ? -1 : 0,
+			};
+			return arr;
+		}
+
+		static Func<I4Color,I4Color,int>[] CompareI4Color()
+		{
+			var arr = new Func<I4Color,I4Color,int>[] {
+				(a,b) => a._1 > b._1 ? 1 : a._1 < b._1 ? -1 : 0,
+				(a,b) => a._2 > b._2 ? 1 : a._2 < b._2 ? -1 : 0,
+				(a,b) => a._3 > b._3 ? 1 : a._3 < b._3 ? -1 : 0,
+				(a,b) => a._4 > b._4 ? 1 : a._4 < b._4 ? -1 : 0,
 			};
 			return arr;
 		}

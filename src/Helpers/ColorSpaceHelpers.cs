@@ -24,31 +24,38 @@ namespace ImageFunctions.Helpers
 		double 光 { get; }
 	}
 
-	// polymophic only interface
-	public interface IColorSpace
+	public interface ILumaColorSpace
 	{
+		IHasLuma GetLuma(in IFColor o);
 	}
 
-	public interface ILumaColorSpace<T> : IColorSpace where T: IHasLuma
+	public interface I3ColorSpace
 	{
-		T GetLuma(IFColor o);
+		I3Color ToSpace(in IFColor o);
+		IFColor ToNative(in I3Color o);
 	}
 
-	public interface I3ColorSpace<T> : IColorSpace where T : I3Color
+	public interface I4ColorSpace
 	{
-		T ToSpace(IFColor o);
-		IFColor ToNative(T o);
+		I4Color ToSpace(in IFColor o);
+		IFColor ToNative(in I4Color o);
 	}
-	public interface I4ColorSpace<T> : IColorSpace where T : I4Color
+
+	public interface I3ColorSpace<T> : I3ColorSpace where T : I3Color
 	{
-		T ToSpace(IFColor o);
-		IFColor ToNative(T o);
+		new T ToSpace(in IFColor o);
+		IFColor ToNative(in T o);
+	}
+	public interface I4ColorSpace<T> : I4ColorSpace where T : I4Color
+	{
+		new T ToSpace(in IFColor o);
+		IFColor ToNative(in T o);
 	}
 
 	// https://www.rapidtables.com/convert/color/
 	public class ColorSpaceCmyk : I4ColorSpace<ColorSpaceCmyk.CMYK>
 	{
-		public IFColor ToNative(CMYK o)
+		public IFColor ToNative(in CMYK o)
 		{
 			double m = 1.0 - o.K;
 			double r = (1.0 - o.C) * m;
@@ -58,7 +65,7 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public CMYK ToSpace(IFColor o)
+		public CMYK ToSpace(in IFColor o)
 		{
 			double max = Math.Max(Math.Max(o.R,o.G),o.B);
 			double k = 1.0 - max;
@@ -73,6 +80,13 @@ namespace ImageFunctions.Helpers
 				y = (den - o.B) / den;
 			}
 			return new CMYK(c,m,y,k,o.A);
+		}
+
+		IFColor I4ColorSpace.ToNative(in I4Color o) {
+			return ToNative((CMYK)o);
+		}
+		I4Color I4ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
 		}
 
 		public readonly struct CMYK : I4Color
@@ -140,9 +154,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/HSL_and_HSV
-	public class ColorSpaceHsl : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsl.HSL>, ILumaColorSpace<ColorSpaceHsl.HSL>
+	public class ColorSpaceHsl : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsl.HSL>, ILumaColorSpace
 	{
-		public IFColor ToNative(HSL o)
+		public IFColor ToNative(in HSL o)
 		{
 			double c = (1.0 - Math.Abs(2 * o.L - 1.0)) * o.S;
 			double m = o.L - c / 2.0;
@@ -150,7 +164,7 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public HSL ToSpace(IFColor o)
+		public HSL ToSpace(in IFColor o)
 		{
 			double max = Math.Max(Math.Max(o.R,o.G),o.B);
 			double min = Math.Min(Math.Min(o.R,o.G),o.B);
@@ -163,7 +177,14 @@ namespace ImageFunctions.Helpers
 			return new HSL(h,s,l,o.A);
 		}
 
-		public HSL GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((HSL)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -188,9 +209,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/HSL_and_HSV
-	public class ColorSpaceHsv : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsv.HSV>, ILumaColorSpace<ColorSpaceHsv.HSV>
+	public class ColorSpaceHsv : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsv.HSV>, ILumaColorSpace
 	{
-		public HSV ToSpace(IFColor o)
+		public HSV ToSpace(in IFColor o)
 		{
 			double max = Math.Max(Math.Max(o.R,o.G),o.B);
 			double min = Math.Min(Math.Min(o.R,o.G),o.B);
@@ -203,7 +224,7 @@ namespace ImageFunctions.Helpers
 			return new HSV(h,s,v,o.A);
 		}
 
-		public IFColor ToNative(HSV o)
+		public IFColor ToNative(in HSV o)
 		{
 			double c = o.V * o.S;
 			double m = o.V - c;
@@ -211,7 +232,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public HSV GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((HSV)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -236,9 +264,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/HSL_and_HSV
-	public class ColorSpaceHsi : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsi.HSI>, ILumaColorSpace<ColorSpaceHsi.HSI>
+	public class ColorSpaceHsi : ColorSpaceHSBase, I3ColorSpace<ColorSpaceHsi.HSI>, ILumaColorSpace
 	{
-		public HSI ToSpace(IFColor o)
+		public HSI ToSpace(in IFColor o)
 		{
 			double max = Math.Max(Math.Max(o.R,o.G),o.B);
 			double min = Math.Min(Math.Min(o.R,o.G),o.B);
@@ -250,7 +278,7 @@ namespace ImageFunctions.Helpers
 			return new HSI(h,s,i,o.A);
 		}
 
-		public IFColor ToNative(HSI o)
+		public IFColor ToNative(in HSI o)
 		{
 			double z = 1.0 - Math.Abs((o.H * 6.0) % 2.0 - 1.0);
 			double c = 3.0 * o.I * o.S / (z + 1);
@@ -259,7 +287,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public HSI GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((HSI)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -284,9 +319,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YIQ
-	public class ColorSpaceYiq : I3ColorSpace<ColorSpaceYiq.YIQ>, ILumaColorSpace<ColorSpaceYiq.YIQ>
+	public class ColorSpaceYiq : I3ColorSpace<ColorSpaceYiq.YIQ>, ILumaColorSpace
 	{
-		public YIQ ToSpace(IFColor o)
+		public YIQ ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.2990 + o.G *  0.5870 + o.B *  0.1140;
 			double i = o.R *  0.5959 + o.G * -0.2746 + o.B * -0.3213;
@@ -294,7 +329,7 @@ namespace ImageFunctions.Helpers
 			return new YIQ(y,i,q,o.A);
 		}
 
-		public IFColor ToNative(YIQ o)
+		public IFColor ToNative(in YIQ o)
 		{
 			double r = o.Y *  1.0 + o.I *  0.9690 + o.Q *  0.6190;
 			double g = o.Y *  1.0 + o.I * -0.2720 + o.Q * -0.6470;
@@ -302,7 +337,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YIQ GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YIQ)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -327,9 +369,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YIQ
-	public class ColorSpaceYiqFcc : I3ColorSpace<ColorSpaceYiqFcc.YIQ>, ILumaColorSpace<ColorSpaceYiqFcc.YIQ>
+	public class ColorSpaceYiqFcc : I3ColorSpace<ColorSpaceYiqFcc.YIQ>, ILumaColorSpace
 	{
-		public YIQ ToSpace(IFColor o)
+		public YIQ ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.3000 + o.G *  0.5900 + o.B *  0.1100;
 			double i = o.R *  0.5990 + o.G * -0.2773 + o.B * -0.3217;
@@ -337,7 +379,7 @@ namespace ImageFunctions.Helpers
 			return new YIQ(y,i,q,o.A);
 		}
 
-		public IFColor ToNative(YIQ o)
+		public IFColor ToNative(in YIQ o)
 		{
 			double r = o.Y *  1.0 + o.I *  0.9469 + o.Q *  0.6236;
 			double g = o.Y *  1.0 + o.I * -0.2748 + o.Q * -0.6357;
@@ -345,7 +387,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YIQ GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YIQ)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -370,9 +419,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YUV
-	public class ColorSpaceYuvBT601 : I3ColorSpace<ColorSpaceYuvBT601.YUV>, ILumaColorSpace<ColorSpaceYuvBT601.YUV>
+	public class ColorSpaceYuvBT601 : I3ColorSpace<ColorSpaceYuvBT601.YUV>, ILumaColorSpace
 	{
-		public YUV ToSpace(IFColor o)
+		public YUV ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.29900 + o.G *  0.58700 + o.B *  0.11400;
 			double i = o.R * -0.14713 + o.G * -0.28886 + o.B *  0.43600;
@@ -380,7 +429,7 @@ namespace ImageFunctions.Helpers
 			return new YUV(y,i,q,o.A);
 		}
 
-		public IFColor ToNative(YUV o)
+		public IFColor ToNative(in YUV o)
 		{
 			double r = o.Y *  1.0 + o.U *  0.00000 + o.V *  1.13983;
 			double g = o.Y *  1.0 + o.U * -0.39465 + o.V * -0.58060;
@@ -388,7 +437,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YUV GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YUV)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -413,9 +469,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YUV
-	public class ColorSpaceYuvBT709 : I3ColorSpace<ColorSpaceYuvBT709.YUV>, ILumaColorSpace<ColorSpaceYuvBT709.YUV>
+	public class ColorSpaceYuvBT709 : I3ColorSpace<ColorSpaceYuvBT709.YUV>, ILumaColorSpace
 	{
-		public YUV ToSpace(IFColor o)
+		public YUV ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.21260 + o.G *  0.71520 + o.B *  0.07220;
 			double i = o.R * -0.09991 + o.G * -0.33609 + o.B *  0.43600;
@@ -423,7 +479,7 @@ namespace ImageFunctions.Helpers
 			return new YUV(y,i,q,o.A);
 		}
 
-		public IFColor ToNative(YUV o)
+		public IFColor ToNative(in YUV o)
 		{
 			double r = o.Y *  1.0 + o.U *  0.00000 + o.V *  1.28033;
 			double g = o.Y *  1.0 + o.U * -0.21482 + o.V * -0.38059;
@@ -431,7 +487,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YUV GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YUV)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -456,9 +519,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YDbDr
-	public class ColorSpaceYDbDr : I3ColorSpace<ColorSpaceYDbDr.YBR>, ILumaColorSpace<ColorSpaceYDbDr.YBR>
+	public class ColorSpaceYDbDr : I3ColorSpace<ColorSpaceYDbDr.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.299 + o.G *  0.587 + o.B *  0.114;
 			double b = o.R * -0.450 + o.G * -0.883 + o.B *  1.333;
@@ -466,7 +529,7 @@ namespace ImageFunctions.Helpers
 			return new YBR(y,b,r,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			double r = o.Y *  1.0 + o.B *  0.000092303716148 + o.R * -0.525912630661865;
 			double g = o.Y *  1.0 + o.B * -0.129132898890509 + o.R *  0.267899328207599;
@@ -474,7 +537,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -515,7 +585,7 @@ namespace ImageFunctions.Helpers
 			I13 = 1.0; I23 = 2.0 - 2.0 * Kb;             I33 = 0.0;
 		}
 
-		protected static (double,double,double) BaseToSpace(IFColor o)
+		protected static (double,double,double) BaseToSpace(in IFColor o)
 		{
 			double y = o.R * F11 + o.G * F21 + o.B * F31;
 			double b = o.R * F12 + o.G * F22 + o.B * F32;
@@ -523,7 +593,7 @@ namespace ImageFunctions.Helpers
 			return (y,b,r);
 		}
 
-		public IFColor BaseToNative(I3Color o)
+		public IFColor BaseToNative(in I3Color o)
 		{
 			double r = o._1 * I11 + o._2 * I21 + o._3 * I31;
 			double g = o._1 * I12 + o._2 * I22 + o._3 * I32;
@@ -534,15 +604,15 @@ namespace ImageFunctions.Helpers
 
 	// https://en.wikipedia.org/wiki/YCbCr
 	public class ColorSpaceYCbCrBt601 : ColorSpaceYCbCrBase,
-		I3ColorSpace<ColorSpaceYCbCrBt601.YBR>, ILumaColorSpace<ColorSpaceYCbCrBt601.YBR>
+		I3ColorSpace<ColorSpaceYCbCrBt601.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			var (y,b,r) = BaseToSpace(o);
 			return new YBR(y,b,r,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			return BaseToNative(o);
 		}
@@ -553,7 +623,14 @@ namespace ImageFunctions.Helpers
 			InitMatrixValues();
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -579,15 +656,15 @@ namespace ImageFunctions.Helpers
 
 	// https://en.wikipedia.org/wiki/YCbCr
 	public class ColorSpaceYCbCrBt709 : ColorSpaceYCbCrBase,
-		I3ColorSpace<ColorSpaceYCbCrBt709.YBR>, ILumaColorSpace<ColorSpaceYCbCrBt709.YBR>
+		I3ColorSpace<ColorSpaceYCbCrBt709.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			var (y,b,r) = BaseToSpace(o);
 			return new YBR(y,b,r,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			return BaseToNative(o);
 		}
@@ -598,7 +675,14 @@ namespace ImageFunctions.Helpers
 			InitMatrixValues();
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -624,15 +708,15 @@ namespace ImageFunctions.Helpers
 
 	// https://en.wikipedia.org/wiki/YCbCr
 	public class ColorSpaceYCbCrBt202 : ColorSpaceYCbCrBase,
-		I3ColorSpace<ColorSpaceYCbCrBt202.YBR>, ILumaColorSpace<ColorSpaceYCbCrBt202.YBR>
+		I3ColorSpace<ColorSpaceYCbCrBt202.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			var (y,b,r) = BaseToSpace(o);
 			return new YBR(y,b,r,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			return BaseToNative(o);
 		}
@@ -643,7 +727,14 @@ namespace ImageFunctions.Helpers
 			InitMatrixValues();
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -669,15 +760,15 @@ namespace ImageFunctions.Helpers
 
 	// https://en.wikipedia.org/wiki/YCbCr
 	public class ColorSpaceYCbCrSmpte240m : ColorSpaceYCbCrBase,
-		I3ColorSpace<ColorSpaceYCbCrSmpte240m.YBR>, ILumaColorSpace<ColorSpaceYCbCrSmpte240m.YBR>
+		I3ColorSpace<ColorSpaceYCbCrSmpte240m.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			var (y,b,r) = BaseToSpace(o);
 			return new YBR(y,b,r,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			return BaseToNative(o);
 		}
@@ -688,7 +779,14 @@ namespace ImageFunctions.Helpers
 			InitMatrixValues();
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -713,9 +811,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/YUV
-	public class ColorSpaceYCbCrJpeg : I3ColorSpace<ColorSpaceYCbCrJpeg.YBR>, ILumaColorSpace<ColorSpaceYCbCrJpeg.YBR>
+	public class ColorSpaceYCbCrJpeg : I3ColorSpace<ColorSpaceYCbCrJpeg.YBR>, ILumaColorSpace
 	{
-		public YBR ToSpace(IFColor o)
+		public YBR ToSpace(in IFColor o)
 		{
 			double y = o.R *  0.299000 + o.G *  0.587000 + o.B *  0.114000;
 			double i = o.R * -0.168736 + o.G * -0.331264 + o.B *  0.500000;
@@ -723,7 +821,7 @@ namespace ImageFunctions.Helpers
 			return new YBR(y,i,q,o.A);
 		}
 
-		public IFColor ToNative(YBR o)
+		public IFColor ToNative(in YBR o)
 		{
 			double r = o.Y * 1.0 + o.B *  0.000000 + o.R *  1.402000;
 			double g = o.Y * 1.0 + o.B * -0.344136 + o.R * -0.714136;
@@ -731,7 +829,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public YBR GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((YBR)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -756,9 +861,9 @@ namespace ImageFunctions.Helpers
 	}
 
 	// https://en.wikipedia.org/wiki/CIE_1931_color_space
-	public class ColorSpaceCie1931 : I3ColorSpace<ColorSpaceCie1931.XYZ>, ILumaColorSpace<ColorSpaceCie1931.XYZ>
+	public class ColorSpaceCie1931 : I3ColorSpace<ColorSpaceCie1931.XYZ>, ILumaColorSpace
 	{
-		public XYZ ToSpace(IFColor o)
+		public XYZ ToSpace(in IFColor o)
 		{
 			double x = (o.R * 0.49000 + o.G * 0.3100 + o.B * 0.20000) / 0.17697;
 			double y = (o.R * 0.17697 + o.G * 0.8124 + o.B * 0.01063) / 0.17697;
@@ -766,7 +871,7 @@ namespace ImageFunctions.Helpers
 			return new XYZ(x,y,z,o.A);
 		}
 
-		public IFColor ToNative(XYZ o)
+		public IFColor ToNative(in XYZ o)
 		{
 			//Note: manually calculated from ToSpace matrix
 			double r = o.X *  0.4184657124218946000 + o.Y * -0.158660784803799100 + o.Z * -0.08283492761809548;
@@ -775,7 +880,14 @@ namespace ImageFunctions.Helpers
 			return new IFColor(r,g,b,o.α);
 		}
 
-		public XYZ GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((XYZ)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
@@ -799,10 +911,10 @@ namespace ImageFunctions.Helpers
 		}
 	}
 
-	public class ColorSpaceCie1960 : I3ColorSpace<ColorSpaceCie1960.UVW>, ILumaColorSpace<ColorSpaceCie1960.UVW>
+	public class ColorSpaceCie1960 : I3ColorSpace<ColorSpaceCie1960.UVW>, ILumaColorSpace
 	{
 		// https://en.wikipedia.org/wiki/CIE_1960_color_space
-		public UVW ToSpace(IFColor o)
+		public UVW ToSpace(in IFColor o)
 		{
 			////Note: this was manually solved from ToNative matrix
 			//double x = o.R * 0.24512733766039210 + o.G * -0.08511926135236732 + o.B *  0.11995558030586380;
@@ -817,7 +929,7 @@ namespace ImageFunctions.Helpers
 			return new UVW(u,v,w,o.A);
 		}
 
-		public IFColor ToNative(UVW o)
+		public IFColor ToNative(in UVW o)
 		{
 			//double r = o.U *  3.1956 + o.V * 2.4478 + o.W * -0.1434;
 			//double g = o.U * -2.5455 + o.V * 7.0492 + o.W *  0.9963;
@@ -832,7 +944,14 @@ namespace ImageFunctions.Helpers
 			return XyzSpace.ToNative(xyz);
 		}
 
-		public UVW GetLuma(IFColor o)
+		IFColor I3ColorSpace.ToNative(in I3Color o) {
+			return ToNative((UVW)o);
+		}
+		I3Color I3ColorSpace.ToSpace(in IFColor o) {
+			return ToSpace(o);
+		}
+
+		public IHasLuma GetLuma(in IFColor o)
 		{
 			var c = ToSpace(o);
 			return c;
