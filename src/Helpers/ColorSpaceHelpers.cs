@@ -4,6 +4,7 @@ using System.Numerics;
 namespace ImageFunctions.Helpers
 {
 	//TODO look at https://easyrgb.com/en/convert.php
+	// and http://www.brucelindbloom.com/
 
 	public interface I3Color
 	{
