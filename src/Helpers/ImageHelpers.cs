@@ -309,7 +309,7 @@ namespace ImageFunctions.Helpers
 				H = (c.R - c.G / (double)chr) + 4.0;
 			}
 			double I = (c.R + c.G + c.B) / 3.0;
-			double S = 1.0 - min / I;
+			double S = 1.0 - 3 * min / I;
 
 			return (H,S,I);
 		}

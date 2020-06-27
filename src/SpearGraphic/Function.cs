@@ -20,7 +20,7 @@ namespace ImageFunctions.SpearGraphic
 			if (p.Default("-g",out O.Spear,Graphic.None).IsInvalid()) {
 				return false;
 			}
-			if (p.Default("-bg",out O.BackgroundColor,Colors.Transparent).IsInvalid()) {
+			if (p.Default("-bg",out O.BackgroundColor,ColorHelpers.Transparent).IsInvalid()) {
 				return false;
 			}
 			if (p.Default("-rs",out O.RandomSeed,null).IsInvalid()) {

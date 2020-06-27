@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace ImageFunctions.Helpers
 {
-	public static class Colors
+	public static class ColorHelpers
 	{
 		public static IFColor Black       { get { return RGB(0x00,0x00,0x00); }}
 		public static IFColor IndianRed   { get { return RGB(0xCD,0x5C,0x5C); }}

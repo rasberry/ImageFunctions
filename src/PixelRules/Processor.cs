@@ -125,7 +125,7 @@ namespace ImageFunctions.PixelRules
 					|| O.WhichMode == Function.Mode.StairCaseDescend)
 				{
 					//only follow darker colors
-					IFColor white = Helpers.Colors.White;
+					IFColor white = Helpers.ColorHelpers.White;
 					double bdw = Dist(best.Value,white);
 					double ddw = Dist(bid.Value,white);
 					if (bdw > ddw) { return false; }

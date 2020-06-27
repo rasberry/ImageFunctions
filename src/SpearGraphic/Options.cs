@@ -20,7 +20,7 @@ namespace ImageFunctions.SpearGraphic
 	public class Options
 	{
 		public Graphic Spear = Graphic.None;
-		public IFColor BackgroundColor = Colors.Transparent;
+		public IFColor BackgroundColor = ColorHelpers.Transparent;
 		public int? RandomSeed = null;
 	}
 }

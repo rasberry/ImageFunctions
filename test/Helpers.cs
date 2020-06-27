@@ -137,7 +137,7 @@ namespace test
 				for(int x = 0; x < one.Width; x++) {
 					var po = one[x,y];
 					var pt = two[x,y];
-					bool same = 
+					bool same =
 					 	po.A == pt.A &&
 						po.R == pt.R &&
 						po.G == pt.G &&
@@ -162,7 +162,7 @@ namespace test
 
 		public static double FrameDistance(IFImage one, IFImage two)
 		{
-			var black = Colors.Black;
+			var black = ColorHelpers.Black;
 			int mw = Math.Max(one.Width,two.Width);
 			int mh = Math.Max(one.Height,two.Height);
 

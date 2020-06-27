@@ -7,7 +7,7 @@ namespace ImageFunctions.ImgDiff
 		public double? HilightOpacity = null;
 		public bool MatchSamePixels = false;
 		public bool OutputOriginal = false;
-		public IFColor HilightColor = Helpers.Colors.Magenta;
+		public IFColor HilightColor = Helpers.ColorHelpers.Magenta;
 		public string CompareImage = null;
 	}
 }

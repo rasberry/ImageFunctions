@@ -77,19 +77,19 @@ namespace ImageFunctions.Helpers
 			FillWeights(xW,sampler,l,r,o);
 			FillWeights(yW,sampler,t,b,o);
 
-			IFColor sum = new IFColor(0,0,0,0);
+			double sumr = 0,sumg = 0,sumb = 0;
 			for(int k = 0, v = t; v < b; v++, k++) {
 				double wy = yW[k];
 				for(int j = 0, u = l; u < r; u++, j++) {
 					double wx = xW[j];
 					IFColor pix = img[u,v];
-					sum.R += pix.R * wx * wy;
-					sum.G += pix.G * wx * wy;
-					sum.B += pix.B * wx * wy;
+					sumr += pix.R * wx * wy;
+					sumg += pix.G * wx * wy;
+					sumb += pix.B * wx * wy;
 				}
 			}
 
-			sum.A = orig.A;
+			var sum = new IFColor(sumr,sumg,sumb,orig.A);
 			return sum;
 		}
 

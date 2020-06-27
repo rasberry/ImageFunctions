@@ -203,7 +203,7 @@ namespace ImageFunctions.Helpers
 
 		public static bool TryParseColor(string sub, out IFColor color)
 		{
-			color = Colors.Transparent;
+			color = ColorHelpers.Transparent;
 			PopColorMap();
 
 			if (ColorMap.TryGetValue(sub,out string ColorName)) {
@@ -213,7 +213,7 @@ namespace ImageFunctions.Helpers
 			}
 
 			try {
-				color = Colors.FromHex(sub);
+				color = ColorHelpers.FromHex(sub);
 				return true;
 			}
 			catch(ArgumentException) {
@@ -242,7 +242,7 @@ namespace ImageFunctions.Helpers
 		//TODO this is broken now
 		static bool TryGetColorByName(string name, out IFColor color)
 		{
-			color = Colors.Transparent;
+			color = ColorHelpers.Transparent;
 			//var flags = BindingFlags.Public | BindingFlags.Static;
 			//Type colorType = typeof(Color);
 			//var field = colorType.GetField(name,flags);

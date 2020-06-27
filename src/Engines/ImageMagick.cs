@@ -73,7 +73,7 @@ namespace ImageFunctions.Engines.ImageMagick
 			double ig = Math.Clamp((double)x.G / max,0.0,1.0);
 			double ib = Math.Clamp((double)x.B / max,0.0,1.0);
 			double ia = Math.Clamp((double)x.A / max,0.0,1.0);
-			var color = new IFColor { R = ir, G = ig, B = ib, A = ia };
+			var color = new IFColor(ir,ig,ib,ia);
 			return color;
 		}
 

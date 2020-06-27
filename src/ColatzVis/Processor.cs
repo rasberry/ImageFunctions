@@ -13,7 +13,7 @@ namespace ImageFunctions.ColatzVis
 		{
 			var frame = Source;
 			var rect = Bounds;
-			var black = Helpers.Colors.Black;
+			var black = Helpers.ColorHelpers.Black;
 			ImageHelpers.FillWithColor(frame,rect,black);
 
 			for(BigInteger c = 3; c < 100000; c += 2)
@@ -83,12 +83,15 @@ namespace ImageFunctions.ColatzVis
 		//solve(2*l/a-x*sqrt(x^2+1) = x - (1/2)*(x^3/3)+(1*3/2*4)*(x^5/5) - (1*3*5/2*4*6)*(x^7/7),l);
 
 
-		static IFColor IncPixel(IFColor pixel)
+		static IFColor IncPixel(in IFColor pixel)
 		{
-			pixel.R += 0.001;
-			pixel.G += 0.001;
-			pixel.B += 0.001;
-			return pixel;
+			var p = new IFColor(
+				pixel.R + 0.001,
+				pixel.G + 0.001,
+				pixel.B + 0.001,
+				pixel.A
+			);
+			return p;
 		}
 
 		public override void Dispose() {}

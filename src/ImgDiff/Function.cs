@@ -23,7 +23,7 @@ namespace ImageFunctions.ImgDiff
 				return false;
 			}
 
-			if (p.Default("-c",out O.HilightColor,Helpers.Colors.Magenta).IsInvalid()) {
+			if (p.Default("-c",out O.HilightColor,Helpers.ColorHelpers.Magenta).IsInvalid()) {
 				return false;
 			}
 			if (p.ExpectFile(out InImage,"first image").IsBad()) {

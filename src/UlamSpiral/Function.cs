@@ -70,14 +70,14 @@ namespace ImageFunctions.UlamSpiral
 				O.ColorPrimesForce = false; //this is redundant when using -6m so turn it off
 			}
 			if (O.ColorPrimesBy6m) {
-				if (!O.Color2.HasValue) { O.Color2 = Colors.LimeGreen; }
-				if (!O.Color4.HasValue) { O.Color4 = Colors.IndianRed; }
+				if (!O.Color2.HasValue) { O.Color2 = ColorHelpers.LimeGreen; }
+				if (!O.Color4.HasValue) { O.Color4 = ColorHelpers.IndianRed; }
 			}
 			if (O.ColorComposites) {
-				if (!O.Color3.HasValue) { O.Color3 = Colors.White; }
+				if (!O.Color3.HasValue) { O.Color3 = ColorHelpers.White; }
 			}
-			if (!O.Color1.HasValue) { O.Color1 = Colors.Black; }
-			if (!O.Color2.HasValue) { O.Color2 = Colors.White; }
+			if (!O.Color1.HasValue) { O.Color1 = ColorHelpers.Black; }
+			if (!O.Color2.HasValue) { O.Color2 = ColorHelpers.White; }
 
 			return true;
 		}

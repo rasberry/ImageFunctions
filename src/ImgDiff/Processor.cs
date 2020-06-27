@@ -36,9 +36,9 @@ namespace ImageFunctions.ImgDiff
 					new Rectangle(0,0,compareImg.Width,compareImg.Height)
 				);
 				var minimum = Rectangle.Intersect(ab,this.Bounds);
-				var colorWhite = Helpers.Colors.White;
+				var colorWhite = Helpers.ColorHelpers.White;
 				var colorHilight = O.HilightColor;
-				var colorTransp = Helpers.Colors.Transparent;
+				var colorTransp = Helpers.ColorHelpers.Transparent;
 
 				MoreHelpers.ThreadPixels(minimum, MaxDegreeOfParallelism, (x,y) => {
 					var one = frame[x,y];

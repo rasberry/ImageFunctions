@@ -73,12 +73,12 @@ namespace ImageFunctions.ZoomBlur
 					cr += tpc.R; cg += tpc.G; cb += tpc.B;
 					ca += tpc.A;
 				}
-				avg = new IFColor {
-					R = (float)(cr / count),
-					G = (float)(cg / count),
-					B = (float)(cb / count),
-					A = (float)(ca / count)
-				};
+				avg = new IFColor(
+					cr / count,
+					cg / count,
+					cb / count,
+					ca / count
+				);
 			}
 			return avg;
 		}

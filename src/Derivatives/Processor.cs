@@ -8,7 +8,7 @@ namespace ImageFunctions.Derivatives
 	public class Processor : IFAbstractProcessor
 	{
 		public Options O = null;
-		static IFColor DefaultColor = Helpers.Colors.Transparent;
+		static IFColor DefaultColor = Helpers.ColorHelpers.Transparent;
 
 		public override void Apply()
 		{

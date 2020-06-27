@@ -12,17 +12,13 @@ namespace ImageFunctions
 		IFColor this[int x, int y] { get; set; }
 	}
 
-	public struct IFColor
+	public readonly struct IFColor
 	{
-		public IFColor(double r, double g, double b, double a)
-		{
+		public IFColor(double r, double g, double b, double a) {
 			R = r; G = g; B = b; A = a;
 		}
 
-		public double R;
-		public double G;
-		public double B;
-		public double A;
+		public readonly double R,G,B,A;
 
 		//public static double MinValue = 0.0;
 		//public static double MaxValue = 1.0;

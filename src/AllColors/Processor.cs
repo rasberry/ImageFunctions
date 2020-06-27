@@ -7,13 +7,13 @@ namespace ImageFunctions.AllColors
 {
 	// Inspired by
 	// https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
-	
+
 	public class Processor : IFAbstractProcessor
 	{
 		const int NumberOfColors = 16777216;
 		//there doesn't seem to be a sort with progress so take a guess
 		// at the maximum number of iterations
-		const double SortMax = 5 * 7 * NumberOfColors; //5 * log(n) * n
+		const double SortMax = 24 * NumberOfColors; //log2(n) * n
 		public Options O = null;
 
 		public override void Apply()
@@ -28,7 +28,7 @@ namespace ImageFunctions.AllColors
 				colorList = ConvertByPattern(O.SortBy, rect);
 			}
 
-			var transparent = ImageHelpers.NativeToRgba(Colors.Transparent);
+			var transparent = ImageHelpers.NativeToRgba(ColorHelpers.Transparent);
 			using (var progress = new ProgressBar())
 			{
 				progress.Prefix = "Rendering...";
@@ -59,8 +59,8 @@ namespace ImageFunctions.AllColors
 			case Pattern.AERT:          converter = ConvertAERT; break;
 			case Pattern.HSP:           converter = ConvertHSP; break;
 			case Pattern.WCAG2:         converter = ConvertWCAG2; break;
-			case Pattern.Luminance709:  converter = ConvertLuminance709; break;
 			case Pattern.Luminance601:  converter = ConvertLuminance601; break;
+			case Pattern.Luminance709:  converter = ConvertLuminance709; break;
 			case Pattern.Luminance2020: converter = ConvertLuminance2020; break;
 			case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
 			}
@@ -236,11 +236,7 @@ namespace ImageFunctions.AllColors
 		// https://en.wikipedia.org/wiki/Rec._601
 		static double ConvertLuminance601(Color c)
 		{
-			double l = 16.0
-				+ ( 65.481 * c.R / 255.0)
-				+ (128.553 * c.G / 255.0)
-				+ ( 24.966 * c.B / 255.0)
-			;
+			double l = 0.2989 * c.R + 0.5870 * c.G + 0.1140 * c.B;
 			return l;
 		}
 
@@ -254,14 +250,15 @@ namespace ImageFunctions.AllColors
 		// http://www.w3.org/TR/AERT#color-contrast
 		static double ConvertAERT(Color c)
 		{
-			double l = 0.299 * c.R + 0.587 * c.G + 0.114 * c.B;
+			double l = 0.2990 * c.R + 0.5870 * c.G + 0.1140 * c.B;
 			return l;
 		}
 
 		// http://alienryderflex.com/hsp.html
 		static double ConvertHSP(Color c)
 		{
-			double l = 0.299 * c.R * c.R + 0.587 * c.G * c.G + 0.114 * c.B * c.B;
+			double rr = c.R * c.R, gg = c.G * c.G, bb = c.B * c.B;
+			double l = 0.2990 * rr + 0.5870 * gg + 0.1140 * bb;
 			return Math.Sqrt(l);
 		}
 
@@ -287,7 +284,7 @@ namespace ImageFunctions.AllColors
 		// http://discoverybiz.net/enu0/faq/faq_YUV_YCbCr_YPbPr.html
 		static double ConvertSmpte1999(Color c)
 		{
-			double l = 0.212 * c.R + 0.701 * c.G + 0.087 * c.B;
+			double l = 0.2120 * c.R + 0.7010 * c.G + 0.0870 * c.B;
 			return l;
 		}
 

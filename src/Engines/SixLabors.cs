@@ -43,7 +43,7 @@ namespace ImageFunctions.Engines.SixLabors
 		public IFColor this[int x, int y] {
 			get {
 				var ipix = image[x,y];
-				return new IFColor { R = ipix.R, G = ipix.G, B = ipix.B, A = ipix.A };
+				return new IFColor(ipix.R,ipix.G,ipix.B,ipix.A);
 			}
 			set {
 				var xpix = new RgbaD { R = value.R, G = value.G, B = value.B, A = value.A };
