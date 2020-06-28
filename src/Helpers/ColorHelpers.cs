@@ -1,11 +1,13 @@
 using System;
 using System.Drawing;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace ImageFunctions.Helpers
 {
 	public static class ColorHelpers
 	{
+		// Colors used directly in the code
 		public static IFColor Black       { get { return RGB(0x00,0x00,0x00); }}
 		public static IFColor IndianRed   { get { return RGB(0xCD,0x5C,0x5C); }}
 		public static IFColor LimeGreen   { get { return RGB(0x32,0xCD,0x32); }}
@@ -21,11 +23,23 @@ namespace ImageFunctions.Helpers
 		public static string ToHex(this IFColor c)
 		{
 			var rgba = ImageHelpers.NativeToRgba(c);
-			var s = string.Format("#{0:XX}{1:XX}{2:XX}{3:XX}",rgba.R,rgba.G,rgba.B);
+			return ToHex(rgba);
+		}
+		public static string ToHex(this Color c)
+		{
+			uint argb = (uint)c.ToArgb();
+			uint rgba = (argb << 8) | (argb >> 24); //Rotate left. must be done with uint or we get -1 (0xFF...)
+			var s = $"#{rgba:X8}";
 			return s;
 		}
 
-		public static IFColor FromHex(string s)
+		public static IFColor FromHexNative(string s)
+		{
+			var c = FromHex(s);
+			return ImageHelpers.RgbaToNative(c);
+		}
+
+		public static Color FromHex(string s)
 		{
 			if (s[0] == '#') {
 				s = s.Substring(1);
@@ -50,14 +64,38 @@ namespace ImageFunctions.Helpers
 			int ca = ParseHex(aa) * scaleHex;
 
 			var rgba = Color.FromArgb(ca,cr,cg,cb);
-			var color = ImageHelpers.RgbaToNative(rgba);
-			return color;
+			return rgba;
 		}
 
 		static int ParseHex(string h)
 		{
 			int num = int.Parse(h,NumberStyles.HexNumber);
 			return num;
+		}
+
+		public static IFColor? FromNameNative(string name)
+		{
+			var c = FromName(name);
+			return c.HasValue
+				? ImageHelpers.RgbaToNative(c.Value)
+				: default(IFColor?)
+			;
+		}
+		public static Color? FromName(string name)
+		{
+			string lname = (name ?? "").ToLowerInvariant();
+			var c = Color.FromName(name);
+			bool good = c.IsKnownColor && !c.IsSystemColor;
+			return good ? c : default(Color?);
+		}
+
+		public static IEnumerable<Color> AllColors()
+		{
+			foreach(KnownColor kc in Enum.GetValues(typeof(KnownColor))) {
+				var c = Color.FromKnownColor(kc);
+				bool good = c.IsKnownColor && !c.IsSystemColor;
+				if (good) { yield return c; }
+			}
 		}
 	}
 }

@@ -72,9 +72,7 @@ namespace ImageFunctions.ZoomBlur
 
 		protected override IFAbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor();
-			proc.O = O;
-			return proc;
+			return new Processor { O = O };
 		}
 
 		public IFResampler Sampler { get { return O.Sampler; }}

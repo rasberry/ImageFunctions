@@ -16,7 +16,7 @@ namespace ImageFunctions.Engines
 		public static IFImageConfig GetConfig()
 		{
 			//TODO set via configuration
-			WhichEngine = PickEngine.ImageMagick;
+			WhichEngine = PickEngine.SixLabors;
 
 			switch(WhichEngine)
 			{

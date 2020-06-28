@@ -77,7 +77,7 @@ namespace ImageFunctions.PixelRules
 
 		protected override IFAbstractProcessor CreateProcessor()
 		{
-			return new Processor();
+			return new Processor { O = O };
 		}
 
 		public IMeasurer Measurer { get { return O.Measurer; }}

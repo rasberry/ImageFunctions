@@ -203,62 +203,60 @@ namespace ImageFunctions.Helpers
 
 		public static bool TryParseColor(string sub, out IFColor color)
 		{
-			color = ColorHelpers.Transparent;
-			PopColorMap();
-
-			if (ColorMap.TryGetValue(sub,out string ColorName)) {
-				if (TryGetColorByName(ColorName, out color)) {
-					return true;
-				}
+			var try1 = ColorHelpers.FromNameNative(sub);
+			if (try1.HasValue) {
+				color = try1.Value;
+				return true;
 			}
 
 			try {
-				color = ColorHelpers.FromHex(sub);
+				color = ColorHelpers.FromHexNative(sub);
 				return true;
 			}
 			catch(ArgumentException) {
 				//don't crash here - follow the convention of returning false
 			}
 
+			color = ColorHelpers.Transparent;
 			return false;
 		}
 
-		static HashSet<string> ColorMap = null;
-		static void PopColorMap()
-		{
-			if (ColorMap != null) { return; }
-			ColorMap = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
-			var flags = BindingFlags.Public | BindingFlags.Static;
-			Type colorType = typeof(Color);
-			var fields = colorType.GetFields(flags);
+		//static HashSet<string> ColorMap = null;
+		//static void PopColorMap()
+		//{
+		//	if (ColorMap != null) { return; }
+		//	ColorMap = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+		//	var flags = BindingFlags.Public | BindingFlags.Static;
+		//	Type colorType = typeof(Color);
+		//	var fields = colorType.GetFields(flags);
+		//
+		//	foreach(var info in fields) {
+		//		if (colorType.Equals(info.FieldType)) {
+		//			ColorMap.Add(info.Name);
+		//		}
+		//	}
+		//}
 
-			foreach(var info in fields) {
-				if (colorType.Equals(info.FieldType)) {
-					ColorMap.Add(info.Name);
-				}
-			}
-		}
+		// //TODO this is broken now
+		// static bool TryGetColorByName(string name, out IFColor color)
+		// {
+		// 	color = ColorHelpers.Transparent;
+		// 	//var flags = BindingFlags.Public | BindingFlags.Static;
+		// 	//Type colorType = typeof(Color);
+		// 	//var field = colorType.GetField(name,flags);
+		// 	//if (field == null) { return false; }
+		// 	//color = (Color)field.GetValue(null);
+		// 	return true;
+		// }
 
-		//TODO this is broken now
-		static bool TryGetColorByName(string name, out IFColor color)
-		{
-			color = ColorHelpers.Transparent;
-			//var flags = BindingFlags.Public | BindingFlags.Static;
-			//Type colorType = typeof(Color);
-			//var field = colorType.GetField(name,flags);
-			//if (field == null) { return false; }
-			//color = (Color)field.GetValue(null);
-			return true;
-		}
-
-		public static IEnumerable<(string,IFColor)> AllColors()
-		{
-			PopColorMap();
-			foreach(string name in ColorMap) {
-				if (!TryGetColorByName(name,out IFColor color)) { continue; }
-				yield return (name,color);
-			}
-		}
+		// public static IEnumerable<(string,IFColor)> AllColors()
+		// {
+		// 	PopColorMap();
+		// 	foreach(string name in ColorMap) {
+		// 		if (!TryGetColorByName(name,out IFColor color)) { continue; }
+		// 		yield return (name,color);
+		// 	}
+		// }
 
 		public static IEnumerable<T> EnumAll<T>(bool includeZero = false)
 			where T : struct

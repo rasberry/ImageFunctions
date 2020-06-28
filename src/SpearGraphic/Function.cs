@@ -48,7 +48,7 @@ namespace ImageFunctions.SpearGraphic
 
 		protected override IFAbstractProcessor CreateProcessor()
 		{
-			return new Processor();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
