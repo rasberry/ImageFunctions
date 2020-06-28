@@ -213,9 +213,9 @@ namespace ImageFunctions.Helpers
 				color = ColorHelpers.FromHexNative(sub);
 				return true;
 			}
-			catch(ArgumentException) {
-				//don't crash here - follow the convention of returning false
-			}
+			//don't crash here - follow the convention of returning false
+			catch(ArgumentException) {}
+			catch(FormatException) {}
 
 			color = ColorHelpers.Transparent;
 			return false;
