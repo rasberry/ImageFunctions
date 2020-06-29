@@ -10,10 +10,10 @@ namespace test
 	public class TestColorHelpers
 	{
 		[DataTestMethod]
-		[DataRow("#AABBCCFF",0xAA,0xBB,0xCC,0xFF)]
-		[DataRow("#00000000",0x00,0x00,0x00,0x00)]
-		[DataRow("#FFFFFF00",0xFF,0xFF,0xFF,0x00)]
-		[DataRow("#FFFFFFFF",0xFF,0xFF,0xFF,0xFF)]
+		[DataRow("AABBCCFF",0xAA,0xBB,0xCC,0xFF)]
+		[DataRow("00000000",0x00,0x00,0x00,0x00)]
+		[DataRow("FFFFFF00",0xFF,0xFF,0xFF,0x00)]
+		[DataRow("FFFFFFFF",0xFF,0xFF,0xFF,0xFF)]
 		public void TestToHex(string hex,int r,int g,int b,int a)
 		{
 			var c = Color.FromArgb(a,r,g,b);
@@ -40,7 +40,7 @@ namespace test
 		}
 
 		[DataTestMethod]
-		[DataRow("#AABBCCFG",typeof(System.FormatException))]
+		[DataRow("AABBCCFG",typeof(System.FormatException))]
 		[DataRow("Badness",typeof(System.ArgumentException))]
 		public void TestFromHexBad(string hex, Type ext)
 		{
@@ -57,6 +57,7 @@ namespace test
 		[DataRow("transparent",0xFF,0xFF,0xFF,0x00)]
 		[DataRow("black"      ,0x00,0x00,0x00,0xFF)]
 		[DataRow("green"      ,0x00,0x80,0x00,0xFF)]
+		[DataRow("white"      ,0xFF,0xFF,0xFF,0xFF)]
 		public void TestFromName(string name, int r,int g,int b,int a)
 		{
 			var c = Color.FromArgb(a,r,g,b);

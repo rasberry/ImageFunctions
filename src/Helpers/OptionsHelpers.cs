@@ -197,27 +197,33 @@ namespace ImageFunctions.Helpers
 					val = (V)((object)clr); return true;
 				}
 			}
+			else if (t.Equals(typeof(IFColor))) {
+				if (TryParseColor(sub,out var clr)) {
+					var ntv = ImageHelpers.RgbaToNative(clr);
+					val = (V)((object)ntv); return true;
+				}
+			}
 
 			return false;
 		}
 
-		public static bool TryParseColor(string sub, out IFColor color)
+		public static bool TryParseColor(string sub, out Color color)
 		{
-			var try1 = ColorHelpers.FromNameNative(sub);
+			var try1 = ColorHelpers.FromName(sub);
 			if (try1.HasValue) {
 				color = try1.Value;
 				return true;
 			}
 
 			try {
-				color = ColorHelpers.FromHexNative(sub);
+				color = ColorHelpers.FromHex(sub);
 				return true;
 			}
 			//don't crash here - follow the convention of returning false
 			catch(ArgumentException) {}
 			catch(FormatException) {}
 
-			color = ColorHelpers.Transparent;
+			color = Color.Transparent;
 			return false;
 		}
 

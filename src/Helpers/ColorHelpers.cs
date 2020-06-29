@@ -29,7 +29,7 @@ namespace ImageFunctions.Helpers
 		{
 			uint argb = (uint)c.ToArgb();
 			uint rgba = (argb << 8) | (argb >> 24); //Rotate left. must be done with uint or we get -1 (0xFF...)
-			var s = $"#{rgba:X8}";
+			var s = $"{rgba:X8}";
 			return s;
 		}
 

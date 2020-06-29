@@ -2,6 +2,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions.Helpers;
 using ImageFunctions;
+using System.Drawing;
 
 namespace test
 {
@@ -45,7 +46,7 @@ namespace test
 		[DataRow("#aabbcc00","AABBCC00")]
 		public void TestTryParseColor(string color,string expected)
 		{
-			bool worked = OptionsHelpers.TryParseColor(color,out IFColor c);
+			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
 			Assert.IsTrue(worked);
 			Assert.AreEqual(expected,c.ToHex());
 		}
@@ -58,7 +59,7 @@ namespace test
 		[DataRow("#white")]
 		public void TestTryBadParseColor(string color)
 		{
-			bool worked = OptionsHelpers.TryParseColor(color,out IFColor c);
+			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
 			Assert.IsFalse(worked);
 		}
 
@@ -101,9 +102,9 @@ namespace test
 		[DataRow("10 10 20 20",10,10,20,20)]
 		public void TestTryParseRect(string s, int x,int y,int w,int h)
 		{
-			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
+			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
 			Assert.IsTrue(worked);
-			Assert.AreEqual(new SixLabors.Primitives.Rectangle(x,y,w,h),val);
+			Assert.AreEqual(new Rectangle(x,y,w,h),val);
 		}
 
 		[DataTestMethod]
@@ -113,7 +114,7 @@ namespace test
 		[DataRow("0,0,0,0")]
 		public void TestTryParseBadRect(string s)
 		{
-			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
+			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
 			Assert.IsFalse(worked);
 		}
 
