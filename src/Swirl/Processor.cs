@@ -67,7 +67,10 @@ namespace ImageFunctions.Swirl
 				pixely = Math.Sin(pixelAng) * pixelDist;
 			}
 
-			var c = frame.Sample(swirlx + pixelx,swirly + pixely,O.Sampler);
+			var c = ImageHelpers.GetPixelSafe(frame,
+				(int)(swirlx + pixelx),(int)(swirly + pixely));
+			//var c = frame.Sample(swirlx + pixelx,swirly + pixely,O.Sampler);
+			//TODO samplers need to get fixed
 			return c;
 		}
 

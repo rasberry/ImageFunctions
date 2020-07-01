@@ -137,16 +137,52 @@ namespace test
 				for(int x = 0; x < one.Width; x++) {
 					var po = one[x,y];
 					var pt = two[x,y];
-					bool same =
-					 	po.A == pt.A &&
-						po.R == pt.R &&
-						po.G == pt.G &&
-						po.B == pt.B
-					;
+					bool same = AreColorsEqual(po,pt);
 					if (!same) { return false; }
 				}
 			}
 			return true;
+		}
+
+		public static bool AreColorsEqual(IFColor one, IFColor two)
+		{
+			bool same =
+				one.A == two.A &&
+				one.R == two.R &&
+				one.G == two.G &&
+				one.B == two.B
+			;
+			return same;
+		}
+
+		public static bool AreColorsEqual(Color one, Color two)
+		{
+			bool same =
+				one.A == two.A &&
+				one.R == two.R &&
+				one.G == two.G &&
+				one.B == two.B
+			;
+			return same;
+		}
+
+		public static void AssertAreEqual(Color exp, Color act)
+		{
+			//normalize the colors - comparing the same color created
+			// from a name vs with FromArgb won't trigger a match
+			Color c1 = Color.FromArgb(exp.A,exp.R,exp.G,exp.B);
+			Color c2 = Color.FromArgb(act.A,act.R,act.G,act.B);
+			Assert.AreEqual(c1,c2);
+		}
+
+		public static void AssertAreSimilar(IFColor e, IFColor a, double maxdiff = 0.0)
+		{
+			var dist = MetricHelpers.ColorDistance(e,a);
+			Assert.IsTrue(dist < maxdiff,
+				$"Color Distance {dist} > {maxdiff}."
+				+ $" Expected <{e.R},{e.G},{e.B},{e.A}>"
+				+ $" Actual <{a.R},{a.G},{a.B},{a.A}>"
+			);
 		}
 
 		public static double ImageDistance(string one, string two)

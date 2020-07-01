@@ -36,7 +36,7 @@ namespace test
 		{
 			var c = Color.FromArgb(a,r,g,b);
 			var test = ColorHelpers.FromHex(hex);
-			AssertAreEqual(c,test);
+			Helpers.AssertAreEqual(c,test);
 		}
 
 		[DataTestMethod]
@@ -62,16 +62,7 @@ namespace test
 		{
 			var c = Color.FromArgb(a,r,g,b);
 			var test = ColorHelpers.FromName(name);
-			AssertAreEqual(c,test.Value);
-		}
-
-		static void AssertAreEqual(Color exp, Color act)
-		{
-			//normalize the colors - comparing the same color created
-			// from a name vs with FromArgb won't trigger a match
-			Color c1 = Color.FromArgb(exp.A,exp.R,exp.G,exp.B);
-			Color c2 = Color.FromArgb(act.A,act.R,act.G,act.B);
-			Assert.AreEqual(c1,c2);
+			Helpers.AssertAreEqual(c,test.Value);
 		}
 	}
 }
