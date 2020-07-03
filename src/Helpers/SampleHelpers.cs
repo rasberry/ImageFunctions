@@ -132,57 +132,6 @@ namespace ImageFunctions.Helpers
 		static ConcurrentDictionary<int,double[]> KernelCache =
 			new ConcurrentDictionary<int, double[]>();
 
-		/*
-		public static IFColor GetSample1(this IFImage img, IFResampler sampler, int x, int y, double? radius = null)
-		{
-			//TODO this function has not been tested
-			double o = radius.HasValue
-				? radius.Value
-				: sampler.Radius
-			;
-			int wmax = img.Width - 1;
-			int hmax = img.Height - 1;
-
-			x = Math.Clamp(x,0,wmax);
-			y = Math.Clamp(y,0,hmax);
-			IFColor orig = img[x,y];
-			int l = Math.Clamp((int)(x - o),0,wmax);
-			int r = Math.Clamp((int)(x + o),0,wmax);
-			int t = Math.Clamp((int)(y - o),0,hmax);
-			int b = Math.Clamp((int)(y + o),0,hmax);
-			if (l == r || t == b) { return orig; }
-
-			var xW = new double[r - l];
-			var yW = new double[b - t];
-			FillWeights(xW,sampler,l,r,o);
-			FillWeights(yW,sampler,t,b,o);
-
-			double sumr = 0,sumg = 0,sumb = 0;
-			for(int k = 0, v = t; v < b; v++, k++) {
-				double wy = yW[k];
-				for(int j = 0, u = l; u < r; u++, j++) {
-					double wx = xW[j];
-					IFColor pix = img[u,v];
-					sumr += pix.R * wx * wy;
-					sumg += pix.G * wx * wy;
-					sumb += pix.B * wx * wy;
-				}
-			}
-
-			var sum = new IFColor(sumr,sumg,sumb,orig.A);
-			return sum;
-		}
-
-		static void FillWeights(double[] weights, IFResampler s,int min, int max, double o)
-		{
-			double cen = (max - min) / 2.0;
-			for(int x=0, i = min; i< max; i++, x++) {
-				double w = s.GetAmount(i - o);
-				weights[x] = w;
-			}
-		}
-		*/
-
 		static double GetRadius(Sampler s)
 		{
 			switch(s) {
@@ -236,6 +185,7 @@ namespace ImageFunctions.Helpers
 		}
 
 		// http://www.imagemagick.org/Usage/filter/#cubics
+		// http://www.cs.utexas.edu/~fussell/courses/cs384g-fall2013/lectures/mitchell/Mitchell.pdf
 		static double Cubic(double x, double b, double c)
 		{
 			if (x < 0.0) { x = -x; }
@@ -243,24 +193,24 @@ namespace ImageFunctions.Helpers
 			double x3 = x2 * x;
 
 			if (x < 1.0) {
-				double v = (18 * c + 36 * b - 54) * x2 - (18 * c +27 * b - 36) * x3 - b + 3.0;
-				return v / 3.0;
+				double v = x3*(12 - 9*b - 6*c) + x2*(-18 + 12*b + 6*c) + (6 - 2*b);
+				return v / 6.0;
 			}
 			else if (x < 2.0) {
-				double v = (30 * c + 6 * b) * x2 - (6 * c + b) * x3 - (48 * c + 12 * b) * x + (24 * c) + (8 * b);
+				double v = x3*(-b - 6*c) + x2*(6*b + 30*c) + x*(-12*b - 48*c) + (8*b + 24*c);
 				return v / 6.0;
 			}
 
 			return 0.0;
 		}
 
-		const double OneThird = 1.0 / 3.0;
-		const double Sqrt2 = 1.4142135623730950488016887242097;
 		// https://www.imagemagick.org/discourse-server/viewtopic.php?p=78213&sid=1dc8c81c20fa3c2b4a2a12da630a53dc#p78213
 		const double RB1 = (228.0 - 108.0 * Sqrt2) / 199.0;
 		const double RB2 = (1.0 - RB1) / 2.0;
 		const double RS1 = (78.0 - 42.0 * Sqrt2) / 71.0;
 		const double RS2 = (42.0 * Sqrt2 - 7.0) / 142.0;
+		const double OneThird = 1.0 / 3.0;
+		const double Sqrt2 = 1.4142135623730950488016887242097;
 
 		static double CatmullRom(double x)        { return Cubic(x, 0.0, 0.5); }
 		static double Hermite(double x)           { return Cubic(x, 0.0, 0.0); }
