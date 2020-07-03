@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 
 namespace ImageFunctions.Helpers
 {
@@ -36,28 +37,108 @@ namespace ImageFunctions.Helpers
 		class SamplerRaft : IFResampler
 		{
 			public SamplerRaft(Sampler s, SamplerCalc calc) {
-				WhichSampler = s;
+				Kind = s;
 				Calc = calc;
 			}
 
 			public double Radius { get {
-				return GetRadius(WhichSampler);
+				return GetRadius(Kind);
 			}}
 
 			public double GetAmount(double x) {
 				return Calc(x);
 			}
 
-			Sampler WhichSampler;
+			public Sampler Kind { get; private set; }
 			SamplerCalc Calc;
 		}
 
-		public static IFColor GetSample(this IFImage img, IFResampler sampler, int x, int y, double? radius = null)
+		public static IFColor GetSample(this IFImage img, IFResampler sampler, int x, int y, double scale = 1.0)
+		{
+			double o = sampler.Radius;
+			if (o < 1.0) {
+				return ImageHelpers.GetPixelSafe(img,x,y); //shortcut for NearestNeighbor
+			}
+
+			double[] kern = GetKernel(sampler.Kind,scale);
+
+			int rad = (int)Math.Ceiling(o);
+			int wmax = img.Width - 1;
+			int hmax = img.Height - 1;
+			x = Math.Clamp(x,0,wmax);
+			y = Math.Clamp(y,0,hmax);
+
+			int t = Math.Clamp(y - rad,0,hmax);
+			int b = Math.Clamp(y + rad,0,hmax);
+			int l = Math.Clamp(x - rad,0,wmax);
+			int r = Math.Clamp(x + rad,0,wmax);
+
+			double vr = 0.0,vg = 0.0,vb = 0.0,va = 0.0;
+			for(int j = 0,v = t; v <= b; v++, j++) {
+				double ur = 0.0,ug = 0.0,ub = 0.0,ua = 0.0;
+				for(int i = 0, u = l; u <= r; u++, i++) {
+					//multiply sample by kernel and add
+					var c = img[u,v];
+					ur += kern[i] * c.R;
+					ug += kern[i] * c.G;
+					ub += kern[i] * c.B;
+					ua += kern[i] * c.A;
+				}
+				//multiply row by kernel and add
+				vr += ur * kern[j];
+				vg += ug * kern[j];
+				vb += ub * kern[j];
+				va += ua * kern[j];
+			}
+
+			return new IFColor(vr,vg,vb,va);
+		}
+
+		static double[] GetKernel(Sampler sampler, double scale)
+		{
+			//try to grab from cache first
+			double[] kern;
+			int hash = HashCode.Combine(sampler,scale);
+			if (KernelCache.TryGetValue(hash,out kern)) {
+				return kern;
+			}
+			var s = Map(sampler);
+
+			double o = s.Radius;
+			int rad = (int)Math.Ceiling(o);
+
+			//create the 1D kernel and normalization factor
+			kern = new double[2 * rad + 1];
+			double norm = 0.0;
+
+			// fill the kernel
+			for(int v = 0; v < kern.Length; v++) {
+				double w = s.GetAmount((v - rad) / scale);
+				kern[v] = w;
+				norm += w;
+			}
+			//normalize kernel values
+			if (norm > 0.0) {
+				for(int v = 0; v < kern.Length; v++) {
+					kern[v] /= norm;
+				}
+			}
+
+			//cache it
+			KernelCache.TryAdd(hash,kern);
+			return kern;
+		}
+
+		static ConcurrentDictionary<int,double[]> KernelCache =
+			new ConcurrentDictionary<int, double[]>();
+
+		/*
+		public static IFColor GetSample1(this IFImage img, IFResampler sampler, int x, int y, double? radius = null)
 		{
 			//TODO this function has not been tested
 			double o = radius.HasValue
 				? radius.Value
-				: sampler.Radius;
+				: sampler.Radius
 			;
 			int wmax = img.Width - 1;
 			int hmax = img.Height - 1;
@@ -94,11 +175,13 @@ namespace ImageFunctions.Helpers
 
 		static void FillWeights(double[] weights, IFResampler s,int min, int max, double o)
 		{
+			double cen = (max - min) / 2.0;
 			for(int x=0, i = min; i< max; i++, x++) {
 				double w = s.GetAmount(i - o);
 				weights[x] = w;
 			}
 		}
+		*/
 
 		static double GetRadius(Sampler s)
 		{
@@ -112,7 +195,7 @@ namespace ImageFunctions.Helpers
 			case Sampler.Lanczos5:          return 5.0;
 			case Sampler.Lanczos8:          return 8.0;
 			case Sampler.MitchellNetravali: return 2.0;
-			case Sampler.NearestNeighbor:   return 1.0;
+			case Sampler.NearestNeighbor:   return 0.0;
 			case Sampler.Robidoux:          return 2.0;
 			case Sampler.RobidouxSharp:     return 2.0;
 			case Sampler.Spline:            return 2.0;
@@ -120,23 +203,23 @@ namespace ImageFunctions.Helpers
 			case Sampler.Welch:             return 1.0;
 			}
 
-			return 1.0;
+			return 0.0;
 		}
 
 		static double NearestNeighbor(double x)
 		{
-			return x;
+			return 1.0;
 		}
 
 		// https://en.wikipedia.org/wiki/Bicubic_interpolation#Bicubic_convolution_algorithm
 		static double Bicubic(double x)
 		{
 			if (x < 0.0) { x = -x; }
-			if (x < 1.0) {
+			if (x <= 1.0) {
 				// ((a + 2) * (x ^ 3)) - ((a + 3) * (x ^ 2)) + 1;
 				return (1.5 * x - 2.5) * x * x + 1.0;
 			}
-			else if (x < 2.0) {
+			else if (x <= 2.0) {
 				// (a * (x ^ 3)) - (5 * a * (x ^ 2)) + (8 * a * x) - (4 * a)
 				return (((-0.5 * x) + 2.5) * x - 4.0) * x + 2.0;
 			}

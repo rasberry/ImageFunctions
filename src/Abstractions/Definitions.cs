@@ -72,6 +72,7 @@ namespace ImageFunctions
 	{
 		double Radius { get; }
 		double GetAmount(double x);
+		Sampler Kind { get; }
 	}
 
 	public enum Metric
