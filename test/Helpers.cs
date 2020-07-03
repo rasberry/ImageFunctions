@@ -90,24 +90,22 @@ namespace test
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
 			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
-			Log.Debug($"act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
-
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
 			IFFunction func = Registry.Map(act);
 			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse args. act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
 
 			if (System.Diagnostics.Debugger.IsAttached) {
 				func.MaxDegreeOfParallelism = 1;
 			}
 			func.Main();
 
-			Assert.IsTrue(File.Exists(outFile));
-			Assert.IsTrue(File.Exists(checkFile));
-			Assert.IsTrue(fileComparer(checkFile,outFile));
+			Assert.IsTrue(File.Exists(outFile),$"File does not exist {outFile}");
+			Assert.IsTrue(File.Exists(checkFile),$"File does not exist {checkFile}");
+			Assert.IsTrue(fileComparer(checkFile,outFile),$"Files do not match [{checkFile},{outFile}");
 		}
 
 		public static bool AreImagesEqual(string one, string two)
