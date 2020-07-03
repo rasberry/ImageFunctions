@@ -154,13 +154,13 @@ namespace ImageFunctions.Helpers
 		}
 		*/
 
-		public static IFColor Sample(this IFImage img, double locX, double locY, IFResampler sampler = null)
-		{
-			return sampler == null
-				? GetPixelSafe(img,(int)locX,(int)locY)
-				: SampleHelpers.GetSample(img,sampler,(int)locX,(int)locY)
-			;
-		}
+		//public static IFColor Sample(this IFImage img, double locX, double locY, IFResampler sampler = null)
+		//{
+		//	return sampler == null
+		//		? GetPixelSafe(img,(int)locX,(int)locY)
+		//		: SampleHelpers.GetSample(img,sampler,(int)locX,(int)locY)
+		//	;
+		//}
 
 		/*
 		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
@@ -208,6 +208,7 @@ namespace ImageFunctions.Helpers
 		}
 		*/
 
+		/*
 		static double CalcSample(double v0,double v1,double v2,double v3,double dx, double dy)
 		{
 			//interpolation calc
@@ -216,6 +217,7 @@ namespace ImageFunctions.Helpers
 			double vf = (h0 * (1.0 - dy)) + (h1 * dy);
 			return vf;
 		}
+		*/
 
 		/*
 		static void FillQuadrantColors<TPixel>(

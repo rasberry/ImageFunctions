@@ -7,8 +7,8 @@ namespace ImageFunctions.Helpers
 
 	public static class SampleHelpers
 	{
-		//Don't use this Map function, use Registry.Map instead
-		internal static IFResampler Map(Sampler s)
+		//Don't use this Map function outside of this class, use Registry.Map instead
+		internal static IFResampler Map(Sampler s,double scale, PickEdgeRule edgeRule)
 		{
 			SamplerCalc c = null;
 			switch(s) {
@@ -29,82 +29,141 @@ namespace ImageFunctions.Helpers
 			case Sampler.Welch:             c = Welch; break;
 			}
 
-			return new SamplerRaft(s,c);
+			return new SamplerRaft(s,c,scale,edgeRule);
 		}
 
 		delegate double SamplerCalc(double x);
+		delegate IFColor GetPixelFunc(IFImage img,int x,int y);
 
+		//wrap everything up in a hidden class
 		class SamplerRaft : IFResampler
 		{
-			public SamplerRaft(Sampler s, SamplerCalc calc) {
+			public SamplerRaft(Sampler s, SamplerCalc calc, double scale, PickEdgeRule edgeRule) {
 				Kind = s;
 				Calc = calc;
+				Scale = scale;
+				EdgeRule = edgeRule;
+				GetPixelRule = MapEdgeRule(edgeRule);
 			}
 
 			public double Radius { get {
 				return GetRadius(Kind);
 			}}
 
-			public double GetAmount(double x) {
+			public double GetKernelAt(double x) {
 				return Calc(x);
 			}
 
-			public Sampler Kind { get; private set; }
-			SamplerCalc Calc;
-		}
-
-		public static IFColor GetSample(this IFImage img, IFResampler sampler, int x, int y, double scale = 1.0)
-		{
-			double o = sampler.Radius;
-			if (o < 1.0) {
-				return ImageHelpers.GetPixelSafe(img,x,y); //shortcut for NearestNeighbor
+			public IFColor GetSample(IFImage img, int x, int y)
+			{
+				return SampleHelpers.GetSample(img,this,x,y,GetPixelRule);
 			}
 
-			double[] kern = GetKernel(sampler.Kind,scale);
+			public Sampler Kind { get; private set; }
+			public double Scale { get; private set; }
+			public PickEdgeRule EdgeRule { get; private set; }
+			SamplerCalc Calc;
+			GetPixelFunc GetPixelRule;
+		}
+
+		static GetPixelFunc MapEdgeRule(PickEdgeRule rule)
+		{
+			switch(rule)
+			{
+			case PickEdgeRule.Transparent: return EdgeTransparent;
+			case PickEdgeRule.Tile: return EdgeTile;
+			case PickEdgeRule.Reflect: return EdgeReflect;
+			default: return EdgeClamp;
+			}
+		}
+
+		static IFColor EdgeReflect(IFImage img, int x,int y)
+		{
+			if (x < 0) { x = -x; }
+			if (x >= img.Width) { x = x - 2*img.Width - 1; }
+			if (y < 0) { y = -y; }
+			if (y >= img.Height) { y = y - 2*img.Height - 1; }
+			x %= img.Width;
+			y %= img.Height;
+			return img[x,y];
+		}
+
+		static IFColor EdgeClamp(IFImage img, int x,int y)
+		{
+			x = Math.Clamp(x,0,img.Width - 1);
+			y = Math.Clamp(y,0,img.Height - 1);
+			return img[x,y];
+		}
+
+		static IFColor EdgeTransparent(IFImage img, int x, int y)
+		{
+			if (x < 0 || x >= img.Width || y < 0 || y >= img.Width) {
+				return ColorHelpers.Transparent;
+			}
+			return img[x,y];
+		}
+
+		static IFColor EdgeTile(IFImage img, int x, int y)
+		{
+			x %= img.Width;
+			y %= img.Height;
+			if (x < 0) { x += img.Width; }
+			if (y < 0) { y += img.Height; }
+			return img[x,y];
+		}
+
+		static IFColor GetSample(IFImage img, IFResampler sampler, int x, int y, GetPixelFunc pixFunc)
+		{
+			double o = sampler.Radius;
+			if (o < double.Epsilon) {
+				return SampleHelpers.EdgeClamp(img,x,y); //shortcut for NearestNeighbor
+			}
 
 			int rad = (int)Math.Ceiling(o);
-			int wmax = img.Width - 1;
-			int hmax = img.Height - 1;
-			x = Math.Clamp(x,0,wmax);
-			y = Math.Clamp(y,0,hmax);
+			double[] kern = GetKernel(sampler);
 
-			int t = Math.Clamp(y - rad,0,hmax);
-			int b = Math.Clamp(y + rad,0,hmax);
-			int l = Math.Clamp(x - rad,0,wmax);
-			int r = Math.Clamp(x + rad,0,wmax);
+			int t = y - rad;
+			int b = y + rad;
+			int l = x - rad;
+			int r = x + rad;
 
 			double vr = 0.0,vg = 0.0,vb = 0.0,va = 0.0;
+			//double sumj = 0.0;
 			for(int j = 0,v = t; v <= b; v++, j++) {
 				double ur = 0.0,ug = 0.0,ub = 0.0,ua = 0.0;
+				//double sumi = 0.0;
 				for(int i = 0, u = l; u <= r; u++, i++) {
 					//multiply sample by kernel and add
-					var c = img[u,v];
+					var c = pixFunc(img,u,v);
 					ur += kern[i] * c.R;
 					ug += kern[i] * c.G;
 					ub += kern[i] * c.B;
 					ua += kern[i] * c.A;
+					//sumi += kern[i];
 				}
 				//multiply row by kernel and add
-				vr += ur * kern[j];
-				vg += ug * kern[j];
-				vb += ub * kern[j];
-				va += ua * kern[j];
+				vr += ur * kern[j]; // / sumi;
+				vg += ug * kern[j]; // / sumi;
+				vb += ub * kern[j]; // / sumi;
+				va += ua * kern[j]; // / sumi;
+				//sumj += kern[j];
 			}
+			//vr /= sumj; vg /= sumj; vg /= sumj; va /= sumj;
 
 			return new IFColor(vr,vg,vb,va);
 		}
 
-		static double[] GetKernel(Sampler sampler, double scale)
+		static double[] GetKernel(IFResampler sampler)
 		{
+			double scale = sampler.Scale;
 			//try to grab from cache first
 			double[] kern;
-			int hash = HashCode.Combine(sampler,scale);
+			int hash = HashCode.Combine(sampler.Kind,scale);
 			if (KernelCache.TryGetValue(hash,out kern)) {
 				return kern;
 			}
-			var s = Map(sampler);
 
-			double o = s.Radius;
+			double o = sampler.Radius;
 			int rad = (int)Math.Ceiling(o);
 
 			//create the 1D kernel and normalization factor
@@ -113,7 +172,7 @@ namespace ImageFunctions.Helpers
 
 			// fill the kernel
 			for(int v = 0; v < kern.Length; v++) {
-				double w = s.GetAmount((v - rad) / scale);
+				double w = sampler.GetKernelAt((v - rad) / scale);
 				kern[v] = w;
 				norm += w;
 			}
@@ -164,11 +223,11 @@ namespace ImageFunctions.Helpers
 		static double Bicubic(double x)
 		{
 			if (x < 0.0) { x = -x; }
-			if (x <= 1.0) {
+			if (x < 1.0) {
 				// ((a + 2) * (x ^ 3)) - ((a + 3) * (x ^ 2)) + 1;
 				return (1.5 * x - 2.5) * x * x + 1.0;
 			}
-			else if (x <= 2.0) {
+			else if (x < 2.0) {
 				// (a * (x ^ 3)) - (5 * a * (x ^ 2)) + (8 * a * x) - (4 * a)
 				return (((-0.5 * x) + 2.5) * x - 4.0) * x + 2.0;
 			}

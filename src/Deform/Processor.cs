@@ -71,7 +71,8 @@ namespace ImageFunctions.Deform
 
 			px += ccx; py += ccy;
 
-			return ImageHelpers.Sample(frame,px,py,O.Sampler);
+			var c = O.Sampler.GetSample(frame,(int)px,(int)py);
+			return c;
 		}
 
 		public override void Dispose() {}

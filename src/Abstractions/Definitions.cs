@@ -63,6 +63,14 @@ namespace ImageFunctions
 	}
 	#endif
 
+	public enum PickEdgeRule
+	{
+		Edge = 0,
+		Reflect = 1,
+		Tile = 2,
+		Transparent = 3
+	}
+
 	public interface IFHasResampler
 	{
 		IFResampler Sampler { get; }
@@ -70,9 +78,12 @@ namespace ImageFunctions
 
 	public interface IFResampler
 	{
+		IFColor GetSample(IFImage img, int x, int y);
 		double Radius { get; }
-		double GetAmount(double x);
+		double GetKernelAt(double x);
 		Sampler Kind { get; }
+		double Scale { get; }
+		PickEdgeRule EdgeRule { get; }
 	}
 
 	public enum Metric

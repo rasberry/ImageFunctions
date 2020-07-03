@@ -28,9 +28,9 @@ namespace ImageFunctions
 			throw new ArgumentException("E: Unmapped action "+action);
 		}
 
-		public static IFResampler Map(Sampler sampler)
+		public static IFResampler Map(Sampler s,double scale = 1.5, PickEdgeRule edgeRule = PickEdgeRule.Edge)
 		{
-			return SampleHelpers.Map(sampler);
+			return SampleHelpers.Map(s,scale,edgeRule);
 		}
 
 		public static IFResampler DefaultResampler { get {

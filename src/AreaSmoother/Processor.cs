@@ -102,7 +102,7 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					IFColor f = ImageHelpers.Sample(lb,fx,fy,O.Sampler);
+					IFColor f = O.Sampler.GetSample(lb,(int)fx,(int)fy);
 					if (!f.Equals(start)) {
 						c = f;
 						done = true;

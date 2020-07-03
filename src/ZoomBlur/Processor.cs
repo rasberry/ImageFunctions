@@ -42,6 +42,7 @@ namespace ImageFunctions.ZoomBlur
 
 		IFColor ZoomPixel(IFImage frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
+			var sampler = O.Sampler;
 			double dist = O.Measurer.Measure(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
 
@@ -54,14 +55,14 @@ namespace ImageFunctions.ZoomBlur
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				IFColor c = ImageHelpers.Sample(frame,px,py,O.Sampler);
+				IFColor c = sampler.GetSample(frame,(int)px,(int)py);
 				vector.Add(c);
 			}
 
 			IFColor avg;
 			int count = vector.Count;
 			if (count < 1) {
-				avg = ImageHelpers.Sample(frame,x,y,O.Sampler);
+				avg  = sampler.GetSample(frame,x,y);
 			}
 			else if (count == 1) {
 				avg = vector[0];
