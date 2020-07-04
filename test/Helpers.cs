@@ -90,13 +90,14 @@ namespace test
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
 			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
+			Log.Debug($"RunImageFunction act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
 			IFFunction func = Registry.Map(act);
 			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
-			Assert.IsTrue(worked,$"Unable to parse args. act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
+			Assert.IsTrue(worked,$"Unable to parse args. [{String.Join(",",args)}]");
 
 			if (System.Diagnostics.Debugger.IsAttached) {
 				func.MaxDegreeOfParallelism = 1;
@@ -316,4 +317,17 @@ namespace test
 			return last;
 		}
 	}
+
+	[TestClass]
+	public class TestSetup
+	{
+		[AssemblyInitialize]
+		public static void Init(TestContext ctx)
+		{
+			var cp = System.Diagnostics.Process.GetCurrentProcess();
+			cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
+		}
+
+	}
+
 }

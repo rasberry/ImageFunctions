@@ -22,6 +22,10 @@ namespace ImageFunctions
 
 		//public static double MinValue = 0.0;
 		//public static double MaxValue = 1.0;
+
+		public override string ToString() {
+			return $"{nameof(IFColor)} [{R},{G},{B},{A}]";
+		}
 	}
 
 	public interface IFFunction

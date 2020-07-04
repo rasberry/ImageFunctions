@@ -63,7 +63,7 @@ namespace ImageFunctions.AreaSmoother
 						bestbpx = bp;
 						double flen = O.Measurer.Measure(px,py,fp.X,fp.Y);
 						bestratio = flen/len;
-						//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
+						// Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 					}
 				}
 
@@ -72,7 +72,7 @@ namespace ImageFunctions.AreaSmoother
 			}
 
 			IFColor final;
-			//Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
+			// Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
 			if (bestfc.Equals(start) && bestbc.Equals(start)) {
 				final = start;
 			}

@@ -160,6 +160,9 @@ namespace ImageFunctions.SpearGraphic
 
 		static void SetPixel(IFImage image, int x, int y, int c)
 		{
+			if (x < 0 || y < 0 || x >= image.Width || y >= image.Height) {
+				return;
+			}
 			var (r,g,b,a) = Orgb(c);
 			var nc = ImageHelpers.RgbaToNative(Color.FromArgb(a,r,g,b));
 			image[x,y] = nc;
