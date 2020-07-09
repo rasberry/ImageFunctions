@@ -32,7 +32,7 @@ namespace ImageFunctions.ImgDiff
 			{
 				double totalDist = 0.0;
 				var ab = Rectangle.Intersect(
-					new Rectangle(0,0,frame.Width,frame.Width),
+					new Rectangle(0,0,frame.Width,frame.Height),
 					new Rectangle(0,0,compareImg.Width,compareImg.Height)
 				);
 				var minimum = Rectangle.Intersect(ab,this.Bounds);
