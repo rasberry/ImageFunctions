@@ -84,7 +84,7 @@ namespace ImageFunctions
 			sb.WL(0,"Available Colors:");
 			sb.WL(0,"Note: Colors may be specified as a name or as a hex value");
 			foreach(Color c in ColorHelpers.AllColors()) {
-				sb.WL(0,c.Name,c.ToHex());
+				sb.WL(0,ColorHelpers.GetColorName(c),c.ToHex());
 			}
 		}
 

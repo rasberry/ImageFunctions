@@ -83,19 +83,51 @@ namespace ImageFunctions.Helpers
 		}
 		public static Color? FromName(string name)
 		{
-			string lname = (name ?? "").ToLowerInvariant();
 			var c = Color.FromName(name);
 			bool good = c.IsKnownColor && !c.IsSystemColor;
+			if (!good) {
+				good = TryMoreColorFromName(name,out c);
+			}
 			return good ? c : default(Color?);
 		}
 
 		public static IEnumerable<Color> AllColors()
+		{
+			return System.Linq.Enumerable.OrderBy(
+				ColorList(),
+				c => GetColorName(c)
+			);
+		}
+
+		static IEnumerable<Color> ColorList()
 		{
 			foreach(KnownColor kc in Enum.GetValues(typeof(KnownColor))) {
 				var c = Color.FromKnownColor(kc);
 				bool good = c.IsKnownColor && !c.IsSystemColor;
 				if (good) { yield return c; }
 			}
+			yield return ColorRebeccaPurple;
 		}
+
+		// use this instead of Color.Name
+		public static string GetColorName(Color c)
+		{
+			string name = c.Name;
+			if (!String.IsNullOrEmpty(name)) { return name; }
+			if (StringComparer.OrdinalIgnoreCase.Equals(c,ColorRebeccaPurple)) { return NameRebeccaPurple; }
+			return null;
+		}
+
+		static bool TryMoreColorFromName(string name, out Color color)
+		{
+			if (StringComparer.OrdinalIgnoreCase.Equals(name,NameRebeccaPurple)) {
+				color = ColorRebeccaPurple;
+				return true;
+			}
+			return false;
+		}
+
+		static Color ColorRebeccaPurple { get { return Color.FromArgb(0xFF,0x66,0x33,0x99); }}
+		const string NameRebeccaPurple = "RebeccaPurple";
 	}
 }
