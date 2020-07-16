@@ -22,19 +22,9 @@ namespace ImageFunctions
 		AllColors = 11,
 		SpearGraphic = 12,
 		ColatzVis = 13,
-		UlamSpiral = 14
+		UlamSpiral = 14,
+		Test = 99
 	}
-
-	#if false
-	public interface IFunction
-	{
-		void Usage(StringBuilder sb);
-		bool ParseArgs(string[] args);
-		Rectangle Bounds { get; set; }
-		int? MaxDegreeOfParallelism { get; set; }
-		void Main();
-	}
-	#endif
 
 	public enum Sampler
 	{
@@ -55,13 +45,6 @@ namespace ImageFunctions
 		Triangle = 14,
 		Welch = 15
 	}
-
-	#if false
-	public interface IHasResampler
-	{
-		IResampler Sampler { get; }
-	}
-	#endif
 
 	public enum PickEdgeRule
 	{
@@ -114,8 +97,19 @@ namespace ImageFunctions
 		N,NE,E,SE,S,SW,W,NW
 	}
 
+	/*
 	public interface IGenerator
 	{
 		Size StartingSize { get; }
+	}
+	*/
+
+	public readonly struct PointD
+	{
+		public PointD(double x,double y) {
+			X = x; Y = y;
+		}
+		public readonly double X;
+		public readonly double Y;
 	}
 }

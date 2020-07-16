@@ -47,7 +47,7 @@ namespace ImageFunctions
 
 		static bool MapOptions(IFFunction func)
 		{
-			IGenerator iGen = func as IGenerator;
+			IFGenerator iGen = func as IFGenerator;
 			//generators must be given a size
 			if (iGen != null) {
 				if (Options.Bounds == Rectangle.Empty) {

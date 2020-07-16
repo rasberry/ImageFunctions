@@ -65,6 +65,12 @@ namespace ImageFunctions.SpearGraphic
 						//Pen p2 = RandomColorFade(dist,colorDistMax,true);
 						Color p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
 						Color p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
+
+						DrawLine(image,p2,last.X,last.Y,curr.X,curr.Y);
+						DrawLine(image,p2,dest.X,dest.Y,curr.X,curr.Y);
+						DPoint ext = Move(curr,2*Math.PI-dir,100);
+						DrawLine(image,p1,ext.X,ext.Y,curr.X,curr.Y);
+
 						/* // TODO need replacement for DrawLine
 						image.Mutate(op => {
 							DrawLine(op,gop,p2,last.X,last.Y,curr.X,curr.Y);
@@ -99,6 +105,11 @@ namespace ImageFunctions.SpearGraphic
 					}
 				}
 			}
+		}
+
+		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1)
+		{
+			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1));
 		}
 
 		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)

@@ -56,6 +56,8 @@ namespace ImageFunctions.SpearGraphic
 					y = s * Math.Sin(a) + (v/t) + oy;
 					Color p = ColorFade(v,max,FadeComp.G);
 					if (x < w && y < h && x > 0 && y > 0) {
+						DrawRectangle(image,p,x,y);
+						DrawRectangle(image,p,y,x);
 						/* //TODO need replacement for DrawRectangle
 						image.Mutate(op => {
 							DrawRectangle(op,gop,p,x,y);
@@ -66,6 +68,15 @@ namespace ImageFunctions.SpearGraphic
 					progress.Report(v/max);
 				}
 			}
+		}
+
+		//TODO should this be draw point ?
+		static void DrawRectangle(IFImage img, Color p, double x, double y)
+		{
+			ImageHelpers.DrawLine(img,p,new PointD(x+0.0, y+0.0),new PointD(x+0.5, y+0.0));
+			ImageHelpers.DrawLine(img,p,new PointD(x+0.5, y+0.0),new PointD(x+0.5, y+0.5));
+			ImageHelpers.DrawLine(img,p,new PointD(x+0.5, y+0.5),new PointD(x+0.0, y+0.5));
+			ImageHelpers.DrawLine(img,p,new PointD(x+0.0, y+0.5),new PointD(x+0.0, y+0.0));
 		}
 
 		//static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
@@ -107,6 +118,8 @@ namespace ImageFunctions.SpearGraphic
 								? ColorFade(v-m2,m2,FadeComp.B)
 								: ColorFade(m2-v,m2,FadeComp.R);
 
+							DrawLine(image,p,lx,ly,x-oo,y-oo);
+							DrawLine(image,p,ly,lx,y+oo,x+oo);
 							/* TODO need replacement for DrawLine
 							image.Mutate(op => {
 								DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
@@ -120,6 +133,11 @@ namespace ImageFunctions.SpearGraphic
 					progress.Report(v/max);
 				}
 			}
+		}
+
+		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1)
+		{
+			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1));
 		}
 
 		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)

@@ -108,6 +108,7 @@ namespace ImageFunctions.SpearGraphic
 					penw += penrate;
 
 					Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
+					DrawLine(image,c,lx,ly,x,y,penw);
 					//Rgba32 pen = new Pen(c,(float)penw);
 					//g.DrawLine(pen,(float)lx,(float)ly,(float)x,(float)y);
 					/* //TODO need replacement for line drawing
@@ -135,6 +136,11 @@ namespace ImageFunctions.SpearGraphic
 					rad = Math.Max(rad - radrate,0);
 				}
 			}
+		}
+
+		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1, double w)
+		{
+			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1),w);
 		}
 
 		static double Dist(DPoint one,DPoint two)

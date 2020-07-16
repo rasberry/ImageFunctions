@@ -5,6 +5,7 @@ namespace ImageFunctions.Helpers
 {
 	//TODO look at https://easyrgb.com/en/convert.php
 	// and http://www.brucelindbloom.com/
+	// and http://members.chello.at/~easyfilter/colorspace.c
 
 	public interface I3Color
 	{
