@@ -5,10 +5,10 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Derivatives
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
-		static IFColor DefaultColor = Helpers.ColorHelpers.Transparent;
+		static IColor DefaultColor = Helpers.ColorHelpers.Transparent;
 
 		public override void Apply()
 		{
@@ -25,8 +25,8 @@ namespace ImageFunctions.Derivatives
 
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
-					IFColor? n = null,e = null,s = null,w = null;
-					IFColor c = frame[x,y];
+					IColor? n = null,e = null,s = null,w = null;
+					IColor c = frame[x,y];
 
 					if (x > rect.Left)     { w = frame[x-1,y]; }
 					if (x < rect.Right-1)  { e = frame[x+1,y]; }
@@ -52,7 +52,7 @@ namespace ImageFunctions.Derivatives
 			}
 		}
 
-		static IFColor DoDiff(IFColor? src, IFColor? n, IFColor? e, IFColor? s, IFColor? w, bool abs)
+		static IColor DoDiff(IColor? src, IColor? n, IColor? e, IColor? s, IColor? w, bool abs)
 		{
 			if (!src.HasValue) { return DefaultColor; }
 			var rgbaSrc = GetColor(src);
@@ -90,7 +90,7 @@ namespace ImageFunctions.Derivatives
 			}
 			double off = abs ? 0 : 0.5;
 			if (abs) { num *= 2; }
-			var pix = new IFColor(
+			var pix = new IColor(
 				diffR/num + off,
 				diffG/num + off,
 				diffB/num + off,
@@ -105,19 +105,19 @@ namespace ImageFunctions.Derivatives
 			return abs ? Math.Abs(tmp) : tmp;
 		}
 
-		static IFColor GetColor(IFColor? px)
+		static IColor GetColor(IColor? px)
 		{
 			if (px.HasValue) {
 				return px.Value;
 			}
-			return new IFColor(0,0,0,0);
+			return new IColor(0,0,0,0);
 		}
 
 		struct QueueItem
 		{
 			public int X;
 			public int Y;
-			public IFColor Color;
+			public IColor Color;
 		}
 
 		public override void Dispose() {}

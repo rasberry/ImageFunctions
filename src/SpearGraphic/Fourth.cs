@@ -6,7 +6,7 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class Fourth
 	{
-		public static void Draw(IFImage image,int w,int h, int? seed = null)
+		public static void Draw(IImage image,int w,int h, int? seed = null)
 		{
 			InitRandom(seed);
 
@@ -76,7 +76,7 @@ namespace ImageFunctions.SpearGraphic
 			public Color PenStart { get; set; }
 		}
 
-		static void Twist1(IFImage image, int w, int h, Twist1Params p)
+		static void Twist1(IImage image, int w, int h, Twist1Params p)
 		{
 			DPoint cen = new DPoint(w / 2.0,h / 2.0);
 
@@ -90,8 +90,6 @@ namespace ImageFunctions.SpearGraphic
 			double penwtarget = Random(p.PenWMin,p.PenWMax);
 			double penrate = Random(p.PenRateMin,p.PenRateMax);
 			double penw = penwtarget;
-
-			//var gop = new GraphicsOptions { Antialias = true };
 
 			using (var progress = new ProgressBar())
 			{
@@ -109,15 +107,6 @@ namespace ImageFunctions.SpearGraphic
 
 					Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
 					DrawLine(image,c,lx,ly,x,y,penw);
-					//Rgba32 pen = new Pen(c,(float)penw);
-					//g.DrawLine(pen,(float)lx,(float)ly,(float)x,(float)y);
-					/* //TODO need replacement for line drawing
-					image.Mutate(op => {
-						var p0 = new PointF((float)lx,(float)ly);
-						var p1 = new PointF((float)x,(float)y);
-						op.DrawLines(gop,c,(float)penw,p0,p1);
-					});
-					*/
 
 					double dist = Dist(cen,new DPoint(x,y));
 					if (dist < 1.0) {
@@ -138,9 +127,11 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1, double w)
+		static IDrawConfig Idc = Engines.Engine.GetDrawable();
+		static void DrawLine(IImage img,Color c,double x0, double y0, double x1, double y1, double w)
 		{
-			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1),w);
+			var nc = ImageHelpers.RgbaToNative(c);
+			Idc.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1),w);
 		}
 
 		static double Dist(DPoint one,DPoint two)

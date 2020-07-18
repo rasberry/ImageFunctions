@@ -8,7 +8,7 @@ namespace ImageFunctions.Helpers
 	public static class SampleHelpers
 	{
 		//Don't use this Map function outside of this class, use Registry.Map instead
-		internal static IFResampler Map(Sampler s,double scale, PickEdgeRule edgeRule)
+		internal static ISampler Map(Sampler s,double scale, PickEdgeRule edgeRule)
 		{
 			SamplerCalc c = null;
 			switch(s) {
@@ -33,10 +33,10 @@ namespace ImageFunctions.Helpers
 		}
 
 		delegate double SamplerCalc(double x);
-		delegate IFColor GetPixelFunc(IFImage img,int x,int y);
+		delegate IColor GetPixelFunc(IImage img,int x,int y);
 
 		//wrap everything up in a hidden class
-		class SamplerRaft : IFResampler
+		class SamplerRaft : ISampler
 		{
 			public SamplerRaft(Sampler s, SamplerCalc calc, double scale, PickEdgeRule edgeRule) {
 				Kind = s;
@@ -54,7 +54,7 @@ namespace ImageFunctions.Helpers
 				return Calc(x);
 			}
 
-			public IFColor GetSample(IFImage img, int x, int y)
+			public IColor GetSample(IImage img, int x, int y)
 			{
 				return SampleHelpers.GetSample(img,this,x,y,GetPixelRule);
 			}
@@ -77,7 +77,7 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		static IFColor EdgeReflect(IFImage img, int x,int y)
+		static IColor EdgeReflect(IImage img, int x,int y)
 		{
 			if (x < 0) { x = -x; }
 			if (x >= img.Width) { x = x - 2*img.Width - 1; }
@@ -88,14 +88,14 @@ namespace ImageFunctions.Helpers
 			return img[x,y];
 		}
 
-		static IFColor EdgeClamp(IFImage img, int x,int y)
+		static IColor EdgeClamp(IImage img, int x,int y)
 		{
 			x = Math.Clamp(x,0,img.Width - 1);
 			y = Math.Clamp(y,0,img.Height - 1);
 			return img[x,y];
 		}
 
-		static IFColor EdgeTransparent(IFImage img, int x, int y)
+		static IColor EdgeTransparent(IImage img, int x, int y)
 		{
 			if (x < 0 || x >= img.Width || y < 0 || y >= img.Width) {
 				return ColorHelpers.Transparent;
@@ -103,7 +103,7 @@ namespace ImageFunctions.Helpers
 			return img[x,y];
 		}
 
-		static IFColor EdgeTile(IFImage img, int x, int y)
+		static IColor EdgeTile(IImage img, int x, int y)
 		{
 			x %= img.Width;
 			y %= img.Height;
@@ -112,7 +112,7 @@ namespace ImageFunctions.Helpers
 			return img[x,y];
 		}
 
-		static IFColor GetSample(IFImage img, IFResampler sampler, int x, int y, GetPixelFunc pixFunc)
+		static IColor GetSample(IImage img, ISampler sampler, int x, int y, GetPixelFunc pixFunc)
 		{
 			double o = sampler.Radius;
 			if (o < double.Epsilon) {
@@ -150,10 +150,10 @@ namespace ImageFunctions.Helpers
 			}
 			//vr /= sumj; vg /= sumj; vg /= sumj; va /= sumj;
 
-			return new IFColor(vr,vg,vb,va);
+			return new IColor(vr,vg,vb,va);
 		}
 
-		static double[] GetKernel(IFResampler sampler)
+		static double[] GetKernel(ISampler sampler)
 		{
 			double scale = sampler.Scale;
 			//try to grab from cache first

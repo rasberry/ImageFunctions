@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ImageFunctions.AllColors
 {
-	public class Function : IFAbstractFunction, IFGenerator
+	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
 			return new Size(Options.FourKWidth,Options.FourKHeight);
@@ -92,7 +92,7 @@ namespace ImageFunctions.AllColors
 			return "";
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

@@ -7,7 +7,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.UlamSpiral
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -90,7 +90,7 @@ namespace ImageFunctions.UlamSpiral
 		}
 
 		//a little messy, but didn't want the same code in two places
-		void DrawComposite(IFImage frame, double amount, int x, int y, Action<IFImage, int, int, IFColor, double> drawFunc)
+		void DrawComposite(IImage frame, double amount, int x, int y, Action<IImage, int, int, IColor, double> drawFunc)
 		{
 			var bg = GetColor(PickColor.Back);
 			var fg = GetColor(PickColor.Comp);
@@ -159,7 +159,7 @@ namespace ImageFunctions.UlamSpiral
 			return srect;
 		}
 
-		Action<IFImage, int, int, IFColor, double> GetDrawFunc()
+		Action<IImage, int, int, IColor, double> GetDrawFunc()
 		{
 			if (O.DotSize.IsCloseTo(1.0)) {
 				return DrawDotPixel;
@@ -169,7 +169,7 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		void DrawDotPixel(IFImage frame, int x, int y, IFColor color, double factor)
+		void DrawDotPixel(IImage frame, int x, int y, IColor color, double factor)
 		{
 			int s = O.Spacing;
 			//scale up with spacing and center so we get a nice border
@@ -177,7 +177,7 @@ namespace ImageFunctions.UlamSpiral
 			frame[x,y] = color;
 		}
 
-		void DrawDotSpere(IFImage frame, int x, int y, IFColor color, double factor)
+		void DrawDotSpere(IImage frame, int x, int y, IColor color, double factor)
 		{
 			int s = O.Spacing;
 			//circle size = max*f^2 (squared so it feels like a sphere)
@@ -219,7 +219,7 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		static IFColor[] c_color = new IFColor[4];
+		static IColor[] c_color = new IColor[4];
 		void InitColors()
 		{
 			var def = O.Color1.Value;
@@ -229,7 +229,7 @@ namespace ImageFunctions.UlamSpiral
 			c_color[3] = O.Color4.HasValue ? O.Color4.Value : def;
 		}
 
-		IFColor GetColor(PickColor pick)
+		IColor GetColor(PickColor pick)
 		{
 			return c_color[(int)pick-1];
 		}

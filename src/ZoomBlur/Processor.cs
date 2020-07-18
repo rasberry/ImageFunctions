@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ZoomBlur
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -29,7 +29,7 @@ namespace ImageFunctions.ZoomBlur
 				MoreHelpers.ThreadPixels(Bounds, MaxDegreeOfParallelism, (x,y) => {
 					var d = Source[x,y];
 					//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
-					IFColor nc = ZoomPixel(Source,Bounds,x,y,w2,h2);
+					IColor nc = ZoomPixel(Source,Bounds,x,y,w2,h2);
 					int cy = y - Bounds.Top;
 					int cx = x - Bounds.Left;
 					//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
@@ -40,13 +40,13 @@ namespace ImageFunctions.ZoomBlur
 			}
 		}
 
-		IFColor ZoomPixel(IFImage frame, Rectangle rect, int x, int y,double cx, double cy)
+		IColor ZoomPixel(IImage frame, Rectangle rect, int x, int y,double cx, double cy)
 		{
 			var sampler = O.Sampler;
 			double dist = O.Measurer.Measure(x,y,cx,cy);
 			int idist = (int)Math.Ceiling(dist);
 
-			List<IFColor> vector = new List<IFColor>(idist);
+			List<IColor> vector = new List<IColor>(idist);
 			double ang = Math.Atan2(y - cy, x - cx);
 			double sd = dist;
 			double ed = dist * O.ZoomAmount;
@@ -55,11 +55,11 @@ namespace ImageFunctions.ZoomBlur
 			{
 				double px = Math.Cos(ang) * d + cx;
 				double py = Math.Sin(ang) * d + cy;
-				IFColor c = sampler.GetSample(frame,(int)px,(int)py);
+				IColor c = sampler.GetSample(frame,(int)px,(int)py);
 				vector.Add(c);
 			}
 
-			IFColor avg;
+			IColor avg;
 			int count = vector.Count;
 			if (count < 1) {
 				avg  = sampler.GetSample(frame,x,y);
@@ -69,12 +69,12 @@ namespace ImageFunctions.ZoomBlur
 			}
 			else {
 				double cr = 0, cg = 0, cb = 0, ca = 0;
-				foreach (IFColor tpc in vector)
+				foreach (IColor tpc in vector)
 				{
 					cr += tpc.R; cg += tpc.G; cb += tpc.B;
 					ca += tpc.A;
 				}
-				avg = new IFColor(
+				avg = new IColor(
 					cr / count,
 					cg / count,
 					cb / count,
@@ -85,7 +85,7 @@ namespace ImageFunctions.ZoomBlur
 		}
 
 		public override void Dispose() {}
-		IFImageConfig Iic = null;
+		IImageConfig Iic = null;
 	}
 
 }

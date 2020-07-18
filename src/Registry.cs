@@ -6,7 +6,7 @@ namespace ImageFunctions
 {
 	public static class Registry
 	{
-		public static IFFunction Map(Activity action)
+		public static IFunction Map(Activity action)
 		{
 			switch(action)
 			{
@@ -29,16 +29,16 @@ namespace ImageFunctions
 			throw new ArgumentException("E: Unmapped action "+action);
 		}
 
-		public static IFResampler Map(Sampler s,double scale = 1.5, PickEdgeRule edgeRule = PickEdgeRule.Edge)
+		public static ISampler Map(Sampler s,double scale = 1.5, PickEdgeRule edgeRule = PickEdgeRule.Edge)
 		{
 			return SampleHelpers.Map(s,scale,edgeRule);
 		}
 
-		public static IFResampler DefaultResampler { get {
+		public static ISampler DefaultResampler { get {
 			return Map(Sampler.NearestNeighbor);
 		}}
 
-		public static IFResampler DefaultIFResampler { get {
+		public static ISampler DefaultIFResampler { get {
 			return Map(Sampler.NearestNeighbor);
 		}}
 

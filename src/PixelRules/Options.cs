@@ -8,6 +8,6 @@ namespace ImageFunctions.PixelRules
 		public int Passes = 1;
 		public int MaxIters = 100;
 		public IMeasurer Measurer = Registry.DefaultMetric;
-		public IFResampler Sampler = Registry.DefaultIFResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 	}
 }

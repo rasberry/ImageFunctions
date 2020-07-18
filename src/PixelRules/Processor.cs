@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.PixelRules
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -21,7 +21,7 @@ namespace ImageFunctions.PixelRules
 					MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 						int cy = y - rect.Top;
 						int cx = x - rect.Left;
-						IFColor nc = RunRule(Source,rect,x,y);
+						IColor nc = RunRule(Source,rect,x,y);
 						canvas[cx,cy] = nc;
 					},progress);
 					Source.BlitImage(canvas,rect);
@@ -29,14 +29,14 @@ namespace ImageFunctions.PixelRules
 			}
 		}
 
-		IFColor RunRule(IFImage frame,Rectangle rect, int x, int y)
+		IColor RunRule(IImage frame,Rectangle rect, int x, int y)
 		{
 			int cx = x, cy = y;
-			var history = new List<IFColor>();
+			var history = new List<IColor>();
 			int max = O.MaxIters;
 
 			while(--max >= 0) {
-				IFColor ant = frame[cx,cy];
+				IColor ant = frame[cx,cy];
 				history.Add(ant);
 				if (!IsBetterPixel(frame,rect,ant,cx,cy,out int nx, out int ny)) {
 					break;
@@ -52,12 +52,12 @@ namespace ImageFunctions.PixelRules
 			}
 		}
 
-		IFColor FindAverageColor(IEnumerable<IFColor> list)
+		IColor FindAverageColor(IEnumerable<IColor> list)
 		{
 			double r = 0.0,g = 0.0,b = 0.0,a = 0.0;
 			int count = 0;
 
-			foreach(IFColor c in list) {
+			foreach(IColor c in list) {
 				r += c.R;
 				g += c.G;
 				b += c.B;
@@ -65,7 +65,7 @@ namespace ImageFunctions.PixelRules
 				count++;
 			}
 
-			var avg = new IFColor(
+			var avg = new IColor(
 				r / count,
 				g / count,
 				b / count,
@@ -74,10 +74,10 @@ namespace ImageFunctions.PixelRules
 			return avg;
 		}
 
-		bool IsBetterPixel(IFImage frame, Rectangle rect, IFColor? best, int x, int y, out int bx, out int by)
+		bool IsBetterPixel(IImage frame, Rectangle rect, IColor? best, int x, int y, out int bx, out int by)
 		{
 			bx = by = 0;
-			IFColor? nn,ne,ee,se,ss,sw,ww,nw;
+			IColor? nn,ne,ee,se,ss,sw,ww,nw;
 			nn = ne = ee = se = ss = sw = ww = nw = null;
 
 			//which directions are available ?
@@ -111,7 +111,7 @@ namespace ImageFunctions.PixelRules
 		}
 
 		//pick closest darker color
-		bool PickBetter(ref IFColor? best, IFColor? bid, ref double min)
+		bool PickBetter(ref IColor? best, IColor? bid, ref double min)
 		{
 			//if best is null anything is better
 			if (best == null) {
@@ -125,7 +125,7 @@ namespace ImageFunctions.PixelRules
 					|| O.WhichMode == Function.Mode.StairCaseDescend)
 				{
 					//only follow darker colors
-					IFColor white = Helpers.ColorHelpers.White;
+					IColor white = Helpers.ColorHelpers.White;
 					double bdw = Dist(best.Value,white);
 					double ddw = Dist(bid.Value,white);
 					if (bdw > ddw) { return false; }
@@ -143,7 +143,7 @@ namespace ImageFunctions.PixelRules
 			return false;
 		}
 
-		double Dist(IFColor one, IFColor two)
+		double Dist(IColor one, IColor two)
 		{
 			//treat identical pixels as very far apart
 			if (one.Equals(two)) {

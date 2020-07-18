@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -21,7 +21,7 @@ namespace ImageFunctions.AreaSmoother
 				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					IFColor nc = SmoothPixel(frame,x,y);
+					IColor nc = SmoothPixel(frame,x,y);
 					canvas[cx,cy] = nc;
 				},progress);
 
@@ -29,16 +29,16 @@ namespace ImageFunctions.AreaSmoother
 			}
 		}
 
-		IFColor SmoothPixel(IFImage frame,int px, int py)
+		IColor SmoothPixel(IImage frame,int px, int py)
 		{
-			IFColor start = frame[px,py];
+			IColor start = frame[px,py];
 
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
 			double bestlen = double.MaxValue;
 			double bestang = double.NaN;
 			double bestratio = 1;
-			IFColor bestfc = start;
-			IFColor bestbc = start;
+			IColor bestfc = start;
+			IColor bestbc = start;
 			Point bestfpx = new Point(px,py);
 			Point bestbpx = new Point(px,py);
 			double ahigh = Math.PI;
@@ -49,8 +49,8 @@ namespace ImageFunctions.AreaSmoother
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)
 				{
-					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out IFColor fc);
-					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out IFColor bc);
+					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out IColor fc);
+					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out IColor bc);
 
 					double len = O.Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
@@ -71,7 +71,7 @@ namespace ImageFunctions.AreaSmoother
 				ahigh = bestang + Math.PI/3/tries;
 			}
 
-			IFColor final;
+			IColor final;
 			// Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
 			if (bestfc.Equals(start) && bestbc.Equals(start)) {
 				final = start;
@@ -85,7 +85,7 @@ namespace ImageFunctions.AreaSmoother
 			return final;
 		}
 
-		Point FindColorAlongRay(IFImage lb, double a, int px, int py, bool back, IFColor start, out IFColor c)
+		Point FindColorAlongRay(IImage lb, double a, int px, int py, bool back, IColor start, out IColor c)
 		{
 			double r=1;
 			c = start;
@@ -102,7 +102,7 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					IFColor f = O.Sampler.GetSample(lb,(int)fx,(int)fy);
+					IColor f = O.Sampler.GetSample(lb,(int)fx,(int)fy);
 					if (!f.Equals(start)) {
 						c = f;
 						done = true;

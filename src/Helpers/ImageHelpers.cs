@@ -7,35 +7,16 @@ namespace ImageFunctions.Helpers
 {
 	public static class ImageHelpers
 	{
-		/*
-		public static void SaveAsPng(string fileName, Image image)
-		{
-			PngEncoder encoder = new PngEncoder();
-			encoder.CompressionLevel = 9;
-			image.Save(fileName,encoder);
-		}
-		*/
-
-		/*
-		public static TPixel ToGrayScale<TPixel>(TPixel c)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			RgbaD v = ToColor(c);
-			double val = v.R * 0.2126 + v.G * 0.7152 + v.B * 0.0722;
-			var vGray = new RgbaD(val,val,val,v.A);
-			return vGray.FromColor<TPixel>();
-		}
-		*/
-
-		public static IFColor ToGrayScale(IFColor c)
+		//TODO replace this with colorspace (maybe?)
+		public static IColor ToGrayScale(IColor c)
 		{
 			double val = c.R * 0.2126 + c.G * 0.7152 + c.B * 0.0722;
-			var vGray = new IFColor(val,val,val,c.A);
+			var vGray = new IColor(val,val,val,c.A);
 			return vGray;
 		}
 
 		//(val - from.min) * ((to.max - to.min)/(from.max - from.min)) + (to.min)
-		public static Color NativeToRgba(IFColor color)
+		public static Color NativeToRgba(IColor color)
 		{
 			return Color.FromArgb(
 				(int)(color.A * 255.0),
@@ -45,9 +26,9 @@ namespace ImageFunctions.Helpers
 			);
 		}
 
-		public static IFColor RgbaToNative(Color color)
+		public static IColor RgbaToNative(Color color)
 		{
-			return new IFColor(
+			return new IColor(
 				color.R / 255.0,
 				color.G / 255.0,
 				color.B / 255.0,
@@ -55,62 +36,10 @@ namespace ImageFunctions.Helpers
 			);
 		}
 
-		/*
-		public static RgbaD ToColor<TPixel>(this TPixel color)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			if (color is RgbaD) {
-				return (RgbaD)((IPixel<RgbaD>)color);
-			}
-			var c = new RgbaD();
-			c.FromScaledVector4(color.ToScaledVector4());
-			return c;
-		}
-		*/
-
-		/*
-		public static TPixel FromColor<TPixel>(this RgbaD color)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			TPixel p = default(TPixel);
-			if (p is RgbaD) {
-				p = (TPixel)((IPixel<RgbaD>)color);
-			}
-			else {
-				p.FromScaledVector4(color.ToScaledVector4());
-			}
-			return p;
-		}
-		*/
-
-		/*
-		public static void BlitImage<TPixel>(this ImageFrame<TPixel> dstImg, ImageFrame<TPixel> srcImg,
-			SixLabors.Primitives.Rectangle dstRect = default(SixLabors.Primitives.Rectangle),
-			SixLabors.Primitives.Point srcPoint = default(SixLabors.Primitives.Point))
-			where TPixel : struct, IPixel<TPixel>
-		{
-			//TODO this needs to be tested better
-
-			var srcspan = srcImg.GetPixelSpan();
-			var dstspan = dstImg.GetPixelSpan();
-			for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
-				int cy = y - dstRect.Top + srcPoint.Y;
-				for(int x = dstRect.Left; x < dstRect.Right; x++) {
-					int cx = x - dstRect.Left + srcPoint.X;
-					int dstoff = y * dstImg.Width + x;
-					int srcoff = cy * dstRect.Width + cx;
-					dstspan[dstoff] = srcspan[srcoff];
-				}
-			}
-		}
-		*/
-
-		public static void BlitImage(this IFImage dstImg, IFImage srcImg,
+		public static void BlitImage(this IImage dstImg, IImage srcImg,
 			Rectangle dstRect = default(Rectangle),
 			Point srcPoint = default(Point))
 		{
-			//TODO this needs to be tested better
-
 			for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
 				int cy = y - dstRect.Top + srcPoint.Y;
 				for(int x = dstRect.Left; x < dstRect.Right; x++) {
@@ -122,181 +51,28 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
-		/*
-		public static TPixel GetPixelSafe<TPixel>(this ImageFrame<TPixel> img, int x, int y)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			int px = Math.Clamp(x,0,img.Width - 1);
-			int py = Math.Clamp(y,0,img.Height - 1);
-			int off = py * img.Width + px;
-			//Log.Debug("GPS off = "+off);
-			return img.GetPixelSpan()[off];
-		}
-		*/
-
-		public static IFColor GetPixelSafe(this IFImage img, int x, int y)
+		public static IColor GetPixelSafe(this IImage img, int x, int y)
 		{
 			int px = Math.Clamp(x,0,img.Width - 1);
 			int py = Math.Clamp(y,0,img.Height - 1);
 			return img[px,py];
 		}
 
-		/*
-		public static TPixel Sample<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			if (sampler == null) {
-				TPixel pixn = img.GetPixelSafe((int)locX,(int)locY);
-				return pixn;
-			}
-			else {
-				TPixel pixc = SampleComplex(img,locX,locY,sampler);
-				return pixc;
-			}
-		}
-		*/
-
-		//public static IFColor Sample(this IFImage img, double locX, double locY, IFResampler sampler = null)
-		//{
-		//	return sampler == null
-		//		? GetPixelSafe(img,(int)locX,(int)locY)
-		//		: SampleHelpers.GetSample(img,sampler,(int)locX,(int)locY)
-		//	;
-		//}
-
-		/*
-		static TPixel SampleComplex<TPixel>(this ImageFrame<TPixel> img, double locX, double locY, IResampler sampler = null)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			double m = sampler.Radius / 0.5; //stretch length 0.5 to Radius
-			double pxf = locX.Fractional();
-			double pyf = locY.Fractional();
-
-			//mirror as necessary around center
-			double fx = 0.5 + (pxf < 0.5 ? pxf : 1.0 - pxf);
-			double fy = 0.5 + (pyf < 0.5 ? pyf : 1.0 - pyf);
-
-			//dx, dy are distance from center values - "how much of the other pixel do you want?"
-			//dx, dy are valued as:
-			//  1.0 = 100% original pixel
-			//  0.0 = 100% other pixel
-			//sampler is scaled:
-			//  0.0 = closest to wanted value - returns 1.0
-			//  1.0 = farthest from wanted value - return 0.0
-			double sx = Math.Abs(fx) * m;
-			double sy = Math.Abs(fy) * m;
-			float dx = sampler.GetValue((float)sx);
-			float dy = sampler.GetValue((float)sy);
-			//Log.Debug("sx="+sx+" dx="+dx+" sy="+sy+" dy="+dy);
-
-			//pick and sample the 4 pixels;
-			TPixel p0,p1,p2,p3;
-			FillQuadrantColors<TPixel>(img, pxf < 0.5, pyf < 0.5, locX, locY, out p0, out p1, out p2, out p3);
-
-			RgbaD v0 = p0.ToColor();
-			RgbaD v1 = p1.ToColor();
-			RgbaD v2 = p2.ToColor();
-			RgbaD v3 = p3.ToColor();
-
-			double Rf = CalcSample(v0.R, v1.R, v2.R, v3.R, dx, dy);
-			double Gf = CalcSample(v0.G, v1.G, v2.G, v3.G, dx, dy);
-			double Bf = CalcSample(v0.B, v1.B, v2.B, v3.B, dx, dy);
-			double Af = CalcSample(v0.A, v1.A, v2.A, v3.A, dx, dy);
-
-			var color = new RgbaD(Rf,Gf,Bf,Af);
-			TPixel pixi = color.FromColor<TPixel>();
-			//Log.Debug("pix = "+pixi);
-			return pixi;
-		}
-		*/
-
-		/*
-		static double CalcSample(double v0,double v1,double v2,double v3,double dx, double dy)
-		{
-			//interpolation calc
-			double h0 = (v0 * (1.0 - dx)) + (v1 * dx);
-			double h1 = (v3 * (1.0 - dx)) + (v2 * dx);
-			double vf = (h0 * (1.0 - dy)) + (h1 * dy);
-			return vf;
-		}
-		*/
-
-		/*
-		static void FillQuadrantColors<TPixel>(
-			ImageFrame<TPixel> img, bool xIsPos, bool yIsPos,double px, double py,
-			out TPixel q0, out TPixel q1, out TPixel q2, out TPixel q3)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			int cx = (int)px;
-			int cy = (int)py;
-			int px0,py0,px1,py1,px2,py2,px3,py3;
-			if (!xIsPos && !yIsPos) {
-				px0 = cx - 1; py0 = cy - 1;
-				px1 = cx + 0; py1 = cy - 1;
-				px2 = cx + 0; py2 = cy + 0;
-				px3 = cx - 1; py3 = cy + 0;
-			}
-			else if (xIsPos && !yIsPos) {
-				px1 = cx + 0; py1 = cy - 1;
-				px0 = cx + 1; py0 = cy - 1;
-				px3 = cx + 1; py3 = cy + 0;
-				px2 = cx + 0; py2 = cy + 0;
-			}
-			else if (xIsPos && yIsPos) {
-				px2 = cx + 0; py2 = cy + 0;
-				px3 = cx + 1; py3 = cy + 0;
-				px0 = cx + 1; py0 = cy + 1;
-				px1 = cx + 0; py1 = cy + 1;
-			}
-			else { // if (!xpos && ypos) {
-				px3 = cx - 1; py3 = cy + 0;
-				px2 = cx + 0; py2 = cy + 0;
-				px1 = cx + 0; py1 = cy + 1;
-				px0 = cx - 1; py0 = cy + 1;
-			}
-
-			//had to mirror the p(n) order around the x,y axes so that this part
-			//  could stay the same (note the strange ordering above - q2 is always +0,+0)
-			q0 = img.GetPixelSafe(px0,py0);
-			q1 = img.GetPixelSafe(px1,py1);
-			q2 = img.GetPixelSafe(px2,py2);
-			q3 = img.GetPixelSafe(px3,py3);
-		}
-		*/
-
-		/*
 		//ratio 0.0 = 100% a
 		//ratio 1.0 = 100% b
-		public static TPixel BetweenColor<TPixel>(TPixel a, TPixel b, double ratio)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			var va = a.ToColor();
-			var vb = b.ToColor();
-			ratio = Math.Clamp(ratio,0.0,1.0);
-			double nr = (1.0 - ratio) * va.R + ratio * vb.R;
-			double ng = (1.0 - ratio) * va.G + ratio * vb.G;
-			double nb = (1.0 - ratio) * va.B + ratio * vb.B;
-			double na = (1.0 - ratio) * va.A + ratio * vb.A;
-			var btw = new RgbaD(nr,ng,nb,na);
-			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
-			return btw.FromColor<TPixel>();
-		}
-		*/
-
-		//ratio 0.0 = 100% a
-		//ratio 1.0 = 100% b
-		public static IFColor BetweenColor(IFColor a, IFColor b, double ratio)
+		public static IColor BetweenColor(IColor a, IColor b, double ratio)
 		{
 			ratio = Math.Clamp(ratio,0.0,1.0);
 			double nr = (1.0 - ratio) * a.R + ratio * b.R;
 			double ng = (1.0 - ratio) * a.G + ratio * b.G;
 			double nb = (1.0 - ratio) * a.B + ratio * b.B;
 			double na = (1.0 - ratio) * a.A + ratio * b.A;
-			var btw = new IFColor(nr,ng,nb,na);
+			var btw = new IColor(nr,ng,nb,na);
 			// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 			return btw;
 		}
 
+		//TODO move to colorspace stuff
 		public static (double,double,double) ConvertToHSI(Color c)
 		{
 			int max = Math.Max(c.R,Math.Max(c.G,c.B));
@@ -318,24 +94,7 @@ namespace ImageFunctions.Helpers
 			return (H,S,I);
 		}
 
-		/*
-		public static void FillWithColor<TPixel>(ImageFrame<TPixel> frame, SixLabors.Primitives.Rectangle rect,TPixel color)
-			where TPixel : struct, IPixel<TPixel>
-		{
-			var bounds = frame.Bounds();
-			bounds.Intersect(rect);
-			var span = frame.GetPixelSpan();
-
-			for(int y=bounds.Top; y<bounds.Bottom; y++) {
-				for(int x=bounds.Left; x<bounds.Right; x++) {
-					int off = y * frame.Width + x;
-					span[off] = color;
-				}
-			}
-		}
-		*/
-
-		public static void FillWithColor(IFImage frame, Rectangle rect,IFColor color)
+		public static void FillWithColor(IImage frame, Rectangle rect,IColor color)
 		{
 			var bounds = new Rectangle(0,0,frame.Width,frame.Height);
 			bounds.Intersect(rect);
@@ -346,8 +105,12 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+	}
+}
 
-		public static void DrawPolyLine(IFImage img, PointD[] list, IFColor c, double thickness = 1.0)
+#if false
+		/*
+		public static void DrawPolyLine(IImage img, PointD[] list, IColor c, double thickness = 1.0)
 		{
 			double xMin = double.MaxValue,xMax = double.MinValue,
 				   yMin = double.MaxValue,yMax = double.MinValue;
@@ -382,7 +145,9 @@ namespace ImageFunctions.Helpers
 				}
 			}
 		}
+		*/
 
+		/*
 		// https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html#The%20C%20Code
 		public static bool IsPointInPoly(PointD point, PointD[] list)
 		{
@@ -399,7 +164,9 @@ namespace ImageFunctions.Helpers
 			}
 			return c;
 		}
+		*/
 
+		/*
 		// https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_two_points
 		public static double DistanceToLine(PointD pt, PointD p0, PointD p1)
 		{
@@ -419,6 +186,7 @@ namespace ImageFunctions.Helpers
 			;
 			return num / den;
 		}
+		*/
 
 /*
 def plot_antialiased_point(x: float, y: float):
@@ -430,8 +198,9 @@ def plot_antialiased_point(x: float, y: float):
             draw_pixel(coordinates=(roundedx, roundedy), color=percent (range 0-1))
  */
 
+
 		// https://rosettacode.org/wiki/Xiaolin_Wu%27s_line_algorithm#C.23
-		public static void DrawLine2(IFImage img, IFColor c, PointD p0, PointD p1)
+		public static void DrawLine2(IImage img, IColor c, PointD p0, PointD p1)
 		{
 			double x0 = p0.X, y0 = p0.Y;
 			double x1 = p1.X, y1 = p1.Y;
@@ -519,13 +288,13 @@ def plot_antialiased_point(x: float, y: float):
 			return 1.0 - FPart(n);
 		}
 
-		public static void DrawLine(IFImage img, Color c, PointD p0, PointD p1, double width = 1.0)		{
+		public static void DrawLine(IImage img, Color c, PointD p0, PointD p1, double width = 1.0)		{
 			var rgba = RgbaToNative(c);
 			DrawLine(img,rgba,p0,p1,width);
 		}
 
 		//http://members.chello.at/easyfilter/bresenham.html
-		public static void DrawLine(IFImage img, IFColor c, PointD p0, PointD p1, double width = 1.0)
+		public static void DrawLine(IImage img, IColor c, PointD p0, PointD p1, double width = 1.0)
 		{
 			int x0 = (int)p0.X, x1 = (int)p1.X, y0 = (int)p0.Y, y1 = (int)p1.Y;
 			int dx = (int)Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
@@ -558,7 +327,7 @@ def plot_antialiased_point(x: float, y: float):
 			}
 		}
 
-		public static void DrawLine3(IFImage img, IFColor c, PointD p0, PointD p1)
+		public static void DrawLine3(IImage img, IColor c, PointD p0, PointD p1)
 		{
 			int x0 = (int)p0.X, y0 = (int)p0.Y;
 			int x1 = (int)p1.X, y1 = (int)p1.Y;
@@ -600,7 +369,7 @@ def plot_antialiased_point(x: float, y: float):
 		// https://alienryderflex.com/polygon_fill/
 		// https://imagej.nih.gov/ij/developer/source/ij/process/PolygonFiller.java.html
 		
-		static void Plot(IFImage img, IFColor c, double x, double y, double k)
+		static void Plot(IImage img, IColor c, double x, double y, double k)
 		{
 			int ix = (int)x, iy = (int)y;
 			if (ix < 0 || iy < 0 || ix >= img.Width || iy >= img.Height) {
@@ -620,12 +389,12 @@ def plot_antialiased_point(x: float, y: float):
 				double r = (o.R*o.A + c.R*oma) / a;
 				double g = (o.G*o.A + c.G*oma) / a;
 				double b = (o.B*o.A + c.B*oma) / a;
-				img[ix,iy] = new IFColor(r,g,b,a);
+				img[ix,iy] = new IColor(r,g,b,a);
 			}
 		}
 
 		// https://gist.github.com/randvoorhies/807ce6e20840ab5314eb7c547899de68#file-bresenham-js-L813
-		public static void DrawLine4(IFImage img, IFColor c, PointD p0, PointD p1, double th = 1.0)
+		public static void DrawLine4(IImage img, IColor c, PointD p0, PointD p1, double th = 1.0)
 		{
 			double x0 = p0.X, y0 = p0.Y;
 			double x1 = p1.X, y1 = p1.Y;
@@ -685,12 +454,12 @@ def plot_antialiased_point(x: float, y: float):
 // CPP program to illustrate 
 // Scanline Polygon fill Algorithm 
   
-#include <stdio.h> 
-#include <math.h> 
-#include <GL/glut.h> 
-#define maxHt 800 
-#define maxWd 600 
-#define maxVer 10000 
+// #include <stdio.h> 
+// #include <math.h> 
+// #include <GL/glut.h> 
+// #define maxHt 800 
+// #define maxWd 600 
+// #define maxVer 10000 
   
 FILE *fp; 
   
@@ -1092,3 +861,4 @@ void main(int argc, char** argv)
 
 
 }
+#endif

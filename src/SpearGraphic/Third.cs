@@ -6,7 +6,7 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class Third
 	{
-		public static void Twist1(IFImage image, int w, int h, int? seed = null)
+		public static void Twist1(IImage image, int w, int h, int? seed = null)
 		{
 			InitRandom(seed);
 
@@ -107,9 +107,11 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1)
+		static IDrawConfig Idc = Engines.Engine.GetDrawable();
+		static void DrawLine(IImage img,Color c,double x0, double y0, double x1, double y1)
 		{
-			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1));
+			var nc = ImageHelpers.RgbaToNative(c);
+			Idc.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1));
 		}
 
 		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)

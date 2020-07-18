@@ -4,7 +4,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 

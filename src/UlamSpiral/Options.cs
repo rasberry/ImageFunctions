@@ -35,9 +35,9 @@ namespace ImageFunctions.UlamSpiral
 		public double DotSize = 1.0;
 		public PickDot WhichDot = PickDot.None;
 		public PickMapping Mapping = PickMapping.None;
-		public IFColor? Color1 = null;
-		public IFColor? Color2 = null;
-		public IFColor? Color3 = null;
-		public IFColor? Color4 = null;
+		public IColor? Color1 = null;
+		public IColor? Color2 = null;
+		public IColor? Color3 = null;
+		public IColor? Color4 = null;
 	}
 }

@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother
 {
-	public class Function : IFAbstractFunction, IFHasResampler, IHasDistance
+	public class Function : AbstractFunction, IHasSampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -41,13 +41,13 @@ namespace ImageFunctions.AreaSmoother
 			sb.MetricHelpLine();
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}
 
 		Options O = new Options();
-		public IFResampler Sampler { get { return O.Sampler; }}
+		public ISampler Sampler { get { return O.Sampler; }}
 		public IMeasurer Measurer { get { return O.Measurer; }}
 	}
 }

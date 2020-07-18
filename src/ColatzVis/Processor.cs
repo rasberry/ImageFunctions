@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ColatzVis
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -83,9 +83,9 @@ namespace ImageFunctions.ColatzVis
 		//solve(2*l/a-x*sqrt(x^2+1) = x - (1/2)*(x^3/3)+(1*3/2*4)*(x^5/5) - (1*3*5/2*4*6)*(x^7/7),l);
 
 
-		static IFColor IncPixel(in IFColor pixel)
+		static IColor IncPixel(in IColor pixel)
 		{
-			var p = new IFColor(
+			var p = new IColor(
 				pixel.R + 0.001,
 				pixel.G + 0.001,
 				pixel.B + 0.001,

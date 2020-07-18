@@ -8,19 +8,19 @@ namespace ImageFunctions.Helpers
 	public static class ColorHelpers
 	{
 		// Colors used directly in the code
-		public static IFColor Black       { get { return RGB(0x00,0x00,0x00); }}
-		public static IFColor IndianRed   { get { return RGB(0xCD,0x5C,0x5C); }}
-		public static IFColor LimeGreen   { get { return RGB(0x32,0xCD,0x32); }}
-		public static IFColor Magenta     { get { return RGB(0xFF,0x00,0xFF); }}
-		public static IFColor Transparent { get { return RGB(0x00,0x00,0x00,0x00); }}
-		public static IFColor White       { get { return RGB(0xFF,0xFF,0xFF); }}
+		public static IColor Black       { get { return RGB(0x00,0x00,0x00); }}
+		public static IColor IndianRed   { get { return RGB(0xCD,0x5C,0x5C); }}
+		public static IColor LimeGreen   { get { return RGB(0x32,0xCD,0x32); }}
+		public static IColor Magenta     { get { return RGB(0xFF,0x00,0xFF); }}
+		public static IColor Transparent { get { return RGB(0x00,0x00,0x00,0x00); }}
+		public static IColor White       { get { return RGB(0xFF,0xFF,0xFF); }}
 
-		static IFColor RGB(int r,int g,int b,int a = 255)
+		static IColor RGB(int r,int g,int b,int a = 255)
 		{
-			return new IFColor(r/255.0,g/255.0,b/255.0,a/255.0);
+			return new IColor(r/255.0,g/255.0,b/255.0,a/255.0);
 		}
 
-		public static string ToHex(this IFColor c)
+		public static string ToHex(this IColor c)
 		{
 			var rgba = ImageHelpers.NativeToRgba(c);
 			return ToHex(rgba);
@@ -33,7 +33,7 @@ namespace ImageFunctions.Helpers
 			return s;
 		}
 
-		public static IFColor FromHexNative(string s)
+		public static IColor FromHexNative(string s)
 		{
 			var c = FromHex(s);
 			return ImageHelpers.RgbaToNative(c);
@@ -73,12 +73,12 @@ namespace ImageFunctions.Helpers
 			return num;
 		}
 
-		public static IFColor? FromNameNative(string name)
+		public static IColor? FromNameNative(string name)
 		{
 			var c = FromName(name);
 			return c.HasValue
 				? ImageHelpers.RgbaToNative(c.Value)
-				: default(IFColor?)
+				: default(IColor?)
 			;
 		}
 		public static Color? FromName(string name)

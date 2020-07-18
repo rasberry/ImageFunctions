@@ -6,7 +6,7 @@ namespace ImageFunctions.SpearGraphic
 {
 	public static class Second
 	{
-		public static void Twist3(IFImage image, int w, int h, int which = 2)
+		public static void Twist3(IImage image, int w, int h, int which = 2)
 		{
 			if (which == 0)
 			{
@@ -40,7 +40,7 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void Twist3Params(IFImage image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
+		static void Twist3Params(IImage image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
 		{
 			double a,x,y,ox,oy;
 
@@ -56,30 +56,29 @@ namespace ImageFunctions.SpearGraphic
 					y = s * Math.Sin(a) + (v/t) + oy;
 					Color p = ColorFade(v,max,FadeComp.G);
 					if (x < w && y < h && x > 0 && y > 0) {
-						DrawRectangle(image,p,x,y);
-						DrawRectangle(image,p,y,x);
-						/* //TODO need replacement for DrawRectangle
-						image.Mutate(op => {
-							DrawRectangle(op,gop,p,x,y);
-							DrawRectangle(op,gop,p,y,x);
-						});
-						*/
+						DrawPoint(image,p,x,y);
+						DrawPoint(image,p,y,x);
 					}
 					progress.Report(v/max);
 				}
 			}
 		}
 
-		//TODO should this be draw point ?
-		static void DrawRectangle(IFImage img, Color p, double x, double y)
+		const double DRo = 0.3;
+		static void DrawPoint(IImage img, Color p, double x, double y)
 		{
-			ImageHelpers.DrawLine(img,p,new PointD(x+0.0, y+0.0),new PointD(x+0.5, y+0.0));
-			ImageHelpers.DrawLine(img,p,new PointD(x+0.5, y+0.0),new PointD(x+0.5, y+0.5));
-			ImageHelpers.DrawLine(img,p,new PointD(x+0.5, y+0.5),new PointD(x+0.0, y+0.5));
-			ImageHelpers.DrawLine(img,p,new PointD(x+0.0, y+0.5),new PointD(x+0.0, y+0.0));
+			DrawPixel(img,p,x - DRo, y - DRo);
+			DrawPixel(img,p,x + 0.0, y - DRo);
+			DrawPixel(img,p,x + DRo, y - DRo);
+			DrawPixel(img,p,x - DRo, y + 0.0);
+			DrawPixel(img,p,x + 0.0, y + 0.0);
+			DrawPixel(img,p,x + DRo, y + 0.0);
+			DrawPixel(img,p,x - DRo, y + DRo);
+			DrawPixel(img,p,x + 0.0, y + DRo);
+			DrawPixel(img,p,x + DRo, y + DRo);
 		}
 
-		//static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
+		//static void DrawRectangle(IImage op, Color p, double x, double y)
 		//{
 		//	PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
 		//	PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
@@ -88,7 +87,48 @@ namespace ImageFunctions.SpearGraphic
 		//	op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
 		//}
 
-		public static void Twist4(IFImage image, int w, int h)
+		// https://en.wikipedia.org/wiki/Spatial_anti-aliasing
+		static void DrawPixel(IImage img, Color p, double x, double y)
+		{
+			var nc = ImageHelpers.RgbaToNative(p);
+			int fx = (int)Math.Floor(x), cx = (int)Math.Ceiling(x);
+			int fy = (int)Math.Floor(y), cy = (int)Math.Ceiling(y);
+
+			for(int ry = (int)fy; ry < cy; ry++) {
+				for(double rx = fx; rx < cx; rx++) {
+					double px = 1.0 - Math.Abs(x - rx);
+					double py = 1.0 - Math.Abs(y - ry);
+					double pp = px * py;
+					CompostPixel(img,nc,rx,ry,pp);
+				}
+			}
+		}
+
+		static void CompostPixel(IImage img, IColor c, double x, double y, double k)
+		{
+			int ix = (int)x, iy = (int)y;
+			if (ix < 0 || iy < 0 || ix >= img.Width || iy >= img.Height) {
+				return;
+			}
+			if (k >= 1.0) {
+				img[ix,iy] = c; //100% opacity so replace
+			}
+			else if (k < double.Epsilon) {
+				return; //0% opacity so keep original
+			}
+			else {
+				//https://en.wikipedia.org/wiki/Alpha_compositing
+				var o = img[ix,iy];
+				double oma = (c.A * k)*(1.0 - o.A);
+				double a = o.A + oma;
+				double r = (o.R*o.A + c.R*oma) / a;
+				double g = (o.G*o.A + c.G*oma) / a;
+				double b = (o.B*o.A + c.B*oma) / a;
+				img[ix,iy] = new IColor(r,g,b,a);
+			}
+		}
+
+		public static void Twist4(IImage image, int w, int h)
 		{
 			double max = w*9;
 			double s = w/32.0; //stretch x
@@ -135,17 +175,12 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IFImage img,Color c,double x0, double y0, double x1, double y1)
+		static IDrawConfig Idc = Engines.Engine.GetDrawable();
+		static void DrawLine(IImage img,Color c,double x0, double y0, double x1, double y1)
 		{
-			ImageHelpers.DrawLine(img,c,new PointD(x0,y0),new PointD(x1,y1));
+			var nc = ImageHelpers.RgbaToNative(c);
+			Idc.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1));
 		}
-
-		//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
-		//{
-		//	var p0 = new PointF((float)x0,(float)y0);
-		//	var p1 = new PointF((float)x1,(float)y1);
-		//	op.DrawLines(gop,(Color)p,1.0f,p0,p1);
-		//}
 
 		enum FadeComp { R, G, B }
 		static Color ColorFade(double i, double max, FadeComp f)

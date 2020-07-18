@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.PixelRules
 {
-	public class Function : IFAbstractFunction, IHasDistance, IFHasResampler
+	public class Function : AbstractFunction, IHasDistance, IHasSampler
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -75,13 +75,13 @@ namespace ImageFunctions.PixelRules
 			return "";
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}
 
 		public IMeasurer Measurer { get { return O.Measurer; }}
-		public IFResampler Sampler { get { return O.Sampler; }}
+		public ISampler Sampler { get { return O.Sampler; }}
 		Options O = new Options();
 	}
 

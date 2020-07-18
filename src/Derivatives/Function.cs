@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Derivatives
 {
-	public class Function : IFAbstractFunction
+	public class Function : AbstractFunction
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -38,7 +38,7 @@ namespace ImageFunctions.Derivatives
 			sb.WL(1,"-a","Calculate absolute value difference");
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

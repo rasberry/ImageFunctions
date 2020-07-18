@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Test
 {
-	public class Function : IFAbstractFunction, IFGenerator
+	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get { return new Size(1024,1024); }}
 
@@ -24,7 +24,7 @@ namespace ImageFunctions.Test
 		{
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor();
 		}

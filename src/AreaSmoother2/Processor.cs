@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother2
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -42,10 +42,10 @@ namespace ImageFunctions.AreaSmoother2
 			}
 		}
 
-		void DrawGradientH(HashSet<int> visited, IFImage frame, IFImage canvas,
+		void DrawGradientH(HashSet<int> visited, IImage frame, IImage canvas,
 			Rectangle rect, int x, int y)
 		{
-			IFColor seed = frame[x,y];
+			IColor seed = frame[x,y];
 
 			int lx = x;
 			int rx = x;
@@ -73,7 +73,7 @@ namespace ImageFunctions.AreaSmoother2
 			for(int gi=0; gi<len; gi++)
 			{
 				double ratio = (double)(gi+1)/(double)len;
-				IFColor nc;
+				IColor nc;
 				if (ratio > 0.5) {
 					nc = ImageHelpers.BetweenColor(seed,rColor,(ratio - 0.5) * 2.0);
 				} else {
@@ -86,10 +86,10 @@ namespace ImageFunctions.AreaSmoother2
 			}
 		}
 
-		void DrawGradientV(HashSet<int> visited, IFImage frame, IFImage canvas,
+		void DrawGradientV(HashSet<int> visited, IImage frame, IImage canvas,
 			Rectangle rect, int x, int y, bool blend)
 		{
-			IFColor seed = frame[x,y];
+			IColor seed = frame[x,y];
 			int ty = y;
 			int by = y;
 			while(ty > rect.Top) {
@@ -117,7 +117,7 @@ namespace ImageFunctions.AreaSmoother2
 			for(int gi=0; gi<len; gi++)
 			{
 				double ratio = (double)(gi+1)/(double)len;
-				IFColor nc;
+				IColor nc;
 				if (ratio > 0.5) {
 					nc = ImageHelpers.BetweenColor(seed,bColor,(ratio - 0.5) * 2.0);
 				} else {

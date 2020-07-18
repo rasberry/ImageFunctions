@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother2
 {
-	public class Function : IFAbstractFunction
+	public class Function : AbstractFunction
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -36,7 +36,7 @@ namespace ImageFunctions.AreaSmoother2
 			sb.WL(1,"-V","Vertical only");
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

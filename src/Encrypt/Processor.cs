@@ -4,7 +4,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Encrypt
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 

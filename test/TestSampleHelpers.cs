@@ -11,8 +11,8 @@ namespace test
 	[TestClass]
 	public class TestSampleHelpers
 	{
-		IFImage _img = null;
-		IFImage Image { get {
+		IImage _img = null;
+		IImage Image { get {
 			if (_img == null) {
 				// ImageFunctions/wiki/img/flower.png
 				string file = (string)Helpers.InFile(Tuple.Create("flower"))[0];
@@ -43,7 +43,7 @@ namespace test
 			var img = Image;
 			var s = Registry.Map(sampler,scale);
 			var test = s.GetSample(img,10,10);
-			var ecolor = new IFColor(0.522,0.439,0.396,1.0);
+			var ecolor = new IColor(0.522,0.439,0.396,1.0);
 			Helpers.AssertAreSimilar(ecolor,test,acc);
 		}
 
@@ -68,7 +68,7 @@ namespace test
 			var img = Image;
 			var s = Registry.Map(sampler,scale);
 			var test = s.GetSample(img,0,0);
-			var ecolor = new IFColor(0.498,0.447,0.412,1.0);
+			var ecolor = new IColor(0.498,0.447,0.412,1.0);
 			Helpers.AssertAreSimilar(ecolor,test,acc);
 		}
 

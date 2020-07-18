@@ -6,7 +6,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Deform
 {
-	public class Function : IFAbstractFunction, IFHasResampler
+	public class Function : AbstractFunction, IHasSampler
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -72,13 +72,13 @@ namespace ImageFunctions.Deform
 			sb.WL(1,"2. Inverted"  ,"n/x, n/y; n = (x^e + y^e)");
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}
 
 		Options O = new Options();
-		public IFResampler Sampler { get { return O.Sampler; }}
+		public ISampler Sampler { get { return O.Sampler; }}
 
 	}
 

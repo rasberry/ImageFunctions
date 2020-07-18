@@ -54,14 +54,14 @@ namespace ImageFunctions
 		Transparent = 3
 	}
 
-	public interface IFHasResampler
+	public interface IHasSampler
 	{
-		IFResampler Sampler { get; }
+		ISampler Sampler { get; }
 	}
 
-	public interface IFResampler
+	public interface ISampler
 	{
-		IFColor GetSample(IFImage img, int x, int y);
+		IColor GetSample(IImage img, int x, int y);
 		double Radius { get; }
 		double GetKernelAt(double x);
 		Sampler Kind { get; }
@@ -97,13 +97,6 @@ namespace ImageFunctions
 		N,NE,E,SE,S,SW,W,NW
 	}
 
-	/*
-	public interface IGenerator
-	{
-		Size StartingSize { get; }
-	}
-	*/
-
 	public readonly struct PointD
 	{
 		public PointD(double x,double y) {
@@ -111,5 +104,55 @@ namespace ImageFunctions
 		}
 		public readonly double X;
 		public readonly double Y;
+	}
+
+	public interface IImage : IDisposable
+	{
+		int Width { get; }
+		int Height { get; }
+
+		IColor this[int x, int y] { get; set; }
+	}
+
+	public readonly struct IColor
+	{
+		public IColor(double r, double g, double b, double a) {
+			R = r; G = g; B = b; A = a;
+		}
+
+		public readonly double R,G,B,A;
+
+		//public static double MinValue = 0.0;
+		//public static double MaxValue = 1.0;
+
+		public override string ToString() {
+			return $"{nameof(IColor)} [{R},{G},{B},{A}]";
+		}
+	}
+
+	public interface IFunction
+	{
+		void Usage(StringBuilder sb);
+		bool ParseArgs(string[] args);
+		Rectangle Bounds { get; set; }
+		int? MaxDegreeOfParallelism { get; set; }
+		void Main();
+	}
+
+	public interface IImageConfig
+	{
+		IImage LoadImage(string path);
+		void SaveImage(IImage img, string path);
+		IImage NewImage(int width, int height);
+	}
+
+	public interface IGenerator
+	{
+		Size StartingSize { get; }
+	}
+
+	public interface IDrawConfig
+	{
+		void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0);
 	}
 }

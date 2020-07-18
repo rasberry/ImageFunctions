@@ -155,7 +155,7 @@ namespace ImageFunctions.Helpers
 		}
 		*/
 		
-		public static double ColorDistance(IFColor one, IFColor two, IMeasurer measurer = null)
+		public static double ColorDistance(IColor one, IColor two, IMeasurer measurer = null)
 		{
 			if (measurer == null) {
 				measurer = DefaultColorDistanceMeasurer;

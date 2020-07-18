@@ -6,7 +6,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ImgDiff
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -55,7 +55,7 @@ namespace ImageFunctions.ImgDiff
 					}
 					//otherwise highlight 'unmatched' pixels
 					else if (!sameSame) {
-						double dist; IFColor sc,ec;
+						double dist; IColor sc,ec;
 						if (O.HilightOpacity == null) {
 							dist = ColorDistanceRatio(one,two);
 							sc = colorHilight;
@@ -76,7 +76,7 @@ namespace ImageFunctions.ImgDiff
 			}
 		}
 
-		double ColorDistanceRatio(IFColor one, IFColor two)
+		double ColorDistanceRatio(IColor one, IColor two)
 		{
 			var vo = new double[] { one.R, one.B, one.G, one.A };
 			var vt = new double[] { two.R, two.B, two.G, two.A };

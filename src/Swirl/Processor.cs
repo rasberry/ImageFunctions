@@ -4,7 +4,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Swirl
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -41,7 +41,7 @@ namespace ImageFunctions.Swirl
 				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					IFColor nc = SwirlPixel(Source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
+					IColor nc = SwirlPixel(Source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
 					canvas[cx,cy] = nc;
 				},progress);
 
@@ -49,7 +49,7 @@ namespace ImageFunctions.Swirl
 			}
 		}
 
-		IFColor SwirlPixel(IFImage frame,
+		IColor SwirlPixel(IImage frame,
 			double x, double y, double swirlx, double swirly,
 			double swirlRadius, double swirlTwists)
 		{

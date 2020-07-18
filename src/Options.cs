@@ -28,7 +28,7 @@ namespace ImageFunctions
 			if (showFull)
 			{
 				foreach(Activity a in OptionsHelpers.EnumAll<Activity>()) {
-					IFFunction func = Registry.Map(a);
+					IFunction func = Registry.Map(a);
 					func.Usage(sb);
 				}
 				SamplerHelp(sb);
@@ -37,9 +37,9 @@ namespace ImageFunctions
 			}
 			else if (action != Activity.None)
 			{
-				IFFunction func = Registry.Map(action);
+				IFunction func = Registry.Map(action);
 				func.Usage(sb);
-				if ((func as IFHasResampler) != null) {
+				if ((func as IHasSampler) != null) {
 					SamplerHelp(sb);
 				}
 				if ((func as IHasDistance) != null) {

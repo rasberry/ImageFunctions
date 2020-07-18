@@ -15,6 +15,6 @@ namespace ImageFunctions.Deform
 		public PointF? CenterPp = null;
 		public Mode WhichMode = Mode.Polynomial;
 		public double Power = 2.0;
-		public IFResampler Sampler = Registry.DefaultIFResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 	}
 }

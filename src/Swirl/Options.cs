@@ -11,7 +11,7 @@ namespace ImageFunctions.Swirl
 		public double? RadiusPp = null;
 		public double Rotations = 0.9;
 		public bool CounterClockwise = false;
-		public IFResampler Sampler = Registry.DefaultIFResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 		public IMeasurer Measurer = Registry.DefaultMetric;
 	}
 }

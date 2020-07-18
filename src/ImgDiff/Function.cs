@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ImgDiff
 {
-	public class Function : IFAbstractFunction
+	public class Function : AbstractFunction
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -53,7 +53,7 @@ namespace ImageFunctions.ImgDiff
 			sb.WL(1,"-c (color)"    ,"Change hilight color (default is magenta)");
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

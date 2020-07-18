@@ -7,14 +7,14 @@ namespace ImageFunctions.Encrypt
 {
 	public class PixelStream : Stream
 	{
-		public PixelStream(IFImage image)
+		public PixelStream(IImage image)
 		{
 			Image = image;
 			//4 bytes per pixel
 			InternalLength = (long)BPP * (long)Image.Height * (long)Image.Width;
 		}
 
-		IFImage Image = null;
+		IImage Image = null;
 		long InternalLength = 0;
 		int PaddingLength = 0;
 		const int BPP = 4; //Bytes per pixel

@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.PixelateDetails
 {
-	public class Function : IFAbstractFunction
+	public class Function : AbstractFunction
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -44,7 +44,7 @@ namespace ImageFunctions.PixelateDetails
 			sb.WL(1,"-r (number)[%]","Count or percent or sections to re-split (default 50%)");
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

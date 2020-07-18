@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.UlamSpiral
 {
-	public class Function : IFAbstractFunction, IFGenerator
+	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
 			return new Size { Width = 1024, Height = 1024 };
@@ -132,7 +132,7 @@ namespace ImageFunctions.UlamSpiral
 			return "";
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

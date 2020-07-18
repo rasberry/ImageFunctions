@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ColatzVis
 {
-	public class Function : IFAbstractFunction, IFGenerator
+	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
 			return new Size(256,256);
@@ -46,7 +46,7 @@ namespace ImageFunctions.ColatzVis
 			#endif
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

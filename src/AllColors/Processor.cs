@@ -8,7 +8,7 @@ namespace ImageFunctions.AllColors
 	// Inspired by
 	// https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
 
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		const int NumberOfColors = 16777216;
 		//there doesn't seem to be a sort with progress so take a guess
@@ -327,9 +327,9 @@ namespace ImageFunctions.AllColors
 			return arr;
 		}
 
-		static Func<IFColor,IFColor,int>[] CompareIFColor()
+		static Func<IColor,IColor,int>[] CompareIFColor()
 		{
-			var arr = new Func<IFColor,IFColor,int>[] {
+			var arr = new Func<IColor,IColor,int>[] {
 				(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
 				(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
 				(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,

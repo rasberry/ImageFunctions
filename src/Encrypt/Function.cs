@@ -5,7 +5,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Encrypt
 {
-	public class Function : IFAbstractFunction
+	public class Function : AbstractFunction
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -132,7 +132,7 @@ namespace ImageFunctions.Encrypt
 			return sb.ToString();
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

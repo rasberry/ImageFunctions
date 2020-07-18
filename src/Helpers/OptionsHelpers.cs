@@ -15,7 +15,7 @@ namespace ImageFunctions.Helpers
 			sb.WL(1,"--sampler (name)","Use given sampler (defaults to nearest pixel)");
 		}
 
-		public static Params.Result DefaultSampler(this Params p, out IFResampler s, IFResampler def = null)
+		public static Params.Result DefaultSampler(this Params p, out ISampler s, ISampler def = null)
 		{
 			s = def ?? Registry.DefaultIFResampler;
 			var r = p.Default("--sampler",out Sampler sam);
@@ -197,7 +197,7 @@ namespace ImageFunctions.Helpers
 					val = (V)((object)clr); return true;
 				}
 			}
-			else if (t.Equals(typeof(IFColor))) {
+			else if (t.Equals(typeof(IColor))) {
 				if (TryParseColor(sub,out var clr)) {
 					var ntv = ImageHelpers.RgbaToNative(clr);
 					val = (V)((object)ntv); return true;

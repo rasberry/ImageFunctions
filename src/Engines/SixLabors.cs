@@ -4,29 +4,45 @@ using System.Numerics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace ImageFunctions.Engines.SixLabors
 {
-	public class SLImageConfig : IFImageConfig
+	public class SLImageConfig : IImageConfig, IDrawConfig
 	{
-		public IFImage LoadImage(string path)
+		public IImage LoadImage(string path)
 		{
 			return new SLImage(path);
 		}
 
-		public IFImage NewImage(int width, int height)
+		public IImage NewImage(int width, int height)
 		{
 			return new SLImage(width,height);
 		}
 
-		public void SaveImage(IFImage img, string path)
+		public void SaveImage(IImage img, string path)
 		{
 			var image = img as SLImage;
 			image.Save(path);
 		}
+
+		public void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0)
+		{
+			var go = new GraphicsOptions { Antialias = true };
+			var rgba = new RgbaD { R = color.R, G = color.G, B = color.B, A = color.A };
+			var c = new Color(rgba.ToScaledVector4());
+			var f0 = new PointF((float)p0.X,(float)p0.Y);
+			var f1 = new PointF((float)p1.X,(float)p1.Y);
+
+			var nativeImage = (SLImage)image;
+			nativeImage.image.Mutate((ctx) => {
+				ctx.DrawLines(go,c,(float)width,f0,f1);
+			});
+		}
 	}
 
-	public class SLImage : IFImage
+	public class SLImage : IImage
 	{
 		public SLImage(string fileName)
 		{
@@ -38,12 +54,12 @@ namespace ImageFunctions.Engines.SixLabors
 			image = new Image<RgbaD>(w,h);
 		}
 
-		Image<RgbaD> image;
+		internal Image<RgbaD> image;
 
-		public IFColor this[int x, int y] {
+		public IColor this[int x, int y] {
 			get {
 				var ipix = image[x,y];
-				return new IFColor(ipix.R,ipix.G,ipix.B,ipix.A);
+				return new IColor(ipix.R,ipix.G,ipix.B,ipix.A);
 			}
 			set {
 				var xpix = new RgbaD { R = value.R, G = value.G, B = value.B, A = value.A };

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public class Function : IFAbstractFunction, IFGenerator
+	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
 			return new Size(1024,1024);
@@ -46,7 +46,7 @@ namespace ImageFunctions.SpearGraphic
 			sb.PrintEnum<Graphic>(1);
 		}
 
-		protected override IFAbstractProcessor CreateProcessor()
+		protected override AbstractProcessor CreateProcessor()
 		{
 			return new Processor { O = O };
 		}

@@ -4,7 +4,7 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Deform
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -30,7 +30,7 @@ namespace ImageFunctions.Deform
 				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					IFColor nc = ProjectPixel(frame,x,y,ccx,ccy,O.Power);
+					IColor nc = ProjectPixel(frame,x,y,ccx,ccy,O.Power);
 					canvas[cx,cy] = nc;
 				},progress);
 
@@ -38,7 +38,7 @@ namespace ImageFunctions.Deform
 			}
 		}
 
-		IFColor ProjectPixel(IFImage frame,double x, double y,double ccx, double ccy,double exp)
+		IColor ProjectPixel(IImage frame,double x, double y,double ccx, double ccy,double exp)
 		{
 			double qw = x <= ccx ? ccx : frame.Width - ccx;
 			double qh = y <= ccy ? ccy : frame.Height - ccy;

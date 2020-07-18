@@ -94,7 +94,7 @@ namespace test
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
-			IFFunction func = Registry.Map(act);
+			IFunction func = Registry.Map(act);
 			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
 			Assert.IsTrue(worked,$"Unable to parse args. [{String.Join(",",args)}]");
@@ -126,7 +126,7 @@ namespace test
 			return true;
 		}
 
-		public static bool AreFramesEqual(IFImage one, IFImage two)
+		public static bool AreFramesEqual(IImage one, IImage two)
 		{
 			if (one.Width != two.Width || one.Height != two.Height) {
 				return false;
@@ -143,7 +143,7 @@ namespace test
 			return true;
 		}
 
-		public static bool AreColorsEqual(IFColor one, IFColor two)
+		public static bool AreColorsEqual(IColor one, IColor two)
 		{
 			bool same =
 				one.A == two.A &&
@@ -174,7 +174,7 @@ namespace test
 			Assert.AreEqual(c1,c2);
 		}
 
-		public static void AssertAreSimilar(IFColor e, IFColor a, double maxdiff = 0.0)
+		public static void AssertAreSimilar(IColor e, IColor a, double maxdiff = 0.0)
 		{
 			var dist = MetricHelpers.ColorDistance(e,a);
 			Assert.IsTrue(dist > 0.0,$"Difference was zero. Expected > 0.0");
@@ -196,7 +196,7 @@ namespace test
 			}
 		}
 
-		public static double FrameDistance(IFImage one, IFImage two)
+		public static double FrameDistance(IImage one, IImage two)
 		{
 			var black = ColorHelpers.Black;
 			int mw = Math.Max(one.Width,two.Width);

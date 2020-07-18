@@ -24,7 +24,7 @@ namespace ImageFunctions
 			}
 
 			//map / parse action specific arguments
-			IFFunction func = Registry.Map(Options.Which);
+			IFunction func = Registry.Map(Options.Which);
 			if (!MapOptions(func)) {
 				return;
 			}
@@ -45,9 +45,9 @@ namespace ImageFunctions
 			}
 		}
 
-		static bool MapOptions(IFFunction func)
+		static bool MapOptions(IFunction func)
 		{
-			IFGenerator iGen = func as IFGenerator;
+			IGenerator iGen = func as IGenerator;
 			//generators must be given a size
 			if (iGen != null) {
 				if (Options.Bounds == Rectangle.Empty) {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace ImageFunctions.PixelateDetails
 {
-	public class Processor : IFAbstractProcessor
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -19,7 +19,7 @@ namespace ImageFunctions.PixelateDetails
 			SplitAndAverage(Source,Bounds);
 		}
 
-		void SplitAndAverage(IFImage frame, Rectangle rect)
+		void SplitAndAverage(IImage frame, Rectangle rect)
 		{
 			//Log.Debug("SplitAndAverage "+rect.DebugString());
 			if (rect.Width < 1 || rect.Height < 1) { return; }
@@ -84,7 +84,7 @@ namespace ImageFunctions.PixelateDetails
 			}
 		}
 
-		static double Measure(IFImage frame, Rectangle rect)
+		static double Measure(IImage frame, Rectangle rect)
 		{
 			if (rect.Width < 2 || rect.Height < 2) {
 				var c = frame[rect.Left,rect.Top];
@@ -96,7 +96,7 @@ namespace ImageFunctions.PixelateDetails
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
 					int num = 0;
-					IFColor? c = null,n = null,e = null,s = null,w = null;
+					IColor? c = null,n = null,e = null,s = null,w = null;
 					c = frame[x,y];
 					if (x > rect.Left)     { w = frame[x-1,y]; num++; }
 					if (x < rect.Right-1)  { e = frame[x+1,y]; num++; }
@@ -116,7 +116,7 @@ namespace ImageFunctions.PixelateDetails
 			return sum / (rect.Width * rect.Height);
 		}
 
-		IFColor FindAverage(IFImage frame, Rectangle rect)
+		IColor FindAverage(IImage frame, Rectangle rect)
 		{
 			double r=0.0, g=0.0, b=0.0;
 
@@ -130,7 +130,7 @@ namespace ImageFunctions.PixelateDetails
 				}
 			}
 			double den = rect.Width * rect.Height;
-			var avg = new IFColor(
+			var avg = new IColor(
 				 r / den
 				,g / den
 				,b / den
@@ -139,7 +139,7 @@ namespace ImageFunctions.PixelateDetails
 			return avg;
 		}
 
-		void ReplaceWithColor(IFImage frame, Rectangle rect, IFColor color)
+		void ReplaceWithColor(IImage frame, Rectangle rect, IColor color)
 		{
 			// Log.Debug("ReplaceWithColor r="+rect.DebugString());
 			//var red = default(TPixel);
@@ -160,7 +160,7 @@ namespace ImageFunctions.PixelateDetails
 			}
 		}
 
-		static double GetPixelValue(IFColor? p)
+		static double GetPixelValue(IColor? p)
 		{
 			if (!p.HasValue) { return 0.0; }
 			var c = p.Value;
@@ -181,7 +181,7 @@ namespace ImageFunctions.PixelateDetails
 				return a.Value > b.Value;
 			}
 
-			public static SortPair FromRect(IFImage frame,Rectangle r)
+			public static SortPair FromRect(IImage frame,Rectangle r)
 			{
 				double m = Measure(frame,r);
 				return new SortPair {
