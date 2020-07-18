@@ -25,6 +25,8 @@ namespace ImageFunctions
 			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 			sb.WL(1,"--engine (name)"        ,"Select image engine (default SixLabors)");
 			sb.WL(1,"--colors"               ,"List available colors");
+			sb.WL();
+			sb.WL(0,"Available Engines:");
 			sb.PrintEnum<PickEngine>(1);
 
 			if (showFull)
@@ -52,7 +54,7 @@ namespace ImageFunctions
 			{
 				if (showActions) {
 					sb.WL();
-					sb.WL(0,"Actions:");
+					sb.WL(0,"Available Actions:");
 					OptionsHelpers.PrintEnum<Activity>(sb);
 				}
 
@@ -132,6 +134,14 @@ namespace ImageFunctions
 					return false;
 				}
 				MaxDegreeOfParallelism = mdop;
+			}
+
+			var oeng = p.Default("--engine",out PickEngine eng, PickEngine.SixLabors);
+			if (oeng.IsInvalid()) {
+				return false;
+			}
+			else if (oeng.IsGood()) {
+				Engine = eng;
 			}
 
 			if (ShowFullHelp || ShowHelpActions || ShowColorList) {

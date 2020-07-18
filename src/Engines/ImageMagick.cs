@@ -87,7 +87,7 @@ namespace ImageFunctions.Engines.ImageMagick
 		{
 			var fs = File.Open(path,FileMode.CreateNew,FileAccess.Write,FileShare.Read);
 			using (fs) {
-				NativeImage.Write(fs);
+				NativeImage.Write(fs,MagickFormat.Png);
 			}
 		}
 
