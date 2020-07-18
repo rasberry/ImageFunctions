@@ -14,7 +14,7 @@ namespace ImageFunctions.Swirl
 			double swirlTwists = O.Rotations;
 			double swirlx, swirly;
 			Rectangle rect = this.Bounds;
-			var Iis = Engines.Engine.GetConfig();
+			var Iis = Registry.GetImageEngine();
 
 			if (O.RadiusPx != null) {
 				swirlRadius = O.RadiusPx.Value;

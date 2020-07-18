@@ -10,7 +10,7 @@ namespace ImageFunctions
 	{
 		public void Main()
 		{
-			var Iic = Engines.Engine.GetConfig();
+			var Iic = Registry.GetImageEngine();
 			using(var proc = CreateProcessor()) {
 				proc.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 

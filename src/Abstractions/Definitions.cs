@@ -54,6 +54,13 @@ namespace ImageFunctions
 		Transparent = 3
 	}
 
+	public enum PickEngine
+	{
+		None = 0,
+		ImageMagick = 1,
+		SixLabors = 2
+	}
+
 	public interface IHasSampler
 	{
 		ISampler Sampler { get; }
@@ -136,7 +143,7 @@ namespace ImageFunctions
 		void Main();
 	}
 
-	public interface IImageConfig
+	public interface IImageEngine
 	{
 		IImage LoadImage(string path);
 		void SaveImage(IImage img, string path);
@@ -148,7 +155,7 @@ namespace ImageFunctions
 		Size StartingSize { get; }
 	}
 
-	public interface IDrawConfig
+	public interface IDrawEngine
 	{
 		void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0);
 	}

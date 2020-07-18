@@ -23,7 +23,9 @@ namespace ImageFunctions
 			sb.WL(1,"--actions"              ,"List possible actions");
 			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectagular area (defaults to entire image)");
 			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
+			sb.WL(1,"--engine (name)"        ,"Select image engine (default SixLabors)");
 			sb.WL(1,"--colors"               ,"List available colors");
+			sb.PrintEnum<PickEngine>(1);
 
 			if (showFull)
 			{
@@ -152,6 +154,7 @@ namespace ImageFunctions
 		public static Rectangle Bounds { get; private set; } = Rectangle.Empty;
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		public static object OptionHelpers { get; private set; }
+		public static PickEngine Engine { get; private set; } = PickEngine.SixLabors;
 
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;

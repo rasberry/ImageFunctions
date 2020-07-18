@@ -49,5 +49,40 @@ namespace ImageFunctions
 		public static IMeasurer DefaultMetric { get {
 			return Map(Metric.Euclidean);
 		}}
+
+		static IImageEngine CachedImageEngine = null;
+		public static IImageEngine GetImageEngine()
+		{
+			if (CachedImageEngine != null) {
+				return CachedImageEngine;
+			}
+
+			switch(Options.Engine)
+			{
+			case PickEngine.ImageMagick:
+				return CachedImageEngine = new Engines.ImageMagick.IMImageEngine();
+			case PickEngine.SixLabors:
+				return CachedImageEngine = new Engines.SixLabors.SLImageEngine();
+			}
+			throw new NotSupportedException($"Engine {Options.Engine} is not supported as an image engine");
+		}
+
+		static IDrawEngine CachedDrawEngine = null;
+		public static IDrawEngine GetDrawEngine()
+		{
+			if (CachedDrawEngine != null) {
+				return CachedDrawEngine;
+			}
+
+			switch(Options.Engine)
+			{
+			case PickEngine.ImageMagick:
+				return CachedDrawEngine = new Engines.ImageMagick.IMImageEngine();
+			case PickEngine.SixLabors:
+				return CachedDrawEngine = new Engines.SixLabors.SLImageEngine();
+			}
+			throw new NotSupportedException($"Engine {Options.Engine} is not supported as a draw engine");
+		}
+
 	}
 }

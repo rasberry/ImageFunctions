@@ -25,7 +25,7 @@ namespace ImageFunctions.ImgDiff
 
 		public override void Apply()
 		{
-			var Iis = Engines.Engine.GetConfig();
+			var Iis = Registry.GetImageEngine();
 			var frame = Source;
 			using (var progress = new ProgressBar())
 			using (var compareImg = Iis.LoadImage(O.CompareImage))

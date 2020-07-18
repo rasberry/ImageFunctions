@@ -12,7 +12,7 @@ namespace ImageFunctions.Encrypt
 		{
 			var frame = Source;
 			var rect = Bounds;
-			var Iis = Engines.Engine.GetConfig();
+			var Iis = Registry.GetImageEngine();
 
 			Encryptor processor = new Encryptor();
 			using (var progress = new ProgressBar())

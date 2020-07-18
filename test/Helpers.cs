@@ -111,7 +111,7 @@ namespace test
 
 		public static bool AreImagesEqual(string one, string two)
 		{
-			var iis = ImageFunctions.Engines.Engine.GetConfig();
+			var iis = ImageFunctions.Registry.GetImageEngine();
 			// Log.Debug($"AreImagesEqual one={one} two={two}");
 			var iOne = iis.LoadImage(one);
 			var iTwo = iis.LoadImage(two);
@@ -187,7 +187,7 @@ namespace test
 
 		public static double ImageDistance(string one, string two)
 		{
-			var iis = ImageFunctions.Engines.Engine.GetConfig();
+			var iis = ImageFunctions.Registry.GetImageEngine();
 			var iOne = iis.LoadImage(one);
 			var iTwo = iis.LoadImage(two);
 			using (iOne) using(iTwo) {

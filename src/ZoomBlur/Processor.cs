@@ -11,7 +11,7 @@ namespace ImageFunctions.ZoomBlur
 
 		public override void Apply()
 		{
-			Iic = Engines.Engine.GetConfig();
+			Iic = Registry.GetImageEngine();
 			using (var progress = new ProgressBar())
 			using (var canvas = Iic.NewImage(Bounds.Width,Bounds.Height)) {
 				double w2 = Bounds.Width / 2.0;
@@ -85,7 +85,7 @@ namespace ImageFunctions.ZoomBlur
 		}
 
 		public override void Dispose() {}
-		IImageConfig Iic = null;
+		IImageEngine Iic = null;
 	}
 
 }

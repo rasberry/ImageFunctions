@@ -7,8 +7,8 @@ namespace ImageFunctions.Test
 	{
 		public override void Apply()
 		{
-			var Iis = Engines.Engine.GetConfig();
-			var Idc = Engines.Engine.GetDrawable();
+			var Iis = Registry.GetImageEngine();
+			var Idc = Registry.GetDrawEngine();
 			Random r = new Random();
 
 			for(int i=0; i<10; i++) {

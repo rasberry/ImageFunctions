@@ -1,7 +1,6 @@
 
 using System;
 using ImageFunctions.Helpers;
-using ImageFunctions.Engines;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using ImageFunctions;
@@ -16,7 +15,7 @@ namespace test
 			if (_img == null) {
 				// ImageFunctions/wiki/img/flower.png
 				string file = (string)Helpers.InFile(Tuple.Create("flower"))[0];
-				var Iis = Engine.GetConfig();
+				var Iis = Registry.GetImageEngine();
 				_img = Iis.LoadImage(file);
 			}
 			return _img;

@@ -11,7 +11,7 @@ namespace ImageFunctions.AreaSmoother
 
 		public override void Apply()
 		{
-			var Iis = Engines.Engine.GetConfig();
+			var Iis = Registry.GetImageEngine();
 			var frame = Source;
 			var rect = Bounds;
 

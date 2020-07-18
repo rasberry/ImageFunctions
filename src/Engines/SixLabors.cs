@@ -9,7 +9,7 @@ using SixLabors.Primitives;
 
 namespace ImageFunctions.Engines.SixLabors
 {
-	public class SLImageConfig : IImageConfig, IDrawConfig
+	public class SLImageEngine : IImageEngine, IDrawEngine
 	{
 		public IImage LoadImage(string path)
 		{

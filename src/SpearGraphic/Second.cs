@@ -175,7 +175,7 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static IDrawConfig Idc = Engines.Engine.GetDrawable();
+		static IDrawEngine Idc = Registry.GetDrawEngine();
 		static void DrawLine(IImage img,Color c,double x0, double y0, double x1, double y1)
 		{
 			var nc = ImageHelpers.RgbaToNative(c);

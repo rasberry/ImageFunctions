@@ -6,9 +6,9 @@ using QType = System.Single;
 
 namespace ImageFunctions.Engines.ImageMagick
 {
-	public class IMImageConfig : IImageConfig, IDrawConfig
+	public class IMImageEngine : IImageEngine, IDrawEngine
 	{
-		static IMImageConfig()
+		static IMImageEngine()
 		{
 			MagickNET.SetTempDirectory(Environment.CurrentDirectory);
 			//Log.Debug($"Quantum = {Quantum.Depth} {Quantum.Max}");

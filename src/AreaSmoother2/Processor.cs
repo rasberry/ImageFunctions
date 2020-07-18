@@ -13,7 +13,7 @@ namespace ImageFunctions.AreaSmoother2
 		{
 			var frame = Source;
 			var rect = Bounds;
-			var Iis = Engines.Engine.GetConfig();
+			var Iis = Registry.GetImageEngine();
 
 			using (var progress = new ProgressBar())
 			using (var canvas = Iis.NewImage(rect.Width,rect.Height))
