@@ -113,8 +113,8 @@ namespace ImageFunctions.Helpers
 		public static string GetColorName(Color c)
 		{
 			string name = c.Name;
-			if (!String.IsNullOrEmpty(name)) { return name; }
 			if (StringComparer.OrdinalIgnoreCase.Equals(c,ColorRebeccaPurple)) { return NameRebeccaPurple; }
+			if (!String.IsNullOrEmpty(name)) { return name; }
 			return null;
 		}
 

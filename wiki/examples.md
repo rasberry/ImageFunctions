@@ -15,3 +15,4 @@ Examples are categorized by Action
 * [SpearGraphic](ex_speargraphic)
 * [ColatzVis](ex_colatzvis)
 * [UlamSpiral](ex_ulamspiral)
+* [Test](ex_test)

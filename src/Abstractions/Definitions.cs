@@ -122,9 +122,6 @@ namespace ImageFunctions
 
 		public readonly double R,G,B,A;
 
-		//public static double MinValue = 0.0;
-		//public static double MaxValue = 1.0;
-
 		public override string ToString() {
 			return $"{nameof(IColor)} [{R},{G},{B},{A}]";
 		}

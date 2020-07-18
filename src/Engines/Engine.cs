@@ -1,7 +1,7 @@
 using System;
 
 namespace ImageFunctions.Engines
-{	
+{
 	public enum PickEngine
 	{
 		None = 0,

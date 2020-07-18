@@ -123,7 +123,6 @@ namespace ImageFunctions.AllColors
 					if (!rect.Contains(x,y)) { continue; }
 				}
 
-				// var color = new Rgba32((uint)i); //RGBA order
 				var color = ToColor(i);
 				cList.Add(color);
 			}
@@ -132,9 +131,9 @@ namespace ImageFunctions.AllColors
 
 		static Color ToColor(int color)
 		{
-			int r = (color >> 24) & 255;
-			int g = (color >> 16) & 255;
-			int b = (color >> 08) & 255;
+			int r = (color >> 00) & 255;
+			int g = (color >> 08) & 255;
+			int b = (color >> 16) & 255;
 			return Color.FromArgb(255,r,g,b);
 		}
 
