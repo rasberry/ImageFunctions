@@ -1,9 +1,4 @@
 # TODO #
-## In-Progress ##
-* Create tests for ToHex and FromHex
-* need color lists
-* need to test samplers and convolution
-* need replacement for colorspaces (maybe.. only used in allcolors)
 
 ## General ##
 * maybe color the 'usage' text a little ?
@@ -55,12 +50,11 @@
   * plot result of x^2 + y^2 distance from whole number
   * add option to change exponent (2 is the only one that has answers to x^2+y^2=z^2)
   * add option to change starting point
-* ulam spiral
-  * option for starting at a different prime
-  * option for coloring multiples
-  * option for switching direction (ccw vs cw)
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
+
+## AllColors ##
+* https://en.wikipedia.org/wiki/Adobe_RGB_color_space
 
 ## AreaSmoother ##
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector
@@ -106,3 +100,7 @@
 ## UlamSpiral ##
 * add support for color pallete
   * see https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
+  * option for starting at a different prime
+  * option for coloring multiples
+  * option for switching direction (ccw vs cw)
+
