@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using ImageMagick;
 //using System.Linq;
@@ -6,7 +7,7 @@ using QType = System.Single;
 
 namespace ImageFunctions.Engines.ImageMagick
 {
-	public class IMImageEngine : IImageEngine, IDrawEngine
+	public class IMImageEngine : IImageEngine, IDrawEngine, IFormatGuide
 	{
 		static IMImageEngine()
 		{
@@ -25,10 +26,10 @@ namespace ImageFunctions.Engines.ImageMagick
 			return new IMImage(width,height);
 		}
 
-		public void SaveImage(IImage img, string path)
+		public void SaveImage(IImage img, string path, string format = null)
 		{
 			var image = img as IMImage;
-			image.Save(path);
+			image.Save(path, format);
 		}
 
 		// http://www.graphicsmagick.org/Magick++/Drawable.html
@@ -40,6 +41,27 @@ namespace ImageFunctions.Engines.ImageMagick
 			var d1 = new DrawableStrokeWidth(width);
 			var d2 = new DrawableLine(p0.X,p0.Y,p1.X,p1.Y);
 			nativeImage.NativeImage.Draw(d0,d1,d2);
+		}
+
+		public IEnumerable<string> ListFormatNames()
+		{
+			foreach(MagickFormat mf in Enum.GetValues(typeof(MagickFormat))) {
+				var info = MagickFormatInfo.Create(mf);
+				if (info != null && info.IsWritable) {
+					yield return mf.ToString();
+				}
+			}
+		}
+
+		public string GetFormatDescription(string formatName)
+		{
+			if (String.IsNullOrWhiteSpace(formatName)) { return ""; }
+			bool w = Enum.TryParse<MagickFormat>(formatName,true,out MagickFormat mf);
+			if (w) {
+				var info = MagickFormatInfo.Create(mf);
+				return info.Description;
+			}
+			return "";
 		}
 
 	}
@@ -83,11 +105,24 @@ namespace ImageFunctions.Engines.ImageMagick
 		//	return $"pix {p.Channels} [{p.X} {p.Y}] ({String.Join(',',p.ToArray())})";
 		//}
 
-		public void Save(string path)
+		public void Save(string path, string format = null)
 		{
+			if (String.IsNullOrWhiteSpace(format)) {
+				format = Path.GetExtension(path);
+			}
+
+			bool good = Enum.TryParse<MagickFormat>(format,true,out MagickFormat mf);
+			if (good) {
+				var info = MagickFormatInfo.Create(mf);
+				good = info != null && info.IsWritable;
+			}
+			if (!good) {
+				throw new NotSupportedException($"Format '{format??""}' is not supported");
+			}
+
 			var fs = File.Open(path,FileMode.CreateNew,FileAccess.Write,FileShare.Read);
 			using (fs) {
-				NativeImage.Write(fs,MagickFormat.Png);
+				NativeImage.Write(fs,mf);
 			}
 		}
 
@@ -168,26 +203,3 @@ namespace ImageFunctions.Engines.ImageMagick
 		}
 	}
 }
-
-		//// https://www.rapidtables.com/convert/color/cmyk-to-rgb.html
-		//static IFColor CYMKToRGB(IMagickColor<float> color)
-		//{
-		//	float km = 1.0f - color.K;
-		//	float r = Quantum.Max * (1.0f - color.R) * km;
-		//	float g = Quantum.Max * (1.0f - color.G) * km;
-		//	float b = Quantum.Max * (1.0f - color.B) * km;
-		//	return new IFColor { R = r, G = g, B = b, A = color.A };
-		//}
-
-		//// https://www.rapidtables.com/convert/color/rgb-to-cmyk.html
-		//static IMagickColor<float> RGBToCMYK(IFColor color)
-		//{
-		//	float r = color.R / Quantum.Max;
-		//	float g = color.G / Quantum.Max;
-		//	float b = color.B / Quantum.Max;
-		//	float k = 1.0f - Math.Max(Math.Max(r,g),b);
-		//	float c = 1.0f - r - k;
-		//	float m = 1.0f - g - k;
-		//	float y = 1.0f - b - k;
-		//	return new MagickColor(c,m,y,k,color.A);
-		//}

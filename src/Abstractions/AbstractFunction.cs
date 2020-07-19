@@ -30,7 +30,7 @@ namespace ImageFunctions
 				}
 				proc.Bounds = Bounds;
 				proc.Apply();
-				Iic.SaveImage(img,OutImage);
+				Iic.SaveImage(img,OutImage,Options.ImageFormat);
 			}
 		}
 

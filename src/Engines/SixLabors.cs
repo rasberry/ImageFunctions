@@ -1,15 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.Primitives;
 
 namespace ImageFunctions.Engines.SixLabors
 {
-	public class SLImageEngine : IImageEngine, IDrawEngine
+	public class SLImageEngine : IImageEngine, IDrawEngine, IFormatGuide
 	{
 		public IImage LoadImage(string path)
 		{
@@ -21,10 +22,10 @@ namespace ImageFunctions.Engines.SixLabors
 			return new SLImage(width,height);
 		}
 
-		public void SaveImage(IImage img, string path)
+		public void SaveImage(IImage img, string path, string format = null)
 		{
 			var image = img as SLImage;
-			image.Save(path);
+			image.Save(path, format);
 		}
 
 		public void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0)
@@ -39,6 +40,31 @@ namespace ImageFunctions.Engines.SixLabors
 			nativeImage.image.Mutate((ctx) => {
 				ctx.DrawLines(go,c,(float)width,f0,f1);
 			});
+		}
+
+		public IEnumerable<string> ListFormatNames()
+		{
+			var Ifm = Configuration.Default.ImageFormatsManager;
+			foreach(var f in Ifm.ImageFormats) {
+				var enc = Ifm.FindEncoder(f);
+				if (enc != null) {
+					yield return f.Name;
+				}
+			}
+		}
+
+		public string GetFormatDescription(string formatName)
+		{
+			if (String.IsNullOrWhiteSpace(formatName)) { return null; }
+			var Ifm = Configuration.Default.ImageFormatsManager;
+			//Name doesn't seem to be have a built-in search, so using slow search for now
+			foreach(var f in Ifm.ImageFormats) {
+				bool e = StringComparer.OrdinalIgnoreCase.Equals(f.Name,formatName);
+				if (e) {
+					return $"{f.DefaultMimeType} [{String.Join(",",f.FileExtensions)}]";
+				}
+			}
+			return null;
 		}
 	}
 
@@ -67,9 +93,28 @@ namespace ImageFunctions.Engines.SixLabors
 			}
 		}
 
-		public void Save(string fileName)
+		public void Save(string fileName, string format)
 		{
-			image.Save(fileName);
+			IImageEncoder enc = null;
+			if (format != null) {
+				var Ifm = Configuration.Default.ImageFormatsManager;
+				//Name doesn't seem to be have a built-in search, so using slow search for now
+				foreach(var f in Ifm.ImageFormats) {
+					bool e = StringComparer.OrdinalIgnoreCase.Equals(f.Name,format);
+					if (e) {
+						enc = Ifm.FindEncoder(f);
+						break;
+					}
+				}
+			}
+
+			if (enc != null) {
+				image.Save(fileName, enc);
+			}
+			else {
+				//tries to detect format based on extension
+				image.Save(fileName);
+			}
 		}
 
 		public int Width { get { return image.Width; }}
@@ -83,9 +128,7 @@ namespace ImageFunctions.Engines.SixLabors
 		}
 	}
 
-	/// <summary>
-	/// Color Type that uses IEEE 64-bit float to store color values
-	/// </summary>
+	//since native type is double, using a double based color should minimize conversions
 	struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 	{
 		public RgbaD(double r,double g,double b,double a)

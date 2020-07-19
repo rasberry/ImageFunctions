@@ -13,10 +13,12 @@ namespace ImageFunctions
 				Options.Usage();
 				return;
 			}
+			#if DEBUG
 			if (args[0] == "test") {
 				RunTest();
 				return;
 			}
+			#endif
 
 			//parse initial options - determines which action to do
 			if (!Options.Parse(args, out var pruned)) {
@@ -70,6 +72,7 @@ namespace ImageFunctions
 			return true;
 		}
 
+		#if DEBUG
 		static void RunTest()
 		{
 			//for(int i=0; i<=80; i++) {
@@ -90,5 +93,6 @@ namespace ImageFunctions
 				Log.Debug($"i={i} [{sb.ToString()}]");
 			}
 		}
+		#endif
 	}
 }

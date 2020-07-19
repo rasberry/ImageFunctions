@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
 using System.Text;
@@ -146,7 +147,7 @@ namespace ImageFunctions
 	public interface IImageEngine
 	{
 		IImage LoadImage(string path);
-		void SaveImage(IImage img, string path);
+		void SaveImage(IImage img, string path, string format = null);
 		IImage NewImage(int width, int height);
 	}
 
@@ -158,5 +159,11 @@ namespace ImageFunctions
 	public interface IDrawEngine
 	{
 		void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0);
+	}
+
+	public interface IFormatGuide
+	{
+		IEnumerable<string> ListFormatNames();
+		string GetFormatDescription(string formatName);
 	}
 }

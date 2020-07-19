@@ -62,6 +62,10 @@ namespace ImageFunctions.Helpers
 
 		public static Params.Result DefaultFile(this Params p,out string fileName, string template)
 		{
+			//defaulting to png since it's a good general-purpose format
+			string noext = Path.GetFileNameWithoutExtension(template);
+			template = $"{noext}.{Options.ImageFormat ?? "png"}";
+
 			if (p.Default(out fileName).IsBad()) {
 				fileName = CreateOutputFileName(template);
 			}
@@ -120,9 +124,9 @@ namespace ImageFunctions.Helpers
 
 		public static string CreateOutputFileName(string input)
 		{
-			//string ex = Path.GetExtension(input);
+			string ext = (Path.GetExtension(input) ?? "").ToLowerInvariant();
 			string name = Path.GetFileNameWithoutExtension(input);
-			string outFile = $"{name}-{DateTime.Now.ToString("yyyyMMdd-HHmmss")}.png";
+			string outFile = $"{name}-{DateTime.Now.ToString("yyyyMMdd-HHmmss")}{ext}";
 			return outFile;
 		}
 

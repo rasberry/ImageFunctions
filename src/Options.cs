@@ -10,26 +10,28 @@ namespace ImageFunctions
 	{
 		public static void Usage(Activity action = Activity.None)
 		{
-			string text = GetUsageText(action,ShowFullHelp,ShowHelpActions);
+			string text = GetUsageText(action,WhichShow);
 			Log.Message(text);
 		}
 
-		public static string GetUsageText(Activity action, bool showFull, bool showActions)
+		public static string GetUsageText(Activity action, PickShow show)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.WL(0,"Usage "+nameof(ImageFunctions)+" (action) [options]");
 			sb.WL(1,"-h / --help"            ,"Show full help");
 			sb.WL(1,"(action) -h"            ,"Action specific help");
-			sb.WL(1,"--actions"              ,"List possible actions");
 			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectagular area (defaults to entire image)");
+			sb.WL(1,"--format (name)"        ,"Save any output files as specified format");
 			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 			sb.WL(1,"--engine (name)"        ,"Select image engine (default SixLabors)");
+			sb.WL(1,"--actions"              ,"List possible actions");
 			sb.WL(1,"--colors"               ,"List available colors");
+			sb.WL(1,"--formats"              ,"List output formats");
 			sb.WL();
 			sb.WL(0,"Available Engines:");
 			sb.PrintEnum<PickEngine>(1);
 
-			if (showFull)
+			if (show.HasFlag(PickShow.FullHelp))
 			{
 				foreach(Activity a in OptionsHelpers.EnumAll<Activity>()) {
 					IFunction func = Registry.Map(a);
@@ -38,6 +40,7 @@ namespace ImageFunctions
 				SamplerHelp(sb);
 				MetricHelp(sb);
 				ColorsHelp(sb);
+				FormatsHelp(sb);
 			}
 			else if (action != Activity.None)
 			{
@@ -52,14 +55,16 @@ namespace ImageFunctions
 			}
 			else
 			{
-				if (showActions) {
+				if (show.HasFlag(PickShow.Actions)) {
 					sb.WL();
 					sb.WL(0,"Available Actions:");
 					OptionsHelpers.PrintEnum<Activity>(sb);
 				}
-
-				if (ShowColorList) {
+				if (show.HasFlag(PickShow.ColorList)) {
 					ColorsHelp(sb);
+				}
+				if(show.HasFlag(PickShow.Formats)) {
+					FormatsHelp(sb);
 				}
 			}
 
@@ -92,6 +97,18 @@ namespace ImageFunctions
 			}
 		}
 
+		static void FormatsHelp(StringBuilder sb)
+		{
+			sb.WL();
+			sb.WL(0,"Available Formats:");
+			sb.WL(0,"Note: Formats are engine specific");
+			var guide = Registry.GetFormatGuide();
+			foreach(string f in guide.ListFormatNames()) {
+				var desc = guide.GetFormatDescription(f);  
+				sb.WL(0,f,desc ?? "");
+			}
+		}
+
 		public static bool Parse(string[] args, out string[] prunedArgs)
 		{
 			var p = new Params(args);
@@ -103,17 +120,30 @@ namespace ImageFunctions
 
 			if (p.Has("-h","--help").IsGood()) {
 				if (w == Activity.None) {
-					ShowFullHelp = true;
+					WhichShow |= PickShow.FullHelp;
 				}
 				else {
-					ShowHelpActions = true;
+					WhichShow |= PickShow.Actions;
 				}
 			}
+
+			//engine selection needs to happen before other engine specific options
+			var oeng = p.Default("--engine",out PickEngine eng, PickEngine.SixLabors);
+			if (oeng.IsInvalid()) {
+				return false;
+			}
+			else if (oeng.IsGood()) {
+				Engine = eng;
+			}
+
 			if (p.Has("--actions").IsGood()) {
-				ShowHelpActions = true;
+				WhichShow |= PickShow.Actions;
 			}
 			if (p.Has("--colors").IsGood()) {
-				ShowColorList = true;
+				WhichShow |= PickShow.ColorList;
+			}
+			if (p.Has("--formats").IsGood()) {
+				WhichShow |= PickShow.Formats;
 			}
 
 			var orect = p.Default(new string[] { "-#","--rect"},out Rectangle rect);
@@ -136,15 +166,15 @@ namespace ImageFunctions
 				MaxDegreeOfParallelism = mdop;
 			}
 
-			var oeng = p.Default("--engine",out PickEngine eng, PickEngine.SixLabors);
-			if (oeng.IsInvalid()) {
+			var ofmt = p.Default("--format",out string fmt);
+			if (ofmt.IsInvalid()) {
 				return false;
 			}
-			else if (oeng.IsGood()) {
-				Engine = eng;
+			else if (ofmt.IsGood()) {
+				ImageFormat = fmt;
 			}
 
-			if (ShowFullHelp || ShowHelpActions || ShowColorList) {
+			if (WhichShow != PickShow.None) {
 				Usage(w);
 				return false;
 			}
@@ -165,9 +195,19 @@ namespace ImageFunctions
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		public static object OptionHelpers { get; private set; }
 		public static PickEngine Engine { get; private set; } = PickEngine.SixLabors;
+		public static string ImageFormat { get; private set; } = null;
 
-		static bool ShowFullHelp = false;
-		static bool ShowHelpActions = false;
-		static bool ShowColorList = false;
+		static PickShow WhichShow = PickShow.None;
+		
+		[Flags]
+		public enum PickShow
+		{
+			None      = 0,
+			FullHelp  = 1,
+			Actions   = 2,
+			ColorList = 4,
+			Formats   = 8
+		}
+
 	}
 }
