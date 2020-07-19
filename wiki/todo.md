@@ -1,9 +1,4 @@
 # TODO #
-## In-Progress ##
-* Create tests for ToHex and FromHex
-* need color lists
-* need to test samplers and convolution
-* need replacement for colorspaces (maybe.. only used in allcolors)
 
 ## General ##
 * maybe color the 'usage' text a little ?
@@ -58,6 +53,9 @@
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
 
+## AllColors ##
+* https://en.wikipedia.org/wiki/Adobe_RGB_color_space
+
 ## AreaSmoother ##
 * create an areasmoother that samples surrounding pixels then weighted-averages them based on distance - similar to original but without picking the 'best' vector
 * AS2 has an off-by-one error when using --rect option
@@ -102,6 +100,6 @@
 ## UlamSpiral ##
 * add support for color pallete
   * see https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
-* option for starting at a different prime
-* option for coloring multiples
-* option for switching direction (ccw vs cw)
+  * option for starting at a different prime
+  * option for coloring multiples
+  * option for switching direction (ccw vs cw)
