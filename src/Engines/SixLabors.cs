@@ -112,7 +112,7 @@ namespace ImageFunctions.Engines.SixLabors
 				image.Save(fileName, enc);
 			}
 			else {
-				//tries to detect format based on extension
+				//detects format based on extension
 				image.Save(fileName);
 			}
 		}
