@@ -67,21 +67,24 @@ namespace ImageFunctions
 			throw new NotSupportedException($"Engine {Options.Engine} is not supported as an image engine");
 		}
 
-		static IDrawEngine CachedDrawEngine = null;
 		public static IDrawEngine GetDrawEngine()
 		{
-			if (CachedDrawEngine != null) {
-				return CachedDrawEngine;
+			var iie = GetImageEngine();
+			var ide = iie as IDrawEngine;
+			if (ide == null) {
+				throw new NotSupportedException($"Engine {Options.Engine} is not supported as a draw engine");
 			}
+			return ide;
+		}
 
-			switch(Options.Engine)
-			{
-			case PickEngine.ImageMagick:
-				return CachedDrawEngine = new Engines.ImageMagick.IMImageEngine();
-			case PickEngine.SixLabors:
-				return CachedDrawEngine = new Engines.SixLabors.SLImageEngine();
+		public static IFormatGuide GetFormatGuide()
+		{
+			var iie = GetImageEngine();
+			var ifg = iie as IFormatGuide;
+			if (ifg == null) {
+				throw new NotSupportedException($"Engine {Options.Engine} is not supported as a format guide");
 			}
-			throw new NotSupportedException($"Engine {Options.Engine} is not supported as a draw engine");
+			return ifg;
 		}
 
 	}

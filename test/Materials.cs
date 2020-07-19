@@ -46,7 +46,7 @@ namespace test
 
 		static void BuildUsage()
 		{
-			string text = Options.GetUsageText(Activity.None,true,false);
+			string text = Options.GetUsageText(Activity.None, Options.PickShow.FullHelp);
 			string usage = string.Format(TemplateUsage,text);
 
 			string file = Path.Combine(Helpers.WikiRoot,"usage.md");
