@@ -1,26 +1,15 @@
 using System;
+using System.Drawing;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.UlamSpiral
 {
 	public class Function : AbstractFunction, IGenerator
 	{
 		public Size StartingSize { get {
-			return new Size(1024,1024);
+			return new Size { Width = 1024, Height = 1024 };
 		}}
-
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
-		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
 
 		public override bool ParseArgs(string[] args)
 		{
@@ -81,14 +70,14 @@ namespace ImageFunctions.UlamSpiral
 				O.ColorPrimesForce = false; //this is redundant when using -6m so turn it off
 			}
 			if (O.ColorPrimesBy6m) {
-				if (!O.Color2.HasValue) { O.Color2 = Color.LimeGreen; }
-				if (!O.Color4.HasValue) { O.Color4 = Color.IndianRed; }
+				if (!O.Color2.HasValue) { O.Color2 = ColorHelpers.LimeGreen; }
+				if (!O.Color4.HasValue) { O.Color4 = ColorHelpers.IndianRed; }
 			}
 			if (O.ColorComposites) {
-				if (!O.Color3.HasValue) { O.Color3 = Color.White; }
+				if (!O.Color3.HasValue) { O.Color3 = ColorHelpers.White; }
 			}
-			if (!O.Color1.HasValue) { O.Color1 = Color.Black; }
-			if (!O.Color2.HasValue) { O.Color2 = Color.White; }
+			if (!O.Color1.HasValue) { O.Color1 = ColorHelpers.Black; }
+			if (!O.Color2.HasValue) { O.Color2 = ColorHelpers.White; }
 
 			return true;
 		}
@@ -143,11 +132,12 @@ namespace ImageFunctions.UlamSpiral
 			return "";
 		}
 
-		public override void Main()
+		protected override AbstractProcessor CreateProcessor()
 		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
 	}
+
 }

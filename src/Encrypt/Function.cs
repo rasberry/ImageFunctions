@@ -2,13 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Encrypt
 {
@@ -88,6 +81,23 @@ namespace ImageFunctions.Encrypt
 			return true;
 		}
 
+		public override void Usage(StringBuilder sb)
+		{
+			string name = OptionsHelpers.FunctionName(Activity.Encrypt);
+			sb.WL();
+			sb.WL(0,name + " [options] (input image) [output image]");
+			sb.WL(1,"Encrypt or Decrypts all or parts of an image");
+			sb.WL(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
+			sb.WL(1,"-d"            ,"Enable decryption (default is to encrypt)");
+			sb.WL(1,"-p (text)"     ,"Password used to encrypt / decrypt image");
+			sb.WL(1,"-pi"           ,"Ask for the password on the command prompt (instead of -p)");
+			sb.WL(1,"-raw"          ,"Treat password text as a raw string (shell escaping still applies)");
+			sb.WL(1,"-iv (text)"    ,"Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
+			sb.WL(1,"-salt (text)"  ,"Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
+			sb.WL(1,"-iter (number)","Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
+			sb.WL(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
+		}
+
 		bool TryPromptForPassword(out string pass)
 		{
 			pass = null;
@@ -122,37 +132,12 @@ namespace ImageFunctions.Encrypt
 			return sb.ToString();
 		}
 
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
+		protected override AbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
-		public override void Usage(StringBuilder sb)
-		{
-			string name = OptionsHelpers.FunctionName(Activity.Encrypt);
-			sb.WL();
-			sb.WL(0,name + " [options] (input image) [output image]");
-			sb.WL(1,"Encrypt or Decrypts all or parts of an image");
-			sb.WL(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
-			sb.WL(1,"-d"            ,"Enable decryption (default is to encrypt)");
-			sb.WL(1,"-p (text)"     ,"Password used to encrypt / decrypt image");
-			sb.WL(1,"-pi"           ,"Ask for the password on the command prompt (instead of -p)");
-			sb.WL(1,"-raw"          ,"Treat password text as a raw string (shell escaping still applies)");
-			sb.WL(1,"-iv (text)"    ,"Initialization Vector - must be exactly "+Encryptor.BlockSizeInBytes+" bytes");
-			sb.WL(1,"-salt (text)"  ,"Encryption salt parameter - must be at least "+Encryptor.MinSaltBytes+" bytes long");
-			sb.WL(1,"-iter (number)","Number of RFC-2898 rounds to use (default "+Encryptor.DefaultIterations+")");
-			sb.WL(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
-		}
-
-		public override void Main()
-		{
-			Main<Rgba32>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
 	}
+
 }

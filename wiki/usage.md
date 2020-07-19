@@ -114,21 +114,13 @@ Usage ImageFunctions (action) [options]
  8. Luminance2020             Luminance BT.2020
 
  Available Spaces
-  1. RGB                      
-  2. HSV                      
-  3. HSL                      
-  4. HSI                      
-  5. YCbCr                    
-  6. CieLab                   
-  7. CieLch                   
-  8. CieLchuv                 
-  9. CieLuv                   
- 10. CieXyy                   
- 11. CieXyz                   
- 12. Cmyk                     
- 13. HunterLab                
- 14. LinearRgb                
- 15. Lms                      
+ 1. RGB                       
+ 2. HSV                       
+ 3. HSL                       
+ 4. HSI                       
+ 5. YCbCr                     
+ 6. CieXyz                    
+ 7. Cmyk                      
 
 12. SpearGraphic [options] [output image]
  Creates a spear graphic

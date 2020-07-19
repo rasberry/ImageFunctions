@@ -2,11 +2,6 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Derivatives
 {
@@ -43,18 +38,9 @@ namespace ImageFunctions.Derivatives
 			sb.WL(1,"-a","Calculate absolute value difference");
 		}
 
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
+		protected override AbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
-		public override void Main()
-		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();

@@ -1,9 +1,7 @@
 using System;
 using System.Text;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.ColatzVis
 {
@@ -12,16 +10,6 @@ namespace ImageFunctions.ColatzVis
 		public Size StartingSize { get {
 			return new Size(256,256);
 		}}
-
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
-		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-
-		}
 
 		public override bool ParseArgs(string[] args)
 		{
@@ -58,9 +46,9 @@ namespace ImageFunctions.ColatzVis
 			#endif
 		}
 
-		public override void Main()
+		protected override AbstractProcessor CreateProcessor()
 		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();

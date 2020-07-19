@@ -75,12 +75,12 @@ namespace test
 			var one = Tuple.Create("one");
 			var eone = Helpers.Enumerate<string>(one);
 			bool bone = eone.Any((s) => s != "one");
-			Assert.IsFalse(bone);
+			Assert.IsFalse(bone,"Tuple contains something odd");
 
 			var three = Tuple.Create("three","three","three");
 			var ethree = Helpers.Enumerate<string>(three);
 			bool bthree = ethree.Any((s) => s != "three");
-			Assert.IsFalse(bthree);
+			Assert.IsFalse(bthree,"Tuple contains something odd");
 		}
 
 		[TestMethod]

@@ -1,12 +1,10 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Linq;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Helpers
 {
@@ -17,9 +15,9 @@ namespace ImageFunctions.Helpers
 			sb.WL(1,"--sampler (name)","Use given sampler (defaults to nearest pixel)");
 		}
 
-		public static Params.Result DefaultSampler(this Params p, out IResampler s, IResampler def = null)
+		public static Params.Result DefaultSampler(this Params p, out ISampler s, ISampler def = null)
 		{
-			s = def ?? Registry.DefaultResampler;
+			s = def ?? Registry.DefaultIFResampler;
 			var r = p.Default("--sampler",out Sampler sam);
 			if (r.IsBad()) {
 				return r;
@@ -199,67 +197,72 @@ namespace ImageFunctions.Helpers
 					val = (V)((object)clr); return true;
 				}
 			}
+			else if (t.Equals(typeof(IColor))) {
+				if (TryParseColor(sub,out var clr)) {
+					var ntv = ImageHelpers.RgbaToNative(clr);
+					val = (V)((object)ntv); return true;
+				}
+			}
 
 			return false;
 		}
 
 		public static bool TryParseColor(string sub, out Color color)
 		{
-			color = default(Color);
-			PopColorMap();
-
-			if (ColorMap.TryGetValue(sub,out string ColorName)) {
-				if (TryGetColorByName(ColorName, out color)) {
-					return true;
-				}
+			var try1 = ColorHelpers.FromName(sub);
+			if (try1.HasValue) {
+				color = try1.Value;
+				return true;
 			}
 
 			try {
-				color = Color.FromHex(sub);
+				color = ColorHelpers.FromHex(sub);
 				return true;
 			}
-			catch(ArgumentException) {
-				//don't crash here - follow the convention of returning false
-			}
+			//don't crash here - follow the convention of returning false
+			catch(ArgumentException) {}
+			catch(FormatException) {}
 
+			color = Color.Transparent;
 			return false;
 		}
 
-		static HashSet<string> ColorMap = null;
-		static void PopColorMap()
-		{
-			if (ColorMap != null) { return; }
-			ColorMap = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
-			var flags = BindingFlags.Public | BindingFlags.Static;
-			Type colorType = typeof(Color);
-			var fields = colorType.GetFields(flags);
+		//static HashSet<string> ColorMap = null;
+		//static void PopColorMap()
+		//{
+		//	if (ColorMap != null) { return; }
+		//	ColorMap = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
+		//	var flags = BindingFlags.Public | BindingFlags.Static;
+		//	Type colorType = typeof(Color);
+		//	var fields = colorType.GetFields(flags);
+		//
+		//	foreach(var info in fields) {
+		//		if (colorType.Equals(info.FieldType)) {
+		//			ColorMap.Add(info.Name);
+		//		}
+		//	}
+		//}
 
-			foreach(var info in fields) {
-				if (colorType.Equals(info.FieldType)) {
-					ColorMap.Add(info.Name);
-				}
-			}
-		}
+		// //TODO this is broken now
+		// static bool TryGetColorByName(string name, out IFColor color)
+		// {
+		// 	color = ColorHelpers.Transparent;
+		// 	//var flags = BindingFlags.Public | BindingFlags.Static;
+		// 	//Type colorType = typeof(Color);
+		// 	//var field = colorType.GetField(name,flags);
+		// 	//if (field == null) { return false; }
+		// 	//color = (Color)field.GetValue(null);
+		// 	return true;
+		// }
 
-		static bool TryGetColorByName(string name, out Color color)
-		{
-			color = default(Color);
-			var flags = BindingFlags.Public | BindingFlags.Static;
-			Type colorType = typeof(Color);
-			var field = colorType.GetField(name,flags);
-			if (field == null) { return false; }
-			color = (Color)field.GetValue(null);
-			return true;
-		}
-
-		public static IEnumerable<(string,Color)> AllColors()
-		{
-			PopColorMap();
-			foreach(string name in ColorMap) {
-				if (!TryGetColorByName(name,out Color color)) { continue; }
-				yield return (name,color);
-			}
-		}
+		// public static IEnumerable<(string,IFColor)> AllColors()
+		// {
+		// 	PopColorMap();
+		// 	foreach(string name in ColorMap) {
+		// 		if (!TryGetColorByName(name,out IFColor color)) { continue; }
+		// 		yield return (name,color);
+		// 	}
+		// }
 
 		public static IEnumerable<T> EnumAll<T>(bool includeZero = false)
 			where T : struct

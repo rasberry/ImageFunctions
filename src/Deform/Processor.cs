@@ -1,22 +1,21 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 using System;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Deform
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
+			var Iis = Registry.GetImageEngine();
+			var frame = Source;
+			var rect = Bounds;
+
 			using (var progress = new ProgressBar())
-			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			using (var canvas = Iis.NewImage(rect.Width,rect.Height))
 			{
 				double ccx,ccy;
 				if (O.CenterPx != null) {
@@ -28,19 +27,18 @@ namespace ImageFunctions.Deform
 					ccy = frame.Height * (O.CenterPp == null ? 0.5 : O.CenterPp.Value.Y);
 				}
 
-				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					TPixel nc = ProjectPixel(frame,x,y,ccx,ccy,O.Power);
-					int coff = cy * rect.Width + cx;
-					canvas.GetPixelSpan()[coff] = nc;
+					IColor nc = ProjectPixel(frame,x,y,ccx,ccy,O.Power);
+					canvas[cx,cy] = nc;
 				},progress);
 
-				frame.BlitImage(canvas.Frames.RootFrame,rect);
+				frame.BlitImage(canvas,rect);
 			}
 		}
 
-		TPixel ProjectPixel(ImageFrame<TPixel> frame,double x, double y,double ccx, double ccy,double exp)
+		IColor ProjectPixel(IImage frame,double x, double y,double ccx, double ccy,double exp)
 		{
 			double qw = x <= ccx ? ccx : frame.Width - ccx;
 			double qh = y <= ccy ? ccy : frame.Height - ccy;
@@ -73,7 +71,10 @@ namespace ImageFunctions.Deform
 
 			px += ccx; py += ccy;
 
-			return ImageHelpers.Sample(frame,px,py,O.Sampler);
+			var c = O.Sampler.GetSample(frame,(int)px,(int)py);
+			return c;
 		}
+
+		public override void Dispose() {}
 	}
 }

@@ -1,21 +1,19 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Derivatives
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
+		static IColor DefaultColor = Helpers.ColorHelpers.Transparent;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
+			var frame = Source;
+			var rect = Bounds;
 			if (rect.Width < 2 || rect.Height < 2) {
 				return; //nothing to do
 			}
@@ -27,13 +25,13 @@ namespace ImageFunctions.Derivatives
 
 			for(int y = rect.Top; y < rect.Bottom; y++) {
 				for(int x = rect.Left; x < rect.Right; x++) {
-					TPixel? n = null,e = null,s = null,w = null;
-					TPixel c = frame.GetPixelRowSpan(y)[x];
+					IColor? n = null,e = null,s = null,w = null;
+					IColor c = frame[x,y];
 
-					if (x > rect.Left)     { w = frame.GetPixelRowSpan(y)[x-1]; }
-					if (x < rect.Right-1)  { e = frame.GetPixelRowSpan(y)[x+1]; }
-					if (y > rect.Top)      { n = frame.GetPixelRowSpan(y-1)[x]; }
-					if (y < rect.Bottom-1) { s = frame.GetPixelRowSpan(y+1)[x]; }
+					if (x > rect.Left)     { w = frame[x-1,y]; }
+					if (x < rect.Right-1)  { e = frame[x+1,y]; }
+					if (y > rect.Top)      { n = frame[x,y-1]; }
+					if (y < rect.Bottom-1) { s = frame[x,y+1]; }
 
 					var color = DoDiff(c,n,e,s,w,O.UseABS);
 					var qi = new QueueItem {
@@ -43,20 +41,20 @@ namespace ImageFunctions.Derivatives
 
 					if (queue.Count >= qLength) {
 						dqi = queue.Dequeue();
-						frame.GetPixelRowSpan(dqi.Y)[dqi.X] = dqi.Color;
+						frame[dqi.X,dqi.Y] = dqi.Color;
 					}
 					queue.Enqueue(qi);
 				}
 			}
 
 			while(queue.TryDequeue(out dqi)) {
-				frame.GetPixelRowSpan(dqi.Y)[dqi.X] = dqi.Color;
+				frame[dqi.X,dqi.Y] = dqi.Color;
 			}
 		}
 
-		static TPixel DoDiff(TPixel? src, TPixel? n, TPixel? e, TPixel? s, TPixel? w, bool abs)
+		static IColor DoDiff(IColor? src, IColor? n, IColor? e, IColor? s, IColor? w, bool abs)
 		{
-			if (!src.HasValue) { return default(TPixel); }
+			if (!src.HasValue) { return DefaultColor; }
 			var rgbaSrc = GetColor(src);
 			var rgbaN = GetColor(n);
 			var rgbaE = GetColor(e);
@@ -92,13 +90,13 @@ namespace ImageFunctions.Derivatives
 			}
 			double off = abs ? 0 : 0.5;
 			if (abs) { num *= 2; }
-			var pix = new RgbaD(
+			var pix = new IColor(
 				diffR/num + off,
 				diffG/num + off,
 				diffB/num + off,
 				rgbaSrc.A
 			);
-			return pix.FromColor<TPixel>();
+			return pix;
 		}
 
 		static double DiffOne(bool abs,double a, double b)
@@ -107,19 +105,21 @@ namespace ImageFunctions.Derivatives
 			return abs ? Math.Abs(tmp) : tmp;
 		}
 
-		static RgbaD GetColor(TPixel? px)
+		static IColor GetColor(IColor? px)
 		{
 			if (px.HasValue) {
-				return px.Value.ToColor();
+				return px.Value;
 			}
-			return default(RgbaD);
+			return new IColor(0,0,0,0);
 		}
 
 		struct QueueItem
 		{
 			public int X;
 			public int Y;
-			public TPixel Color;
+			public IColor Color;
 		}
+
+		public override void Dispose() {}
 	}
 }

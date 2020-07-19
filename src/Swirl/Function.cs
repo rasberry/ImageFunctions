@@ -1,17 +1,12 @@
 using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Swirl
 {
-	public class Function : AbstractFunction, IHasResampler, IHasDistance
+	public class Function : AbstractFunction, IHasSampler, IHasDistance
 	{
 		public override bool ParseArgs(string[] args)
 		{
@@ -90,22 +85,14 @@ namespace ImageFunctions.Swirl
 			sb.MetricHelpLine();
 		}
 
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
+		protected override AbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
-		public override void Main()
-		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
-		public IResampler Sampler { get { return O.Sampler; }}
+		public ISampler Sampler { get { return O.Sampler; }}
 		public IMeasurer Measurer { get { return O.Measurer; }}
 	}
+
 }

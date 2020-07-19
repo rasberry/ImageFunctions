@@ -1,5 +1,4 @@
 using System;
-using SixLabors.ImageSharp;
 
 namespace ImageFunctions.ColatzVis
 {

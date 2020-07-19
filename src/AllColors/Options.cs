@@ -21,16 +21,16 @@ namespace ImageFunctions.AllColors
 		HSL,
 		HSI,
 		YCbCr,
-		CieLab,
-		CieLch,
-		CieLchuv,
-		CieLuv,
-		CieXyy,
+		//CieLab,
+		//CieLch,
+		//CieLchuv,
+		//CieLuv,
+		//CieXyy,
 		CieXyz,
 		Cmyk,
-		HunterLab,
-		LinearRgb,
-		Lms
+		//HunterLab,
+		//LinearRgb,
+		//Lms
 	}
 
 	public class Options

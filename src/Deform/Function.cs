@@ -1,29 +1,13 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.Deform
 {
-	public class Function : AbstractFunction, IHasResampler
+	public class Function : AbstractFunction, IHasSampler
 	{
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
-		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
 		public override bool ParseArgs(string[] args)
 		{
 			var p = new Params(args);
@@ -57,7 +41,7 @@ namespace ImageFunctions.Deform
 			if (p.Default("-m",out O.WhichMode,Mode.Polynomial).IsInvalid()) {
 				return false;
 			}
-			if (p.DefaultSampler(out O.Sampler,Registry.DefaultResampler).IsInvalid()) {
+			if (p.DefaultSampler(out O.Sampler,Registry.DefaultIFResampler).IsInvalid()) {
 				return false;
 			}
 
@@ -86,14 +70,16 @@ namespace ImageFunctions.Deform
 			sb.WL(1,"Available Modes");
 			sb.WL(1,"1. Polynomial","x^e/w, y^e/h");
 			sb.WL(1,"2. Inverted"  ,"n/x, n/y; n = (x^e + y^e)");
- 		}
+		}
 
-		public override void Main()
+		protected override AbstractProcessor CreateProcessor()
 		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
-		public IResampler Sampler { get { return O.Sampler; }}
+		public ISampler Sampler { get { return O.Sampler; }}
+
 	}
+
 }

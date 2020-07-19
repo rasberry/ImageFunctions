@@ -2,28 +2,11 @@ using System;
 using System.IO;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelRules
 {
-	public class Function : AbstractFunction, IHasDistance, IHasResampler
+	public class Function : AbstractFunction, IHasDistance, IHasSampler
 	{
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
-		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
 		public override bool ParseArgs(string[] args)
 		{
 			var p = new Params(args);
@@ -72,9 +55,6 @@ namespace ImageFunctions.PixelRules
 			sb.PrintEnum<Mode>(1,ModeDesc);
 		}
 
-		public IMeasurer Measurer { get { return O.Measurer; }}
-		public IResampler Sampler { get { return O.Sampler; }}
-
 		public enum Mode {
 			None = 0,
 			StairCaseDescend = 1,
@@ -95,11 +75,14 @@ namespace ImageFunctions.PixelRules
 			return "";
 		}
 
-		public override void Main()
+		protected override AbstractProcessor CreateProcessor()
 		{
-			Main<RgbaD>();
+			return new Processor { O = O };
 		}
 
+		public IMeasurer Measurer { get { return O.Measurer; }}
+		public ISampler Sampler { get { return O.Sampler; }}
 		Options O = new Options();
 	}
+
 }

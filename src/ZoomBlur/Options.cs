@@ -1,11 +1,11 @@
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
+using System;
+using System.Drawing;
 
 namespace ImageFunctions.ZoomBlur
 {
 	public class Options
 	{
-		public IResampler Sampler = Registry.DefaultResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 		public IMeasurer Measurer = Registry.DefaultMetric;
 		public Point? CenterPx = null;
 		public PointF? CenterRt = null;

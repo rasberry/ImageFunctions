@@ -1,5 +1,5 @@
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
+using System;
+using System.Drawing;
 
 namespace ImageFunctions.Deform
 {
@@ -15,6 +15,6 @@ namespace ImageFunctions.Deform
 		public PointF? CenterPp = null;
 		public Mode WhichMode = Mode.Polynomial;
 		public double Power = 2.0;
-		public IResampler Sampler = Registry.DefaultResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 	}
 }

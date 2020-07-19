@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace ImageFunctions.Helpers
 {
@@ -140,6 +138,7 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
+		/*
 		public static double ColorDistance<TPixel>(TPixel one, TPixel two, IMeasurer measurer = null)
 			where TPixel : struct, IPixel<TPixel>
 		{
@@ -150,6 +149,19 @@ namespace ImageFunctions.Helpers
 			var cTwo = two.ToColor();
 			double[] vOne = new double[] { cOne.R, cOne.G, cOne.B, cOne.A };
 			double[] vTwo = new double[] { cTwo.R, cTwo.G, cTwo.B, cTwo.A };
+			double dist = measurer.Measure(vOne,vTwo);
+			return dist;
+
+		}
+		*/
+		
+		public static double ColorDistance(IColor one, IColor two, IMeasurer measurer = null)
+		{
+			if (measurer == null) {
+				measurer = DefaultColorDistanceMeasurer;
+			}
+			double[] vOne = new double[] { one.R, one.G, one.B, one.A };
+			double[] vTwo = new double[] { two.R, two.G, two.B, two.A };
 			double dist = measurer.Measure(vOne,vTwo);
 			return dist;
 

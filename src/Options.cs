@@ -1,9 +1,8 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions
 {
@@ -24,7 +23,11 @@ namespace ImageFunctions
 			sb.WL(1,"--actions"              ,"List possible actions");
 			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectagular area (defaults to entire image)");
 			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
+			sb.WL(1,"--engine (name)"        ,"Select image engine (default SixLabors)");
 			sb.WL(1,"--colors"               ,"List available colors");
+			sb.WL();
+			sb.WL(0,"Available Engines:");
+			sb.PrintEnum<PickEngine>(1);
 
 			if (showFull)
 			{
@@ -40,7 +43,7 @@ namespace ImageFunctions
 			{
 				IFunction func = Registry.Map(action);
 				func.Usage(sb);
-				if ((func as IHasResampler) != null) {
+				if ((func as IHasSampler) != null) {
 					SamplerHelp(sb);
 				}
 				if ((func as IHasDistance) != null) {
@@ -51,7 +54,7 @@ namespace ImageFunctions
 			{
 				if (showActions) {
 					sb.WL();
-					sb.WL(0,"Actions:");
+					sb.WL(0,"Available Actions:");
 					OptionsHelpers.PrintEnum<Activity>(sb);
 				}
 
@@ -84,8 +87,8 @@ namespace ImageFunctions
 			sb.WL();
 			sb.WL(0,"Available Colors:");
 			sb.WL(0,"Note: Colors may be specified as a name or as a hex value");
-			foreach(var (name,color) in OptionsHelpers.AllColors()) {
-				sb.WL(0,name,color.ToHex());
+			foreach(Color c in ColorHelpers.AllColors()) {
+				sb.WL(0,ColorHelpers.GetColorName(c),c.ToHex());
 			}
 		}
 
@@ -133,6 +136,14 @@ namespace ImageFunctions
 				MaxDegreeOfParallelism = mdop;
 			}
 
+			var oeng = p.Default("--engine",out PickEngine eng, PickEngine.SixLabors);
+			if (oeng.IsInvalid()) {
+				return false;
+			}
+			else if (oeng.IsGood()) {
+				Engine = eng;
+			}
+
 			if (ShowFullHelp || ShowHelpActions || ShowColorList) {
 				Usage(w);
 				return false;
@@ -153,6 +164,7 @@ namespace ImageFunctions
 		public static Rectangle Bounds { get; private set; } = Rectangle.Empty;
 		public static int? MaxDegreeOfParallelism { get; private set; } = null;
 		public static object OptionHelpers { get; private set; }
+		public static PickEngine Engine { get; private set; } = PickEngine.SixLabors;
 
 		static bool ShowFullHelp = false;
 		static bool ShowHelpActions = false;

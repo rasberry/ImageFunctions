@@ -1,16 +1,12 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.ImgDiff
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
@@ -27,19 +23,24 @@ namespace ImageFunctions.ImgDiff
 		// 1  1  0	transparent
 		// 1  1  1	do nothing
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rectangle, Configuration config)
+		public override void Apply()
 		{
+			var Iis = Registry.GetImageEngine();
+			var frame = Source;
 			using (var progress = new ProgressBar())
-			using (var compareImg = Image.Load<TPixel>(O.CompareImage))
+			using (var compareImg = Iis.LoadImage(O.CompareImage))
 			{
 				double totalDist = 0.0;
-				var ab = Rectangle.Intersect(frame.Bounds(),compareImg.Bounds());
-				var minimum = Rectangle.Intersect(ab,rectangle);
-				var colorWhite = Color.White.ToPixel<TPixel>();
-				var colorHilight = O.HilightColor.ToPixel<TPixel>();
-				var colorTransp = Color.Transparent.ToPixel<TPixel>();
+				var ab = Rectangle.Intersect(
+					new Rectangle(0,0,frame.Width,frame.Height),
+					new Rectangle(0,0,compareImg.Width,compareImg.Height)
+				);
+				var minimum = Rectangle.Intersect(ab,this.Bounds);
+				var colorWhite = Helpers.ColorHelpers.White;
+				var colorHilight = O.HilightColor;
+				var colorTransp = Helpers.ColorHelpers.Transparent;
 
-				MoreHelpers.ThreadPixels(minimum, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(minimum, MaxDegreeOfParallelism, (x,y) => {
 					var one = frame[x,y];
 					var two = compareImg[x,y];
 					bool areSame = one.Equals(two);
@@ -54,7 +55,7 @@ namespace ImageFunctions.ImgDiff
 					}
 					//otherwise highlight 'unmatched' pixels
 					else if (!sameSame) {
-						double dist; TPixel sc,ec;
+						double dist; IColor sc,ec;
 						if (O.HilightOpacity == null) {
 							dist = ColorDistanceRatio(one,two);
 							sc = colorHilight;
@@ -75,12 +76,11 @@ namespace ImageFunctions.ImgDiff
 			}
 		}
 
-		double ColorDistanceRatio(TPixel one, TPixel two)
+		double ColorDistanceRatio(IColor one, IColor two)
 		{
-			var vone = one.ToColor();
-			var vtwo = two.ToColor();
-			var vo = new double[] { vone.R, vone.B, vone.G, vone.A };
-			var vt = new double[] { vtwo.R, vtwo.B, vtwo.G, vtwo.A };
+			var vo = new double[] { one.R, one.B, one.G, one.A };
+			var vt = new double[] { two.R, two.B, two.G, two.A };
+			//TODO consider other metrics ?
 			double dist = MetricHelpers.DistanceEuclidean(vo,vt);
 			return dist / DistanceMax;
 		}
@@ -90,5 +90,7 @@ namespace ImageFunctions.ImgDiff
 			new double[] { 0.0,0.0,0.0,0.0 },
 			new double[] { 255.0,255.0,255.0,255.0 }
 		);
+
+		public override void Dispose() {}
 	}
 }

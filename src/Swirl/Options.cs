@@ -1,5 +1,5 @@
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
+using System;
+using System.Drawing;
 
 namespace ImageFunctions.Swirl
 {
@@ -11,7 +11,7 @@ namespace ImageFunctions.Swirl
 		public double? RadiusPp = null;
 		public double Rotations = 0.9;
 		public bool CounterClockwise = false;
-		public IResampler Sampler = Registry.DefaultResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 		public IMeasurer Measurer = Registry.DefaultMetric;
 	}
 }

@@ -1,22 +1,19 @@
 using System;
+using System.Drawing;
 using System.Numerics;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.ColatzVis
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
-			var span = frame.GetPixelSpan();
-			var black = Color.Black.ToPixel<TPixel>();
+			var frame = Source;
+			var rect = Bounds;
+			var black = Helpers.ColorHelpers.Black;
 			ImageHelpers.FillWithColor(frame,rect,black);
 
 			for(BigInteger c = 3; c < 100000; c += 2)
@@ -29,8 +26,7 @@ namespace ImageFunctions.ColatzVis
 					var (nx,ny,no) = MapNumToXY(next,rect);
 
 					if (rect.Contains(nx,ny)) {
-						int o = ny*frame.Width + nx;
-						span[o] = IncPixel(span[o]);
+						frame[nx,ny] = IncPixel(frame[nx,ny]);
 					}
 					num = no;
 				}
@@ -87,13 +83,18 @@ namespace ImageFunctions.ColatzVis
 		//solve(2*l/a-x*sqrt(x^2+1) = x - (1/2)*(x^3/3)+(1*3/2*4)*(x^5/5) - (1*3*5/2*4*6)*(x^7/7),l);
 
 
-		static TPixel IncPixel(TPixel pixel)
+		static IColor IncPixel(in IColor pixel)
 		{
-			var rgba = ImageHelpers.ToColor(pixel);
-			rgba.R += 0.001;
-			rgba.G += 0.001;
-			rgba.B += 0.001;
-			return ImageHelpers.FromColor<TPixel>(rgba);
+			var p = new IColor(
+				pixel.R + 0.001,
+				pixel.G + 0.001,
+				pixel.B + 0.001,
+				pixel.A
+			);
+			return p;
 		}
+
+		public override void Dispose() {}
 	}
+
 }

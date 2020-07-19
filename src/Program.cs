@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using SixLabors.Primitives;
+using System.Drawing;
 
 namespace ImageFunctions
 {

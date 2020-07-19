@@ -1,46 +1,44 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 using System;
+using System.Drawing;
 using System.Numerics;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.AreaSmoother
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
+			var Iis = Registry.GetImageEngine();
+			var frame = Source;
+			var rect = Bounds;
+
 			using (var progress = new ProgressBar())
-			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			using (var canvas = Iis.NewImage(rect.Width,rect.Height))
 			{
-				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					TPixel nc = SmoothPixel(frame,x,y);
-					int coff = cy * rect.Width + cx;
-					canvas.GetPixelSpan()[coff] = nc;
+					IColor nc = SmoothPixel(frame,x,y);
+					canvas[cx,cy] = nc;
 				},progress);
 
-				frame.BlitImage(canvas.Frames.RootFrame,rect);
+				frame.BlitImage(canvas,rect);
 			}
 		}
 
-		TPixel SmoothPixel(ImageFrame<TPixel> frame,int px, int py)
+		IColor SmoothPixel(IImage frame,int px, int py)
 		{
-			TPixel start = frame.GetPixelRowSpan(py)[px];
+			IColor start = frame[px,py];
 
 			//Log.Debug("px="+px+" py="+py+" start = "+start);
 			double bestlen = double.MaxValue;
 			double bestang = double.NaN;
 			double bestratio = 1;
-			TPixel bestfc = start;
-			TPixel bestbc = start;
+			IColor bestfc = start;
+			IColor bestbc = start;
 			Point bestfpx = new Point(px,py);
 			Point bestbpx = new Point(px,py);
 			double ahigh = Math.PI;
@@ -51,8 +49,8 @@ namespace ImageFunctions.AreaSmoother
 				double dang = (ahigh - alow)/3;
 				for(double a = alow; a<ahigh; a+=dang)
 				{
-					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out TPixel fc);
-					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out TPixel bc);
+					Point fp = FindColorAlongRay(frame,a,px,py,false,start,out IColor fc);
+					Point bp = FindColorAlongRay(frame,a,px,py,true,start,out IColor bc);
 
 					double len = O.Measurer.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
@@ -65,7 +63,7 @@ namespace ImageFunctions.AreaSmoother
 						bestbpx = bp;
 						double flen = O.Measurer.Measure(px,py,fp.X,fp.Y);
 						bestratio = flen/len;
-						//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
+						// Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 					}
 				}
 
@@ -73,8 +71,8 @@ namespace ImageFunctions.AreaSmoother
 				ahigh = bestang + Math.PI/3/tries;
 			}
 
-			TPixel final;
-			//Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
+			IColor final;
+			// Log.Debug("bestfc = "+bestfc+" bestbc="+bestbc);
 			if (bestfc.Equals(start) && bestbc.Equals(start)) {
 				final = start;
 			}
@@ -87,7 +85,7 @@ namespace ImageFunctions.AreaSmoother
 			return final;
 		}
 
-		Point FindColorAlongRay(ImageFrame<TPixel> lb, double a, int px, int py, bool back, TPixel start, out TPixel c)
+		Point FindColorAlongRay(IImage lb, double a, int px, int py, bool back, IColor start, out IColor c)
 		{
 			double r=1;
 			c = start;
@@ -104,7 +102,7 @@ namespace ImageFunctions.AreaSmoother
 					done = true;
 				}
 				if (!done) {
-					TPixel f = ImageHelpers.Sample(lb,fx,fy,O.Sampler);
+					IColor f = O.Sampler.GetSample(lb,(int)fx,(int)fy);
 					if (!f.Equals(start)) {
 						c = f;
 						done = true;
@@ -122,5 +120,8 @@ namespace ImageFunctions.AreaSmoother
 				r+=1;
 			}
 		}
+
+		public override void Dispose() {}
 	}
+
 }

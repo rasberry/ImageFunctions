@@ -1,11 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 using System.Collections.Generic;
 
 namespace ImageFunctions.SpearGraphic
@@ -23,7 +20,7 @@ namespace ImageFunctions.SpearGraphic
 			if (p.Default("-g",out O.Spear,Graphic.None).IsInvalid()) {
 				return false;
 			}
-			if (p.Default("-bg",out O.BackgroundColor,Color.Transparent).IsInvalid()) {
+			if (p.Default("-bg",out O.BackgroundColor,ColorHelpers.Transparent).IsInvalid()) {
 				return false;
 			}
 			if (p.Default("-rs",out O.RandomSeed,null).IsInvalid()) {
@@ -49,20 +46,12 @@ namespace ImageFunctions.SpearGraphic
 			sb.PrintEnum<Graphic>(1);
 		}
 
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
+		protected override AbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
-		public override void Main()
-		{
-			Main<Rgba32>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
 	}
+
 }

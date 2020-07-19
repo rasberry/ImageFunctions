@@ -1,24 +1,20 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 using System;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Swirl
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		// https://stackoverflow.com/questions/30448045/how-do-you-add-a-swirl-to-an-image-image-distortion
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
 			double swirlRadius;
 			double swirlTwists = O.Rotations;
 			double swirlx, swirly;
+			Rectangle rect = this.Bounds;
+			var Iis = Registry.GetImageEngine();
 
 			if (O.RadiusPx != null) {
 				swirlRadius = O.RadiusPx.Value;
@@ -40,22 +36,22 @@ namespace ImageFunctions.Swirl
 			}
 
 			using (var progress = new ProgressBar())
-			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			using (var canvas = Iis.NewImage(rect.Width,rect.Height))
 			{
-				MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+				MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 					int cy = y - rect.Top;
 					int cx = x - rect.Left;
-					TPixel nc = SwirlPixel(frame,x,y,swirlx,swirly,swirlRadius,swirlTwists);
-					int coff = cy * rect.Width + cx;
-					canvas.GetPixelSpan()[coff] = nc;
+					IColor nc = SwirlPixel(Source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
+					canvas[cx,cy] = nc;
 				},progress);
 
-				frame.BlitImage(canvas.Frames.RootFrame,rect);
+				Source.BlitImage(canvas,rect);
 			}
 		}
 
-		TPixel SwirlPixel(ImageFrame<TPixel> frame,
-			double x, double y, double swirlx, double swirly, double swirlRadius, double swirlTwists)
+		IColor SwirlPixel(IImage frame,
+			double x, double y, double swirlx, double swirly,
+			double swirlRadius, double swirlTwists)
 		{
 			double pixelx = x - swirlx;
 			double pixely = y - swirly;
@@ -71,8 +67,12 @@ namespace ImageFunctions.Swirl
 				pixely = Math.Sin(pixelAng) * pixelDist;
 			}
 
-			var c = frame.Sample(swirlx + pixelx,swirly + pixely,O.Sampler);
+			var c = O.Sampler.GetSample(frame,
+				(int)(swirlx + pixelx), (int)(swirly + pixely));
 			return c;
 		}
+
+		public override void Dispose() {}
 	}
+
 }

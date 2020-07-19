@@ -1,4 +1,4 @@
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
+using System;
 
 namespace ImageFunctions.PixelRules
 {
@@ -8,6 +8,6 @@ namespace ImageFunctions.PixelRules
 		public int Passes = 1;
 		public int MaxIters = 100;
 		public IMeasurer Measurer = Registry.DefaultMetric;
-		public IResampler Sampler = Registry.DefaultResampler;
+		public ISampler Sampler = Registry.DefaultIFResampler;
 	}
 }

@@ -1,46 +1,42 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.PixelRules
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
+			var rect = Bounds;
+			var Iis = Registry.GetImageEngine();
 			using (var progress = new ProgressBar())
-			using (var canvas = new Image<TPixel>(config,rect.Width,rect.Height))
+			using (var canvas = Iis.NewImage(rect.Width,rect.Height))
 			{
 				for(int p=0; p<O.Passes; p++) {
 					progress.Prefix = "Pass "+(p+1)+"/"+O.Passes+" ";
-					MoreHelpers.ThreadPixels(rect, config.MaxDegreeOfParallelism, (x,y) => {
+					MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
 						int cy = y - rect.Top;
 						int cx = x - rect.Left;
-						TPixel nc = RunRule(frame,rect,x,y);
-						int coff = cy * rect.Width + cx;
-						canvas.GetPixelSpan()[coff] = nc;
+						IColor nc = RunRule(Source,rect,x,y);
+						canvas[cx,cy] = nc;
 					},progress);
-					frame.BlitImage(canvas.Frames.RootFrame,rect);
+					Source.BlitImage(canvas,rect);
 				}
 			}
 		}
 
-		TPixel RunRule(ImageFrame<TPixel> frame,Rectangle rect, int x, int y)
+		IColor RunRule(IImage frame,Rectangle rect, int x, int y)
 		{
 			int cx = x, cy = y;
-			var history = new List<TPixel>();
+			var history = new List<IColor>();
 			int max = O.MaxIters;
 
 			while(--max >= 0) {
-				TPixel ant = frame[cx,cy];
+				IColor ant = frame[cx,cy];
 				history.Add(ant);
 				if (!IsBetterPixel(frame,rect,ant,cx,cy,out int nx, out int ny)) {
 					break;
@@ -56,13 +52,12 @@ namespace ImageFunctions.PixelRules
 			}
 		}
 
-		TPixel FindAverageColor(IEnumerable<TPixel> list)
+		IColor FindAverageColor(IEnumerable<IColor> list)
 		{
 			double r = 0.0,g = 0.0,b = 0.0,a = 0.0;
 			int count = 0;
 
-			foreach(TPixel px in list) {
-				var c = px.ToColor();
+			foreach(IColor c in list) {
 				r += c.R;
 				g += c.G;
 				b += c.B;
@@ -70,19 +65,19 @@ namespace ImageFunctions.PixelRules
 				count++;
 			}
 
-			var avg = new RgbaD(
+			var avg = new IColor(
 				r / count,
 				g / count,
 				b / count,
 				a / count
 			);
-			return avg.FromColor<TPixel>();
+			return avg;
 		}
 
-		bool IsBetterPixel(ImageFrame<TPixel> frame, Rectangle rect, TPixel? best, int x, int y, out int bx, out int by)
+		bool IsBetterPixel(IImage frame, Rectangle rect, IColor? best, int x, int y, out int bx, out int by)
 		{
 			bx = by = 0;
-			TPixel? nn,ne,ee,se,ss,sw,ww,nw;
+			IColor? nn,ne,ee,se,ss,sw,ww,nw;
 			nn = ne = ee = se = ss = sw = ww = nw = null;
 
 			//which directions are available ?
@@ -116,7 +111,7 @@ namespace ImageFunctions.PixelRules
 		}
 
 		//pick closest darker color
-		bool PickBetter(ref TPixel? best, TPixel? bid, ref double min)
+		bool PickBetter(ref IColor? best, IColor? bid, ref double min)
 		{
 			//if best is null anything is better
 			if (best == null) {
@@ -130,7 +125,7 @@ namespace ImageFunctions.PixelRules
 					|| O.WhichMode == Function.Mode.StairCaseDescend)
 				{
 					//only follow darker colors
-					TPixel white = Color.White.ToPixel<TPixel>();
+					IColor white = Helpers.ColorHelpers.White;
 					double bdw = Dist(best.Value,white);
 					double ddw = Dist(bid.Value,white);
 					if (bdw > ddw) { return false; }
@@ -148,15 +143,15 @@ namespace ImageFunctions.PixelRules
 			return false;
 		}
 
-		double Dist(TPixel one, TPixel two)
+		double Dist(IColor one, IColor two)
 		{
 			//treat identical pixels as very far apart
 			if (one.Equals(two)) {
 				return double.MaxValue;
 			}
 
-			var o = one.ToColor();
-			var t = two.ToColor();
+			var o = one;
+			var t = two;
 
 			bool normal = O.WhichMode == Function.Mode.StairCaseDescend
 				|| O.WhichMode == Function.Mode.StairCaseClosest;
@@ -169,5 +164,8 @@ namespace ImageFunctions.PixelRules
 			double dist = O.Measurer.Measure(vo,vt);
 			return dist;
 		}
+
+		public override void Dispose() {}
 	}
+
 }

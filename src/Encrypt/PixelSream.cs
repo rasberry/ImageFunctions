@@ -1,28 +1,23 @@
-using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.IO;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Encrypt
 {
-	public class PixelStream<TPixel> : Stream
-		where TPixel : struct, IPixel<TPixel>
+	public class PixelStream : Stream
 	{
-		public PixelStream(Image<TPixel> image) : this(image.Frames.RootFrame)
-		{
-		}
-
-		public PixelStream(ImageFrame<TPixel> image)
+		public PixelStream(IImage image)
 		{
 			Image = image;
-			InternalLength = 4L * Image.Height * Image.Width;
+			//4 bytes per pixel
+			InternalLength = (long)BPP * (long)Image.Height * (long)Image.Width;
 		}
 
-		ImageFrame<TPixel> Image = null;
+		IImage Image = null;
 		long InternalLength = 0;
 		int PaddingLength = 0;
+		const int BPP = 4; //Bytes per pixel
 
 		public override bool CanRead { get { return true; }}
 		public override bool CanSeek { get { return true; }}
@@ -69,19 +64,29 @@ namespace ImageFunctions.Encrypt
 				return 0; //padding
 			}
 
-			int pos = (int)(Position / 4);
-			int elem = (int)(Position % 4);
+			int pos = (int)(Position / BPP);
+			int elem = (int)(Position % BPP);
 
-			//only supporting 24bit(+alpha) color for now
-			Rgba32 c = default(Rgba32);
-			Image.GetPixelSpan()[pos].ToRgba32(ref c);
+			//load up the pixel
+			if (elem == 0) {
+				int y = pos / Image.Width;
+				int x = pos % Image.Width;
+				//only supporting 24bit(+alpha) color for now
+				var c = ImageHelpers.NativeToRgba(Image[x,y]);
+				tempA = c.A;
+				tempR = c.R;
+				tempG = c.G;
+				tempB = c.B;
+			}
+		
+			//stream out byte at a time
 			byte comp;
 			switch(elem) {
 				default:
-				case 0: comp = c.R; break;
-				case 1: comp = c.G; break;
-				case 2: comp = c.B; break;
-				case 3: comp = c.A; break;
+				case 0: comp = tempR; break;
+				case 1: comp = tempG; break;
+				case 2: comp = tempB; break;
+				case 3: comp = tempA; break;
 			}
 			Position++;
 			return (int)comp;
@@ -126,21 +131,30 @@ namespace ImageFunctions.Encrypt
 				return; //ignore padding
 			}
 
-			int pos = (int)(Position / 4);
-			int elem = (int)(Position % 4);
-			var span = Image.GetPixelSpan();
-
-			Rgba32 c = default(Rgba32);
-			span[pos].ToRgba32(ref c);
+			int pos = (int)(Position / BPP);
+			int elem = (int)(Position % BPP);
+			
+			//stream in bytes
 			switch(elem) {
 				default:
-				case 0: c.R = value; break;
-				case 1: c.G = value; break;
-				case 2: c.B = value; break;
-				case 3: c.A = value; break;
+				case 0: tempR = value; break;
+				case 1: tempG = value; break;
+				case 2: tempB = value; break;
+				case 3: tempA = value; break;
 			}
-			span[pos].FromRgba32(c);
+
+			//save pixel
+			if (elem + 1 == BPP) {
+				int y = pos / Image.Width;
+				int x = pos % Image.Width;
+				var c = Color.FromArgb(tempA,tempR,tempG,tempB);
+				Image[x,y] = ImageHelpers.RgbaToNative(c);
+			}
 			Position++;
 		}
+
+		byte tempR,tempG,tempB,tempA;
+
 	}
+
 }

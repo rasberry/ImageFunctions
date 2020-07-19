@@ -1,28 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Numerics;
 using System.Threading;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.ColorSpaces.Conversion;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.Primitives;
 
 namespace ImageFunctions.UlamSpiral
 {
-	public class Processor<TPixel> : AbstractProcessor<TPixel>
-		where TPixel : struct, IPixel<TPixel>
+	public class Processor : AbstractProcessor
 	{
 		public Options O = null;
 
-		protected override void Apply(ImageFrame<TPixel> frame, Rectangle rect, Configuration config)
+		public override void Apply()
 		{
 			InitColors();
-			ImageHelpers.FillWithColor(frame,rect,GetColor(PickColor.Back));
+			ImageHelpers.FillWithColor(Source,Bounds,GetColor(PickColor.Back));
 
-			var srect = GetSpacedRectangle(rect);
-			int maxFactor = O.ColorComposites ? FindMaxFactor(rect,config) : 1;
+			var srect = GetSpacedRectangle(Bounds);
+			int maxFactor = O.ColorComposites ? FindMaxFactor(Bounds) : 1;
 			double factor = 1.0 / maxFactor;
 			var drawFunc = GetDrawFunc();
 			var (cx, cy) = GetCenterXY(srect);
@@ -41,7 +36,7 @@ namespace ImageFunctions.UlamSpiral
 						list.Add((count,x,y));
 					}
 					else {
-						DrawComposite(frame, count * factor, x, y, drawFunc);
+						DrawComposite(Source, count * factor, x, y, drawFunc);
 					}
 				}
 				//the next modes require the number to be prime
@@ -52,12 +47,12 @@ namespace ImageFunctions.UlamSpiral
 					var color = GetColor(PickColor.Back);
 					if (ism1) { color = GetColor(PickColor.Prime); }
 					if (isp1) { color = GetColor(PickColor.Prime2); }
-					drawFunc(frame, x, y, color, primeFactor);
+					drawFunc(Source, x, y, color, primeFactor);
 				}
 				//only one prime coloring mode is allowed
 				else if (drawPrimes) {
 					var color = GetColor(PickColor.Prime);
-					drawFunc(frame, x, y, color, primeFactor);
+					drawFunc(Source, x, y, color, primeFactor);
 				}
 			};
 
@@ -81,13 +76,13 @@ namespace ImageFunctions.UlamSpiral
 
 						foreach(var item in list) {
 							var (count, x, y) = item;
-							DrawComposite(frame, count * factor, x, y, drawFunc);
+							DrawComposite(Source, count * factor, x, y, drawFunc);
 							pb2.Report(++pbcount / pbmax);
 						}
 					}
 				}
 				else {
-					MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) => {
+					MoreHelpers.ThreadPixels(srect, MaxDegreeOfParallelism, (x, y) => {
 						drawOne(x,y);
 					}, pb2);
 				}
@@ -95,7 +90,7 @@ namespace ImageFunctions.UlamSpiral
 		}
 
 		//a little messy, but didn't want the same code in two places
-		void DrawComposite(ImageFrame<TPixel> frame, double amount, int x, int y, Action<ImageFrame<TPixel>, int, int, TPixel, double> drawFunc)
+		void DrawComposite(IImage frame, double amount, int x, int y, Action<IImage, int, int, IColor, double> drawFunc)
 		{
 			var bg = GetColor(PickColor.Back);
 			var fg = GetColor(PickColor.Comp);
@@ -103,16 +98,16 @@ namespace ImageFunctions.UlamSpiral
 			drawFunc(frame, x, y, color, amount);
 		}
 
-		int FindMaxFactor(Rectangle srect, Configuration config)
+		int FindMaxFactor(Rectangle srect)
 		{
 			//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
 			int maxFactor = int.MinValue;
 			object maxLock = new object();
 			var (cx, cy) = GetCenterXY(srect);
-			
+
 			var pb1 = new ProgressBar() { Prefix = "Calculating " };
 			using (pb1) {
-				MoreHelpers.ThreadPixels(srect, config.MaxDegreeOfParallelism, (x, y) => {
+				MoreHelpers.ThreadPixels(srect, MaxDegreeOfParallelism, (x, y) => {
 					long num = MapXY(x, y, cx, cy, srect.Width);
 					int count = Primes.CountFactors(num);
 					if (count > maxFactor) {
@@ -164,7 +159,7 @@ namespace ImageFunctions.UlamSpiral
 			return srect;
 		}
 
-		Action<ImageFrame<TPixel>, int, int, TPixel, double> GetDrawFunc()
+		Action<IImage, int, int, IColor, double> GetDrawFunc()
 		{
 			if (O.DotSize.IsCloseTo(1.0)) {
 				return DrawDotPixel;
@@ -174,7 +169,7 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		void DrawDotPixel(ImageFrame<TPixel> frame, int x, int y, TPixel color, double factor)
+		void DrawDotPixel(IImage frame, int x, int y, IColor color, double factor)
 		{
 			int s = O.Spacing;
 			//scale up with spacing and center so we get a nice border
@@ -182,7 +177,7 @@ namespace ImageFunctions.UlamSpiral
 			frame[x,y] = color;
 		}
 
-		void DrawDotSpere(ImageFrame<TPixel> frame, int x, int y, TPixel color, double factor)
+		void DrawDotSpere(IImage frame, int x, int y, IColor color, double factor)
 		{
 			int s = O.Spacing;
 			//circle size = max*f^2 (squared so it feels like a sphere)
@@ -195,7 +190,7 @@ namespace ImageFunctions.UlamSpiral
 				return;
 			}
 
-			var bounds = frame.Bounds();
+			var bounds = new Rectangle(0,0,frame.Width,frame.Height);
 			int d2 = (int)(d/2);
 			Rectangle r = new Rectangle(x - d2, y - d2, (int)d, (int)d);
 			for(int dy = r.Top; dy < r.Bottom; dy++) {
@@ -224,19 +219,24 @@ namespace ImageFunctions.UlamSpiral
 			}
 		}
 
-		static TPixel[] c_color = new TPixel[4];
+		static IColor[] c_color = new IColor[4];
 		void InitColors()
 		{
-			var def = O.Color1.Value.ToPixel<TPixel>();
+			var def = O.Color1.Value;
 			c_color[0] = def;
-			c_color[1] = O.Color2.HasValue ? O.Color2.Value.ToPixel<TPixel>() : def;
-			c_color[2] = O.Color3.HasValue ? O.Color3.Value.ToPixel<TPixel>() : def;
-			c_color[3] = O.Color4.HasValue ? O.Color4.Value.ToPixel<TPixel>() : def;
+			c_color[1] = O.Color2.HasValue ? O.Color2.Value : def;
+			c_color[2] = O.Color3.HasValue ? O.Color3.Value : def;
+			c_color[3] = O.Color4.HasValue ? O.Color4.Value : def;
 		}
 
-		TPixel GetColor(PickColor pick)
+		IColor GetColor(PickColor pick)
 		{
 			return c_color[(int)pick-1];
 		}
+
+		public override void Dispose()
+		{
+		}
 	}
+
 }

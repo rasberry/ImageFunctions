@@ -1,4 +1,10 @@
 # TODO #
+## In-Progress ##
+* Create tests for ToHex and FromHex
+* need color lists
+* need to test samplers and convolution
+* need replacement for colorspaces (maybe.. only used in allcolors)
+
 ## General ##
 * maybe color the 'usage' text a little ?
 * maybe add syntax to chain image functions together

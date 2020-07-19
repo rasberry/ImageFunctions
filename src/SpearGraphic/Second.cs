@@ -1,15 +1,12 @@
 using System;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
+using System.Drawing;
+using ImageFunctions.Helpers;
 
 namespace ImageFunctions.SpearGraphic
 {
-	public static class Second<TPixel> where TPixel : struct, IPixel<TPixel>
+	public static class Second
 	{
-		public static void Twist3(Image<TPixel> image, int w, int h, int which = 2)
+		public static void Twist3(IImage image, int w, int h, int which = 2)
 		{
 			if (which == 0)
 			{
@@ -43,12 +40,9 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void Twist3Params(Image<TPixel> image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
+		static void Twist3Params(IImage image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
 		{
 			double a,x,y,ox,oy;
-			var gop = new GraphicsOptions {
-				Antialias = true
-			};
 
 			using (var progress = new ProgressBar())
 			{
@@ -56,37 +50,86 @@ namespace ImageFunctions.SpearGraphic
 				{
 					ox = o+(an+(am*(max-v)/max))*Math.Cos(v*Math.PI/aa);
 					oy = o+(an+(am*(max-v)/max))*Math.Sin(v*Math.PI/aa);
-					
+
 					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 					x = s * Math.Tan(a) + (v/t) + ox;
 					y = s * Math.Sin(a) + (v/t) + oy;
-					Rgba32 p = ColorFade(v,max,FadeComp.G);
+					Color p = ColorFade(v,max,FadeComp.G);
 					if (x < w && y < h && x > 0 && y > 0) {
-						image.Mutate(op => {
-							DrawRectangle(op,gop,p,x,y);
-							DrawRectangle(op,gop,p,y,x);
-						});
+						DrawPoint(image,p,x,y);
+						DrawPoint(image,p,y,x);
 					}
 					progress.Report(v/max);
 				}
 			}
 		}
 
-		static void DrawRectangle(IImageProcessingContext op, GraphicsOptions gop, Rgba32 p,double x,double y)
+		const double DRo = 0.3;
+		static void DrawPoint(IImage img, Color p, double x, double y)
 		{
-			PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
-			PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
-			PointF p2 = new PointF((float)x + 0.5f,(float)y + 0.5f);
-			PointF p3 = new PointF((float)x + 0.0f,(float)y + 0.5f);
-			op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
+			DrawPixel(img,p,x - DRo, y - DRo);
+			DrawPixel(img,p,x + 0.0, y - DRo);
+			DrawPixel(img,p,x + DRo, y - DRo);
+			DrawPixel(img,p,x - DRo, y + 0.0);
+			DrawPixel(img,p,x + 0.0, y + 0.0);
+			DrawPixel(img,p,x + DRo, y + 0.0);
+			DrawPixel(img,p,x - DRo, y + DRo);
+			DrawPixel(img,p,x + 0.0, y + DRo);
+			DrawPixel(img,p,x + DRo, y + DRo);
 		}
 
-		public static void Twist4(Image<TPixel> image, int w, int h)
-		{
-			var gop = new GraphicsOptions {
-				Antialias = true,
-			};
+		//static void DrawRectangle(IImage op, Color p, double x, double y)
+		//{
+		//	PointF p0 = new PointF((float)x + 0.0f,(float)y + 0.0f);
+		//	PointF p1 = new PointF((float)x + 0.5f,(float)y + 0.0f);
+		//	PointF p2 = new PointF((float)x + 0.5f,(float)y + 0.5f);
+		//	PointF p3 = new PointF((float)x + 0.0f,(float)y + 0.5f);
+		//	op.DrawPolygon(gop,(Color)p,1.0f,p0,p1,p2,p3);
+		//}
 
+		// https://en.wikipedia.org/wiki/Spatial_anti-aliasing
+		static void DrawPixel(IImage img, Color p, double x, double y)
+		{
+			var nc = ImageHelpers.RgbaToNative(p);
+			int fx = (int)Math.Floor(x), cx = (int)Math.Ceiling(x);
+			int fy = (int)Math.Floor(y), cy = (int)Math.Ceiling(y);
+
+			for(int ry = (int)fy; ry < cy; ry++) {
+				for(double rx = fx; rx < cx; rx++) {
+					double px = 1.0 - Math.Abs(x - rx);
+					double py = 1.0 - Math.Abs(y - ry);
+					double pp = px * py;
+					CompostPixel(img,nc,rx,ry,pp);
+				}
+			}
+		}
+
+		static void CompostPixel(IImage img, IColor c, double x, double y, double k)
+		{
+			int ix = (int)x, iy = (int)y;
+			if (ix < 0 || iy < 0 || ix >= img.Width || iy >= img.Height) {
+				return;
+			}
+			if (k >= 1.0) {
+				img[ix,iy] = c; //100% opacity so replace
+			}
+			else if (k < double.Epsilon) {
+				return; //0% opacity so keep original
+			}
+			else {
+				//https://en.wikipedia.org/wiki/Alpha_compositing
+				var o = img[ix,iy];
+				double oma = (c.A * k)*(1.0 - o.A);
+				double a = o.A + oma;
+				double r = (o.R*o.A + c.R*oma) / a;
+				double g = (o.G*o.A + c.G*oma) / a;
+				double b = (o.B*o.A + c.B*oma) / a;
+				img[ix,iy] = new IColor(r,g,b,a);
+			}
+		}
+
+		public static void Twist4(IImage image, int w, int h)
+		{
 			double max = w*9;
 			double s = w/32.0; //stretch x
 			double o = w/4.0; //offset
@@ -94,7 +137,7 @@ namespace ImageFunctions.SpearGraphic
 			double a,x,y;
 			double lx=0,ly=0;
 			double oos = w * 0.088; //offset size
-			
+
 			using (var progress = new ProgressBar())
 			{
 				for(double v=1; v<max; v++)
@@ -102,7 +145,7 @@ namespace ImageFunctions.SpearGraphic
 					a = (max - v)*Math.PI/(max / (max - v/32)) + Math.PI;
 					x = s * Math.Tan(a) + (v/t) + o;
 					y = s * Math.Sin(a) + (v/t) + o;
-					
+
 					if (v != 1 && x < w && y < h && x > 0 && y > 0)
 					{
 						float oo = (float)(oos*Math.Sin(((max-v)/max)*2*Math.PI));
@@ -111,14 +154,18 @@ namespace ImageFunctions.SpearGraphic
 						if (dx <= dy)
 						{
 							double m2 = max/2;
-							Rgba32 p = v > m2
+							Color p = v > m2
 								? ColorFade(v-m2,m2,FadeComp.B)
 								: ColorFade(m2-v,m2,FadeComp.R);
-							
+
+							DrawLine(image,p,lx,ly,x-oo,y-oo);
+							DrawLine(image,p,ly,lx,y+oo,x+oo);
+							/* TODO need replacement for DrawLine
 							image.Mutate(op => {
 								DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
 								DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
 							});
+							*/
 						}
 						lx = x;
 						ly = y;
@@ -128,28 +175,28 @@ namespace ImageFunctions.SpearGraphic
 			}
 		}
 
-		static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
+		static IDrawEngine Idc = Registry.GetDrawEngine();
+		static void DrawLine(IImage img,Color c,double x0, double y0, double x1, double y1)
 		{
-			var p0 = new PointF((float)x0,(float)y0);
-			var p1 = new PointF((float)x1,(float)y1);
-			op.DrawLines(gop,(Color)p,1.0f,p0,p1);
+			var nc = ImageHelpers.RgbaToNative(c);
+			Idc.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1));
 		}
-		
+
 		enum FadeComp { R, G, B }
-		static Rgba32 ColorFade(double i, double max, FadeComp f)
+		static Color ColorFade(double i, double max, FadeComp f)
 		{
 			double p,s;
 			p = i < 1.0 * max / 2 ? 255
 				: 255 - (i - max/2) * (255 / max * 2);
 			s = 1.0 * i < max/2 ? 255 - i * (255 / max * 2) : 0;
-			
+
 			Color c;
 			if (f == FadeComp.R) {
-				c = new Rgba32((byte)p,(byte)s,(byte)s,32);
+				c = Color.FromArgb(32,(int)p,(int)s,(int)s);
 			} else if (f == FadeComp.G) {
-				c = new Rgba32((byte)s,(byte)p,(byte)s,32);
+				c = Color.FromArgb(32,(int)s,(int)p,(int)s);
 			} else { //FadeComp.B
-				c = new Rgba32((byte)s,(byte)s,(byte)p,32);
+				c = Color.FromArgb(32,(int)s,(int)s,(int)p);
 			}
 			return c;
 		}

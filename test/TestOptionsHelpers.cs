@@ -1,7 +1,8 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
+using ImageFunctions;
+using System.Drawing;
 
 namespace test
 {
@@ -19,7 +20,7 @@ namespace test
 		public void TestParseNumberPercent(string sval, double expected)
 		{
 			bool worked = OptionsHelpers.ParseNumberPercent(sval,out double check);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse number/percent {sval}");
 			Assert.AreEqual(expected,check);
 		}
 
@@ -31,7 +32,7 @@ namespace test
 		public void TestParseBadNumberPercent(string sval)
 		{
 			bool worked = OptionsHelpers.ParseNumberPercent(sval,out double check);
-			Assert.IsFalse(worked);
+			Assert.IsFalse(worked,$"Parsing unexpectedly worked {sval}");
 		}
 
 		[DataTestMethod]
@@ -46,7 +47,7 @@ namespace test
 		public void TestTryParseColor(string color,string expected)
 		{
 			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse color {color}");
 			Assert.AreEqual(expected,c.ToHex());
 		}
 
@@ -59,7 +60,7 @@ namespace test
 		public void TestTryBadParseColor(string color)
 		{
 			bool worked = OptionsHelpers.TryParseColor(color,out Color c);
-			Assert.IsFalse(worked);
+			Assert.IsFalse(worked,$"Parsing unexpectedely worked {color}");
 		}
 
 		[DataTestMethod]
@@ -70,7 +71,7 @@ namespace test
 		public void TestTryParseDouble(string s, double d)
 		{
 			bool worked = OptionsHelpers.TryParse(s,out double val);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse {s}");
 			Assert.AreEqual(d,val);
 		}
 
@@ -80,7 +81,7 @@ namespace test
 		public void TestTryParseBadDouble(string s)
 		{
 			bool worked = OptionsHelpers.TryParse(s,out double val);
-			Assert.IsFalse(worked);
+			Assert.IsFalse(worked,$"Parsing unexpectedely worked {s}");
 		}
 
 		[DataTestMethod]
@@ -90,7 +91,7 @@ namespace test
 		public void TestTryParseEnum(string s, ImageFunctions.Activity a)
 		{
 			bool worked = OptionsHelpers.TryParse(s,out ImageFunctions.Activity val);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse {s}");
 			Assert.AreEqual(a,val);
 		}
 
@@ -101,9 +102,9 @@ namespace test
 		[DataRow("10 10 20 20",10,10,20,20)]
 		public void TestTryParseRect(string s, int x,int y,int w,int h)
 		{
-			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
-			Assert.IsTrue(worked);
-			Assert.AreEqual(new SixLabors.Primitives.Rectangle(x,y,w,h),val);
+			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
+			Assert.IsTrue(worked,$"Unable to parse {s}");
+			Assert.AreEqual(new Rectangle(x,y,w,h),val);
 		}
 
 		[DataTestMethod]
@@ -113,15 +114,15 @@ namespace test
 		[DataRow("0,0,0,0")]
 		public void TestTryParseBadRect(string s)
 		{
-			bool worked = OptionsHelpers.TryParse(s,out SixLabors.Primitives.Rectangle val);
-			Assert.IsFalse(worked);
+			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
+			Assert.IsFalse(worked,$"Parse unexpectedly worked {s}");
 		}
 
 		public void TestTryParseString()
 		{
 			string arg = "opt1";
 			bool worked = OptionsHelpers.TryParse(arg,out string val);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse {arg}");
 			Assert.AreEqual(arg,val);
 		}
 	}

@@ -1,11 +1,8 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Drawing;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing.Processors;
-using SixLabors.Primitives;
 using System.Collections.Generic;
 
 namespace ImageFunctions.AllColors
@@ -95,32 +92,13 @@ namespace ImageFunctions.AllColors
 			return "";
 		}
 
-		//static IEnumerable<Pattern> AllPatterns(out int max)
-		//{
-		//	var list = new List<Pattern>();
-		//	max = int.MinValue;
-		//	foreach(Pattern p in OptionsHelpers.EnumAll<Pattern>()) {
-		//		list.Add(p);
-		//		if ((int)p > max) { max = (int)p; }
-		//	}
-		//	list.Sort((a,b) => (int)a - (int)b);
-		//	return list;
-		//}
-
-		public override IImageProcessor<TPixel> CreatePixelSpecificProcessor<TPixel>(Image<TPixel> source, Rectangle sourceRectangle)
+		protected override AbstractProcessor CreateProcessor()
 		{
-			var proc = new Processor<TPixel>();
-			proc.O = O;
-			proc.Source = source;
-			proc.Bounds = sourceRectangle;
-			return proc;
-		}
-
-		public override void Main()
-		{
-			Main<Rgba32>();
+			return new Processor { O = O };
 		}
 
 		Options O = new Options();
+
 	}
+
 }

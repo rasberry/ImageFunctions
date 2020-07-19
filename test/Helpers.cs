@@ -1,15 +1,13 @@
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using ImageFunctions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
-using SixLabors.ImageSharp.PixelFormats;
 using System.Linq;
 using ImageFunctions.Helpers;
-using SixLabors.Primitives;
+
 
 namespace test
 {
@@ -92,93 +90,126 @@ namespace test
 		public static void RunImageFunction(Activity act, string[] args, string outFile, string checkFile,
 			Rectangle? bounds = null,Func<string,string,bool> fileComparer = null)
 		{
-			Log.Debug($"act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
-
+			Log.Debug($"RunImageFunction act={act} args=[{String.Join(",",args)}] outFile={outFile} checkFile={checkFile}");
 			if (fileComparer == null) {
 				fileComparer = Helpers.AreImagesEqual;
 			}
 			IFunction func = Registry.Map(act);
 			if (bounds != null) { func.Bounds = bounds.Value; }
 			bool worked = func.ParseArgs(args);
-			Assert.IsTrue(worked);
+			Assert.IsTrue(worked,$"Unable to parse args. [{String.Join(",",args)}]");
 
 			if (System.Diagnostics.Debugger.IsAttached) {
 				func.MaxDegreeOfParallelism = 1;
 			}
 			func.Main();
 
-			Assert.IsTrue(File.Exists(outFile));
-			Assert.IsTrue(File.Exists(checkFile));
-			Assert.IsTrue(fileComparer(checkFile,outFile));
+			Assert.IsTrue(File.Exists(outFile),$"File does not exist {outFile}");
+			Assert.IsTrue(File.Exists(checkFile),$"File does not exist {checkFile}");
+			Assert.IsTrue(fileComparer(checkFile,outFile),$"Files do not match [{checkFile},{outFile}");
 		}
 
 		public static bool AreImagesEqual(string one, string two)
 		{
+			var iis = ImageFunctions.Registry.GetImageEngine();
 			// Log.Debug($"AreImagesEqual one={one} two={two}");
-			var iOne = Image.Load<Rgba32>(one);
-			var iTwo = Image.Load<Rgba32>(two);
+			var iOne = iis.LoadImage(one);
+			var iTwo = iis.LoadImage(two);
 			using (iOne) using(iTwo) {
-				if (!iOne.Bounds().Equals(iTwo.Bounds())) {
+				if (iOne.Width != iTwo.Width || iOne.Height != iTwo.Height) {
 					return false;
 				}
-				if (iOne.Frames.Count != iTwo.Frames.Count) {
+				if (!AreFramesEqual(iOne,iTwo)) {
 					return false;
-				}
-				for(int f=0; f<iOne.Frames.Count; f++) {
-					var fOne = iOne.Frames[f];
-					var fTwo = iTwo.Frames[f];
-					if (!AreFramesEqual(fOne,fTwo)) {
-						return false;
-					}
 				}
 			}
 			return true;
 		}
 
-		public static bool AreFramesEqual<TPixel>(ImageFrame<TPixel> one, ImageFrame<TPixel> two)
-			where TPixel : struct, IPixel<TPixel>
+		public static bool AreFramesEqual(IImage one, IImage two)
 		{
-			if (!one.Bounds().Equals(two.Bounds())) {
+			if (one.Width != two.Width || one.Height != two.Height) {
 				return false;
 			}
 
-			var sOne = one.GetPixelSpan();
-			var sTwo = two.GetPixelSpan();
-			return sOne.SequenceEqual(sTwo);
+			for(int y = 0; y < one.Height; y++) {
+				for(int x = 0; x < one.Width; x++) {
+					var po = one[x,y];
+					var pt = two[x,y];
+					bool same = AreColorsEqual(po,pt);
+					if (!same) { return false; }
+				}
+			}
+			return true;
+		}
+
+		public static bool AreColorsEqual(IColor one, IColor two)
+		{
+			bool same =
+				one.A == two.A &&
+				one.R == two.R &&
+				one.G == two.G &&
+				one.B == two.B
+			;
+			return same;
+		}
+
+		public static bool AreColorsEqual(Color one, Color two)
+		{
+			bool same =
+				one.A == two.A &&
+				one.R == two.R &&
+				one.G == two.G &&
+				one.B == two.B
+			;
+			return same;
+		}
+
+		public static void AssertAreEqual(Color exp, Color act)
+		{
+			//normalize the colors - comparing the same color created
+			// from a name vs with FromArgb won't trigger a match
+			Color c1 = Color.FromArgb(exp.A,exp.R,exp.G,exp.B);
+			Color c2 = Color.FromArgb(act.A,act.R,act.G,act.B);
+			Assert.AreEqual(c1,c2);
+		}
+
+		public static void AssertAreSimilar(IColor e, IColor a, double maxdiff = 0.0)
+		{
+			var dist = MetricHelpers.ColorDistance(e,a);
+			Assert.IsTrue(dist > 0.0,$"Difference was zero. Expected > 0.0");
+			Assert.IsTrue(dist < maxdiff,
+				$"Color Distance {dist} > {maxdiff}."
+				+ $" Expected <{e.R},{e.G},{e.B},{e.A}>"
+				+ $" Actual <{a.R},{a.G},{a.B},{a.A}>"
+			);
 		}
 
 		public static double ImageDistance(string one, string two)
 		{
-			var iOne = Image.Load<RgbaD>(one);
-			var iTwo = Image.Load<RgbaD>(two);
+			var iis = ImageFunctions.Registry.GetImageEngine();
+			var iOne = iis.LoadImage(one);
+			var iTwo = iis.LoadImage(two);
 			using (iOne) using(iTwo) {
-				if (iOne.Frames.Count != iTwo.Frames.Count) {
-					return double.MaxValue;
-				}
-				double total = 0.0;
-				for(int f=0; f<iOne.Frames.Count; f++) {
-					var fOne = iOne.Frames[f];
-					var fTwo = iTwo.Frames[f];
-					total += FrameDistance(fOne,fTwo);
-				}
+				var total = FrameDistance(iOne,iTwo);
 				return total;
 			}
 		}
 
-		public static double FrameDistance<TPixel>(ImageFrame<TPixel> one, ImageFrame<TPixel> two)
-			where TPixel : struct, IPixel<TPixel>
+		public static double FrameDistance(IImage one, IImage two)
 		{
-			var sOne = one.GetPixelSpan();
-			var sTwo = two.GetPixelSpan();
-			int maxLen = Math.Max(sOne.Length,sTwo.Length);
-			var black = Color.Black.ToPixel<TPixel>();
+			var black = ColorHelpers.Black;
+			int mw = Math.Max(one.Width,two.Width);
+			int mh = Math.Max(one.Height,two.Height);
 
 			double total = 0.0;
-			for(int p=0; p<maxLen; p++) {
-				var pOne = p < sOne.Length ? sOne[p] : black;
-				var pTwo = p < sTwo.Length ? sTwo[p] : black;
-				double dist = MetricHelpers.ColorDistance(pOne,pTwo);
-				total += dist;
+			for(int y = 0; y < mh; y++) {
+				for(int x = 0; x < mw; x++) {
+					var pOne = one.Width < x && one.Width < y ? one[x,y] : black;
+					var pTwo = two.Width < x && two.Width < y ? two[x,y] : black;
+					double dist = MetricHelpers.ColorDistance(pOne,pTwo);
+					total += dist;
+				}
 			}
 			return total;
 		}
@@ -286,4 +317,17 @@ namespace test
 			return last;
 		}
 	}
+
+	[TestClass]
+	public class TestSetup
+	{
+		[AssemblyInitialize]
+		public static void Init(TestContext ctx)
+		{
+			var cp = System.Diagnostics.Process.GetCurrentProcess();
+			cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
+		}
+
+	}
+
 }

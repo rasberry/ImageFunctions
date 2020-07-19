@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using ImageFunctions.Helpers;
-using SixLabors.ImageSharp.Processing.Processors.Transforms;
 
 namespace ImageFunctions
 {
@@ -25,35 +24,21 @@ namespace ImageFunctions
 			case Activity.SpearGraphic:    return new SpearGraphic.Function();
 			case Activity.ColatzVis:       return new ColatzVis.Function();
 			case Activity.UlamSpiral:      return new UlamSpiral.Function();
+			case Activity.Test:            return new Test.Function();
 			}
 			throw new ArgumentException("E: Unmapped action "+action);
 		}
 
-		public static IResampler Map(Sampler sampler)
+		public static ISampler Map(Sampler s,double scale = 1.5, PickEdgeRule edgeRule = PickEdgeRule.Edge)
 		{
-			switch(sampler)
-			{
-			default:
-			case Sampler.None:              return null;
-			case Sampler.Bicubic:           return new BicubicResampler();
-			case Sampler.Box:               return new BoxResampler();
-			case Sampler.CatmullRom:        return new CatmullRomResampler();
-			case Sampler.Hermite:           return new HermiteResampler();
-			case Sampler.Lanczos2:          return new Lanczos2Resampler();
-			case Sampler.Lanczos3:          return new Lanczos3Resampler();
-			case Sampler.Lanczos5:          return new Lanczos5Resampler();
-			case Sampler.Lanczos8:          return new Lanczos8Resampler();
-			case Sampler.MitchellNetravali: return new MitchellNetravaliResampler();
-			case Sampler.NearestNeighbor:   return new NearestNeighborResampler();
-			case Sampler.Robidoux:          return new RobidouxResampler();
-			case Sampler.RobidouxSharp:     return new RobidouxSharpResampler();
-			case Sampler.Spline:            return new SplineResampler();
-			case Sampler.Triangle:          return new TriangleResampler();
-			case Sampler.Welch:             return new WelchResampler();
-			}
+			return SampleHelpers.Map(s,scale,edgeRule);
 		}
 
-		public static IResampler DefaultResampler { get {
+		public static ISampler DefaultResampler { get {
+			return Map(Sampler.NearestNeighbor);
+		}}
+
+		public static ISampler DefaultIFResampler { get {
 			return Map(Sampler.NearestNeighbor);
 		}}
 
@@ -64,5 +49,40 @@ namespace ImageFunctions
 		public static IMeasurer DefaultMetric { get {
 			return Map(Metric.Euclidean);
 		}}
+
+		static IImageEngine CachedImageEngine = null;
+		public static IImageEngine GetImageEngine()
+		{
+			if (CachedImageEngine != null) {
+				return CachedImageEngine;
+			}
+
+			switch(Options.Engine)
+			{
+			case PickEngine.ImageMagick:
+				return CachedImageEngine = new Engines.ImageMagick.IMImageEngine();
+			case PickEngine.SixLabors:
+				return CachedImageEngine = new Engines.SixLabors.SLImageEngine();
+			}
+			throw new NotSupportedException($"Engine {Options.Engine} is not supported as an image engine");
+		}
+
+		static IDrawEngine CachedDrawEngine = null;
+		public static IDrawEngine GetDrawEngine()
+		{
+			if (CachedDrawEngine != null) {
+				return CachedDrawEngine;
+			}
+
+			switch(Options.Engine)
+			{
+			case PickEngine.ImageMagick:
+				return CachedDrawEngine = new Engines.ImageMagick.IMImageEngine();
+			case PickEngine.SixLabors:
+				return CachedDrawEngine = new Engines.SixLabors.SLImageEngine();
+			}
+			throw new NotSupportedException($"Engine {Options.Engine} is not supported as a draw engine");
+		}
+
 	}
 }
