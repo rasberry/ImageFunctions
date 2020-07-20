@@ -14,7 +14,7 @@ namespace ImageFunctions.UlamSpiral
 		public override void Apply()
 		{
 			InitColors();
-			ImageHelpers.FillWithColor(Source,Bounds,GetColor(PickColor.Back));
+			ImageHelpers.FillWithColor(Source,GetColor(PickColor.Back),Bounds);
 
 			var srect = GetSpacedRectangle(Bounds);
 			int maxFactor = O.ColorComposites ? FindMaxFactor(Bounds) : 1;

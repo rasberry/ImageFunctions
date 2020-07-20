@@ -14,7 +14,7 @@ namespace ImageFunctions.ColatzVis
 			var frame = Source;
 			var rect = Bounds;
 			var black = Helpers.ColorHelpers.Black;
-			ImageHelpers.FillWithColor(frame,rect,black);
+			ImageHelpers.FillWithColor(frame,black,rect);
 
 			for(BigInteger c = 3; c < 100000; c += 2)
 			{

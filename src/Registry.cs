@@ -24,6 +24,7 @@ namespace ImageFunctions
 			case Activity.SpearGraphic:    return new SpearGraphic.Function();
 			case Activity.ColatzVis:       return new ColatzVis.Function();
 			case Activity.UlamSpiral:      return new UlamSpiral.Function();
+			case Activity.Maze:            return new Maze.Function();
 			case Activity.Test:            return new Test.Function();
 			}
 			throw new ArgumentException("E: Unmapped action "+action);

@@ -144,5 +144,14 @@ namespace ImageFunctions.Helpers
 			double s = Math.Sin(v) / v;
 			return Math.Abs(s) < double.Epsilon ? 0.0 : s;
 		}
+
+		/// <summary>
+		/// Random coin toss
+		/// </summary>
+		/// <param name="bias">Percent chance of returning true</param>
+		public static bool RandomChoice(this Random rnd, double bias = 0.5)
+		{
+			return rnd.NextDouble() < bias;
+		}
 	}
 }
