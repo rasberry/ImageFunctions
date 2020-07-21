@@ -119,7 +119,7 @@ namespace ImageFunctions.Maze
 				// Step 5: Repeat until the last row is reached.
 				rowNum++;
 				(cRow, nRow) = (nRow, cRow); //swap rows
-
+				for (int c = 0; c < width; c++) { nRow[c] = 0; } //clear next row
 			}
 
 			//Step 6: For the last row, join all adjacent cells that do not share a set,

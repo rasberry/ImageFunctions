@@ -9,6 +9,7 @@ namespace ImageFunctions.Maze
 	{
 		public Size StartingSize { get {
 			return new Size(1024,1024);
+			//return new Size(20,20);
 		}}
 
 		public override bool ParseArgs(string[] args)
