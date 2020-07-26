@@ -22,6 +22,9 @@ namespace ImageFunctions.Maze
 			if (p.Default("-wc",out O.WallColor,ColorHelpers.White).IsInvalid()) {
 				return false;
 			}
+			if (p.Default("-rs",out O.RndSeed, null).IsInvalid()) {
+				return false;
+			}
 
 			if (p.Expect(out O.Which,"maze").IsBad()) {
 				return false;
@@ -40,6 +43,7 @@ namespace ImageFunctions.Maze
 			sb.WL(1,"Draw one of several mazes");
 			sb.WL(1,"-cc (color)"    ,"Change cell color (default black)");
 			sb.WL(1,"-wc (color)"    ,"Change wall color (default white)");
+			sb.WL(1,"-rs (number)"   ,"Random Int32 seed value (defaults to system picked)");
 			sb.WL();
 			sb.WL(1,"Available Mazes:");
 			sb.PrintEnum<PickMaze>(1,MazeDesc);

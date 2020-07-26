@@ -47,12 +47,11 @@ namespace ImageFunctions.Maze
 			while(Walls.Count > 0) {
 				//PrintQueue();
 				Cell c = RemoveRandomWall();
-				//Log.Debug($"C = {c}");
+				//Log.Debug($"RW = {c}");
 				if (MarkCellsForWall(c)) {
 					CellCount++;
 					prog.Report((double)CellCount / TCells);
 				}
-				//if (CellCount > 4 * TCells) { break; } //TODO remove this when it's working
 			}
 		}
 
@@ -102,22 +101,24 @@ namespace ImageFunctions.Maze
 		bool MarkCellsForWall(Cell c)
 		{
 			Cell q = default(Cell); bool wasSet = true;
+			//we're drawing only the destination cell so the wall is opposite from that perspective
+			PickWall o = PickWall.None;
 			switch(c.W) {
-				case PickWall.N: q = new Cell(c.P.X,c.P.Y-1,PickWall.None); break;
-				case PickWall.E: q = new Cell(c.P.X+1,c.P.Y,PickWall.None); break;
-				case PickWall.S: q = new Cell(c.P.X,c.P.Y+1,PickWall.None); break;
-				case PickWall.W: q = new Cell(c.P.X-1,c.P.Y,PickWall.None); break;
+				case PickWall.N: q = new Cell(c.P.X,c.P.Y-1,PickWall.None); o = PickWall.S; break;
+				case PickWall.E: q = new Cell(c.P.X+1,c.P.Y,PickWall.None); o = PickWall.W; break;
+				case PickWall.S: q = new Cell(c.P.X,c.P.Y+1,PickWall.None); o = PickWall.N; break;
+				case PickWall.W: q = new Cell(c.P.X-1,c.P.Y,PickWall.None); o = PickWall.E; break;
 				default: wasSet = false; break; //q was not set
 			}
 			//return if out of bounds or if target cell is already open
 			if (!wasSet || !IsBlocked(q.P.X,q.P.Y,q.W)) {
-				//Log.Debug($"isCell {q}");
+				//Log.Debug($"Skipped {q}");
 				return false;
 			}
 
+			//Log.Debug($"Hole {c} {q} [{c.W}]");
 			AddWallsForCell(q.P.X,q.P.Y);
-			DrawCell(q.P.X, q.P.Y, c.W);
-			//Log.Debug($"hole {c} {q} [{c.W}]");
+			DrawCell(q.P.X, q.P.Y, o);
 			return true;
 		}
 	}
