@@ -9,7 +9,7 @@ namespace ImageFunctions.Maze
 	{
 		public Size StartingSize { get {
 			return new Size(1024,1024);
-			//return new Size(20,20);
+			// return new Size(10,10);
 		}}
 
 		public override bool ParseArgs(string[] args)
@@ -23,7 +23,7 @@ namespace ImageFunctions.Maze
 				return false;
 			}
 
-			if (p.Expect(out PickMaze pm,"maze").IsBad()) {
+			if (p.Expect(out O.Which,"maze").IsBad()) {
 				return false;
 			}
 			if (p.DefaultFile(out OutImage,nameof(Maze)).IsBad()) {
@@ -49,6 +49,7 @@ namespace ImageFunctions.Maze
 		{
 			switch(maze) {
 			case PickMaze.Eller: return "Eller's Algorithm";
+			case PickMaze.Prims: return "Prim's (Jarník's) Algorithm";
 			}
 			return "";
 		}
