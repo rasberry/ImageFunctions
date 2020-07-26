@@ -53,19 +53,23 @@ namespace ImageFunctions.Maze
 			if (x < 0 || x >= img.Width || y < 0 || y >= img.Height) {
 				return;
 			}
-			//Log.Debug($"Draw [{cx},{cy}] {removeWalls}");
 			img[x,y] = O.CellColor;
+			//Log.Debug($"Draw ({cx},{cy}) {removeWalls} [{x},{y}]");
 			if (removeWalls.HasFlag(PickWall.N) && y > 0) {
 				img[x,y-1] = O.CellColor;
+				//Log.Debug($"Draw [{x},{y-1}]");
 			}
 			if (removeWalls.HasFlag(PickWall.S) && y < img.Height - 1) {
 				img[x,y+1] = O.CellColor;
+				//Log.Debug($"Draw [{x},{y+1}]");
 			}
 			if (removeWalls.HasFlag(PickWall.W) && x > 0) {
 				img[x-1,y] = O.CellColor;
+				//Log.Debug($"Draw [{x-1},{y}]");
 			}
 			if (removeWalls.HasFlag(PickWall.E) && x < img.Width - 1) {
 				img[x+1,y] = O.CellColor;
+				//Log.Debug($"Draw [{x+1},{y}]");
 			}
 		}
 
