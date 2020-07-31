@@ -54,7 +54,6 @@ namespace ImageFunctions
 			if (iGen != null) {
 				if (Options.Bounds == Rectangle.Empty) {
 					var size = iGen.StartingSize;
-					Log.Debug($"Bounds was empty. Using {size}");
 					if (size == Size.Empty) {
 						Log.Error($"{Options.Which} doesn't provide an initial size so you must include the --rect option");
 						return false;

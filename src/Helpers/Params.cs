@@ -68,7 +68,7 @@ namespace ImageFunctions.Helpers
 			}
 			if (par == null) { par = TryParse; }
 			bool worked = par(Args[i+1],out val);
-			Log.Debug($"Default {@switch} {worked} {Args[i+1]}");
+			// Log.Debug($"Default {@switch} {worked} {Args[i+1]}");
 			if (!par(Args[i+1],out val)) {
 				Tell.CouldNotParse(@switch,Args[i+1]);
 				return Result.Invalid;
@@ -84,7 +84,7 @@ namespace ImageFunctions.Helpers
 			Result rr = Result.Missing;
 			foreach(string sw in @switch) {
 				var r = Default<T>(sw,out val,def,par);
-				Log.Debug($"Default r={r} val={val}");
+				// Log.Debug($"Default sw={sw} r={r} val={val}");
 				if (r == Result.Invalid) { return r; }
 				if (r == Result.Good) { return r; }
 			}

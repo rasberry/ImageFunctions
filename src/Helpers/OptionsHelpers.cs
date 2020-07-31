@@ -298,7 +298,7 @@ namespace ImageFunctions.Helpers
 		//Note: negative width and height are allowed to allow w,h to be used as a point
 		static bool TryParseRectangle(string arg, out Rectangle rect)
 		{
-			Log.Debug($"Parsing Rectangle {arg}");
+			//Log.Debug($"Parsing Rectangle {arg}");
 			rect = Rectangle.Empty;
 			if (String.IsNullOrWhiteSpace(arg)) { return false; }
 
@@ -309,12 +309,12 @@ namespace ImageFunctions.Helpers
 			}
 			bool isTwo = parts.Length == 2;
 			int x = 0, y = 0, w = 0, h = 0;
-			Log.Debug($"rectangle parts {parts.Length}");
+			//Log.Debug($"rectangle parts {parts.Length}");
 			for(int p=0; p<parts.Length; p++) {
 				if (!int.TryParse(parts[p],out int n)) {
 					return false; //we only like numbers
 				}
-				Log.Debug($"parts loop {p} = {n}");
+				//Log.Debug($"parts loop {p} = {n}");
 				switch(p + (isTwo ? 2 : 0)) {
 				case 0: x = n; break;
 				case 1: y = n; break;
