@@ -9,7 +9,6 @@ namespace ImageFunctions.Maze
 	{
 		public Size StartingSize { get {
 			return new Size(1024,1024);
-			// return new Size(10,10);
 		}}
 
 		public override bool ParseArgs(string[] args)
@@ -54,6 +53,7 @@ namespace ImageFunctions.Maze
 			switch(maze) {
 			case PickMaze.Eller: return "Eller's Algorithm";
 			case PickMaze.Prims: return "Prim's (Jarník's) Algorithm";
+			case PickMaze.Kruskal: return "Kruskal's algorithm";
 			}
 			return "";
 		}

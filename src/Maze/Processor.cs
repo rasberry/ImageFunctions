@@ -14,7 +14,7 @@ namespace ImageFunctions.Maze
 
 	[Flags]
 	public enum PickWall {
-		None = 0, N = 1, E = 2, S = 4, W = 8
+		None = 0, N = 1, E = 2, S = 4, W = 8, All = 15
 	}
 
 	public class Processor : AbstractProcessor
@@ -28,6 +28,7 @@ namespace ImageFunctions.Maze
 			switch(O.Which) {
 			case PickMaze.Eller: maze = new Ellers(); break;
 			case PickMaze.Prims: maze = new Prims(); break;
+			case PickMaze.Kruskal: maze = new Kruskal(); break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
