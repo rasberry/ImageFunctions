@@ -147,10 +147,12 @@ namespace ImageFunctions
 			}
 
 			var orect = p.Default(new string[] { "-#","--rect"},out Rectangle rect);
+			Log.Debug($"rect = {rect}");
 			if (orect.IsInvalid()) {
 				return false;
 			}
 			else if (orect.IsGood()) {
+				Log.Debug($"Set Bounds {rect}");
 				Bounds = rect;
 			}
 

@@ -25,7 +25,6 @@ namespace ImageFunctions.Maze
 
 			public override string ToString() {
 				return $"[{P.X},{P.Y}] {W}";
-
 			}
 		}
 
@@ -101,13 +100,11 @@ namespace ImageFunctions.Maze
 		bool MarkCellsForWall(Cell c)
 		{
 			Cell q = default(Cell); bool wasSet = true;
-			//we're drawing only the destination cell so the wall is opposite from that perspective
-			PickWall o = PickWall.None;
 			switch(c.W) {
-				case PickWall.N: q = new Cell(c.P.X,c.P.Y-1,PickWall.None); o = PickWall.S; break;
-				case PickWall.E: q = new Cell(c.P.X+1,c.P.Y,PickWall.None); o = PickWall.W; break;
-				case PickWall.S: q = new Cell(c.P.X,c.P.Y+1,PickWall.None); o = PickWall.N; break;
-				case PickWall.W: q = new Cell(c.P.X-1,c.P.Y,PickWall.None); o = PickWall.E; break;
+				case PickWall.N: q = new Cell(c.P.X,c.P.Y-1,PickWall.None); break;
+				case PickWall.E: q = new Cell(c.P.X+1,c.P.Y,PickWall.None); break;
+				case PickWall.S: q = new Cell(c.P.X,c.P.Y+1,PickWall.None); break;
+				case PickWall.W: q = new Cell(c.P.X-1,c.P.Y,PickWall.None); break;
 				default: wasSet = false; break; //q was not set
 			}
 			//return if out of bounds or if target cell is already open
@@ -118,7 +115,8 @@ namespace ImageFunctions.Maze
 
 			//Log.Debug($"Hole {c} {q} [{c.W}]");
 			AddWallsForCell(q.P.X,q.P.Y);
-			DrawCell(q.P.X, q.P.Y, o);
+			//we're drawing only the destination cell so the wall is opposite from that perspective
+			DrawCell(q.P.X, q.P.Y, Aids.Opposite(c.W));
 			return true;
 		}
 	}
