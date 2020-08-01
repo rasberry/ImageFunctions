@@ -29,6 +29,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.Eller: maze = new Ellers(); break;
 			case PickMaze.Prims: maze = new Prims(); break;
 			case PickMaze.Kruskal: maze = new Kruskal(); break;
+			case PickMaze.BinaryTree : maze = new BinaryTree(); break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
@@ -49,8 +50,8 @@ namespace ImageFunctions.Maze
 		void DrawCell(int cx,int cy, PickWall removeWalls)
 		{
 			var img = Source;
-			int x = cx * 2 + 1;
-			int y = cy * 2 + 1;
+			int x = cx * 2;
+			int y = cy * 2;
 			if (x < 0 || x >= img.Width || y < 0 || y >= img.Height) {
 				return;
 			}
