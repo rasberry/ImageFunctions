@@ -18,17 +18,24 @@ namespace ImageFunctions.Maze
 			Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 
 			//left edge
+			prog.Prefix = "Left Edge ";
 			for(int y = 0; y < CellsHigh; y++) {
 				DrawPick(0,y,PickWall.N,PickWall.N);
+				prog.Report((double)y / CellsHigh);
 			}
 			//top edge
+			prog.Prefix = "Top Edge ";
 			for(int x = 0; x < CellsWide; x++) {
 				DrawPick(x,0,PickWall.W,PickWall.W);
+				prog.Report((double)x / CellsWide);
 			}
 			//everything else
+			prog.Prefix = "Maze ";
+			double total = CellsWide * CellsHigh;
 			for(int y = 0; y < CellsHigh; y++) {
 				for(int x = 0; x < CellsWide; x++ ) {
 					DrawPick(x,y,PickWall.W,PickWall.N);
+					prog.Report((y * CellsWide + x) / total);
 				}
 			}
 		}
