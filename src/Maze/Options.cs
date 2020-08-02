@@ -8,7 +8,8 @@ namespace ImageFunctions.Maze
 		Eller = 1,
 		Prims = 2,
 		Kruskal = 3,
-		BinaryTree = 4
+		BinaryTree = 4,
+		GrowingTree = 5
 	}
 
 	public class Options

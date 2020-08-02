@@ -49,6 +49,7 @@ namespace ImageFunctions.Maze
 				//Log.Debug($"RW = {c}");
 				if (MarkCellsForWall(c)) {
 					CellCount++;
+					// prog.Prefix = Walls.Count + " ";
 					prog.Report((double)CellCount / TCells);
 				}
 			}
