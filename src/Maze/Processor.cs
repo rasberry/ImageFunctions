@@ -29,7 +29,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.Prims: Maze = new Prims(); break;
 			case PickMaze.Kruskal: Maze = new Kruskal(); break;
 			case PickMaze.BinaryTree: Maze = new BinaryTree(); break;
-			case PickMaze.GrowingTree: Maze = new GrowingTree(); break;
+			case PickMaze.GrowingTree: Maze = new GrowingTree() { Sequence = O.Sequence }; break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
