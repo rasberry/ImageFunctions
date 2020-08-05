@@ -20,7 +20,7 @@ namespace ImageFunctions.Maze
 
 		public void DrawMaze(ProgressBar prog)
 		{
-			Log.Debug($"Seq [{String.Join(',',Sequence)}]");
+			//Log.Debug($"Seq [{String.Join(',',Sequence)}]");
 			Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 			var have = new List<PickWall>();
 			int W = CellsWide - 1;

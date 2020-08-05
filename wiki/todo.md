@@ -103,3 +103,9 @@
   * option for starting at a different prime
   * option for coloring multiples
   * option for switching direction (ccw vs cw)
+
+## Maze ##
+* add maze types listed in http://www.jamisbuck.org/presentations/rubyconf2011/index.html
+  * spiral binary tree maze (spiral from center, connect cells randomly)
+  *
+

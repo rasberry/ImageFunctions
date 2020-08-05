@@ -10,7 +10,8 @@ namespace ImageFunctions.Maze
 		Prims = 2,
 		Kruskal = 3,
 		BinaryTree = 4,
-		GrowingTree = 5
+		GrowingTree = 5,
+		Automata = 6
 	}
 
 	public enum PickNext

@@ -68,6 +68,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.Kruskal: return "Kruskal's algorithm";
 			case PickMaze.BinaryTree: return "Binary Tree maze algorithm";
 			case PickMaze.GrowingTree: return "Growing Tree maze algorithm";
+			case PickMaze.Automata: return "Cellular Automata Maze";
 			}
 			return "";
 		}

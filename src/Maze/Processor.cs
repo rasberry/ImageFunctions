@@ -3,9 +3,12 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Maze
 {
-	public interface IMaze {
+	public interface IBasicMaze {
 		Options O { get; set; }
 		void DrawMaze(ProgressBar prog);
+	}
+
+	public interface IMaze : IBasicMaze {
 		Action<int,int,PickWall> DrawCell { get; set; }
 		Func<int,int,PickWall,bool> IsBlocked { get; set; }
 		int CellsWide { get; set; }
@@ -30,18 +33,22 @@ namespace ImageFunctions.Maze
 			case PickMaze.Kruskal: Maze = new Kruskal(); break;
 			case PickMaze.BinaryTree: Maze = new BinaryTree(); break;
 			case PickMaze.GrowingTree: Maze = new GrowingTree() { Sequence = O.Sequence }; break;
+			case PickMaze.Automata: BasicMaze = new Automata { PixelGrid = Source }; break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
-			Maze.CellsWide = Source.Width / 2;
-			Maze.CellsHigh = Source.Width / 2;
-			Maze.O = O;
-			Maze.DrawCell = DrawCell;
-			Maze.IsBlocked = IsBlocked;
+			if (Maze != null) {
+				Maze.CellsWide = Source.Width / 2;
+				Maze.CellsHigh = Source.Width / 2;
+				Maze.DrawCell = DrawCell;
+				Maze.IsBlocked = IsBlocked;
+				BasicMaze = Maze;
+			}
+			BasicMaze.O = O;
 
 			ImageHelpers.FillWithColor(Source,O.WallColor);
 			using (var progress = new ProgressBar()) {
-				Maze.DrawMaze(progress);
+				BasicMaze.DrawMaze(progress);
 			}
 		}
 
@@ -133,6 +140,7 @@ namespace ImageFunctions.Maze
 			return (2 * cx, 2 * cy);
 		}
 		
+		IBasicMaze BasicMaze = null;
 		IMaze Maze = null;
 	}
 }
