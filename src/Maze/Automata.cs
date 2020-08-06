@@ -30,7 +30,7 @@ namespace ImageFunctions.Maze
 			bool done = false;
 			int iters = 0;
 
-			while(!done) {
+			while(!done && iters < 50) {
 				done = true;
 
 				prog.Prefix = $"Iteration {iters} ";
@@ -42,12 +42,12 @@ namespace ImageFunctions.Maze
 						bool c = GetXYBit(x,y);
 						int n = CountNeighbors(x,y);
 						//if dead and has 3 neighbors, make alive
-						if (n == 3 && !c) { //S3
+						if (c && n == 3) { //S3
 							SetXYBit(x,y,true);
 							done = false;
 						}
 						//if alive and has 0 or more then 5 neighbors, kill
-						else if (c && n < 1 && n > 5) { //B12345
+						else if (!c && n < 1 && n > 5) { //B12345
 							SetXYBit(x,y,false);
 							done = false;
 						}
