@@ -11,7 +11,8 @@ namespace ImageFunctions.Maze
 		Kruskal = 3,
 		BinaryTree = 4,
 		GrowingTree = 5,
-		Automata = 6
+		Automata = 6,
+		Spiral = 7
 	}
 
 	public enum PickNext

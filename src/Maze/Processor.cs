@@ -34,6 +34,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.BinaryTree: Maze = new BinaryTree(); break;
 			case PickMaze.GrowingTree: Maze = new GrowingTree() { Sequence = O.Sequence }; break;
 			case PickMaze.Automata: BasicMaze = new Automata { PixelGrid = Source }; break;
+			case PickMaze.Spiral: Maze = new Spiral(); break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
