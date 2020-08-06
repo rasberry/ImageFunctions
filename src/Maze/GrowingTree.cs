@@ -17,6 +17,7 @@ namespace ImageFunctions.Maze
 
 		Random Rnd = null;
 		List<Point> CellList = new List<Point>();
+		//IList<Point> CellList = new HeapList<Point>();
 
 		public void DrawMaze(ProgressBar prog)
 		{
@@ -68,10 +69,11 @@ namespace ImageFunctions.Maze
 
 				// remove from list if all are visited
 				if (have.Count < 1) {
+					CellList.RemoveAt(pickIndex);
 					//swap last and picked
-					(CellList[last],CellList[pickIndex]) = (CellList[pickIndex],CellList[last]);
+					//(CellList[last],CellList[pickIndex]) = (CellList[pickIndex],CellList[last]);
 					//so we can remove last (which is O(1) operation)
-					CellList.RemoveAt(last);
+					//CellList.RemoveAt(last);
 					continue;
 				}
 
