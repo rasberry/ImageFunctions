@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Text;
 using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Maze
@@ -18,19 +19,19 @@ namespace ImageFunctions.Maze
 		{
 			Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 
-			// S3/B12345
+			// B3/S12345
 
 			int bitLen = PixelGrid.Width * PixelGrid.Height;
 			Curr = new BitArray(bitLen);
 			Next = new BitArray(bitLen);
 			for(int b=0; b<Curr.Length; b++) {
-				bool set = Rnd.Next(0,4) == 0;
+				bool set = Rnd.Next(0,2) == 0;
 				Curr.Set(b,set); Next.Set(b,set);
 			}
 			bool done = false;
 			int iters = 0;
 
-			while(!done && iters < 50) {
+			while(!done && iters < 100) {
 				done = true;
 
 				prog.Prefix = $"Iteration {iters} ";
@@ -42,17 +43,19 @@ namespace ImageFunctions.Maze
 						bool c = GetXYBit(x,y);
 						int n = CountNeighbors(x,y);
 						//if dead and has 3 neighbors, make alive
-						if (c && n == 3) { //S3
+						if (!c && n == 3) { //B3
 							SetXYBit(x,y,true);
 							done = false;
 						}
 						//if alive and has 0 or more then 5 neighbors, kill
-						else if (!c && n < 1 && n > 5) { //B12345
+						else if (c && (n < 1 || n > 5)) { //S12345
 							SetXYBit(x,y,false);
 							done = false;
 						}
 					}
 				}
+
+				// Log.Debug("\n" + BitArrayToString());
 
 				// copy updated layer to the current layer
 				for(int a=0; a<bitLen; a++) { Curr[a] = Next[a]; }
@@ -81,18 +84,18 @@ namespace ImageFunctions.Maze
 
 		(int,int) GetDonutCoords(int x,int y)
 		{
-			int W = PixelGrid.Width - 1;
-			int H = PixelGrid.Height - 1;
-			if (x < 0) { x = W; }
-			if (x > W) { x = 0; }
-			if (y < 0) { y = H; }
-			if (y > H) { y = 0; }
+			int W = PixelGrid.Width;
+			int H = PixelGrid.Height;
+			if (x < 0)  { x += W; }
+			if (x >= W) { x -= W; }
+			if (y < 0)  { y += H; }
+			if (y >= H) { y -= H; }
 			return (x,y);
 		}
 
 		int CountNeighbors(int x,int y)
 		{
-			int total = 
+			int total =
 				  (GetXYBit(x - 1, y - 1) ? 1 : 0)
 				+ (GetXYBit(x + 0, y - 1) ? 1 : 0)
 				+ (GetXYBit(x + 1, y - 1) ? 1 : 0)
@@ -104,6 +107,30 @@ namespace ImageFunctions.Maze
 				+ (GetXYBit(x + 1, y + 1) ? 1 : 0)
 			;
 			return total;
+		}
+
+		string BitArrayToString()
+		{
+			var sb = new StringBuilder();
+			for(int y=0; y<PixelGrid.Height; y++) {
+				for(int x=0; x<PixelGrid.Width; x++) {
+					bool c = GetXYBit(x,y);
+					int n = CountNeighbors(x,y);
+					//if dead and has 3 neighbors, make alive
+					if (!c && n == 3) { //B3
+						sb.Append('B');
+					}
+					//if alive and has 0 or more then 5 neighbors, kill
+					else if (c && (n < 1 || n > 5)) { //S12345
+						sb.Append('K');
+					}
+					else {
+						sb.Append(c ? 'C' : ' ');
+					}
+				}
+				sb.AppendLine();
+			}
+			return sb.ToString();
 		}
 	}
 }
