@@ -107,5 +107,8 @@
 ## Maze ##
 * add maze types listed in http://www.jamisbuck.org/presentations/rubyconf2011/index.html
   * spiral binary tree maze (spiral from center, connect cells randomly)
-  * 
-
+* Automata:
+  * make max iterations variable (or do we need this ?) - maybe make % done related to number of changes per iteration
+  * add options for initial random start
+    * input image
+    * random bits in an NxN square - maybe centered ? or possibly randomized center point
