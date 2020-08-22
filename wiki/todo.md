@@ -56,7 +56,7 @@
   * add option to start at the global minima instead of just the top/left row
   * add option to find minima per row instead of just the next neighbor pixels
   * add option to save what was removed in another file. (image splitting ..!)
-  * 
+  *
 
 ## AllColors ##
 * https://en.wikipedia.org/wiki/Adobe_RGB_color_space
@@ -111,7 +111,7 @@
 
 ## Maze ##
 * add maze types listed in http://www.jamisbuck.org/presentations/rubyconf2011/index.html
-  * spiral binary tree maze (spiral from center, connect cells randomly)
+  * and https://github.com/armin-reichert/mazes
 * Automata:
   * make max iterations variable (or do we need this ?) - maybe make % done related to number of changes per iteration
   * add options for initial random start
