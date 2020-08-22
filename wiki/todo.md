@@ -52,6 +52,11 @@
   * add option to change starting point
 * Implement blind deconvolution
   * https://github.com/tianyishan/Blind_Deconvolution
+* Implment seam carving
+  * add option to start at the global minima instead of just the top/left row
+  * add option to find minima per row instead of just the next neighbor pixels
+  * add option to save what was removed in another file. (image splitting ..!)
+  * 
 
 ## AllColors ##
 * https://en.wikipedia.org/wiki/Adobe_RGB_color_space
