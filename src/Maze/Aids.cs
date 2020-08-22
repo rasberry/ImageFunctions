@@ -16,6 +16,16 @@ namespace ImageFunctions.Maze
 			return PickWall.None;
 		}
 
+		public static PickWall AddFlag(this PickWall w, PickWall f)
+		{
+			return w |= f;
+		}
+
+		public static PickWall CutFlag(this PickWall w, PickWall f)
+		{
+			return w &= ~f & PickWall.All;
+		}
+
 		public static String MazeToString(this IMaze m)
 		{
 			var sa = new StringBuilder();
