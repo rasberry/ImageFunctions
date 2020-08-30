@@ -63,12 +63,13 @@ namespace ImageFunctions.Maze
 		static string MazeDesc(PickMaze maze)
 		{
 			switch(maze) {
-			case PickMaze.Eller: return "Eller's Algorithm";
-			case PickMaze.Prims: return "Prim's (Jarník's) Algorithm";
+			case PickMaze.Eller: return "Eller's algorithm";
+			case PickMaze.Prims: return "Prim's (Jarník's) algorithm";
 			case PickMaze.Kruskal: return "Kruskal's algorithm";
-			case PickMaze.BinaryTree: return "Binary Tree maze algorithm";
-			case PickMaze.GrowingTree: return "Growing Tree maze algorithm";
-			case PickMaze.Automata: return "Cellular Automata Maze";
+			case PickMaze.BinaryTree: return "Binary tree maze algorithm";
+			case PickMaze.GrowingTree: return "Growing tree maze algorithm";
+			case PickMaze.Automata: return "Cellular automata Maze";
+			case PickMaze.ReverseDelete: return "Reverse delete algorithm";
 			}
 			return "";
 		}
