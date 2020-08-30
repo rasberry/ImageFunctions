@@ -12,7 +12,8 @@ namespace ImageFunctions.Maze
 		BinaryTree = 4,
 		GrowingTree = 5,
 		Automata = 6,
-		Spiral = 7
+		Spiral = 7,
+		ReverseDelete = 8
 	}
 
 	public enum PickNext

@@ -35,6 +35,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.GrowingTree: Maze = new GrowingTree() { Sequence = O.Sequence }; break;
 			case PickMaze.Automata: BasicMaze = new Automata { PixelGrid = Source }; break;
 			case PickMaze.Spiral: Maze = new Spiral(); break;
+			case PickMaze.ReverseDelete: Maze = new ReverseDelete(); break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
@@ -60,7 +61,7 @@ namespace ImageFunctions.Maze
 		{
 			var img = Source;
 			var (x,y) = CellToImage(cx,cy);
-			
+
 			if (x < 0 || x >= img.Width || y < 0 || y >= img.Height) {
 				return;
 			}
@@ -140,7 +141,7 @@ namespace ImageFunctions.Maze
 		{
 			return (2 * cx, 2 * cy);
 		}
-		
+
 		IBasicMaze BasicMaze = null;
 		IMaze Maze = null;
 	}

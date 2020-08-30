@@ -53,7 +53,7 @@ namespace ImageFunctions.Maze
 		{
 			Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 			int len = CellsHigh * CellsWide;
-			
+
 			//init structures
 			//note: using pickwall as a bit field to store 4 edges per cell
 			var Edges = new List<Cell>(len);
@@ -92,7 +92,6 @@ namespace ImageFunctions.Maze
 				}
 				// draw and connect
 				var dest = Sets[next.Value];
-
 				if (!node.IsConnectedWith(dest)) {
 					node.ConnectWith(dest);
 					DrawCell(node.P.X, node.P.Y, pick);
