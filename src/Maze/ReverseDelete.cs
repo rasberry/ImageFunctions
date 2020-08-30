@@ -15,63 +15,26 @@ namespace ImageFunctions.Maze
 		public int CellsWide { get; set; }
 		public int CellsHigh { get; set; }
 
-		class Cell
-		{
-			public Cell(int maxDepth) {
-				MaxDepth = maxDepth;
-			}
-
-			int MaxDepth = -1;
-			public Cell Parent = null;
-
-			public Cell Root { get {
-				// a little bit of recursive magick
-				//return Parent != null ? Parent.Root : this;
-				if (Parent == null) { return this; }
-				int depth = MaxDepth;
-				Cell p = Parent;
-				Cell r = Parent;
-				while (depth >= 0) {
-					if (r == null) { return p; }
-					(p,r) = (r,p.Parent);
-					depth--;
-				}
-				return null;
-			}}
-
-			public bool IsConnectedWith(Cell c) {
-				return Root == c.Root;
-			}
-
-			public void ConnectWith(Cell c) {
-				this.Parent = c.Root;
-			}
-		}
-
 		Random Rnd;
 		PickWall[] Walls = new PickWall[] { PickWall.N, PickWall.W, PickWall.S, PickWall.E };
+		int[] Parent = null;
+		int MaxDepth = 0;
 
 		public void DrawMaze(ProgressBar prog)
 		{
 			Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 			int len = CellsHigh * CellsWide;
-			//int maxDepth = (int)Math.Ceiling(Math.Log(len,2));
+			MaxDepth = len;
+			Parent = new int[len];
+			DrawCell(0,0,PickWall.None);
 
-			//init structures
-			var Edges = new List<Cell>(len);
-			//note: using pickwall as a bit field to store 4 edges per cell
-			Cell root = new Cell(len);
-			Edges.Add(root);
-			for(int e = 1; e < len; e++) {
-				var cell = new Cell(len);
-				Edges.Add(cell);
-				//instead of connecting all cells with every edge, connect just one
+			for(int e = 0; e < len; e++) {
+				//instead of connecting all cells with every edge, connect just one edge
 				// then we can see if picking a random edge keeps the graph connected
-				Edges[e].ConnectWith(Edges[e-1]);
+				Parent[e] = e - 1;
 			}
 
 			for(int e = len - 1,f = 0; e >= 1; e--, f++) {
-				var c = Edges[e];
 				int x = e % CellsWide;
 				int y = e / CellsWide;
 
@@ -88,20 +51,33 @@ namespace ImageFunctions.Maze
 						continue;
 					}
 					// change parent
-					Cell d = Edges[ty * CellsWide + tx];
-					Cell p = c.Parent;
-					c.Parent = d;
+					int d = ty * CellsWide + tx;
+					int p = Parent[e];
+					Parent[e] = d;
 					//if it's still connected we can stop
-					if (c.IsConnectedWith(root)) {
+					if (IsConnected(e)) {
 						DrawCell(x,y,w);
 						break;
 					}
 					else {
-						c.Parent = p; //put back original
+						Parent[e] = p; //put back original
 					}
 				}
 				prog.Report(f / (double)len);
 			}
+		}
+
+		bool IsConnected(int a)
+		{
+			if (a == -1) { return true; } //are we root ?
+			int depth = MaxDepth;
+			int r = Parent[a]; //follow parent pointer
+			while(--depth >=0 ) {
+				if (r == -1) { return true; }
+				if (r == a) { return false; } //we went in a loop
+				r = Parent[r];
+			}
+			return false;
 		}
 
 		void Shuffle<T>(T[] array)
