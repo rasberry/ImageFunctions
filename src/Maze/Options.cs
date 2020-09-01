@@ -13,7 +13,8 @@ namespace ImageFunctions.Maze
 		GrowingTree = 5,
 		Automata = 6,
 		Spiral = 7,
-		ReverseDelete = 8
+		ReverseDelete = 8,
+		SideWinder = 9
 	}
 
 	public enum PickNext
