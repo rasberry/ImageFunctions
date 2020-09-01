@@ -5,8 +5,8 @@ using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Maze
 {
-	//TODO this gets really slow for bigger-ish mazers (1024x1024)
-	// is there something wrong ? maybe look at BenchmarkDotNet
+	// http://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm
+
 	public class Kruskal : IMaze
 	{
 		public Options O { get; set; }
@@ -14,38 +14,6 @@ namespace ImageFunctions.Maze
 		public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 		public int CellsWide { get; set; }
 		public int CellsHigh { get; set; }
-
-		// http://weblog.jamisbuck.org/2011/1/3/maze-generation-kruskal-s-algorithm
-		class Cell
-		{
-			public Cell(int x,int y,PickWall w)
-			{
-				P = new Point(x,y);
-				W = w;
-			}
-
-			public Point P;
-			public PickWall W;
-			Cell Parent = null;
-
-			public Cell Root { get {
-				// a little bit of recursive magick
-				return Parent != null ? Parent.Root : this;
-			}}
-
-			public bool IsConnectedWith(Cell c) {
-				return Root == c.Root;
-			}
-
-			public void ConnectWith(Cell c) {
-				c.Root.Parent = this;
-			}
-
-			public override string ToString() {
-				return $"[{P.X},{P.Y}] {W} ({(Parent == null ? "" : "P")})";
-			}
-
-		}
 
 		Random Rnd;
 
@@ -151,6 +119,37 @@ namespace ImageFunctions.Maze
 			T item = list[len-1];
 			list.RemoveAt(len-1);
 			return item;
+		}
+
+		class Cell
+		{
+			public Cell(int x,int y,PickWall w)
+			{
+				P = new Point(x,y);
+				W = w;
+			}
+
+			public Point P;
+			public PickWall W;
+			Cell Parent = null;
+
+			public Cell Root { get {
+				// a little bit of recursive magick
+				return Parent != null ? Parent.Root : this;
+			}}
+
+			public bool IsConnectedWith(Cell c) {
+				return Root == c.Root;
+			}
+
+			public void ConnectWith(Cell c) {
+				c.Root.Parent = this;
+			}
+
+			public override string ToString() {
+				return $"[{P.X},{P.Y}] {W} ({(Parent == null ? "" : "P")})";
+			}
+
 		}
 
 	}

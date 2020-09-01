@@ -32,6 +32,7 @@ namespace ImageFunctions.Maze
 						DrawCell(x+1,y,PickWall.None);
 					}
 				}
+				prog.Report(y / (double)CellsHigh);
 			}
 		}
 	}
