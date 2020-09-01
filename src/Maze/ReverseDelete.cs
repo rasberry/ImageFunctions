@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using ImageFunctions.Helpers;
 
 namespace ImageFunctions.Maze
