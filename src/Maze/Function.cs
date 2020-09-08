@@ -71,6 +71,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.Automata: return "Cellular automata maze";
 			case PickMaze.ReverseDelete: return "Reverse delete algorithm";
 			case PickMaze.SideWinder: return "Sidewinder maze algorithm";
+			case PickMaze.Division: return "Recursize division algorithm";
 			}
 			return "";
 		}
