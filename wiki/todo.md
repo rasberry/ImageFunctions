@@ -42,10 +42,6 @@
 * spiral graphs
   * remove/keep prime number spots
   * make rotation distance configurable (best one is golden ratio)
-* maze generator
-  * http://www.neocomputer.org/projects/eller.html
-  * prims
-  * others.. there's lots
 * fermats last theorem graph
   * plot result of x^2 + y^2 distance from whole number
   * add option to change exponent (2 is the only one that has answers to x^2+y^2=z^2)
@@ -57,6 +53,8 @@
   * add option to find minima per row instead of just the next neighbor pixels
   * add option to save what was removed in another file. (image splitting ..!)
   *
+* Add code documentation
+  * https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/documentation-comments
 
 ## AllColors ##
 * https://en.wikipedia.org/wiki/Adobe_RGB_color_space
@@ -117,3 +115,13 @@
   * add options for initial random start
     * input image
     * random bits in an NxN square - maybe centered ? or possibly randomized center point
+* add coloring based on age of cell (when cell was added to spanning tree)
+  * use https://github.com/rasberry/DensityBrot/blob/master/ColorMap.cs
+  * maybe create a variant that doesn't draw walls at all ? - color change will allow you to see the maze
+* add coloring based on distance to solution cell
+  * allow user to pick solution cell (cell x,y) default to (0,0)
+  * you can use a solver that keeps track of unvisited cells to remove duplicate effort. (using a stack)
+* add coloring based on average distance to all other cells
+  * find the distance for all cells to (0,0)
+  * then calculate the average difference between your cell distance and all of the others (absolute value difference)
+  * that way you don't have to do an n^2 solution finding
