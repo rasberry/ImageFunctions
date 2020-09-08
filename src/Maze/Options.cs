@@ -14,7 +14,8 @@ namespace ImageFunctions.Maze
 		Automata = 6,
 		Spiral = 7,
 		ReverseDelete = 8,
-		SideWinder = 9
+		SideWinder = 9,
+		Division = 10
 	}
 
 	public enum PickNext

@@ -37,6 +37,7 @@ namespace ImageFunctions.Maze
 			case PickMaze.Spiral: Maze = new Spiral(); break;
 			case PickMaze.ReverseDelete: Maze = new ReverseDelete(); break;
 			case PickMaze.SideWinder: Maze = new SideWinder(); break;
+			case PickMaze.Division: Maze = new Division(); break;
 			}
 			//Log.Debug("maze :"+O.Which);
 
