@@ -166,4 +166,9 @@ namespace ImageFunctions
 		IEnumerable<string> ListFormatNames();
 		string GetFormatDescription(string formatName);
 	}
+
+	public interface IGradient
+	{
+		IColor GetColor(double index);
+	}
 }

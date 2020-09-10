@@ -177,8 +177,8 @@ namespace test
 		public static void AssertAreSimilar(IColor e, IColor a, double maxdiff = 0.0)
 		{
 			var dist = MetricHelpers.ColorDistance(e,a);
-			Assert.IsTrue(dist > 0.0,$"Difference was zero. Expected > 0.0");
-			Assert.IsTrue(dist < maxdiff,
+			//Assert.IsTrue(dist > 0.0,$"Difference was zero. Expected > 0.0");
+			Assert.IsTrue(dist <= maxdiff,
 				$"Color Distance {dist} > {maxdiff}."
 				+ $" Expected <{e.R},{e.G},{e.B},{e.A}>"
 				+ $" Actual <{a.R},{a.G},{a.B},{a.A}>"
