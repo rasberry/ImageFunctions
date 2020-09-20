@@ -14,7 +14,11 @@
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
 * refactor wiki generator to use msbuild task instead of tests
+  * https://docs.microsoft.com/en-us/visualstudio/ide/customize-build-and-debug-tasks-in-visual-studio?view=vs-2019
 * add a Point type TryParse - several functions use 'x y' and could use 'x,y' instead - also would be good to consolidate this code
+* do some performance tuning
+  * https://www.hanselman.com/blog/CrossPlatformDiagnosticToolsForNETCore.aspx
+  * https://www.hanselman.com/blog/dotnettraceForNETCoreTracingInPerfViewSpeedScopeChromiumEventTraceProfilingFlameGraphsAndMore.aspx
 
 ## Ideas ##
 * add noise functions

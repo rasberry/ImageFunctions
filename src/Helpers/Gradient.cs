@@ -328,4 +328,72 @@ namespace ImageFunctions.Helpers
 			public GradSegment[] Segments;
 		}
 	}
+
+	public class Gnofract4dGradient : IGradient
+	{
+		public Gnofract4dGradient(string gf4dfile)
+		{
+			using (var fs = File.Open(gf4dfile,FileMode.Open,FileAccess.Read,FileShare.Read)) {
+				LoadGradient(fs);
+			}
+		}
+
+		public Gnofract4dGradient(Stream gf4dStream)
+		{
+			LoadGradient(gf4dStream);
+		}
+
+		public IColor GetColor(double index)
+		{
+			index = Math.Clamp(index,0.0,1.0);
+			if (Stops.Count == 1) { return Stops[0]; }
+
+			int last = Stops.Count - 1;
+			double pos = index * last;
+			double ratio = pos % 1.0; //get fractional part
+			int ipos = (int)pos;
+
+			if (ipos >= last) {  //deal with index == 1.0
+				return Stops[last];
+			}
+			var color = ImageHelpers.BetweenColor(Stops[ipos],Stops[ipos + 1],ratio);
+			return color;
+		}
+
+		List<IColor> Stops = new List<IColor>();
+
+		void LoadGradient(Stream stream)
+		{
+			using(var sr = new StreamReader(stream)) {
+				while(!sr.EndOfStream) {
+					string line = sr.ReadLine();
+					string[] components = line.Split(' ',StringSplitOptions.RemoveEmptyEntries);
+
+					if (components.Length < 1) {
+						throw new ArgumentException("line with no components found");
+					}
+
+					double[] values = new double[components.Length];
+					for(int c=0; c<components.Length; c++) {
+						if (!double.TryParse(components[c],out double val)) {
+							throw new ArgumentException("component does not appear to be a number");
+						}
+						values[c] = val;
+					}
+
+					double r=0.0,g=0.0,b=0.0,a=255.0;
+					switch(components.Length) {
+						case 1: r = values[0]; break;
+						case 2: r = values[0]; g = values[1]; break;
+						case 3: r = values[0]; g = values[1]; b = values[2]; break;
+						default: // 4 or more
+						case 4: r = values[0]; g = values[1]; b = values[2]; a = values[3]; break;
+					}
+					IColor color = new IColor(r/255.0,g/255.0,b/255.0,a/255.0);
+					Stops.Add(color);
+				}
+			}
+		}
+
+	}
 }
