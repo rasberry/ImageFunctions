@@ -26,6 +26,9 @@ namespace ImageFunctions
 		public static void MustBeGreaterThanZero(string name, bool includeZero = false) {
 			Log.Error($"{name} must be greater than {(includeZero?"or equal to ":"")}zero");
 		}
+		public static void MustBeBetween(string name, string low, string high) {
+			Log.Error($"{name} must be between {low} and {high}");
+		}
 		public static void CannotFindFile(string path) {
 			Log.Error($"cannot find input image '{path}'");
 		}
