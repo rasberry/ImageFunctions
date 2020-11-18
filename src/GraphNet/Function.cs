@@ -51,7 +51,7 @@ namespace ImageFunctions.GraphNet
 			string name = OptionsHelpers.FunctionName(Activity.GraphNet);
 			sb.WL();
 			sb.WL(0,name + " [options] [output image]");
-			sb.WL(1,"Creates a plot of a linear feedback network with a random starring state.");
+			sb.WL(1,"Creates a plot of a boolean-like network with a random starring state.");
 			sb.WL(1,"-b (number)"    ,"Number of states (default 2)");
 			sb.WL(1,"-n (number)"    ,"Number of nodes in the network (defaults to width of image)");
 			sb.WL(1,"-c (number)"    ,"Connections per node (default 3)");

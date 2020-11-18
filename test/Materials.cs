@@ -57,7 +57,7 @@ namespace test
 		static void BuildSideBar()
 		{
 			var sb = new StringBuilder();
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
 				sb.AppendLine("  * "+link);
@@ -71,7 +71,7 @@ namespace test
 		static void BuildExamples()
 		{
 			var sb = new StringBuilder();
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
 				sb.AppendLine("* "+link);
@@ -83,7 +83,7 @@ namespace test
 
 		static void BuildIndividualExamples()
 		{
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
@@ -173,7 +173,7 @@ namespace test
 
 		static void BuildImages()
 		{
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }

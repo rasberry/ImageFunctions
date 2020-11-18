@@ -53,6 +53,15 @@ namespace test
 			return Path.Combine(WikiRoot,"img");
 		}}
 
+		public static IEnumerable<Activity> GetAllActivity()
+		{
+			foreach(var a in OptionsHelpers.EnumAll<Activity>()) {
+				//put any exceptions here
+				if (a == Activity.Test) { continue; }
+				yield return a;
+			}
+		}
+
 		public static void RunTestWithInputFiles(Activity act, int index, IAmTestSomeOne test,
 			Func<string,string,bool> fileComparer = null)
 		{
