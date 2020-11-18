@@ -8,5 +8,6 @@ namespace ImageFunctions.GraphNet
 		public int Connectivity = 3;
 		public int States = 2;
 		public int? RandomSeed = null;
+		public double PertubationRate = 0.0;
 	}
 }

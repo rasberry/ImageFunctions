@@ -21,6 +21,7 @@ namespace ImageFunctions.GraphNet
 			int maxn = O.NodeCount;
 			int nodew = maxx / maxn;
 			double nstates = (double)O.States;
+			double prate = O.PertubationRate;
 
 			using (var progress = new ProgressBar()) {
 				for(int y=0; y<maxy; y++) {
@@ -34,7 +35,7 @@ namespace ImageFunctions.GraphNet
 							x++;
 						}
 					}
-					PermuteState(state);
+					PermuteState(state,prate);
 					progress.Report(y / (double)maxy);
 				}
 
@@ -42,14 +43,19 @@ namespace ImageFunctions.GraphNet
 		}
 
 		uint[] vtemp = null;
-		void PermuteState(Node[] state)
+		void PermuteState(Node[] state, double prate)
 		{
 			for(int n=0; n<O.NodeCount; n++) {
 				uint sum = 0;
 				for(int c=0; c<O.Connectivity; c++) {
 					int i = state[n].Connection[c];  //get the index of the connection
-					uint val = state[i].Value;
-					sum = MixValues(sum,val,state[n].Op[c]);
+
+					bool vkink = Rnd.NextDouble() < prate; //do we perturb value ?
+					uint val = vkink ? (uint)Rnd.Next(O.States) : state[i].Value;
+
+					bool okink = Rnd.NextDouble() < prate; //do we perturb operation ?
+					PickOp op = okink ? (PickOp)Rnd.Next(PickOpCount) : state[n].Op[c];
+					sum = MixValues(sum,val,op);
 				}
 				vtemp[n] = sum % (uint)O.States; //don't want to modify state while getting the new values
 			}
@@ -57,30 +63,6 @@ namespace ImageFunctions.GraphNet
 			for(int n=0; n<O.NodeCount; n++) {
 				state[n].Value = vtemp[n];
 			}
-		}
-
-		uint MixValues(uint left, uint rite, PickOp op)
-		{
-			switch(op) {
-				/*0*/ case PickOp.False: return 0;
-				/*1*/ case PickOp.Nor:   return ~(left | rite);
-				/*2*/ case PickOp.Cn:    return ~left & ~rite;
-				/*3*/ case PickOp.Notl:  return ~left;
-				/*4*/ case PickOp.Mn:    return left & ~rite;
-				/*5*/ case PickOp.Notr:  return ~rite;
-				/*6*/ case PickOp.Xor:   return left ^ rite;
-				/*7*/ case PickOp.Nand:  return ~(left & rite);
-
-				/*8*/ case PickOp.And:   return left & rite;
-				/*9*/ case PickOp.Xnor:  return ~(left ^ rite);
-				/*A*/ case PickOp.Pr:    return rite;
-				/*B*/ case PickOp.Mi:    return ~left | rite;
-				/*C*/ case PickOp.Pl:    return left;
-				/*D*/ case PickOp.Ci:    return left | ~rite;
-				/*E*/ case PickOp.Or:    return left | rite;
-				/*F*/ case PickOp.True:  return uint.MaxValue;
-			}
-			return 0;
 		}
 
 		void InitState(Node[] state)
@@ -101,7 +83,7 @@ namespace ImageFunctions.GraphNet
 				for(int c=0; c<O.Connectivity; c++) {
 					//random connection to another node
 					node.Connection[c] = Rnd.Next(O.NodeCount);
-					node.Op[c] = (PickOp)Rnd.Next(16);
+					node.Op[c] = (PickOp)Rnd.Next(PickOpCount);
 				}
 				state[n] = node;
 			}
@@ -149,6 +131,31 @@ namespace ImageFunctions.GraphNet
 			/*D*/ Ci    = 13, //converse implication
 			/*E*/ Or    = 14, //logical disjunction
 			/*F*/ True  = 15, //tautology
+		}
+		const int PickOpCount = 16;
+
+		uint MixValues(uint left, uint rite, PickOp op)
+		{
+			switch(op) {
+				/*0*/ case PickOp.False: return 0;
+				/*1*/ case PickOp.Nor:   return ~(left | rite);
+				/*2*/ case PickOp.Cn:    return ~left & ~rite;
+				/*3*/ case PickOp.Notl:  return ~left;
+				/*4*/ case PickOp.Mn:    return left & ~rite;
+				/*5*/ case PickOp.Notr:  return ~rite;
+				/*6*/ case PickOp.Xor:   return left ^ rite;
+				/*7*/ case PickOp.Nand:  return ~(left & rite);
+
+				/*8*/ case PickOp.And:   return left & rite;
+				/*9*/ case PickOp.Xnor:  return ~(left ^ rite);
+				/*A*/ case PickOp.Pr:    return rite;
+				/*B*/ case PickOp.Mi:    return ~left | rite;
+				/*C*/ case PickOp.Pl:    return left;
+				/*D*/ case PickOp.Ci:    return left | ~rite;
+				/*E*/ case PickOp.Or:    return left | rite;
+				/*F*/ case PickOp.True:  return uint.MaxValue;
+			}
+			return 0;
 		}
 
 		struct Node
