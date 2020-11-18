@@ -31,6 +31,7 @@ namespace test
 			case Activity.AllColors: return new TestAllColors();
 			case Activity.SpearGraphic: return new TestSpearGraphic();
 			case Activity.UlamSpiral: return new TestUlamSpiral();
+			case Activity.GraphNet: return new TestGraphNet();
 			}
 			return null;
 		}
@@ -56,7 +57,7 @@ namespace test
 		static void BuildSideBar()
 		{
 			var sb = new StringBuilder();
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
 				sb.AppendLine("  * "+link);
@@ -70,7 +71,7 @@ namespace test
 		static void BuildExamples()
 		{
 			var sb = new StringBuilder();
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				string link = GetPageLink(act.ToString(),GetExampleLinkName(act));
 				sb.AppendLine("* "+link);
@@ -82,7 +83,7 @@ namespace test
 
 		static void BuildIndividualExamples()
 		{
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
@@ -172,7 +173,7 @@ namespace test
 
 		static void BuildImages()
 		{
-			foreach(Activity act in OptionsHelpers.EnumAll<Activity>())
+			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }

@@ -4,10 +4,17 @@
 Usage ImageFunctions (action) [options]
  -h / --help                  Show full help
  (action) -h                  Action specific help
- --actions                    List possible actions
  -# / --rect ([x,y,]w,h)      Apply function to given rectagular area (defaults to entire image)
+ --format (name)              Save any output files as specified format
  --max-threads (number)       Restrict parallel processing to a given number of threads (defaults to # of cores)
+ --engine (name)              Select image engine (default SixLabors)
+ --actions                    List possible actions
  --colors                     List available colors
+ --formats                    List output formats
+
+Available Engines:
+ 1. ImageMagick               
+ 2. SixLabors                 
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -165,6 +172,14 @@ Usage ImageFunctions (action) [options]
  1. Blob                      Draws a spherical fading dot
  2. Circle                    Draws a regular circle
  3. Square                    Draws a regular square
+
+15. GraphNet [options] [output image]
+ Creates a plot of a boolean-like network with a random starring state.
+ -b (number)                  Number of states (default 2)
+ -n (number)                  Number of nodes in the network (defaults to width of image)
+ -c (number)                  Connections per node (default 3)
+ -p (number)                  Chance of inserting a perturbation (default 0)
+ -rs (number)[%]              Random Int32 seed value (defaults to system picked)
 
 Available Samplers:
  1. NearestNeighbor           
@@ -335,5 +350,12 @@ White                         FFFFFFFF
 WhiteSmoke                    F5F5F5FF
 Yellow                        FFFF00FF
 YellowGreen                   9ACD32FF
+
+Available Formats:
+Note: Formats are engine specific
+PNG                           image/png [png]
+JPEG                          image/jpeg [jpg,jpeg,jfif]
+GIF                           image/gif [gif]
+BMP                           image/bmp [bm,bmp,dip]
 
 ```

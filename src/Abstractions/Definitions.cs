@@ -24,6 +24,7 @@ namespace ImageFunctions
 		SpearGraphic = 12,
 		ColatzVis = 13,
 		UlamSpiral = 14,
+		GraphNet = 15,
 		Test = 99
 	}
 

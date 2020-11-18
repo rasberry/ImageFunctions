@@ -15,5 +15,5 @@
   * [SpearGraphic](ex_speargraphic)
   * [ColatzVis](ex_colatzvis)
   * [UlamSpiral](ex_ulamspiral)
-  * [Test](ex_test)
+  * [GraphNet](ex_graphnet)
 * [TODO](todo)

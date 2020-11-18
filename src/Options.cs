@@ -104,7 +104,7 @@ namespace ImageFunctions
 			sb.WL(0,"Note: Formats are engine specific");
 			var guide = Registry.GetFormatGuide();
 			foreach(string f in guide.ListFormatNames()) {
-				var desc = guide.GetFormatDescription(f);  
+				var desc = guide.GetFormatDescription(f);
 				sb.WL(0,f,desc ?? "");
 			}
 		}
@@ -153,6 +153,7 @@ namespace ImageFunctions
 			else if (orect.IsGood()) {
 				Bounds = rect;
 			}
+			Log.Debug($"Bounds = {Bounds} {rect}");
 
 			var omtr = p.Default("--max-threads",out int mdop, 0);
 			if (omtr.IsInvalid()) {
@@ -198,7 +199,7 @@ namespace ImageFunctions
 		public static string ImageFormat { get; private set; } = null;
 
 		static PickShow WhichShow = PickShow.None;
-		
+
 		[Flags]
 		public enum PickShow
 		{

@@ -83,7 +83,7 @@ namespace ImageFunctions.Helpers
 			foreach(string sw in @switch) {
 				var r = Default<T>(sw,out val,def,par);
 				if (r == Result.Invalid) { return r; }
-				if (r == Result.Good) { rr = r; }
+				if (r == Result.Good) { return r; }
 			}
 			return rr;
 		}
