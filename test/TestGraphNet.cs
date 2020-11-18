@@ -11,7 +11,7 @@ namespace test
 	[TestClass]
 	public class TestGraphNet : IAmTestNoneOne
 	{
-		const Activity Which = Activity.UlamSpiral;
+		const Activity Which = Activity.GraphNet;
 
 		[DataTestMethod]
 		[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -23,14 +23,13 @@ namespace test
 		public string[] GetArgs(int index)
 		{
 			switch(index) {
-			case 0: return new string[0];
-			case 1: return new string[] { "-rs","77" };
-			case 2: return new string[] { "-rs","88","-p","0.1%" };
-			case 3: return new string[] { "-rs","216","-b","256" };
+			case 0: return new string[] { "-rs","77" };
+			case 1: return new string[] { "-rs","88","-p","0.1%" };
+			case 2: return new string[] { "-rs","216","-b","256" };
 			}
 			return null;
 		}
-		const int _CaseCount = 4;
+		const int _CaseCount = 3;
 		public int CaseCount { get { return _CaseCount; }}
 		public FileSet Set { get { return FileSet.NoneOne; }}
 
@@ -43,7 +42,7 @@ namespace test
 
 		public string GetOutName(int index)
 		{
-			return index == 0 ? "Default" : "gnet";
+			return "gnet";
 		}
 
 		public Rectangle? GetBounds(int index)
