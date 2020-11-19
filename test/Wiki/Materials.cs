@@ -10,10 +10,11 @@ using System.Runtime.CompilerServices;
 using ImageFunctions.Helpers;
 
 
-namespace test
+namespace test.Wiki
 {
 	public class Materials
 	{
+		//put this at the top so it's easy to find
 		static IAmTest GetTestInstance(Activity which)
 		{
 			switch(which)
@@ -37,13 +38,13 @@ namespace test
 			return null;
 		}
 
-		public static void BuildWiki()
+		public static void BuildWiki(bool reBuildImages = false)
 		{
 			BuildUsage();
 			BuildSideBar();
 			BuildExamples();
 			BuildIndividualExamples();
-			BuildImages();
+			BuildImages(reBuildImages);
 		}
 
 		static void BuildUsage()
@@ -172,23 +173,23 @@ namespace test
 			return "ex_"+act.ToString().ToLowerInvariant();
 		}
 
-		static void BuildImages()
+		static void BuildImages(bool rebuild)
 		{
 			foreach(Activity act in Helpers.GetAllActivity())
 			{
 				var inst = GetTestInstance(act);
 				if (inst == null) { continue; }
 				if (inst.Set == FileSet.NoneOne) {
-					BuildImagesNoneOne(act,inst as IAmTestNoneOne);
+					BuildImagesNoneOne(act, inst as IAmTestNoneOne, rebuild);
 				}
 				else {
-					BuildImagesSomeOne(act,inst as IAmTestSomeOne);
+					BuildImagesSomeOne(act, inst as IAmTestSomeOne, rebuild);
 				}
 
 			}
 		}
 
-		static void BuildImagesSomeOne(Activity act, IAmTestSomeOne inst)
+		static void BuildImagesSomeOne(Activity act, IAmTestSomeOne inst, bool rebuild)
 		{
 			var images = inst.GetImageNames();
 			int count = inst.CaseCount;
@@ -198,20 +199,20 @@ namespace test
 				for(int c=0; c<count; c++) {
 					string outFile = Helpers.CheckFile(act,img,c);
 					//only generate if missing
-					if (File.Exists(outFile)) { continue; }
+					if (!rebuild && File.Exists(outFile)) { continue; }
 					var args = Helpers.Append(inst.GetArgs(c),inFile,outFile);
 					BuildImagesRun(act,args);
 				}
 			}
 		}
 
-		static void BuildImagesNoneOne(Activity act, IAmTestNoneOne inst)
+		static void BuildImagesNoneOne(Activity act, IAmTestNoneOne inst, bool rebuild)
 		{
 			int count = inst.CaseCount;
 			for(int c=0; c<count; c++) {
 				string outFile = Helpers.CheckFile(act,inst.GetOutName(c),c);
 				//only generate if missing
-				if (File.Exists(outFile)) { continue; }
+				if (!rebuild && File.Exists(outFile)) { continue; }
 				var args = Helpers.Append(inst.GetArgs(c),outFile);
 				BuildImagesRun(act,args,inst.GetBounds(c));
 			}

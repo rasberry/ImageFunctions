@@ -7,6 +7,10 @@ namespace ImageFunctions.Test
 	{
 		public override void Apply()
 		{
+			Console.WriteLine("sleeping...");
+			System.Threading.Thread.Sleep(new TimeSpan(1,0,0));
+			return;
+
 			var Iis = Registry.GetImageEngine();
 			var Idc = Registry.GetDrawEngine();
 			Random r = new Random();

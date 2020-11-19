@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace test
+namespace test.Wiki
 {
 	public class WikiTable
 	{
@@ -65,5 +65,3 @@ namespace test
 		List<List<string>> Table = new List<List<string>>();
 	}
 }
-
-
