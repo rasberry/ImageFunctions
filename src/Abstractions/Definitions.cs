@@ -25,6 +25,7 @@ namespace ImageFunctions
 		ColatzVis = 13,
 		UlamSpiral = 14,
 		GraphNet = 15,
+		Maze = 16,
 		Test = 99
 	}
 

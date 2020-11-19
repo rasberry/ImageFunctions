@@ -16,4 +16,5 @@
   * [ColatzVis](ex_colatzvis)
   * [UlamSpiral](ex_ulamspiral)
   * [GraphNet](ex_graphnet)
+  * [Maze](ex_maze)
 * [TODO](todo)

@@ -10,6 +10,9 @@ namespace ImageFunctions.Helpers
 {
 	public static class OptionsHelpers
 	{
+		//in case you might need to include a custom parser
+		public delegate bool Parser<T>(string inp, out T val);
+
 		public static void SamplerHelpLine(this StringBuilder sb)
 		{
 			sb.WL(1,"--sampler (name)","Use given sampler (defaults to nearest pixel)");
@@ -298,6 +301,7 @@ namespace ImageFunctions.Helpers
 		//Note: negative width and height are allowed to allow w,h to be used as a point
 		static bool TryParseRectangle(string arg, out Rectangle rect)
 		{
+			//Log.Debug($"Parsing Rectangle {arg}");
 			rect = Rectangle.Empty;
 			if (String.IsNullOrWhiteSpace(arg)) { return false; }
 
@@ -307,21 +311,66 @@ namespace ImageFunctions.Helpers
 				return false; //must be 2 or 4 numbers
 			}
 			bool isTwo = parts.Length == 2;
+			int x = 0, y = 0, w = 0, h = 0;
+			//Log.Debug($"rectangle parts {parts.Length}");
 			for(int p=0; p<parts.Length; p++) {
 				if (!int.TryParse(parts[p],out int n)) {
 					return false; //we only like numbers
 				}
+				//Log.Debug($"parts loop {p} = {n}");
+				//jump to w,h if length is 2
 				switch(p + (isTwo ? 2 : 0)) {
-				case 0: rect.X = n; break;
-				case 1: rect.Y = n; break;
-				case 2: rect.Width = n; break;
-				case 3: rect.Height = n; break;
+				case 0: x = n; break;
+				case 1: y = n; break;
+				case 2: w = n; break;
+				case 3: h = n; break;
 				}
 			}
 
+			rect = new Rectangle(x,y,w,h);
 			//sanity check
-			if (rect.Height < 1 || rect.Width < 1 || rect.X < 0 || rect.Y < 0) { return false; }
+			if (rect.Height == 0 || rect.Width == 0 || rect.X < 0 || rect.Y < 0) { return false; }
 			return true;
+		}
+
+		public static bool TryParseSequence<T>(string arg, char[] delimiters,
+			out IReadOnlyList<T> seq, Parser<T> parser = null)
+		{
+			seq = null;
+			if (String.IsNullOrWhiteSpace(arg)) { return false; }
+
+			if (parser == null) { parser = TryParse; }
+			var parts = arg.Split(delimiters,StringSplitOptions.RemoveEmptyEntries);
+			var list = new List<T>();
+			for(int p=0; p<parts.Length; p++) {
+				if (!parser(parts[p], out T n)) {
+					return false; //not able to parse as the underlying type
+				}
+				list.Add(n);
+			}
+			seq = list;
+			return true;
+		}
+
+		public static bool TryParseEnumFirstLetter<T>(string arg, out T val) where T : struct
+		{
+			bool worked = Enum.TryParse<T>(arg,true,out val);
+			//try to match the first letter if normal enum parse fails
+			if (!worked) {
+				string f = arg.Substring(0,1);
+				foreach(T e in Enum.GetValues(typeof(T))) {
+					string name = e.ToString();
+					if (name.Equals("none",StringComparison.OrdinalIgnoreCase)) {
+						continue;
+					}
+					string n = name.Substring(0,1);
+					if (f.Equals(n,StringComparison.OrdinalIgnoreCase)) {
+						val = e;
+						return true;
+					}
+				}
+			}
+			return worked;
 		}
 
 		const int ColumnOffset = 30;

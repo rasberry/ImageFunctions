@@ -94,10 +94,12 @@ namespace ImageFunctions.Helpers
 			return (H,S,I);
 		}
 
-		public static void FillWithColor(IImage frame, Rectangle rect,IColor color)
+		public static void FillWithColor(IImage frame, IColor color, Rectangle rect = default(Rectangle))
 		{
-			var bounds = new Rectangle(0,0,frame.Width,frame.Height);
-			bounds.Intersect(rect);
+			Rectangle bounds = new Rectangle(0,0,frame.Width,frame.Height);
+			if (!rect.IsEmpty) {
+				bounds.Intersect(rect);
+			}
 
 			for(int y=bounds.Top; y<bounds.Bottom; y++) {
 				for(int x=bounds.Left; x<bounds.Right; x++) {

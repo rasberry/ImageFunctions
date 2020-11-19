@@ -181,6 +181,32 @@ Available Engines:
  -p (number)                  Chance of inserting a perturbation (default 0)
  -rs (number)[%]              Random Int32 seed value (defaults to system picked)
 
+16. Maze(maze) [options] [output image]
+ Draw one of several mazes
+ -cc (color)                  Change cell color (default black)
+ -wc (color)                  Change wall color (default white)
+ -rs (number)                 Random Int32 seed value (defaults to system picked)
+ -sq (s,s,...)                Growing Tree cell picking sequence (default 'N')
+ -sr                          Randomly pick between sequence options
+
+ Available Mazes:
+  1. Eller                    Eller's algorithm
+  2. Prims                    Prim's (Jarník's) algorithm
+  3. Kruskal                  Kruskal's algorithm
+  4. BinaryTree               Binary tree maze algorithm
+  5. GrowingTree              Growing tree maze algorithm
+  6. Automata                 Cellular automata maze
+  7. Spiral                   
+  8. ReverseDelete            Reverse delete algorithm
+  9. SideWinder               Sidewinder maze algorithm
+ 10. Division                 Recursize division algorithm
+
+ Available Sequence Options: (Only for Growing Tree)
+ 1. (N)ewest                  Pick the most recent visited cell (recursive backtracker)
+ 2. (O)ldest                  Pick the lest recent visited cell
+ 3. (M)iddle                  Pick the middle cell of the current path
+ 4. (R)Random                 Pick a random cell in the current path (Prim's)
+
 Available Samplers:
  1. NearestNeighbor           
  2. Bicubic                   
