@@ -1,9 +1,11 @@
+
+#if DEBUG
 using System;
 using System.Drawing;
 using System.Text;
 using ImageFunctions.Helpers;
 
-namespace ImageFunctions.Test
+namespace ImageFunctions.Playground
 {
 	public class Function : AbstractFunction, IGenerator
 	{
@@ -13,7 +15,7 @@ namespace ImageFunctions.Test
 		{
 			var p = new Params(args);
 
-			if (p.DefaultFile(out OutImage,nameof(Test)).IsBad()) {
+			if (p.DefaultFile(out OutImage,nameof(Playground)).IsBad()) {
 				return false;
 			}
 
@@ -22,6 +24,10 @@ namespace ImageFunctions.Test
 
 		public override void Usage(StringBuilder sb)
 		{
+			string name = OptionsHelpers.FunctionName(Activity.Playground);
+			sb.WL();
+			sb.WL(0,name + " [options] [output image]");
+			sb.WL(1,"does some kind of test ");
 		}
 
 		protected override AbstractProcessor CreateProcessor()
@@ -30,3 +36,4 @@ namespace ImageFunctions.Test
 		}
 	}
 }
+#endif
