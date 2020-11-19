@@ -31,6 +31,7 @@ namespace test
 			case Activity.AllColors: return new TestAllColors();
 			case Activity.SpearGraphic: return new TestSpearGraphic();
 			case Activity.UlamSpiral: return new TestUlamSpiral();
+			case Activity.Maze: return new TestMaze();
 			}
 			return null;
 		}
