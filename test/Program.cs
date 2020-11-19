@@ -1,6 +1,6 @@
 using System;
-using test.Wiki;
 using ImageFunctions.Helpers;
+using test.Wiki;
 
 namespace test
 {

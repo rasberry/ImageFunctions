@@ -6,7 +6,6 @@
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <StartupObject>test.Program</StartupObject>
-    <ReBuildImages />
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,11 +19,5 @@
   <ItemGroup>
     <ProjectReference Include="..\src\ImageFunctions.csproj" />
   </ItemGroup>
-
-  <!-- dotnet msbuild /t:BuildWiki /p:ReBuildImages=yes -->
-  <UsingTask TaskName="BuildWikiTask" AssemblyFile="$(TargetPath)" />
-  <Target Name="BuildWiki">
-    <BuildWikiTask ReBuildImages="$(ReBuildImages)" />
-  </Target>
 
 </Project>
