@@ -100,6 +100,9 @@ namespace test
 		[DataRow("10,10,20,20",10,10,20,20)]
 		[DataRow("10x10,20x20",10,10,20,20)]
 		[DataRow("10 10 20 20",10,10,20,20)]
+		[DataRow("10 10",0,0,10,10)]
+		[DataRow("10x10",0,0,10,10)]
+		[DataRow("10,10",0,0,10,10)]
 		public void TestTryParseRect(string s, int x,int y,int w,int h)
 		{
 			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
@@ -112,10 +115,32 @@ namespace test
 		[DataRow("10,10,-2,-2")]
 		[DataRow("10-10-20-20")]
 		[DataRow("0,0,0,0")]
+		[DataRow("-10,-10")]
+		[DataRow("-10.1,-10.2")]
 		public void TestTryParseBadRect(string s)
 		{
 			bool worked = OptionsHelpers.TryParse(s,out Rectangle val);
-			Assert.IsFalse(worked,$"Parse unexpectedly worked {s}");
+			Assert.IsFalse(worked,$"Parse rectangle unexpectedly worked {s}");
+		}
+
+		[DataTestMethod]
+		[DataRow("0,0",0,0)]
+		[DataRow("10,10",10,10)]
+		[DataRow("-10,-10",-10,-10)]
+		public void TestTryParsePoint(string s,int x, int y)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out Point val);
+			Assert.IsTrue(worked,$"Unable to parse {s}");
+			Assert.AreEqual(new Point(x,y),val);
+		}
+
+		[DataTestMethod]
+		[DataRow("0.1,0.1")]
+		[DataRow("-10.1,-10.1")]
+		public void TestTryParsePointBad(string s)
+		{
+			bool worked = OptionsHelpers.TryParse(s,out Point val);
+			Assert.IsFalse(worked,$"Parse point unexpectedly worked {s}");
 		}
 
 		public void TestTryParseString()
