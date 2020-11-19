@@ -15,5 +15,6 @@
   * [SpearGraphic](ex_speargraphic)
   * [ColatzVis](ex_colatzvis)
   * [UlamSpiral](ex_ulamspiral)
+  * [Maze](ex_maze)
   * [Test](ex_test)
 * [TODO](todo)

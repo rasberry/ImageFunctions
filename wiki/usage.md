@@ -4,10 +4,17 @@
 Usage ImageFunctions (action) [options]
  -h / --help                  Show full help
  (action) -h                  Action specific help
- --actions                    List possible actions
  -# / --rect ([x,y,]w,h)      Apply function to given rectagular area (defaults to entire image)
+ --format (name)              Save any output files as specified format
  --max-threads (number)       Restrict parallel processing to a given number of threads (defaults to # of cores)
+ --engine (name)              Select image engine (default SixLabors)
+ --actions                    List possible actions
  --colors                     List available colors
+ --formats                    List output formats
+
+Available Engines:
+ 1. ImageMagick               
+ 2. SixLabors                 
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -165,6 +172,32 @@ Usage ImageFunctions (action) [options]
  1. Blob                      Draws a spherical fading dot
  2. Circle                    Draws a regular circle
  3. Square                    Draws a regular square
+
+15. Maze(maze) [options] [output image]
+ Draw one of several mazes
+ -cc (color)                  Change cell color (default black)
+ -wc (color)                  Change wall color (default white)
+ -rs (number)                 Random Int32 seed value (defaults to system picked)
+ -sq (s,s,...)                Growing Tree cell picking sequence (default 'N')
+ -sr                          Randomly pick between sequence options
+
+ Available Mazes:
+  1. Eller                    Eller's algorithm
+  2. Prims                    Prim's (Jarník's) algorithm
+  3. Kruskal                  Kruskal's algorithm
+  4. BinaryTree               Binary tree maze algorithm
+  5. GrowingTree              Growing tree maze algorithm
+  6. Automata                 Cellular automata maze
+  7. Spiral                   
+  8. ReverseDelete            Reverse delete algorithm
+  9. SideWinder               Sidewinder maze algorithm
+ 10. Division                 Recursize division algorithm
+
+ Available Sequence Options: (Only for Growing Tree)
+ 1. (N)ewest                  Pick the most recent visited cell (recursive backtracker)
+ 2. (O)ldest                  Pick the lest recent visited cell
+ 3. (M)iddle                  Pick the middle cell of the current path
+ 4. (R)Random                 Pick a random cell in the current path (Prim's)
 
 Available Samplers:
  1. NearestNeighbor           
@@ -335,5 +368,12 @@ White                         FFFFFFFF
 WhiteSmoke                    F5F5F5FF
 Yellow                        FFFF00FF
 YellowGreen                   9ACD32FF
+
+Available Formats:
+Note: Formats are engine specific
+PNG                           image/png [png]
+JPEG                          image/jpeg [jpg,jpeg,jfif]
+GIF                           image/gif [gif]
+BMP                           image/bmp [bm,bmp,dip]
 
 ```
