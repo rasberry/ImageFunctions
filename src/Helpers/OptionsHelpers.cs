@@ -329,7 +329,11 @@ namespace ImageFunctions.Helpers
 
 			rect = new Rectangle(x,y,w,h);
 			//sanity check
-			if (rect.Height == 0 || rect.Width == 0 || rect.X < 0 || rect.Y < 0) { return false; }
+			if (   !isTwo && rect.Height <= 0
+				|| !isTwo && rect.Width <= 0
+				|| rect.X < 0
+				|| rect.Y < 0
+			) { return false; }
 			return true;
 		}
 
