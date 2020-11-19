@@ -4,6 +4,7 @@ using Microsoft.Build.Utilities;
 
 namespace test.Wiki
 {
+	// this did not work due to dll loading issues.
 	public class BuildWikiTask : Task
 	{
 		public string ReBuildImages { get; set; }

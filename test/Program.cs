@@ -1,5 +1,6 @@
 using System;
 using test.Wiki;
+using ImageFunctions.Helpers;
 
 namespace test
 {
@@ -7,10 +8,8 @@ namespace test
 	{
 		public static void Main(string[] args)
 		{
-			bool rebuildImg = false;
-			if (args.Length > 0) {
-				rebuildImg = true;
-			}
+			var p = new Params(args);
+			bool rebuildImg = p.Has("--images").IsGood();
 
 			Console.WriteLine($"Building Wiki{(rebuildImg?" and rebuilding images":"")}");
 			Materials.BuildWiki(rebuildImg);

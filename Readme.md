@@ -14,9 +14,9 @@ A collection of various image processing functions
 * build wiki
   * Only do this if all tests pass.
   * Buiding the wiki may take a long time.
-  * To regenerate test images include "/p:ReBuildImages=1"
+  * To regenerate test images include the parameter "--images"
   ```
-  dotnet msbuild /t:BuildWiki /p:ReBuildImages=1
+  dotnet run -p test -- --images
   ```
 
 ## Notes ##
