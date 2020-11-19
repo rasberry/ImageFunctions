@@ -32,6 +32,7 @@ namespace test
 			case Activity.SpearGraphic: return new TestSpearGraphic();
 			case Activity.UlamSpiral: return new TestUlamSpiral();
 			case Activity.GraphNet: return new TestGraphNet();
+			case Activity.Maze: return new TestMaze();
 			}
 			return null;
 		}
