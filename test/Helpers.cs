@@ -57,7 +57,9 @@ namespace test
 		{
 			foreach(var a in OptionsHelpers.EnumAll<Activity>()) {
 				//put any exceptions here
-				if (a == Activity.Test) { continue; }
+				#if DEBUG
+				if (a == Activity.Playground) { continue; }
+				#endif
 				yield return a;
 			}
 		}

@@ -14,18 +14,9 @@ A collection of various image processing functions
 * build wiki
   * Only do this if all tests pass.
   * Buiding the wiki may take a long time.
-  * To regenerate test images you must remove wiki/img/img-*
-  * **Windows**
+  * To regenerate test images include the parameter "--images"
   ```
-  set BUILDWIKI=1
-  erase "wiki\img\img-*.png"
-  dotnet test --filter TestBuildWiki
-  set BUILDWIKI=0
-  ```
-  * **Linux**
-  ```
-  rm wiki/img/img-*.png
-  BUILDWIKI=1 dotnet test --filter TestBuildWiki
+  dotnet run -p test -- --images
   ```
 
 ## Notes ##

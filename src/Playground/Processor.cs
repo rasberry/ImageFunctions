@@ -1,7 +1,8 @@
+#if DEBUG
 using System;
 using ImageFunctions.Helpers;
 
-namespace ImageFunctions.Test
+namespace ImageFunctions.Playground
 {
 	public class Processor : AbstractProcessor
 	{
@@ -26,3 +27,4 @@ namespace ImageFunctions.Test
 		}
 	}
 }
+#endif

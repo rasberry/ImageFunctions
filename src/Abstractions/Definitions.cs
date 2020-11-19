@@ -26,7 +26,7 @@ namespace ImageFunctions
 		UlamSpiral = 14,
 		GraphNet = 15,
 		Maze = 16,
-		Test = 99
+		Playground = 999
 	}
 
 	public enum Sampler

@@ -378,10 +378,188 @@ Yellow                        FFFF00FF
 YellowGreen                   9ACD32FF
 
 Available Formats:
-Note: Formats are engine specific
-PNG                           image/png [png]
-JPEG                          image/jpeg [jpg,jpeg,jfif]
-GIF                           image/gif [gif]
-BMP                           image/bmp [bm,bmp,dip]
+ImageMagick:
+ A                            Raw alpha samples
+ Aai                          AAI Dune image
+ Ai                           Adobe Illustrator CS2
+ Art                          PFS: 1st Publisher Clip Art
+ Avs                          AVS X image
+ B                            Raw blue samples
+ Bgr                          Raw blue, green, and red samples
+ Bgra                         Raw blue, green, red, and alpha samples
+ Bgro                         Raw blue, green, red, and opacity samples
+ Bmp                          Microsoft Windows bitmap image
+ Bmp2                         Microsoft Windows bitmap image (V2)
+ Bmp3                         Microsoft Windows bitmap image (V3)
+ Brf                          BRF ASCII Braille format
+ C                            Raw cyan samples
+ Cal                          Continuous Acquisition and Life-cycle Support Type 1
+ Cals                         Continuous Acquisition and Life-cycle Support Type 1
+ Cin                          Cineon Image File
+ Cip                          Cisco IP phone image format
+ Clip                         Image Clip Mask
+ Clipboard                    The system clipboard
+ Cmyk                         Raw cyan, magenta, yellow, and black samples
+ Cmyka                        Raw cyan, magenta, yellow, black, and alpha samples
+ Cur                          Microsoft icon
+ Data                         Base64-encoded inline images
+ Dcx                          ZSoft IBM PC multi-page Paintbrush
+ Dds                          Microsoft DirectDraw Surface
+ Dib                          Microsoft Windows 3.X Packed Device-Independent Bitmap
+ Dpx                          SMPTE 268M-2003 (DPX 2.0)
+ Dxt1                         Microsoft DirectDraw Surface
+ Dxt5                         Microsoft DirectDraw Surface
+ Epdf                         Encapsulated Portable Document Format
+ Epi                          Encapsulated PostScript Interchange format
+ Eps                          Encapsulated PostScript
+ Eps2                         Level II Encapsulated PostScript
+ Eps3                         Level III Encapsulated PostScript
+ Epsf                         Encapsulated PostScript
+ Epsi                         Encapsulated PostScript Interchange format
+ Ept                          Encapsulated PostScript with TIFF preview
+ Ept2                         Encapsulated PostScript Level II with TIFF preview
+ Ept3                         Encapsulated PostScript Level III with TIFF preview
+ Exr                          High Dynamic-range (HDR)
+ Fax                          Group 3 FAX
+ Fits                         Flexible Image Transport System
+ Flif                         Free Lossless Image Format
+ Flv                          Flash Video Stream
+ Fts                          Flexible Image Transport System
+ G                            Raw green samples
+ G3                           Group 3 FAX
+ G4                           Group 4 FAX
+ Gif                          CompuServe graphics interchange format
+ Gif87                        CompuServe graphics interchange format
+ Gray                         Raw gray samples
+ Graya                        Raw gray and alpha samples
+ Group4                       Raw CCITT Group4
+ Hdr                          Radiance RGBE image format
+ Histogram                    Histogram of the image
+ Hrz                          Slow Scan TeleVision
+ Htm                          Hypertext Markup Language and a client-side image map
+ Html                         Hypertext Markup Language and a client-side image map
+ Icb                          Truevision Targa image
+ Ico                          Microsoft icon
+ Icon                         Microsoft icon
+ Info                         The image format and characteristics
+ Inline                       Base64-encoded inline images
+ Ipl                          IPL Image Sequence
+ Isobrl                       ISO/TR 11548-1 format
+ Isobrl6                      ISO/TR 11548-1 format 6dot
+ J2c                          JPEG-2000 Code Stream Syntax
+ J2k                          JPEG-2000 Code Stream Syntax
+ Jng                          JPEG Network Graphics
+ Jp2                          JPEG-2000 File Format Syntax
+ Jpc                          JPEG-2000 Code Stream Syntax
+ Jpe                          Joint Photographic Experts Group JFIF format
+ Jpeg                         Joint Photographic Experts Group JFIF format
+ Jpg                          Joint Photographic Experts Group JFIF format
+ Jpm                          JPEG-2000 File Format Syntax
+ Jps                          Joint Photographic Experts Group JFIF format
+ Jpt                          JPEG-2000 File Format Syntax
+ Json                         The image format and characteristics
+ K                            Raw black samples
+ M                            Raw magenta samples
+ M2v                          MPEG Video Stream
+ M4v                          Raw MPEG-4 Video
+ Map                          Colormap intensities and indices
+ Mask                         Image Clip Mask
+ Mat                          MATLAB level 5 image format
+ Matte                        MATTE format
+ Miff                         Magick Image File Format
+ Mkv                          Multimedia Container
+ Mng                          Multiple-image Network Graphics
+ Mono                         Raw bi-level bitmap
+ Mov                          MPEG Video Stream
+ Mp4                          MPEG-4 Video Stream
+ Mpc                          Magick Persistent Cache image format
+ Mpeg                         MPEG Video Stream
+ Mpg                          MPEG Video Stream
+ Msl                          Magick Scripting Language
+ Msvg                         ImageMagick's own SVG internal renderer
+ Mtv                          MTV Raytracing image format
+ Mvg                          Magick Vector Graphics
+ Null                         Constant image of uniform color
+ O                            Raw opacity samples
+ Otb                          On-the-air bitmap
+ Pal                          16bit/pixel interleaved YUV
+ Palm                         Palm pixmap
+ Pam                          Common 2-dimensional bitmap format
+ Pbm                          Portable bitmap format (black and white)
+ Pcd                          Photo CD
+ Pcds                         Photo CD
+ Pcl                          Printer Control Language
+ Pct                          Apple Macintosh QuickDraw/PICT
+ Pcx                          ZSoft IBM PC Paintbrush
+ Pdb                          Palm Database ImageViewer Format
+ Pdf                          Portable Document Format
+ Pdfa                         Portable Document Archive Format
+ Pfm                          Portable float format
+ Pgm                          Portable graymap format (gray scale)
+ Pgx                          JPEG 2000 uncompressed format
+ Picon                        Personal Icon
+ Pict                         Apple Macintosh QuickDraw/PICT
+ Pjpeg                        Joint Photographic Experts Group JFIF format
+ Png                          Portable Network Graphics
+ Png00                        PNG inheriting bit-depth, color-type from original, if possible
+ Png24                        opaque or binary transparent 24-bit RGB
+ Png32                        opaque or transparent 32-bit RGBA
+ Png48                        opaque or binary transparent 48-bit RGB
+ Png64                        opaque or transparent 64-bit RGBA
+ Png8                         8-bit indexed with optional binary transparency
+ Pnm                          Portable anymap
+ Pocketmod                    Pocketmod Personal Organizer
+ Ppm                          Portable pixmap format (color)
+ Ps                           PostScript
+ Ps2                          Level II PostScript
+ Ps3                          Level III PostScript
+ Psb                          Adobe Large Document Format
+ Psd                          Adobe Photoshop bitmap
+ Ptif                         Pyramid encoded TIFF
+ R                            Raw red samples
+ Ras                          SUN Rasterfile
+ Rgb                          Raw red, green, and blue samples
+ Rgba                         Raw red, green, blue, and alpha samples
+ Rgbo                         Raw red, green, blue, and opacity samples
+ Rgf                          LEGO Mindstorms EV3 Robot Graphic Format (black and white)
+ Sgi                          Irix RGB image
+ Shtml                        Hypertext Markup Language and a client-side image map
+ Six                          DEC SIXEL Graphics Format
+ Sixel                        DEC SIXEL Graphics Format
+ SparseColor                  Sparse Color
+ Sun                          SUN Rasterfile
+ Svg                          Scalable Vector Graphics
+ Svgz                         Compressed Scalable Vector Graphics
+ Tga                          Truevision Targa image
+ Thumbnail                    EXIF Profile Thumbnail
+ Tif                          Tagged Image File Format
+ Tiff                         Tagged Image File Format
+ Tiff64                       Tagged Image File Format (64-bit)
+ Txt                          Text
+ Ubrl                         Unicode Text format
+ Ubrl6                        Unicode Text format 6dot
+ Uil                          X-Motif UIL table
+ Uyvy                         16bit/pixel interleaved YUV
+ Vda                          Truevision Targa image
+ Vicar                        VICAR rasterfile format
+ Vid                          Visual Image Directory
+ Viff                         Khoros Visualization image
+ Vips                         VIPS image
+ Vst                          Truevision Targa image
+ WebP                         WebP Image Format
+ Wbmp                         Wireless Bitmap (level 0) image
+ Wmv                          Windows Media Video
+ Xbm                          X Windows system bitmap (black and white)
+ Xpm                          X Windows system pixmap (color)
+ Xv                           Khoros Visualization image
+ Y                            Raw yellow samples
+ Ycbcr                        Raw Y, Cb, and Cr samples
+ Ycbcra                       Raw Y, Cb, Cr, and alpha samples
+ Yuv                          CCIR 601 4:1:1 or 4:2:2
+SixLabors:
+ PNG                          image/png [png]
+ JPEG                         image/jpeg [jpg,jpeg,jfif]
+ GIF                          image/gif [gif]
+ BMP                          image/bmp [bm,bmp,dip]
 
 ```

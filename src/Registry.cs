@@ -26,7 +26,9 @@ namespace ImageFunctions
 			case Activity.UlamSpiral:      return new UlamSpiral.Function();
 			case Activity.GraphNet:        return new GraphNet.Function();
 			case Activity.Maze:            return new Maze.Function();
-			case Activity.Test:            return new Test.Function();
+			#if DEBUG
+			case Activity.Playground:      return new Playground.Function();
+			#endif
 			}
 			throw new ArgumentException("E: Unmapped action "+action);
 		}
@@ -53,13 +55,17 @@ namespace ImageFunctions
 		}}
 
 		static IImageEngine CachedImageEngine = null;
-		public static IImageEngine GetImageEngine()
+		public static IImageEngine GetImageEngine(PickEngine specific = PickEngine.None)
 		{
-			if (CachedImageEngine != null) {
+			if (specific == PickEngine.None && CachedImageEngine != null) {
 				return CachedImageEngine;
 			}
 
-			switch(Options.Engine)
+			if (specific == PickEngine.None) {
+				specific = Options.Engine;
+			}
+
+			switch(specific)
 			{
 			case PickEngine.ImageMagick:
 				return CachedImageEngine = new Engines.ImageMagick.IMImageEngine();
