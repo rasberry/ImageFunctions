@@ -13,8 +13,8 @@ Usage ImageFunctions (action) [options]
  --formats                    List output formats
 
 Available Engines:
- 1. ImageMagick
- 2. SixLabors
+ 1. ImageMagick               
+ 2. SixLabors                 
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -121,13 +121,13 @@ Available Engines:
  8. Luminance2020             Luminance BT.2020
 
  Available Spaces
- 1. RGB
- 2. HSV
- 3. HSL
- 4. HSI
- 5. YCbCr
- 6. CieXyz
- 7. Cmyk
+ 1. RGB                       
+ 2. HSV                       
+ 3. HSL                       
+ 4. HSI                       
+ 5. YCbCr                     
+ 6. CieXyz                    
+ 7. Cmyk                      
 
 12. SpearGraphic [options] [output image]
  Creates a spear graphic
@@ -136,18 +136,18 @@ Available Engines:
  -rs (number)                 Random Int32 seed value (defaults to system picked)
 
  Available Graphics
- 1. First_Twist1
- 2. First_Twist2
- 3. First_Twist3
- 4. Second_Twist3a
- 5. Second_Twist3b
- 6. Second_Twist3c
- 7. Second_Twist4
- 8. Third
- 9. Fourth
+ 1. First_Twist1              
+ 2. First_Twist2              
+ 3. First_Twist3              
+ 4. Second_Twist3a            
+ 5. Second_Twist3b            
+ 6. Second_Twist3c            
+ 7. Second_Twist4             
+ 8. Third                     
+ 9. Fourth                    
 
 14. UlamSpiral [options] [output image]
- Creates an Ulam spiral graphic
+ Creates an Ulam spiral graphic 
  -p                           Color pixel if prime (true if -f not specified)
  -f                           Color pixel based on number of divisors; dot size is proportional to divisor count
  -6m                          Color primes depending on if they are 6*m+1 or 6*m-1
@@ -180,7 +180,8 @@ Available Engines:
  -c (number)                  Connections per node (default 3)
  -p (number)                  Chance of inserting a perturbation (default 0)
  -rs (number)[%]              Random Int32 seed value (defaults to system picked)
-15. Maze(maze) [options] [output image]
+
+16. Maze(maze) [options] [output image]
  Draw one of several mazes
  -cc (color)                  Change cell color (default black)
  -wc (color)                  Change wall color (default white)
@@ -195,7 +196,7 @@ Available Engines:
   4. BinaryTree               Binary tree maze algorithm
   5. GrowingTree              Growing tree maze algorithm
   6. Automata                 Cellular automata maze
-  7. Spiral
+  7. Spiral                   
   8. ReverseDelete            Reverse delete algorithm
   9. SideWinder               Sidewinder maze algorithm
  10. Division                 Recursize division algorithm
@@ -207,29 +208,29 @@ Available Engines:
  4. (R)Random                 Pick a random cell in the current path (Prim's)
 
 Available Samplers:
- 1. NearestNeighbor
- 2. Bicubic
- 3. Box
- 4. CatmullRom
- 5. Hermite
- 6. Lanczos2
- 7. Lanczos3
- 8. Lanczos5
- 9. Lanczos8
-10. MitchellNetravali
-11. Robidoux
-12. RobidouxSharp
-13. Spline
-14. Triangle
-15. Welch
+ 1. NearestNeighbor           
+ 2. Bicubic                   
+ 3. Box                       
+ 4. CatmullRom                
+ 5. Hermite                   
+ 6. Lanczos2                  
+ 7. Lanczos3                  
+ 8. Lanczos5                  
+ 9. Lanczos8                  
+10. MitchellNetravali         
+11. Robidoux                  
+12. RobidouxSharp             
+13. Spline                    
+14. Triangle                  
+15. Welch                     
 
 Available Metrics:
-1. Manhattan
-2. Euclidean
-3. Chebyshev
-4. ChebyshevInv
-5. Minkowski (p-factor)
-6. Canberra
+1. Manhattan                  
+2. Euclidean                  
+3. Chebyshev                  
+4. ChebyshevInv               
+5. Minkowski (p-factor)       
+6. Canberra                   
 
 Available Colors:
 Note: Colors may be specified as a name or as a hex value

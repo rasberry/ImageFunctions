@@ -17,5 +17,4 @@
   * [UlamSpiral](ex_ulamspiral)
   * [GraphNet](ex_graphnet)
   * [Maze](ex_maze)
-  * [Test](ex_test)
 * [TODO](todo)
