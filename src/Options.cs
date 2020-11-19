@@ -101,11 +101,18 @@ namespace ImageFunctions
 		{
 			sb.WL();
 			sb.WL(0,"Available Formats:");
-			sb.WL(0,"Note: Formats are engine specific");
-			var guide = Registry.GetFormatGuide();
-			foreach(string f in guide.ListFormatNames()) {
-				var desc = guide.GetFormatDescription(f);
-				sb.WL(0,f,desc ?? "");
+			foreach(var which in OptionsHelpers.EnumAll<PickEngine>()) {
+				var eng = Registry.GetImageEngine(which);
+				var guide = eng as IFormatGuide;
+				sb.WL(0,$"{which}:");
+				if (guide == null) {
+					sb.WL(1,"- List of formats is unavailable -");
+					continue;
+				}
+				foreach(string f in guide.ListFormatNames()) {
+					var desc = guide.GetFormatDescription(f);
+					sb.WL(1,f,desc ?? "");
+				}
 			}
 		}
 

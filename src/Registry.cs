@@ -53,13 +53,17 @@ namespace ImageFunctions
 		}}
 
 		static IImageEngine CachedImageEngine = null;
-		public static IImageEngine GetImageEngine()
+		public static IImageEngine GetImageEngine(PickEngine specific = PickEngine.None)
 		{
-			if (CachedImageEngine != null) {
+			if (specific == PickEngine.None && CachedImageEngine != null) {
 				return CachedImageEngine;
 			}
 
-			switch(Options.Engine)
+			if (specific == PickEngine.None) {
+				specific = Options.Engine;
+			}
+
+			switch(specific)
 			{
 			case PickEngine.ImageMagick:
 				return CachedImageEngine = new Engines.ImageMagick.IMImageEngine();
