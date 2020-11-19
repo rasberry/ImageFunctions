@@ -25,13 +25,13 @@ namespace ImageFunctions.UlamSpiral
 				O.ColorPrimesForce = true;
 			}
 
-			var pre = p.Default("-c",out Rectangle rect);
+			var pre = p.Default("-c",out Point rect);
 			if (pre.IsInvalid()) {
 				return false;
 			}
 			else if (pre.IsGood()) {
-				O.CenterX = rect.Width;  //treat width as x
-				O.CenterY = rect.Height; //treat height as y
+				O.CenterX = rect.X;
+				O.CenterY = rect.Y;
 			}
 
 			if (p.Default("-m",out O.Mapping,PickMapping.Spiral).IsInvalid()) {
@@ -65,7 +65,7 @@ namespace ImageFunctions.UlamSpiral
 				return false;
 			}
 
-			//color defaults - seperated since the are slightly complicated
+			//color defaults - seperated since these are slightly complicated
 			if (O.ColorPrimesBy6m && O.ColorPrimesForce) {
 				O.ColorPrimesForce = false; //this is redundant when using -6m so turn it off
 			}

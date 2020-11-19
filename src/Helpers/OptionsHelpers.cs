@@ -199,6 +199,11 @@ namespace ImageFunctions.Helpers
 					val = (V)((object)rect); return true;
 				}
 			}
+			else if (t.Equals(typeof(Point))) {
+				if (TryParsePoint(sub,out var point)) {
+					val = (V)((object)point); return true;
+				}
+			}
 			else if (t.Equals(typeof(Color))) {
 				if (TryParseColor(sub,out var clr)) {
 					val = (V)((object)clr); return true;
@@ -297,43 +302,46 @@ namespace ImageFunctions.Helpers
 			}
 		}
 
+		static char[] RectPointDelims = new char[] { ' ',',','x' };
+
 		//args = [x,y,]w,h
-		//Note: negative width and height are allowed to allow w,h to be used as a point
 		static bool TryParseRectangle(string arg, out Rectangle rect)
 		{
 			//Log.Debug($"Parsing Rectangle {arg}");
 			rect = Rectangle.Empty;
-			if (String.IsNullOrWhiteSpace(arg)) { return false; }
 
-			var parts = arg.Split(new char[] { ' ',',','x' },
-				StringSplitOptions.RemoveEmptyEntries);
-			if (parts.Length != 2 && parts.Length != 4) {
-				return false; //must be 2 or 4 numbers
+			var parser = new Parser<int>(int.TryParse);
+			if (!TryParseSequence(arg,RectPointDelims,out var list,parser)) {
+				return false;
 			}
-			bool isTwo = parts.Length == 2;
-			int x = 0, y = 0, w = 0, h = 0;
-			//Log.Debug($"rectangle parts {parts.Length}");
-			for(int p=0; p<parts.Length; p++) {
-				if (!int.TryParse(parts[p],out int n)) {
-					return false; //we only like numbers
-				}
-				//Log.Debug($"parts loop {p} = {n}");
-				//jump to w,h if length is 2
-				switch(p + (isTwo ? 2 : 0)) {
-				case 0: x = n; break;
-				case 1: y = n; break;
-				case 2: w = n; break;
-				case 3: h = n; break;
-				}
+			if (list.Count != 2 && list.Count != 4) { //must be two or four elements w,h / x,y,w,h
+				return false;
 			}
 
-			rect = new Rectangle(x,y,w,h);
+			if (list.Count == 2) {
+				rect = new Rectangle(0,0,list[0],list[1]);
+			}
+			else {
+				rect = new Rectangle(list[0],list[1],list[2],list[3]);
+			}
+
 			//sanity check
-			if (   !isTwo && rect.Height <= 0
-				|| !isTwo && rect.Width <= 0
-				|| rect.X < 0
-				|| rect.Y < 0
-			) { return false; }
+			if (rect.Height <= 0 || rect.Width <= 0 || rect.X < 0 || rect.Y < 0) { return false; }
+
+			return true;
+		}
+
+		public static bool TryParsePoint(string arg, out Point point)
+		{
+			point = Point.Empty;
+			var parser = new Parser<int>(int.TryParse);
+			if (!TryParseSequence(arg,RectPointDelims,out var list,parser)) {
+				return false;
+			}
+			if (list.Count != 2) { //must be two elements x,y
+				return false;
+			}
+			point = new Point(list[0],list[1]);
 			return true;
 		}
 
