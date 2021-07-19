@@ -12,6 +12,8 @@
 * add a Point type TryParse - several functions use 'x y' and could use 'x,y' instead - also would be good to consolidate this code
 
 ## Ideas ##
+* incorporate wave function collapse
+  * https://github.com/mxgmn/WaveFunctionCollapse
 * add noise functions
   * perlin
   * opensimplex - https://gist.github.com/digitalshadow/134a3a02b67cecd72181

@@ -26,6 +26,7 @@ namespace ImageFunctions
 		UlamSpiral = 14,
 		GraphNet = 15,
 		Maze = 16,
+		ProbableImg = 17,
 		Playground = 999
 	}
 
@@ -124,7 +125,7 @@ namespace ImageFunctions
 		IColor this[int x, int y] { get; set; }
 	}
 
-	public readonly struct IColor
+	public readonly struct IColor : IEquatable<IColor>
 	{
 		public IColor(double r, double g, double b, double a) {
 			R = r; G = g; B = b; A = a;
@@ -134,6 +135,14 @@ namespace ImageFunctions
 
 		public override string ToString() {
 			return $"{nameof(IColor)} [{R},{G},{B},{A}]";
+		}
+
+		public bool Equals(IColor other) {
+			return other.R == R && other.G == G && other.B == B && other.A == A;
+		}
+
+		public override int GetHashCode() {
+			return HashCode.Combine(R,G,B,A);
 		}
 	}
 

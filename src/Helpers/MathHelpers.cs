@@ -153,5 +153,13 @@ namespace ImageFunctions.Helpers
 		{
 			return rnd.NextDouble() < bias;
 		}
+
+		public static long RandomLong(this Random rnd, long min = 0, long max = long.MaxValue)
+		{
+			byte[] buf = new byte[8];
+			rnd.NextBytes(buf);
+			long longRand = BitConverter.ToInt64(buf, 0);
+			return Math.Abs(longRand % (max - min)) + min;
+		}
 	}
 }
