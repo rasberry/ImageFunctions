@@ -66,6 +66,18 @@ namespace ImageFunctions.Engines.SixLabors
 			}
 			return null;
 		}
+
+		public void Resize(IImage image, int width, int height)
+		{
+			var nativeImage = (SLImage)image;
+			nativeImage.image.Mutate((ctx) => {
+				var ro = new ResizeOptions {
+					Mode = ResizeMode.BoxPad,
+					Size = new Size(width,height)
+				};
+				ctx.Resize(ro);
+			});
+		}
 	}
 
 	public class SLImage : IImage
@@ -177,17 +189,7 @@ namespace ImageFunctions.Engines.SixLabors
 
 		public override int GetHashCode()
 		{
-			int hc = R.GetHashCode();
-			hc = CombineHashCodes(hc,G.GetHashCode());
-			hc = CombineHashCodes(hc,B.GetHashCode());
-			hc = CombineHashCodes(hc,A.GetHashCode());
-			return hc;
-		}
-
-		//https://github.com/microsoft/referencesource/blob/3b1eaf5203992df69de44c783a3eda37d3d4cd10/System.Numerics/System/Numerics/HashCodeHelper.cs
-		static int CombineHashCodes(int h1, int h2)
-		{
-			return (((h1 << 5) + h1) ^ h2);
+			return HashCode.Combine(R,G,B,A);
 		}
 
 		public PixelOperations<RgbaD> CreatePixelOperations()

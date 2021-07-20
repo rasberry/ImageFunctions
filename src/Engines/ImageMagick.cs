@@ -64,6 +64,12 @@ namespace ImageFunctions.Engines.ImageMagick
 			return "";
 		}
 
+		public void Resize(IImage image, int width, int height)
+		{
+			var nativeImage = (IMImage)image;
+			nativeImage.Resize(width,height);
+		}
+
 	}
 
 	public class IMImage : IImage
@@ -124,6 +130,12 @@ namespace ImageFunctions.Engines.ImageMagick
 			using (fs) {
 				NativeImage.Write(fs,mf);
 			}
+		}
+
+		public void Resize(int width, int height)
+		{
+			var mg = new MagickGeometry(width,height);
+			NativeImage.Extent(width,height,Gravity.Northwest,MagickColors.Transparent);
 		}
 
 		public void Dispose()

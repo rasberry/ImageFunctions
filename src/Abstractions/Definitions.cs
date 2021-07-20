@@ -160,6 +160,7 @@ namespace ImageFunctions
 		IImage LoadImage(string path);
 		void SaveImage(IImage img, string path, string format = null);
 		IImage NewImage(int width, int height);
+		void Resize(IImage img,int width, int height);
 	}
 
 	public interface IGenerator

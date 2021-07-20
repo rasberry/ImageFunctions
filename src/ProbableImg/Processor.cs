@@ -15,21 +15,21 @@ namespace ImageFunctions.ProbableImg
 		public override void Apply()
 		{
 			var Iis = Registry.GetImageEngine();
-			var rect = Bounds;
-			var frame = Source;
 
 			using (var progress = new ProgressBar()) {
-				CreateProfile(progress,frame,rect);
+				CreateProfile(progress,Source,Bounds);
 
 				//foreach(var kvp in Profile) {
 				//	Log.Debug($"Key = {kvp.Key}");
 				//	Log.Debug(kvp.Value.ToString());
 				//}
 
-				using (var canvas = Iis.NewImage(rect.Width,rect.Height))
-				{
+				if (O.OutBounds.IsEmpty) {
+					O.OutBounds = Bounds;
+				}
+				using (var canvas = Iis.NewImage(O.OutBounds.Width,O.OutBounds.Height)) {
 					CreateImage(progress,canvas);
-					Source.BlitImage(canvas,rect);
+					Source.BlitImage(canvas, resize:true);
 				}
 			}
 			//	MoreHelpers.ThreadPixels(rect, MaxDegreeOfParallelism, (x,y) => {
@@ -58,8 +58,6 @@ namespace ImageFunctions.ProbableImg
 				var maxx = frame.Width - 1;
 				var maxy = frame.Height - 1;
 
-				//Log.Debug($" BP [{x},{y}]");
-
 				long ix = CtoI(oc);
 				if (!Profile.ContainsKey(ix)) {
 					var ncp = new ColorProfile {
@@ -72,6 +70,7 @@ namespace ImageFunctions.ProbableImg
 					Profile.TryAdd(ix,ncp);
 				}
 
+				//Log.Debug($"mx={maxx} my={maxy} w={frame.Width} h={frame.Height} cx={cx} cy={cy}");
 				IColor? cn = null, cw = null, cs = null, ce = null;
 				if (cy > 0)    { cn = frame[cx, cy - 1]; }
 				if (cx > 0)    { cw = frame[cx - 1, cy]; }
@@ -114,21 +113,43 @@ namespace ImageFunctions.ProbableImg
 				: new Random()
 			;
 
-			//pick a starting position
-			int sx, sy;
-			if (O.StartX != null && O.StartY != null) {
-				sx = O.StartX.Value;
-				sy = O.StartY.Value;
-			}
-			else {
-				sx = Rnd.Next(img.Width);
-				sy = Rnd.Next(img.Height);
+			//pick a starting position if none provided
+			int iw = img.Width, ih = img.Height;
+			if (O.StartLoc.Count < 1) {
+				O.StartLoc.Add(StartPoint.FromLinear(
+					Rnd.Next(iw),
+					Rnd.Next(ih)
+				));
 			}
 
-			pixStack.Add((sx,sy));
-			long ix = PickStartColor();
-			img[sx,sy] = ItoC(ix);
-			DoVisit(sx,sy);
+			foreach(var startp in O.StartLoc) {
+
+				int sx = 0,sy = 0;
+				if (!startp.IsLinear) {
+					sx = (int)(iw * startp.PX);
+					sy = (int)(ih * startp.PY);
+				}
+				else {
+					sx = startp.LX;
+					sy = startp.LY;
+				}
+
+				//make sure the point is actually inside the image
+				if (sx < 0 || sy < 0 || sx >= iw || sy >= ih) {
+					continue;
+				}
+
+				pixStack.Add((sx,sy));
+				long ix = PickStartColor();
+				img[sx,sy] = ItoC(ix);
+				DoVisit(sx,sy);
+			}
+
+			if (pixStack.Count < 1) {
+				Log.Error("None of the positions given are within the image");
+				return;
+			}
+
 			int maxy = img.Height - 1;
 			int maxx = img.Width - 1;
 
