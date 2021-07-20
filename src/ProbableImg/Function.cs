@@ -14,6 +14,9 @@ namespace ImageFunctions.ProbableImg
 			if (p.Default("-rs",out O.RandomSeed,null).IsInvalid()) {
 				return false;
 			}
+			if (p.Default("-n",out O.TotalNodes,null).IsInvalid()) {
+				return false;
+			}
 
 			while(true) {
 				var pcp = p.Default("-pp",out double ppx, out double ppy,
@@ -49,6 +52,11 @@ namespace ImageFunctions.ProbableImg
 				return false;
 			}
 			if (p.DefaultFile(out OutImage,InImage).IsInvalid()) {
+				return false;
+			}
+
+			if (O.TotalNodes != null && O.TotalNodes < 1) {
+				Tell.MustBeGreaterThanZero("-n");
 				return false;
 			}
 

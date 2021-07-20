@@ -7,6 +7,7 @@ namespace ImageFunctions.ProbableImg
 	public class Options
 	{
 		public int? RandomSeed = null;
+		public int? TotalNodes = null;
 		public List<StartPoint> StartLoc = new List<StartPoint>();
 		public Rectangle OutBounds = Rectangle.Empty;
 		//public IMeasurer Measurer = Registry.DefaultMetric;

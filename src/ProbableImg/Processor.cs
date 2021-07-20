@@ -100,12 +100,14 @@ namespace ImageFunctions.ProbableImg
 		void CreateImage(ProgressBar pbar, IImage img)
 		{
 			pbar.Prefix = "Generating Image ";
-			double totalPixels = img.Width * img.Height;
-			double visitedPixels = 0;
+			int iw = img.Width, ih = img.Height;
+			double totalPixels = iw * ih;
+			double visitedPixels = 0; //to keep track of progress
+
 			var pixStack = new List<(int,int)>();
-			VisitNest = new BitArray[img.Height];
-			for(int ii = 0; ii < img.Height; ii++) {
-				VisitNest[ii] = new BitArray(img.Width,false);
+			VisitNest = new BitArray[ih];
+			for(int ii = 0; ii < ih; ii++) {
+				VisitNest[ii] = new BitArray(iw,false);
 			}
 
 			Rnd = O.RandomSeed.HasValue
@@ -113,9 +115,15 @@ namespace ImageFunctions.ProbableImg
 				: new Random()
 			;
 
-			//pick a starting position if none provided
-			int iw = img.Width, ih = img.Height;
-			if (O.StartLoc.Count < 1) {
+			//figure out starting nodes
+			int maxNodes = O.StartLoc.Count;
+			if (O.TotalNodes != null) {
+				maxNodes = O.TotalNodes.Value;
+			}
+			//we want at least one
+			if (maxNodes < 1) { maxNodes = 1; }
+
+			while(O.StartLoc.Count < maxNodes) {
 				O.StartLoc.Add(StartPoint.FromLinear(
 					Rnd.Next(iw),
 					Rnd.Next(ih)
@@ -123,7 +131,6 @@ namespace ImageFunctions.ProbableImg
 			}
 
 			foreach(var startp in O.StartLoc) {
-
 				int sx = 0,sy = 0;
 				if (!startp.IsLinear) {
 					sx = (int)(iw * startp.PX);
