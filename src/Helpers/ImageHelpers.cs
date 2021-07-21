@@ -45,12 +45,10 @@ namespace ImageFunctions.Helpers
 				dstRect = new Rectangle(0,0,srcImg.Width,srcImg.Height);
 			}
 			if (resize) {
-				int nw = srcPoint.X + srcImg.Width;
-				int nh = srcPoint.Y + srcImg.Height;
-				if (nw > dstImg.Width || nh > dstImg.Height) {
-					var eng = Registry.GetImageEngine();
-					eng.Resize(dstImg,nw,nh);
-				}
+				int nw = dstRect.X + srcImg.Width;
+				int nh = dstRect.Y + srcImg.Height;
+				var eng = Registry.GetImageEngine();
+				eng.Resize(dstImg,nw,nh);
 			}
 
 			for(int y = dstRect.Top; y < dstRect.Bottom; y++) {

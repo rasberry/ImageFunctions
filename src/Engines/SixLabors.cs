@@ -69,13 +69,14 @@ namespace ImageFunctions.Engines.SixLabors
 
 		public void Resize(IImage image, int width, int height)
 		{
+			// Log.Debug($"resizing {image.Width}x{image.Height} -> {width}x{height}");
+			if (image.Width == width && image.Height == height) {
+				return; //nothing to do
+			}
+
 			var nativeImage = (SLImage)image;
 			nativeImage.image.Mutate((ctx) => {
-				var ro = new ResizeOptions {
-					Mode = ResizeMode.BoxPad,
-					Size = new Size(width,height)
-				};
-				ctx.Resize(ro);
+				ctx.Resize(width,height);
 			});
 		}
 	}

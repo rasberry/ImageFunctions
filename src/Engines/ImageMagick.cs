@@ -106,6 +106,20 @@ namespace ImageFunctions.Engines.ImageMagick
 			}
 		}
 
+		public void Resize(int width, int height)
+		{
+			if (width == NativeImage.Width && height == NativeImage.Height) {
+				return; //nothing to do
+			}
+
+			//Log.Debug($"resizing im {NativeImage.Width}x{NativeImage.Height} -> {width}x{height}");
+			var mg = new MagickGeometry(width,height);
+			NativeImage.Extent(width,height,Gravity.Northwest,MagickColors.Transparent);
+			Init(NativeImage); //pixels have changed so re-init
+		}
+
+
+
 		//string printpixel(IPixel<QType> p)
 		//{
 		//	return $"pix {p.Channels} [{p.X} {p.Y}] ({String.Join(',',p.ToArray())})";
@@ -114,7 +128,7 @@ namespace ImageFunctions.Engines.ImageMagick
 		public void Save(string path, string format = null)
 		{
 			if (String.IsNullOrWhiteSpace(format)) {
-				format = Path.GetExtension(path);
+				format = Path.GetExtension(path).Remove(0,1); //remove the dot
 			}
 
 			bool good = Enum.TryParse<MagickFormat>(format,true,out MagickFormat mf);
@@ -130,12 +144,6 @@ namespace ImageFunctions.Engines.ImageMagick
 			using (fs) {
 				NativeImage.Write(fs,mf);
 			}
-		}
-
-		public void Resize(int width, int height)
-		{
-			var mg = new MagickGeometry(width,height);
-			NativeImage.Extent(width,height,Gravity.Northwest,MagickColors.Transparent);
 		}
 
 		public void Dispose()
