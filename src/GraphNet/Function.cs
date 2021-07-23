@@ -56,7 +56,7 @@ namespace ImageFunctions.GraphNet
 			sb.WL(1,"-n (number)"    ,"Number of nodes in the network (defaults to width of image)");
 			sb.WL(1,"-c (number)"    ,"Connections per node (default 3)");
 			sb.WL(1,"-p (number)"    ,"Chance of inserting a perturbation (default 0)");
-			sb.WL(1,"-rs (number)[%]","Random Int32 seed value (defaults to system picked)");
+			sb.WL(1,"-rs (number)"   ,"Random Int32 seed value (defaults to system picked)");
 		}
 
 		protected override AbstractProcessor CreateProcessor()

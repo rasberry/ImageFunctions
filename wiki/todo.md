@@ -1,6 +1,8 @@
 # TODO #
 
 ## General ##
+* need to test -# option for all processors
+* refactor wiki generator to use msbuild task instead of tests
 * maybe color the 'usage' text a little ?
 * maybe add syntax to chain image functions together
   * possibly using '--' to seperate actions
@@ -8,7 +10,6 @@
   * is there a need for multiple-in / multiple-out ?
 * samplers seem to have a n off-by-one issue (see dotnet run -- areasmoother salieri-bx.png -t 2 --max-threads 1 --sampler 2)
 * use ```private static readonly ImageComparer ValidatorComparer = ImageComparer.TolerantPercentage(0.05f);``` instead of custom comparer for image tests
-* refactor wiki generator to use msbuild task instead of tests
 * add a Point type TryParse - several functions use 'x y' and could use 'x,y' instead - also would be good to consolidate this code
 
 ## Ideas ##
@@ -125,3 +126,12 @@
   * find the distance for all cells to (0,0)
   * then calculate the average difference between your cell distance and all of the others (absolute value difference)
   * that way you don't have to do an n^2 solution finding
+
+## ProbableImg ##
+* maybe add spiral traversal
+* maybe go through original image pixel-by-pixel and run the random color updater
+* possibly use huge structures to store profile ?
+* maybe use tiles instead of pixels ?
+* maybe research flood fill so i don't use random stack ?
+* see about replicating https://github.com/mxgmn/WaveFunctionCollapse
+  * and https://www.gridbugs.org/wave-function-collapse/

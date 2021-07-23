@@ -61,7 +61,7 @@ namespace ImageFunctions.Deform
 			sb.WL();
 			sb.WL(0,name + " [options] (input image) [output image]");
 			sb.WL(1,"Warps an image using a mapping function");
-			sb.WL(1,"-cc (number) (number)"      ,"Coordinates of center in pixels");
+			sb.WL(1,"-cx (number) (number)"      ,"Coordinates of center in pixels");
 			sb.WL(1,"-cp (number)[%] (number)[%]","Coordinates of center by proportion (default 50% 50%)");
 			sb.WL(1,"-e (number)"                ,"(e) Power Exponent (default 2.0)");
 			sb.WL(1,"-m (mode)"                  ,"Choose mode (default Polynomial)");

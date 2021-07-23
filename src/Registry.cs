@@ -26,6 +26,7 @@ namespace ImageFunctions
 			case Activity.UlamSpiral:      return new UlamSpiral.Function();
 			case Activity.GraphNet:        return new GraphNet.Function();
 			case Activity.Maze:            return new Maze.Function();
+			case Activity.ProbableImg:     return new ProbableImg.Function();
 			#if DEBUG
 			case Activity.Playground:      return new Playground.Function();
 			#endif

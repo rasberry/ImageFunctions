@@ -31,7 +31,7 @@ namespace ImageFunctions.Helpers
 
 		public static void MetricHelpLine(this System.Text.StringBuilder sb)
 		{
-			sb.WL(1,"--metric (name) [args]","Use alterntive distance function");
+			sb.WL(1,"--metric (name) [args]","Use alternative distance function");
 		}
 
 		public static Params.Result DefaultMetric(this Params p, out IMeasurer m, IMeasurer def = null)

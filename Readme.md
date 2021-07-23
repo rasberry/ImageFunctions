@@ -10,7 +10,7 @@ A collection of various image processing functions
 * run project
   * ```dotnet run -p src --```
 * test project
-  * ```dotnet test -d n```
+  * ```dotnet test```
 * build wiki
   * Only do this if all tests pass.
   * Buiding the wiki may take a long time.
