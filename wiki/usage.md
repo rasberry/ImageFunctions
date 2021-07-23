@@ -31,7 +31,7 @@ Available Engines:
  Blends adjacent areas of flat color together by sampling the nearest two colors to the area
  -t (number)                  Number of times to run fit function (default 7)
  --sampler (name)             Use given sampler (defaults to nearest pixel)
- --metric (name) [args]       Use alterntive distance function
+ --metric (name) [args]       Use alternative distance function
 
 4. AreaSmoother2 [options] (input image) [output image]
  Blends adjacent areas of flat color together by blending horizontal and vertical gradients
@@ -44,7 +44,7 @@ Available Engines:
  -cc (number) (number)        Coordinates of zoom center in pixels
  -cp (number)[%] (number)[%]  Coordinates of zoom center by proportion (default 50% 50%)
  --sampler (name)             Use given sampler (defaults to nearest pixel)
- --metric (name) [args]       Use alterntive distance function
+ --metric (name) [args]       Use alternative distance function
 
 6. Swirl [options] (input image) [output image]
  Smears pixels in a circle around a point
@@ -55,11 +55,11 @@ Available Engines:
  -s  (number)[%]              Number of rotations (default 0.9)
  -ccw                         Rotate Counter-clockwise. (default is clockwise)
  --sampler (name)             Use given sampler (defaults to nearest pixel)
- --metric (name) [args]       Use alterntive distance function
+ --metric (name) [args]       Use alternative distance function
 
 7. Deform [options] (input image) [output image]
  Warps an image using a mapping function
- -cc (number) (number)        Coordinates of center in pixels
+ -cx (number) (number)        Coordinates of center in pixels
  -cp (number)[%] (number)[%]  Coordinates of center by proportion (default 50% 50%)
  -e (number)                  (e) Power Exponent (default 2.0)
  -m (mode)                    Choose mode (default Polynomial)
@@ -87,7 +87,7 @@ Available Engines:
  -n (number)                  Number of times to apply operation (default 1)
  -x (number)                  Maximum number of iterations - in case of infinte loops (default 100)
  --sampler (name)             Use given sampler (defaults to nearest pixel)
- --metric (name) [args]       Use alterntive distance function
+ --metric (name) [args]       Use alternative distance function
 
  Available Modes
  1. StairCaseDescend          move towards smallest distance
@@ -179,7 +179,7 @@ Available Engines:
  -n (number)                  Number of nodes in the network (defaults to width of image)
  -c (number)                  Connections per node (default 3)
  -p (number)                  Chance of inserting a perturbation (default 0)
- -rs (number)[%]              Random Int32 seed value (defaults to system picked)
+ -rs (number)                 Random Int32 seed value (defaults to system picked)
 
 16. Maze(maze) [options] [output image]
  Draw one of several mazes
@@ -206,6 +206,18 @@ Available Engines:
  2. (O)ldest                  Pick the lest recent visited cell
  3. (M)iddle                  Pick the middle cell of the current path
  4. (R)Random                 Pick a random cell in the current path (Prim's)
+
+17. ProbableImg [options] (input image) [output image]
+ Generate a new image using a probability profile based on the input image
+ -n (number)                  Max Number of start nodes (defaults to 1 or number of -pp/-xy options)
+ -rs (seed)                   Options number seed for the random number generator
+ -xy (number) (number)        Add a start node (in pixels) - multiple allowed
+ -pp (number)[%] (number)[%]  Add a start node (by proportion) - multiple allowed
+ -o# (w,h)                    Set the output image size (defaults to input image size)
+
+
+999. Playground [options] [output image]
+ does some kind of test 
 
 Available Samplers:
  1. NearestNeighbor           

@@ -31,6 +31,7 @@ namespace test.Wiki
 			case Activity.UlamSpiral: return new TestUlamSpiral();
 			case Activity.GraphNet: return new TestGraphNet();
 			case Activity.Maze: return new TestMaze();
+			case Activity.ProbableImg: return new TestProbableImg();
 			}
 			return null;
 		}

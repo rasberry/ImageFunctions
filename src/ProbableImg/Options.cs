@@ -40,10 +40,3 @@ namespace ImageFunctions.ProbableImg
 		}
 	}
 }
-
-// TODO allow output image to be a different size than the input
-// TODO maybe add spiral traversal
-// TODO maybe go through original image pixel-by-pixel and run the random color updater
-// TODO possibly use huge structures to store profile ?
-// TODO maybe use tiles instead of pixels ?
-// TODO maybe research flood fill so i don't use random stack ?

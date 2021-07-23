@@ -17,4 +17,5 @@
   * [UlamSpiral](ex_ulamspiral)
   * [GraphNet](ex_graphnet)
   * [Maze](ex_maze)
+  * [ProbableImg](ex_probableimg)
 * [TODO](todo)
