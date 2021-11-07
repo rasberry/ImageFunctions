@@ -106,7 +106,7 @@ namespace ImageFunctions.SpearGraphic
 					penw += penrate;
 
 					Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
-					DrawLine(image,c,lx,ly,x,y,penw);
+					DrawLine(image,c,lx,ly,x,y,Math.Max(penw,0.01));
 
 					double dist = Dist(cen,new DPoint(x,y));
 					if (dist < 1.0) {

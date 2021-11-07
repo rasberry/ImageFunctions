@@ -6,7 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using SixLabors.Primitives;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace ImageFunctions.Engines.SixLabors
 {
@@ -30,7 +30,9 @@ namespace ImageFunctions.Engines.SixLabors
 
 		public void DrawLine(IImage image, IColor color, PointD p0, PointD p1, double width = 1.0)
 		{
-			var go = new GraphicsOptions { Antialias = true };
+			var opts = new DrawingOptions {
+				GraphicsOptions = new GraphicsOptions { Antialias = true }
+			};
 			var rgba = new RgbaD { R = color.R, G = color.G, B = color.B, A = color.A };
 			var c = new Color(rgba.ToScaledVector4());
 			var f0 = new PointF((float)p0.X,(float)p0.Y);
@@ -38,7 +40,7 @@ namespace ImageFunctions.Engines.SixLabors
 
 			var nativeImage = (SLImage)image;
 			nativeImage.image.Mutate((ctx) => {
-				ctx.DrawLines(go,c,(float)width,f0,f1);
+				ctx.DrawLines(opts,c,(float)width,f0,f1);
 			});
 		}
 
@@ -221,6 +223,11 @@ namespace ImageFunctions.Engines.SixLabors
 			return ToScaledVector4();
 		}
 
+		public void ToRgba32(ref Rgba32 dest)
+		{
+			dest.FromScaledVector4(ToScaledVector4());
+		}
+
 		public void FromArgb32(Argb32 source)
 		{
 			FromScaledVector4(source.ToScaledVector4());
@@ -241,12 +248,22 @@ namespace ImageFunctions.Engines.SixLabors
 			FromScaledVector4(source.ToScaledVector4());
 		}
 
-		public void FromGray8(Gray8 source)
+		public void FromL8(L8 source)
 		{
 			FromScaledVector4(source.ToScaledVector4());
 		}
 
-		public void FromGray16(Gray16 source)
+		public void FromL16(L16 source)
+		{
+			FromScaledVector4(source.ToScaledVector4());
+		}
+
+		public void FromLa16(La16 source)
+		{
+			FromScaledVector4(source.ToScaledVector4());
+		}
+
+		public void FromLa32(La32 source)
 		{
 			FromScaledVector4(source.ToScaledVector4());
 		}
@@ -259,11 +276,6 @@ namespace ImageFunctions.Engines.SixLabors
 		public void FromRgba32(Rgba32 source)
 		{
 			FromScaledVector4(source.ToScaledVector4());
-		}
-
-		public void ToRgba32(ref Rgba32 dest)
-		{
-			dest.FromScaledVector4(ToScaledVector4());
 		}
 
 		public void FromRgb48(Rgb48 source)
