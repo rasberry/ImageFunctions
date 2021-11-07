@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp5.0</TargetFramework>
-    <LangVersion>7.2</LangVersion>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
     <StartupObject>test.Program</StartupObject>
