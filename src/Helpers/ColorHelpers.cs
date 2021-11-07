@@ -120,6 +120,7 @@ namespace ImageFunctions.Helpers
 
 		static bool TryMoreColorFromName(string name, out Color color)
 		{
+			color = Color.Transparent;
 			if (StringComparer.OrdinalIgnoreCase.Equals(name,NameRebeccaPurple)) {
 				color = ColorRebeccaPurple;
 				return true;
