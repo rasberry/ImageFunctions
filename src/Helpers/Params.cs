@@ -7,9 +7,9 @@ namespace ImageFunctions.Helpers
 	public sealed class Params
 	{
 		public enum Result {
-			Missing = 0,
-			Invalid = 1,
-			Good = 2
+			Missing = 0,   //parameter is missing an argument or part of an argument
+			Invalid = 1,   //parameter value could not be used
+			Good = 2       //parameter value is acceptable
 		}
 
 		public delegate bool Parser<T>(string inp, out T val);
@@ -26,7 +26,7 @@ namespace ImageFunctions.Helpers
 			return Args.ToArray();
 		}
 
-		// check for existance of a single parameter
+		// check for existence of a single parameter
 		public Result Has(params string[] @switch)
 		{
 			int ii = -1;
@@ -195,21 +195,25 @@ namespace ImageFunctions.Helpers
 	{
 		public static bool IsGood(this Params.Result r)
 		{
+			//result must be good
 			return r == Params.Result.Good;
 		}
 
 		public static bool IsBad(this Params.Result r)
 		{
+			//result is missing or invalid
 			return r != Params.Result.Good;
 		}
 
 		public static bool IsInvalid(this Params.Result r)
 		{
+			//result is invalid
 			return r == Params.Result.Invalid;
 		}
 
 		public static bool IsMissing(this Params.Result r)
 		{
+			//result is missing
 			return r == Params.Result.Missing;
 		}
 

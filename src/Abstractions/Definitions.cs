@@ -27,6 +27,7 @@ namespace ImageFunctions
 		GraphNet = 15,
 		Maze = 16,
 		ProbableImg = 17,
+		Turmites = 18,
 		Playground = 999
 	}
 

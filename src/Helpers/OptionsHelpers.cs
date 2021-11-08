@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Linq;
+using System.Globalization;
 
 namespace ImageFunctions.Helpers
 {
@@ -161,6 +162,7 @@ namespace ImageFunctions.Helpers
 			return true;
 		}
 
+		static IFormatProvider ifp = CultureInfo.InvariantCulture.NumberFormat;
 		public static bool TryParse<V>(string sub, out V val)
 		{
 			val = default(V);
@@ -176,7 +178,7 @@ namespace ImageFunctions.Helpers
 				}
 			}
 			else if (t.Equals(typeof(double))) {
-				if (double.TryParse(sub,out double b)) {
+				if (double.TryParse(sub,NumberStyles.Any,ifp,out double b)) {
 					if (!double.IsInfinity(b) && !double.IsNaN(b)) {
 						val = (V)((object)b);
 						return true;
@@ -184,7 +186,12 @@ namespace ImageFunctions.Helpers
 				}
 			}
 			else if (t.Equals(typeof(int))) {
-				if (int.TryParse(sub,out int b)) {
+				if (int.TryParse(sub,NumberStyles.Any,ifp,out int b)) {
+					val = (V)((object)b); return true;
+				}
+			}
+			else if (t.Equals(typeof(ulong))) {
+				if (ulong.TryParse(sub,NumberStyles.Any,ifp,out ulong b)) {
 					val = (V)((object)b); return true;
 				}
 			}
@@ -435,7 +442,7 @@ namespace ImageFunctions.Helpers
 				}
 			}
 
-			//we always want a newline even if m is emptys
+			//we always want a newline even if m is empty
 			if (l < 1) {
 				self.AppendLine();
 			}
