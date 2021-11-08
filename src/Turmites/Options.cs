@@ -4,13 +4,6 @@ using System.Drawing;
 
 namespace ImageFunctions.Turmites
 {
-	public enum PickMode
-	{
-		None = 0,
-		External = 1,
-		Internal = 2
-	}
-
 	public enum PickEdgeRule
 	{
 		None = 0,
@@ -21,7 +14,7 @@ namespace ImageFunctions.Turmites
 	public enum PickOp
 	{
 		None = 0,
-		L,R,U,F,N,S,E,W,X
+		L,R,U,F,N,S,E,W
 	}
 
 	public class Rule
@@ -32,7 +25,6 @@ namespace ImageFunctions.Turmites
 
 	public class Options
 	{
-		public PickMode Mode = PickMode.None;
 		public PickEdgeRule EdgeRule = PickEdgeRule.None;
 		public IReadOnlyList<Rule> Sequence = null;
 		public Point? Start = null;

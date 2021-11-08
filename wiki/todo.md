@@ -135,3 +135,10 @@
 * maybe research flood fill so i don't use random stack ?
 * see about replicating https://github.com/mxgmn/WaveFunctionCollapse
   * and https://www.gridbugs.org/wave-function-collapse/
+
+## Turmites ##
+* add colors (processor.cs line 97)
+  * should be able to use state\[x,y\] value % number of colors
+* implement rule.count
+* implement -img
+  * need to convert colors to a count

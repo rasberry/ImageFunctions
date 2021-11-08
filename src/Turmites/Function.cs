@@ -15,9 +15,6 @@ namespace ImageFunctions.Turmites
 		public override bool ParseArgs(string[] args)
 		{
 			var p = new Params(args);
-			if (p.Default("-m",out O.Mode,PickMode.External).IsInvalid()) {
-				return false;
-			}
 			if (p.Default("-p",out O.Sequence, DefaultSeq(), ParsePattern).IsInvalid()) {
 				return false;
 			}
@@ -42,19 +39,15 @@ namespace ImageFunctions.Turmites
 
 		public override void Usage(StringBuilder sb)
 		{
-			string name = OptionsHelpers.FunctionName(Activity.Maze);
+			string name = OptionsHelpers.FunctionName(Activity.Turmites);
 			sb.WL();
 			sb.WL(0,name + "[options] [output image]");
 			sb.WL(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
-			sb.WL(1,"-m (mode)"     ,"Change the mode of operation (default External)");
 			sb.WL(1,"-p (string)"   ,"LR pattern string. See below for full language (default 'LR')");
-			sb.WL(1,"-img (image)"  ,"Use an image file as the starting state");
+			// sb.WL(1,"-img (image)"  ,"Use an image file as the starting state");
 			sb.WL(1,"-e (edge rule)","Change edge handling rule (default Wrap)");
 			sb.WL(1,"-s (x,y)"      ,"Starting location of turmite (defaults to center coordinate)");
 			sb.WL(1,"-i (number)"   ,"Number of iterations (default 1000)");
-			sb.WL();
-			sb.WL(1,"Available Modes:");
-			sb.PrintEnum<PickMode>(1,ModeDesc);
 			sb.WL();
 			sb.WL(1,"Available Edge Rules:");
 			sb.PrintEnum<PickEdgeRule>(1,EdgeRuleDesc);
@@ -71,16 +64,6 @@ namespace ImageFunctions.Turmites
 			sb.WL(2,"S","Point south");
 			sb.WL(2,"E","Point east");
 			sb.WL(2,"W","Point west");
-			sb.WL(2,"X","Use external grid to decide (only for internal mode)");
-		}
-
-		static string ModeDesc(PickMode maze)
-		{
-			switch(maze) {
-			case PickMode.External: return "External memory mode - mites use only the information on the grid to make decisions";
-			case PickMode.Internal: return "Internal memory mode - mites use an internal state to make decisions";
-			}
-			return "";
 		}
 
 		static string EdgeRuleDesc(PickEdgeRule rule)

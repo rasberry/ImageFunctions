@@ -1,6 +1,7 @@
 # Usage #
 
 ```
+D: Bounds = {X=0,Y=0,Width=0,Height=0} {X=0,Y=0,Width=0,Height=0}
 Usage ImageFunctions (action) [options]
  -h / --help                  Show full help
  (action) -h                  Action specific help
@@ -13,8 +14,8 @@ Usage ImageFunctions (action) [options]
  --formats                    List output formats
 
 Available Engines:
- 1. ImageMagick               
- 2. SixLabors                 
+ 1. ImageMagick
+ 2. SixLabors
 
 1. PixelateDetails [options] (input image) [output image]
  Creates areas of flat color by recusively splitting high detail chunks
@@ -121,13 +122,13 @@ Available Engines:
  8. Luminance2020             Luminance BT.2020
 
  Available Spaces
- 1. RGB                       
- 2. HSV                       
- 3. HSL                       
- 4. HSI                       
- 5. YCbCr                     
- 6. CieXyz                    
- 7. Cmyk                      
+ 1. RGB
+ 2. HSV
+ 3. HSL
+ 4. HSI
+ 5. YCbCr
+ 6. CieXyz
+ 7. Cmyk
 
 12. SpearGraphic [options] [output image]
  Creates a spear graphic
@@ -136,18 +137,18 @@ Available Engines:
  -rs (number)                 Random Int32 seed value (defaults to system picked)
 
  Available Graphics
- 1. First_Twist1              
- 2. First_Twist2              
- 3. First_Twist3              
- 4. Second_Twist3a            
- 5. Second_Twist3b            
- 6. Second_Twist3c            
- 7. Second_Twist4             
- 8. Third                     
- 9. Fourth                    
+ 1. First_Twist1
+ 2. First_Twist2
+ 3. First_Twist3
+ 4. Second_Twist3a
+ 5. Second_Twist3b
+ 6. Second_Twist3c
+ 7. Second_Twist4
+ 8. Third
+ 9. Fourth
 
 14. UlamSpiral [options] [output image]
- Creates an Ulam spiral graphic 
+ Creates an Ulam spiral graphic
  -p                           Color pixel if prime (true if -f not specified)
  -f                           Color pixel based on number of divisors; dot size is proportional to divisor count
  -6m                          Color primes depending on if they are 6*m+1 or 6*m-1
@@ -196,7 +197,7 @@ Available Engines:
   4. BinaryTree               Binary tree maze algorithm
   5. GrowingTree              Growing tree maze algorithm
   6. Automata                 Cellular automata maze
-  7. Spiral                   
+  7. Spiral
   8. ReverseDelete            Reverse delete algorithm
   9. SideWinder               Sidewinder maze algorithm
  10. Division                 Recursize division algorithm
@@ -216,33 +217,64 @@ Available Engines:
  -o# (w,h)                    Set the output image size (defaults to input image size)
 
 
+18. Turmites[options] [output image]
+ Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite
+ -m (mode)                    Change the mode of operation (default External)
+ -p (string)                  LR pattern string. See below for full language (default 'LR')
+ -img (image)                 Use an image file as the starting state
+ -e (edge rule)               Change edge handling rule (default Wrap)
+ -s (x,y)                     Starting location of turmite (defaults to center coordinate)
+ -i (number)                  Number of iterations (default 1000)
+
+ Available Modes:
+ 1. External                  External memory mode - mites use only the information on the grid to make decisions
+ 2. Internal                  Internal memory mode - mites use an internal state to make decisions
+
+ Available Edge Rules:
+ 1. Wrap                      Wrap around to the other side
+ 2. Reflect                   Turn around at the edge
+
+ Pattern language:
+  The pattern language consist of a string of characters used to decide which action to take.
+  Adding a number after the letter will repeat that rule. For example R3 is the same as RRR.
+
+  L                           Make a left turn (counterclock-wise)
+  R                           Make a right turn (clock-wise)
+  U                           Turn around (180 degree turn)
+  F                           Continue forward (no turn)
+  N                           Point north
+  S                           Point south
+  E                           Point east
+  W                           Point west
+  X                           Use external grid to decide (only for internal mode)
+
 999. Playground [options] [output image]
- does some kind of test 
+ does some kind of test
 
 Available Samplers:
- 1. NearestNeighbor           
- 2. Bicubic                   
- 3. Box                       
- 4. CatmullRom                
- 5. Hermite                   
- 6. Lanczos2                  
- 7. Lanczos3                  
- 8. Lanczos5                  
- 9. Lanczos8                  
-10. MitchellNetravali         
-11. Robidoux                  
-12. RobidouxSharp             
-13. Spline                    
-14. Triangle                  
-15. Welch                     
+ 1. NearestNeighbor
+ 2. Bicubic
+ 3. Box
+ 4. CatmullRom
+ 5. Hermite
+ 6. Lanczos2
+ 7. Lanczos3
+ 8. Lanczos5
+ 9. Lanczos8
+10. MitchellNetravali
+11. Robidoux
+12. RobidouxSharp
+13. Spline
+14. Triangle
+15. Welch
 
 Available Metrics:
-1. Manhattan                  
-2. Euclidean                  
-3. Chebyshev                  
-4. ChebyshevInv               
-5. Minkowski (p-factor)       
-6. Canberra                   
+1. Manhattan
+2. Euclidean
+3. Chebyshev
+4. ChebyshevInv
+5. Minkowski (p-factor)
+6. Canberra
 
 Available Colors:
 Note: Colors may be specified as a name or as a hex value
@@ -279,7 +311,7 @@ DarkOrange                    FF8C00FF
 DarkOrchid                    9932CCFF
 DarkRed                       8B0000FF
 DarkSalmon                    E9967AFF
-DarkSeaGreen                  8FBC8BFF
+DarkSeaGreen                  8FBC8FFF
 DarkSlateBlue                 483D8BFF
 DarkSlateGray                 2F4F4FFF
 DarkTurquoise                 00CED1FF
@@ -394,7 +426,10 @@ ImageMagick:
  A                            Raw alpha samples
  Aai                          AAI Dune image
  Ai                           Adobe Illustrator CS2
+ APng                         Animated Portable Network Graphics
  Art                          PFS: 1st Publisher Clip Art
+ Ashlar                       Image sequence laid out in continuous irregular courses
+ Avif                         AV1 Image File Format
  Avs                          AVS X image
  B                            Raw blue samples
  Bgr                          Raw blue, green, and red samples
@@ -432,8 +467,11 @@ ImageMagick:
  Ept2                         Encapsulated PostScript Level II with TIFF preview
  Ept3                         Encapsulated PostScript Level III with TIFF preview
  Exr                          High Dynamic-range (HDR)
+ Farbfeld                     Farbfeld
  Fax                          Group 3 FAX
+ Ff                           Farbfeld
  Fits                         Flexible Image Transport System
+ Fl32                         FilmLight
  Flif                         Free Lossless Image Format
  Flv                          Flash Video Stream
  Fts                          Flexible Image Transport System
@@ -470,10 +508,11 @@ ImageMagick:
  Jps                          Joint Photographic Experts Group JFIF format
  Jpt                          JPEG-2000 File Format Syntax
  Json                         The image format and characteristics
+ Jxl                          JPEG XL (ISO/IEC 18181)
  K                            Raw black samples
  M                            Raw magenta samples
  M2v                          MPEG Video Stream
- M4v                          Raw MPEG-4 Video
+ M4v                          Raw VIDEO-4 Video
  Map                          Colormap intensities and indices
  Mask                         Image Clip Mask
  Mat                          MATLAB level 5 image format
@@ -483,8 +522,8 @@ ImageMagick:
  Mng                          Multiple-image Network Graphics
  Mono                         Raw bi-level bitmap
  Mov                          MPEG Video Stream
- Mp4                          MPEG-4 Video Stream
- Mpc                          Magick Persistent Cache image format
+ Mp4                          VIDEO-4 Video Stream
+ Mpc                          Magick Pixel Cache image format
  Mpeg                         MPEG Video Stream
  Mpg                          MPEG Video Stream
  Msl                          Magick Scripting Language
@@ -508,6 +547,7 @@ ImageMagick:
  Pdfa                         Portable Document Archive Format
  Pfm                          Portable float format
  Pgm                          Portable graymap format (gray scale)
+ Phm                          Portable half float format
  Pgx                          JPEG 2000 uncompressed format
  Picon                        Personal Icon
  Pict                         Apple Macintosh QuickDraw/PICT
@@ -534,6 +574,7 @@ ImageMagick:
  Rgba                         Raw red, green, blue, and alpha samples
  Rgbo                         Raw red, green, blue, and opacity samples
  Rgf                          LEGO Mindstorms EV3 Robot Graphic Format (black and white)
+ Rsvg                         Librsvg SVG renderer
  Sgi                          Irix RGB image
  Shtml                        Hypertext Markup Language and a client-side image map
  Six                          DEC SIXEL Graphics Format
@@ -555,6 +596,7 @@ ImageMagick:
  Vda                          Truevision Targa image
  Vicar                        VICAR rasterfile format
  Vid                          Visual Image Directory
+ WebM                         Open Web Media
  Viff                         Khoros Visualization image
  Vips                         VIPS image
  Vst                          Truevision Targa image
@@ -565,6 +607,7 @@ ImageMagick:
  Xpm                          X Windows system pixmap (color)
  Xv                           Khoros Visualization image
  Y                            Raw yellow samples
+ Yaml                         The image format and characteristics
  Ycbcr                        Raw Y, Cb, and Cr samples
  Ycbcra                       Raw Y, Cb, Cr, and alpha samples
  Yuv                          CCIR 601 4:1:1 or 4:2:2
@@ -573,5 +616,6 @@ SixLabors:
  JPEG                         image/jpeg [jpg,jpeg,jfif]
  GIF                          image/gif [gif]
  BMP                          image/bmp [bm,bmp,dip]
+ TGA                          image/tga [tga,vda,icb,vst]
 
 ```
