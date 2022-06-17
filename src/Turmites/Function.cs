@@ -41,7 +41,7 @@ namespace ImageFunctions.Turmites
 		{
 			string name = OptionsHelpers.FunctionName(Activity.Turmites);
 			sb.WL();
-			sb.WL(0,name + "[options] [output image]");
+			sb.WL(0,name + " [options] [output image]");
 			sb.WL(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
 			sb.WL(1,"-p (string)"   ,"LR pattern string. See below for full language (default 'LR')");
 			// sb.WL(1,"-img (image)"  ,"Use an image file as the starting state");
