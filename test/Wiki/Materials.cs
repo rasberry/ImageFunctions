@@ -32,6 +32,7 @@ namespace test.Wiki
 			case Activity.GraphNet: return new TestGraphNet();
 			case Activity.Maze: return new TestMaze();
 			case Activity.ProbableImg: return new TestProbableImg();
+			case Activity.Turmites: return new TestTurmites();
 			}
 			return null;
 		}

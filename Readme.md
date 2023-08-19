@@ -8,15 +8,15 @@ A collection of various image processing functions
 
 ## Commands ##
 * run project
-  * ```dotnet run -p src --```
+  * ```dotnet run --project src --```
 * test project
   * ```dotnet test```
 * build wiki
   * Only do this if all tests pass.
-  * Buiding the wiki may take a long time.
+  * Building the wiki may take a long time.
   * To regenerate test images include the parameter "--images"
   ```
-  dotnet run -p test -- --images
+  dotnet run --project test -- --images
   ```
 
 ## Notes ##
