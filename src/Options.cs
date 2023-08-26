@@ -20,7 +20,7 @@ namespace ImageFunctions
 			sb.WL(0,"Usage "+nameof(ImageFunctions)+" (action) [options]");
 			sb.WL(1,"-h / --help"            ,"Show full help");
 			sb.WL(1,"(action) -h"            ,"Action specific help");
-			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectagular area (defaults to entire image)");
+			sb.WL(1,"-# / --rect ([x,y,]w,h)","Apply function to given rectangular area (defaults to entire image)");
 			sb.WL(1,"--format (name)"        ,"Save any output files as specified format");
 			sb.WL(1,"--max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 			sb.WL(1,"--engine (name)"        ,"Select image engine (default SixLabors)");

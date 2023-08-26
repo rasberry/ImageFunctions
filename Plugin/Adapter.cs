@@ -2,7 +2,7 @@
 
 namespace ImageFunctions.Plugin;
 
-public class Adapter : IPlugin
+internal class Adapter : IPlugin
 {
 	public void Dispose()
 	{

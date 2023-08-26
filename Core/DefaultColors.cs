@@ -1,4 +1,5 @@
 using System.Drawing;
+using ImageFunctions.Core.ColorSpace;
 
 namespace ImageFunctions.Core;
 
@@ -18,5 +19,6 @@ static class DefaultColors
 
 		//add in special extra
 		register.AddColor("RebeccaPurple",ColorRGBA.FromRGBA255(0xFF,0x66,0x33,0x99));
+		register.AddColor("Transparent",new ColorRGBA(0.0, 0.0, 0.0, 0.0));
 	}
 }

@@ -1,3 +1,5 @@
+namespace ImageFunctions.Core.ColorSpace;
+
 public interface IColor3
 {
 	double C1 { get; }
@@ -11,24 +13,40 @@ public interface IColor4 : IColor3
 	double C4 { get; }
 }
 
-public interface IColorLuma
+public interface ILuma
 {
 	double Luma { get; }
 }
 
 public interface ILumaColorSpace
 {
-	IColorLuma GetLuma(in IColor o);
+	ILuma GetLuma(in ColorRGBA o);
 }
 
-public interface I3ColorSpace
+public interface IColor3Space
 {
-	I3Color ToSpace(in IColor o);
-	IColor ToNative(in I3Color o);
+	IColor3 ToSpace(in ColorRGBA o);
+	ColorRGBA ToNative(in IColor3 o);
 }
 
-public interface I4ColorSpace
+public interface IColor4Space
 {
-	I4Color ToSpace(in IColor o);
-	IColor ToNative(in I4Color o);
+	IColor4 ToSpace(in ColorRGBA o);
+	ColorRGBA ToNative(in IColor4 o);
 }
+
+public interface IColor3Space<T> : IColor3Space where T : IColor3
+{
+	new T ToSpace(in ColorRGBA o);
+	ColorRGBA ToNative(in T o);
+}
+public interface IColor4Space<T> : IColor4Space where T : IColor4
+{
+	new T ToSpace(in ColorRGBA o);
+	ColorRGBA ToNative(in T o);
+}
+
+//TODO look at https://easyrgb.com/en/convert.php
+// and http://www.brucelindbloom.com/
+// and http://members.chello.at/~easyfilter/colorspace.c
+// https://imagej.net/plugins/color-space-converter.html

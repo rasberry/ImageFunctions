@@ -1,52 +1,40 @@
-using System.Drawing;
+using ImageFunctions.Core.ColorSpace;
 
 namespace ImageFunctions.Core;
 
 /// <summary>
-/// Wrapper for ColorFun that exposes the components as R,G,B,A
+/// Color with Components R,G,B,A
 /// </summary>
-public readonly struct ColorRGBA : IEquatable<ColorRGBA>
+public readonly struct ColorRGBA : IEquatable<ColorRGBA>, IColor3
 {
 	public ColorRGBA(double r, double g, double b, double a)
 	{
-		TheColor = new ColorFun(r,g,b,a);
+		//not clamping here to support HDR. clamp on display instead
+		R = r; G = g; B = b; A = a;
 	}
 
-	public ColorRGBA(ColorFun c)
-	{
-		TheColor = c;
-	}
+	public readonly double R,G,B,A;
 
-	public double R { get { return TheColor.C1; }}
-	public double G { get { return TheColor.C2; }}
-	public double B { get { return TheColor.C3; }}
-	public double A { get { return TheColor.A; }}
+	double IColor3.C1 { get { return R; }}
+	double IColor3.C2 { get { return G; }}
+	double IColor3.C3 { get { return B; }}
+	double IColor3.A  { get { return A; }}
 
 	public override string ToString()
 	{
-		return TheColor.ToString();
+		return $"{nameof(ColorRGBA)} [{R},{G},{B},{A}]";
 	}
 
 	public bool Equals(ColorRGBA other)
 	{
-		return other.TheColor.Equals(other.TheColor);
+		return other.R == R && other.G == G &&
+			other.B == B && other.A == A;
 	}
 
 	public override int GetHashCode()
 	{
-		return TheColor.GetHashCode();
+		return HashCode.Combine(R,G,B,A);
 	}
-
-	public static explicit operator ColorFun(ColorRGBA c)
-	{
-		return new ColorFun(c.R,c.G,c.B,c.A);
-	}
-	public static explicit operator ColorRGBA(ColorFun c)
-	{
-		return new ColorRGBA(c);
-	}
-
-	readonly ColorFun TheColor;
 
 	public static ColorRGBA FromRGBA255(byte r, byte g, byte b, byte a)
 	{

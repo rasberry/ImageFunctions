@@ -16,5 +16,5 @@ public interface IFunction
 	/// <param name="layers">image layers given to the function (may be empty)</param>
 	/// <param name="args">command like style arguments</param>
 	/// <returns>true on success, false on failure which will stop further processing</returns>
-	bool Run(ILayers layers, string[] args);
+	bool Run(IRegister register, ILayers layers, string[] args);
 }

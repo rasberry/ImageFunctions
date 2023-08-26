@@ -6,7 +6,7 @@ namespace ImageFunctions
 			Log.Error($"invalid value '{val}' for '{name}'");
 		}
 		public static void UnknownAction(object val) {
-			Log.Error($"unkown action '{val}'");
+			Log.Error($"unknown action '{val}'");
 		}
 		public static void ActionNotSpecified() {
 			Log.Error("action was not specified");
