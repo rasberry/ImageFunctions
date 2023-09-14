@@ -11,7 +11,8 @@ internal static class PluginLoader
 	{
 		var pluginsPath = GetPluginsFolder();
 		Log.Debug($"pluginsPath = {pluginsPath}");
-		var rawList = Directory.GetFiles(pluginsPath);
+		var rawList = Directory.EnumerateFiles(pluginsPath);
+		
 		foreach(string f in rawList) {
 			if (!f.EndsWith(".dll",StringComparison.InvariantCultureIgnoreCase)) { continue; }
 
@@ -43,8 +44,14 @@ internal static class PluginLoader
 	static void RegisterPlugin(Assembly plugin, IRegister register)
 	{
 		var plugTypes = plugin.GetTypes();
+		var iPluginType = typeof(IPlugin);
+
+
 		foreach(Type t in plugTypes) {
-			if (!(t is IPlugin)) { continue; }
+			var ints = string.Join<Type>(" ",t.GetInterfaces());
+
+			if (! iPluginType.IsAssignableFrom(t)) { continue; }
+			Tell.PluginFound(plugin.Location, t.FullName);
 
 			IPlugin pluginInst = null;
 			try {

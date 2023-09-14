@@ -1,4 +1,3 @@
-using System.Drawing;
 using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core;
@@ -16,9 +15,9 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 	internal static void Register(IRegister register)
 	{
 		var reg = new ColorRegister(register);
-		var colorEnum = Enum.GetValues(typeof(KnownColor));
-		foreach(KnownColor kc in colorEnum) {
-			var sdColor = Color.FromKnownColor(kc);
+		var colorEnum = Enum.GetValues(typeof(System.Drawing.KnownColor));
+		foreach(System.Drawing.KnownColor kc in colorEnum) {
+			var sdColor = System.Drawing.Color.FromKnownColor(kc);
 			bool good = sdColor.IsKnownColor && !sdColor.IsSystemColor;
 			if (good) {
 				var ifColor = ColorRGBA.FromRGBA255(sdColor.R, sdColor.G, sdColor.B, sdColor.A);

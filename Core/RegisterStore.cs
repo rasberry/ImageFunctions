@@ -9,7 +9,8 @@ class RegisterStore
 			throw new ArgumentNullException("instance");
 		}
 
-		Log.Info($"Registering {name}");
+		Tell.Registering(name);
+
 		return Store.TryAdd(name,instance);
 	}
 

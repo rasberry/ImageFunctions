@@ -48,4 +48,10 @@ public static class Tell
 	public static void PluginInitFailed(Type t, Exception e) {
 		Log.Warning($"Problem initializing plugin {t.FullName} {e.Message}");
 	}
+	public static void PluginFound(string file, string name) {
+		Log.Info($"Plugin {name} Found {file}");
+	}
+	public static void Registering(string name) {
+		Log.Info($"Registering {name}");
+	}
 }

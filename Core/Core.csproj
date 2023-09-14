@@ -3,12 +3,25 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <OutputPath>../build</OutputPath>
+    <!-- <ImplicitUsings>enable</ImplicitUsings> -->
     <!-- <Nullable>enable</Nullable> -->
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Rasberry.Cli" Version="1.0.1" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.2.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Linq" />
+    <Using Include="System.IO" />
+    <Using Include="System.Collections.Generic" />
   </ItemGroup>
 
 </Project>

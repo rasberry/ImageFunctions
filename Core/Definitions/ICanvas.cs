@@ -6,5 +6,4 @@ public interface ICanvas
 	int Height { get; }
 
 	ColorRGBA this[int x, int y] { get; set; }
-	string Name { get; }
 }

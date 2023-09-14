@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ImageFunctions.Core;
 
 public abstract class AbstractRegistrant<T> : IRegistrant<T>

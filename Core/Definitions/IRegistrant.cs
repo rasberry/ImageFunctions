@@ -7,3 +7,7 @@ public interface IRegistrant<T>
 	bool Try(string name, out T item);
 	IEnumerable<string> All();
 }
+
+
+
+
