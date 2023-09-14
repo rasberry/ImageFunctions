@@ -10,11 +10,18 @@ internal static class PluginLoader
 	public static void LoadAllPlugins(IRegister register)
 	{
 		var pluginsPath = GetPluginsFolder();
-		Log.Debug($"pluginsPath = {pluginsPath}");
+		Log.Debug($"Plugin Path is {pluginsPath}");
 		var rawList = Directory.EnumerateFiles(pluginsPath);
-		
+
 		foreach(string f in rawList) {
+			//TODO does '.dll' work on linux ?
 			if (!f.EndsWith(".dll",StringComparison.InvariantCultureIgnoreCase)) { continue; }
+
+			var selfAssembly = typeof(IPlugin).Assembly;
+			if (Path.GetFullPath(f) == selfAssembly.Location) {
+				RegisterPlugin(selfAssembly, register);
+				continue;
+			}
 
 			Assembly plugin = null;
 			try {
@@ -44,18 +51,32 @@ internal static class PluginLoader
 	static void RegisterPlugin(Assembly plugin, IRegister register)
 	{
 		var plugTypes = plugin.GetTypes();
-		var iPluginType = typeof(IPlugin);
+		//var iPluginType = typeof(IPlugin);
 
+		/*
+		var l1 = AppDomain.CurrentDomain.GetAssemblies();
+		var l2 = plugin.GetReferencedAssemblies();
+		foreach(var a in l1) {
+			Log.Debug(a.CodeBase);
+		}
+		foreach(var a in l2) {
+			Log.Debug(a.CodeBase);
+		}
+		return;
+		*/
 
 		foreach(Type t in plugTypes) {
-			var ints = string.Join<Type>(" ",t.GetInterfaces());
+			//var ints = string.Join<Type>(" ",t.GetInterfaces());
+			//Log.Debug($"{t.Module.FullyQualifiedName} {t.FullName} {String.Join<Type>(",",t.GetInterfaces())}");
+			//Log.Debug($"{t.FullName} IsPlugin={IsIPlugin(t)} IAF={iPluginType.IsAssignableFrom(t)}");
+			//continue;
 
-			if (! iPluginType.IsAssignableFrom(t)) { continue; }
+			if (! IsIPlugin(t)) { continue; }
 			Tell.PluginFound(plugin.Location, t.FullName);
 
 			IPlugin pluginInst = null;
 			try {
-				pluginInst = Activator.CreateInstance(t) as IPlugin;
+				pluginInst = (IPlugin)Activator.CreateInstance(t);
 			}
 			catch (Exception e) {
 				Tell.PluginTypeWarnLoading(t,e);
@@ -71,6 +92,24 @@ internal static class PluginLoader
 				Tell.PluginInitFailed(t,e);
 			}
 		}
+	}
+
+	static bool IsIPlugin(Type t)
+	{
+		Type iPluginType = typeof(IPlugin);
+
+		// we don't want to instantiate the IPlugin interface itself
+		if (t == iPluginType) {
+			return false;
+		}
+
+		// Note: this is the only mechanism that works since
+		//   the plugin must be loaded with the same instance of Core
+		if (iPluginType.IsAssignableFrom(t)) {
+			return true;
+		}
+
+		return false;
 	}
 }
 

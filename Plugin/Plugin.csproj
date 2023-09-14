@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
         <Private>false</Private>

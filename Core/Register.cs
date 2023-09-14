@@ -30,18 +30,4 @@ class Register : IRegister
 	}
 
 	RegisterStore Store = new RegisterStore();
-
-	public void RunAllRegisterMethods()
-	{
-		var assembly = GetType().Assembly;
-		var flags = BindingFlags.Static | BindingFlags.NonPublic;
-		var methods = assembly.GetTypes()
-			.SelectMany(t => t.GetMethods(flags))
-			.Where(m => m.GetCustomAttributes(typeof(InternalRegisterAttribute), false).Length > 0)
-		;
-		foreach(var m in methods) {
-			//Log.Debug($"register method: {m.Name} {m.DeclaringType.Name}");
-			m.Invoke(null, new object[] { this });
-		}
-	}
 }

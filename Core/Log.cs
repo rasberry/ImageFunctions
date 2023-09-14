@@ -21,8 +21,7 @@ public static class Log
 
 	public static void Debug(string m)
 	{
-		#if DEBUG
+		//TODO check a setting here
 		Console.WriteLine($"D: {m}");
-		#endif
 	}
 }

@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <OutputPath>../build</OutputPath>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
     <!-- <ImplicitUsings>enable</ImplicitUsings> -->
     <!-- <Nullable>enable</Nullable> -->
   </PropertyGroup>
