@@ -10,7 +10,7 @@ public static class Tools
 	/// </summary>
 	public static IImageEngine Engine {
 		get {
-			return Options.Engine;
+			return Options.Engine.Value;
 		}
 	}
 
@@ -30,7 +30,7 @@ public static class Tools
 	/// <param name="image"></param>
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
-	public static void ThreadPixels(ICanvas image, Action<int,int> callback,
+	public static void ThreadPixels(this ICanvas image, Action<int,int> callback,
 		IProgress<double> progress = null)
 	{
 		long done = 0;
@@ -45,5 +45,16 @@ public static class Tools
 			progress?.Report((double)done / max);
 			callback(x,y);
 		});
+	}
+
+	//https://en.wikipedia.org/wiki/Sinc_function
+	public static double SinC(double v)
+	{
+		if (Math.Abs(v) < double.Epsilon) {
+			return 1.0;
+		}
+		v *= Math.PI; //normalization factor
+		double s = Math.Sin(v) / v;
+		return Math.Abs(s) < double.Epsilon ? 0.0 : s;
 	}
 }

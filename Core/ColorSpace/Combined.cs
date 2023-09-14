@@ -154,7 +154,7 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 		double IColor3.C2 { get { return S; }}
 		double IColor3.C3 { get { return L; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return L; }}
+		public double Luma { get { return L; }}
 	}
 }
 
@@ -206,7 +206,7 @@ public class ColorSpaceHsv : ColorSpaceHSBase, IColor3Space<ColorSpaceHsv.HSV>, 
 		double IColor3.C2 { get { return S; }}
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return V; }}
+		public double Luma { get { return V; }}
 	}
 }
 
@@ -258,7 +258,7 @@ public class ColorSpaceHsi : ColorSpaceHSBase, IColor3Space<ColorSpaceHsi.HSI>, 
 		double IColor3.C2 { get { return S; }}
 		double IColor3.C3 { get { return I; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return I; }}
+		public double Luma { get { return I; }}
 	}
 }
 
@@ -305,7 +305,7 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 		double IColor3.C2 { get { return I; }}
 		double IColor3.C3 { get { return Q; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return Q; }}
+		public double Luma { get { return Q; }}
 	}
 }
 
@@ -352,7 +352,7 @@ public class ColorSpaceYiqFcc : IColor3Space<ColorSpaceYiqFcc.YIQ>, ILumaColorSp
 		double IColor3.C2 { get { return I; }}
 		double IColor3.C3 { get { return Q; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return Q; }}
+		public double Luma { get { return Q; }}
 	}
 }
 
@@ -399,7 +399,7 @@ public class ColorSpaceYuvBT601 : IColor3Space<ColorSpaceYuvBT601.YUV>, ILumaCol
 		double IColor3.C2 { get { return U; }}
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return V; }}
+		public double Luma { get { return V; }}
 	}
 }
 
@@ -446,7 +446,7 @@ public class ColorSpaceYuvBT709 : IColor3Space<ColorSpaceYuvBT709.YUV>, ILumaCol
 		double IColor3.C2 { get { return U; }}
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return V; }}
+		public double Luma { get { return V; }}
 	}
 }
 
@@ -493,7 +493,7 @@ public class ColorSpaceYDbDr : IColor3Space<ColorSpaceYDbDr.YBR>, ILumaColorSpac
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -576,7 +576,7 @@ public class ColorSpaceYCbCrBt601 : ColorSpaceYCbCrBase,
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -625,7 +625,7 @@ public class ColorSpaceYCbCrBt709 : ColorSpaceYCbCrBase,
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -674,7 +674,7 @@ public class ColorSpaceYCbCrBt202 : ColorSpaceYCbCrBase,
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -723,7 +723,7 @@ public class ColorSpaceYCbCrSmpte240m : ColorSpaceYCbCrBase,
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -770,7 +770,7 @@ public class ColorSpaceYCbCrJpeg : IColor3Space<ColorSpaceYCbCrJpeg.YBR>, ILumaC
 		double IColor3.C2 { get { return B; }}
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return R; }}
+		public double Luma { get { return R; }}
 	}
 }
 
@@ -818,7 +818,7 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 		double IColor3.C2 { get { return Y; }}
 		double IColor3.C3 { get { return Z; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return Z; }}
+		public double Luma { get { return Z; }}
 	}
 }
 
@@ -881,6 +881,6 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 		double IColor3.C2 { get { return V; }}
 		double IColor3.C3 { get { return W; }}
 		double IColor3.A  { get { return A; }}
-		public double  Luma { get { return W; }}
+		public double Luma { get { return W; }}
 	}
 }

@@ -10,25 +10,32 @@ static class Options
 		StringBuilder sb = new StringBuilder();
 		sb.ND(0,"Usage "+nameof(ImageFunctions)+" [options] [function name] [-- function options]");
 		sb.ND(1,"-h / --help"                 ,"Show full help (provide a function name to show only that help instead");
-		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified format");
+		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (registered) format");
 		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
-		sb.ND(1,"-e / --engine (name)"        ,"Select image engine (default first available)");
+		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
 		sb.ND(1,"-q / --quiet"                ,"Suppress informational messages");
-		sb.ND(1,"-le / --engines"             ,"List registered engines");
-		sb.ND(1,"-lf / --functions"           ,"List registered functions");
-		sb.ND(1,"-lc / --colors"              ,"List available colors");
-		sb.ND(1,"-lm / --formats"             ,"List available output formats");
+		//sb.ND(1,"-le / --engines"             ,"List registered engines");
+		//sb.ND(1,"-lf / --functions"           ,"List registered functions");
+		//sb.ND(1,"-lc / --colors"              ,"List available colors");
+		//sb.ND(1,"-lm / --formats"             ,"List available output formats");
+		sb.ND(1,"-n / --namespace (name)"     ,"List all registered items in given namespace (specify 'all' to list everything)");
 		sb.ND(1,"--"                          ,"Pass all remaining options to the script");
 
 		var show = WhichShow;
 		if (show.HasFlag(PickShow.FullHelp))
 		{
-			foreach(var fname in register.GetAllFunctions()) {
-				var func = register.GetFunction(fname);
-				sb.WT();
-				sb.WT(0,$"Function '{fname}'");
-				func.Usage(sb);
-			}
+			//TODO need to rework registration help since
+			// theres a bunch of different types
+			// something like
+			// --namespace  list all namespaces
+			// --namespace (name) list all items in given namespace
+
+			//foreach(var fname in register.GetAllFunctions()) {
+			//	var func = register.GetFunction(fname);
+			//	sb.WT();
+			//	sb.WT(0,$"Function '{fname}'");
+			//	func.Usage(sb);
+			//}
 		}
 	}
 
@@ -64,7 +71,8 @@ static class Options
 			return false;
 		}
 		else if (oeng.IsGood()) {
-			if (!register.TryGetEngine(eng, out Engine)) {
+			var er = new EngineRegister(register);
+			if (!er.Try(eng, out Engine)) {
 				Tell.NotRegistered("Engine",eng);
 				return false;
 			}
@@ -118,7 +126,7 @@ static class Options
 
 	//static void ShowFunctionHelp(
 
-	public static IImageEngine Engine;
+	public static Lazy<IImageEngine> Engine;
 	public static int? MaxDegreeOfParallelism;
 	public static string ImageFormat;
 	public static string FunctionName;

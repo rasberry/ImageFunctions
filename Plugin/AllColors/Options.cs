@@ -89,13 +89,13 @@ namespace ImageFunctions.Plugin.AllColors
 			else if (pso.IsGood()) {
 				string[] items = (pri??"").Split(',');
 				if (items.Length < 1) {
-					Tell.MustHaveOnePriority();
+					PlugTell.MustHaveOnePriority();
 					return false;
 				}
 				int[] priorities = new int[items.Length];
 				for(int i=0; i<items.Length; i++) {
 					if (!int.TryParse(items[i],out var num)) {
-						Tell.PriorityMustBeNumber();
+						PlugTell.PriorityMustBeNumber();
 						return false;
 					}
 					priorities[i] = num;

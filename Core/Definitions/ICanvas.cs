@@ -1,5 +1,3 @@
-using ImageFunctions.Core.ColorSpace;
-
 namespace ImageFunctions.Core;
 
 public interface ICanvas

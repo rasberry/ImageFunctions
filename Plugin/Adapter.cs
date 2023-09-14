@@ -10,7 +10,8 @@ internal class Adapter : IPlugin
 
 	public void Init(IRegister register)
 	{
-		var a = System.Reflection.Assembly.GetExecutingAssembly();
-		register.RegisterAll(a);
+		//var a = System.Reflection.Assembly.GetExecutingAssembly();
+		var reg = new FunctionRegister(register);
+		reg.Add("AllColors",new Lazy<IFunction>(() => new ImageFunctions.Plugin.AllColors.Function()));
 	}
 }

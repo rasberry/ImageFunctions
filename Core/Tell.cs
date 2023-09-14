@@ -43,6 +43,9 @@ public static class Tell
 		Log.Warning($"Problem loading library {file} {e.Message}");
 	}
 	public static void PluginTypeWarnLoading(Type t, Exception e) {
-		Log.Warning($"Error loading plugin {t.FullName} {e.Message}");
+		Log.Warning($"Error instantiating plugin {t.FullName} {e.Message}");
+	}
+	public static void PluginInitFailed(Type t, Exception e) {
+		Log.Warning($"Problem initializing plugin {t.FullName} {e.Message}");
 	}
 }

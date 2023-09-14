@@ -1,9 +1,10 @@
+#if false
 using System.Drawing;
 using ImageFunctions.Core.ColorSpace;
 
 namespace ImageFunctions.Core;
 
-static class DefaultColors
+static class DefaultColors : IRegistrant<ColorRGBA>
 {
 	public static void RegisterColors(IRegister register)
 	{
@@ -22,3 +23,4 @@ static class DefaultColors
 		register.AddColor("Transparent",new ColorRGBA(0.0, 0.0, 0.0, 0.0));
 	}
 }
+#endif

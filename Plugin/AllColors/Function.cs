@@ -38,14 +38,9 @@ public class Function : IFunction
 
 	IRegister register;
 
-
-	ColorRGBA? _transparent = null;
 	public ColorRGBA Transparent {
 		get {
-			if (!_transparent.HasValue) {
-				_transparent = register.GetColor("Transparent");
-			}
-			return _transparent.Value;
+			return new ColorRGBA(0.0, 0.0, 0.0, 0.0);
 		}
 	}
 

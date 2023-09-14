@@ -1,7 +1,99 @@
-using ImageFunctions.Core.ColorSpace;
+using System.Reflection;
+using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core;
 
+
+class Register : IRegister
+{
+	// DRY methods
+	public void Add<T>(string @namespace, string name, T item) {
+		Store.Add($"{@namespace}.{name}", item);
+	}
+
+	public T Get<T>(string @namespace, string name) {
+		return Store.Get<T>($"{@namespace}.{name}");
+	}
+
+	public bool Try<T>(string @namespace, string name, out T item) {
+		return Store.TryGet($"{@namespace}.{name}", out item);
+	}
+
+	public IEnumerable<string> All<T>(string @namespace) {
+		return Store.GetAllOfType<T>()
+			.Select((t) => StripPrefix(t,@namespace));
+	}
+
+	static string StripPrefix(string text, string prefix)
+	{
+		return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
+	}
+
+	RegisterStore Store = new RegisterStore();
+
+	public void RunAllRegisterMethods()
+	{
+		var assembly = GetType().Assembly;
+		var flags = BindingFlags.Static | BindingFlags.NonPublic;
+		var methods = assembly.GetTypes()
+			.SelectMany(t => t.GetMethods(flags))
+			.Where(m => m.GetCustomAttributes(typeof(InternalRegisterAttribute), false).Length > 0)
+		;
+		foreach(var m in methods) {
+			//Log.Debug($"register method: {m.Name} {m.DeclaringType.Name}");
+			m.Invoke(null, new object[] { this });
+		}
+	}
+}
+
+#if false
+public static class RegisterExtensions
+{
+	const string ColorPrefix = "Color.";
+	public static void AddColor(this IRegister reg, string name, ColorRGBA color) {
+		reg.Add(ColorPrefix, name, color);
+	}
+	public static ColorRGBA GetColor(this IRegister reg, string name) {
+		return reg.Get<ColorRGBA>(ColorPrefix,name);
+	}
+	public static bool TryGetColor(this IRegister reg, string name, out ColorRGBA color) {
+		return reg.Try(ColorPrefix, name, out color);
+	}
+	public static IEnumerable<string> GetAllColors(this IRegister reg) {
+		return reg.All<ColorRGBA>(ColorPrefix);
+	}
+
+	const string EnginePrefix = "Engine.";
+	public static void AddEngine(this IRegister reg, string name, Func<IImageEngine> engine) {
+		reg.Add(EnginePrefix, name, engine);
+	}
+	public static Func<IImageEngine> GetEngine(this IRegister reg, string name) {
+		return reg.Get<Func<IImageEngine>>(EnginePrefix,name);
+	}
+	public static bool TryGetEngine(this IRegister reg, string name, out Func<IImageEngine> engine) {
+		return reg.Try(EnginePrefix, name, out engine);
+	}
+	public static IEnumerable<string> GetAllEngines(this IRegister reg) {
+		return reg.All<Func<IImageEngine>>(EnginePrefix);
+	}
+
+	const string FunctionPrefix = "Function.";
+	public static void AddFunction(this IRegister reg, string name, Func<IFunction> function) {
+		reg.Add(FunctionPrefix, name, function);
+	}
+	public static Func<IFunction> GetFunction(this IRegister reg, string name) {
+		return reg.Get<Func<IFunction>>(FunctionPrefix, name);
+	}
+	public static bool TryGetFunction(this IRegister reg, string name, out Func<IFunction> function) {
+		return reg.Try<Func<IFunction>>(FunctionPrefix, name, out function);
+	}
+	public static IEnumerable<string> GetAllFunctions(this IRegister reg) {
+		return reg.All<Func<IFunction>>(FunctionPrefix);
+	}
+}
+#endif
+
+#if false
 public interface IRegister
 {
 	/// <summary>
@@ -189,3 +281,4 @@ class Register : IRegister
 		return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
 	}
 }
+#endif
