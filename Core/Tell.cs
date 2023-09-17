@@ -10,7 +10,7 @@ public static class Tell
 		Log.Error($"invalid value '{val}' for '{name}'");
 	}
 	public static void InitingPlugin(Type t) {
-		Log.Info($"Initializing plugin {t.FullName}");
+		Log.Debug($"Initializing plugin {t.FullName}");
 	}
 	public static void InvalidPassword() {
 		Log.Error("password is missing or invalid");
@@ -36,6 +36,13 @@ public static class Tell
 	public static void NotRegistered(string @class, string name) {
 		Log.Error($"{@class} '{name}' is not registered");
 	}
+	public static void NoImageFormatFound(string format) {
+		var suff = String.IsNullOrWhiteSpace(format)
+			? ". Specify one using --format"
+			: $" given '{format}'"
+		;
+		Log.Error($"Could not determine a usable format{suff}");
+	}
 	public static void PriorityMustBeNumber() {
 		Log.Error("Each priority must be a number");
 	}
@@ -49,9 +56,9 @@ public static class Tell
 		Log.Warning($"Problem initializing plugin {t.FullName} {e.Message}");
 	}
 	public static void PluginFound(string file, string name) {
-		Log.Info($"Plugin {name} Found {file}");
+		Log.Debug($"Plugin {name} Found {file}");
 	}
 	public static void Registering(string name) {
-		Log.Info($"Registering {name}");
+		Log.Debug($"Registering {name}");
 	}
 }

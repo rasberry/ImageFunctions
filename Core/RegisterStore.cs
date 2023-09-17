@@ -41,13 +41,20 @@ class RegisterStore
 		return Store.ContainsKey(name);
 	}
 
+	/*
 	public IEnumerable<string> GetAllOfType<T>()
 	{
 		foreach(var kvp in Store) {
-			if (kvp.Value is T itemInst) {
+			if (kvp.Value is T) {
 				yield return kvp.Key;
 			}
 		}
+	}
+	*/
+
+	public IEnumerable<string> GetAll()
+	{
+		return Store.Keys;
 	}
 
 	void EnsureNameIsNotNull(string name)
@@ -57,5 +64,5 @@ class RegisterStore
 		}
 	}
 
-	Dictionary<string,object> Store = new();
+	Dictionary<string,object> Store = new(StringComparer.CurrentCultureIgnoreCase);
 }

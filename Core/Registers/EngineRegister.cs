@@ -14,6 +14,11 @@ public class EngineRegister : AbstractRegistrant<Lazy<IImageEngine>>
 	[InternalRegister]
 	internal static void Register(IRegister register)
 	{
-		//TODO register engines here
+		var er = new EngineRegister(register);
+		er.Add(ImageMagickString,new Lazy<IImageEngine>(() => new Engines.ImageMagick()));
+		er.Add(SixLaborsString,new Lazy<IImageEngine>(() => new Engines.SixLabors()));
 	}
+
+	internal const string ImageMagickString = "ImageMagick";
+	internal const string SixLaborsString = "SixLabors";
 }

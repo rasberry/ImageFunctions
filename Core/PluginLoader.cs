@@ -15,8 +15,9 @@ internal static class PluginLoader
 
 		foreach(string f in rawList) {
 			//TODO does '.dll' work on linux ?
-			if (!f.EndsWith(".dll",StringComparison.InvariantCultureIgnoreCase)) { continue; }
+			if (!f.EndsWithIC(".dll")) { continue; }
 
+			//we don't want to re-load the core dll as a plugin
 			var selfAssembly = typeof(IPlugin).Assembly;
 			if (Path.GetFullPath(f) == selfAssembly.Location) {
 				RegisterPlugin(selfAssembly, register);
@@ -104,7 +105,7 @@ internal static class PluginLoader
 		}
 
 		// Note: this is the only mechanism that works since
-		//   the plugin must be loaded with the same instance of Core
+		//  the plugin must be loaded with the same instance of Core
 		if (iPluginType.IsAssignableFrom(t)) {
 			return true;
 		}

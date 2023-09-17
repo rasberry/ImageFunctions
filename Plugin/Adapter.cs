@@ -12,6 +12,7 @@ class Adapter : IPlugin
 	{
 		//var a = System.Reflection.Assembly.GetExecutingAssembly();
 		var reg = new FunctionRegister(register);
-		reg.Add("AllColors",new Lazy<IFunction>(() => new ImageFunctions.Plugin.AllColors.Function()));
+		reg.Add("AllColors",new Lazy<IFunction>(() => new AllColors.Function()));
+		reg.Add("AreaSmoother",new Lazy<IFunction>(() => new AreaSmoother.Function()));
 	}
 }

@@ -57,4 +57,19 @@ public static class Tools
 		double s = Math.Sin(v) / v;
 		return Math.Abs(s) < double.Epsilon ? 0.0 : s;
 	}
+
+	public static bool EqualsIC(this string sub, string test)
+	{
+		return sub.Equals(test,StringComparison.CurrentCultureIgnoreCase);
+	}
+
+	public static bool StartsWithIC(this string sub, string test)
+	{
+		return sub.StartsWith(test,StringComparison.CurrentCultureIgnoreCase);
+	}
+
+	public static bool EndsWithIC(this string sub, string test)
+	{
+		return sub.EndsWith(test,StringComparison.CurrentCultureIgnoreCase);
+	}
 }

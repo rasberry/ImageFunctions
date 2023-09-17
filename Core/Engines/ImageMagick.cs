@@ -7,7 +7,7 @@ using QType = System.Single;
 
 namespace ImageFunctions.Core.Engines
 {
-	public class ImageMagick : IImageEngine, IDrawEngine, IFormatGuide
+	public class ImageMagick : IImageEngine, IDrawEngine
 	{
 		static ImageMagick()
 		{
@@ -43,25 +43,19 @@ namespace ImageFunctions.Core.Engines
 			nativeImage.NativeImage.Draw(d0,d1,d2);
 		}
 
-		public IEnumerable<string> ListFormatNames()
+		public IEnumerable<ImageFormat> Formats()
 		{
 			foreach(MagickFormat mf in Enum.GetValues(typeof(MagickFormat))) {
 				var info = MagickFormatInfo.Create(mf);
-				if (info != null && info.SupportsWriting) {
-					yield return mf.ToString();
+				if (info != null) {
+					yield return new ImageFormat(
+						mf.ToString(),
+						info.Description,
+						info.SupportsReading,
+						info.SupportsWriting
+					);
 				}
 			}
-		}
-
-		public string GetFormatDescription(string formatName)
-		{
-			if (String.IsNullOrWhiteSpace(formatName)) { return ""; }
-			bool w = Enum.TryParse(formatName,true,out MagickFormat mf);
-			if (w) {
-				var info = MagickFormatInfo.Create(mf);
-				return info.Description;
-			}
-			return "";
 		}
 
 		public void Resize(ICanvas image, int width, int height)

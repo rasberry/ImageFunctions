@@ -10,7 +10,7 @@ using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace ImageFunctions.Core.Engines
 {
-	public class SixLabors : IImageEngine, IDrawEngine, IFormatGuide
+	public class SixLabors : IImageEngine, IDrawEngine
 	{
 		public ICanvas LoadImage(string path)
 		{
@@ -44,29 +44,20 @@ namespace ImageFunctions.Core.Engines
 			});
 		}
 
-		public IEnumerable<string> ListFormatNames()
+		public IEnumerable<ImageFormat> Formats()
 		{
 			var Ifm = Configuration.Default.ImageFormatsManager;
 			foreach(var f in Ifm.ImageFormats) {
 				var enc = Ifm.GetEncoder(f);
-				if (enc != null) {
-					yield return f.Name;
-				}
-			}
-		}
+				var dec = Ifm.GetDecoder(f);
 
-		public string GetFormatDescription(string formatName)
-		{
-			if (String.IsNullOrWhiteSpace(formatName)) { return null; }
-			var Ifm = Configuration.Default.ImageFormatsManager;
-			//Name doesn't seem to be have a built-in search, so using slow search for now
-			foreach(var f in Ifm.ImageFormats) {
-				bool e = StringComparer.OrdinalIgnoreCase.Equals(f.Name,formatName);
-				if (e) {
-					return $"{f.DefaultMimeType} [{String.Join(",",f.FileExtensions)}]";
-				}
+				yield return new ImageFormat(
+					f.Name,
+					$"{f.DefaultMimeType} [{String.Join(",",f.FileExtensions)}]",
+					enc != null,
+					dec != null
+				);
 			}
-			return null;
 		}
 
 		public void Resize(ICanvas image, int width, int height)

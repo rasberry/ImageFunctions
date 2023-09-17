@@ -13,7 +13,11 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 	}
 
 	public IEnumerable<string> All() {
-		return Reg.All<T>(Namespace);
+		foreach(var i in Reg.All()) {
+			if (i.StartsWith(Namespace)) {
+				yield return StripPrefix(i,Namespace);
+			}
+		}
 	}
 
 	public T Get(string name) {
@@ -22,6 +26,11 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 
 	public bool Try(string name, out T item) {
 		return Reg.Try(Namespace,name,out item);
+	}
+
+	static string StripPrefix(string text, string prefix) {
+		//the + 1 is to remove the extra '.'
+		return text.StartsWith(prefix) ? text.Substring(prefix.Length + 1) : text;
 	}
 
 	internal abstract string Namespace { get; }

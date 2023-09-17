@@ -19,15 +19,26 @@ class Register : IRegister
 		return Store.TryGet($"{@namespace}.{name}", out item);
 	}
 
-	public IEnumerable<string> All<T>(string @namespace) {
-		return Store.GetAllOfType<T>()
-			.Select((t) => StripPrefix(t,@namespace));
+	public IEnumerable<string> All() {
+		return Store.GetAll();
+	}
+
+	/*
+	public IEnumerable<string> All<T>(string @namespace, bool stripPrefix = false) {
+		if (stripPrefix) {
+			return Store.GetAllOfType<T>()
+				.Select((t) => StripPrefix(t,@namespace));
+		}
+		else {
+			return Store.GetAllOfType<T>();
+		}
 	}
 
 	static string StripPrefix(string text, string prefix)
 	{
 		return text.StartsWith(prefix) ? text.Substring(prefix.Length) : text;
 	}
+	*/
 
 	RegisterStore Store = new RegisterStore();
 }
