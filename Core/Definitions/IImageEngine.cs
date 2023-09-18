@@ -2,9 +2,9 @@ namespace ImageFunctions.Core;
 
 public interface IImageEngine
 {
-	ICanvas LoadImage(string path);
-	ICanvas NewImage(int width, int height);
-	void SaveImage(ICanvas img, string path, string format = null);
+	ILayers NewImage(int width, int height);
+	ILayers LoadImage(string path);
+	void SaveImage(ILayers layers, string path, string format = null);
 
 	IEnumerable<ImageFormat> Formats();
 }

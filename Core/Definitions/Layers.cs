@@ -5,11 +5,11 @@ namespace ImageFunctions.Core;
 public interface ILayers : IEnumerable<ICanvas>
 {
 	ICanvas this[int index] { get; set; }
-	void InsertAt(int index, ICanvas c, string name = null);
+	void InsertAt(int index, ICanvas layer, string name = null);
 	ICanvas RemoveAt(int index);
 	int IndexOf(string name, int startIndex = 0);
-	void Add(ICanvas c, string name = null);
 	int Count { get; }
+	ICanvas AddNew(string name = null);
 }
 
 public class Layers : ILayers
@@ -50,9 +50,9 @@ public class Layers : ILayers
 		return -1;
 	}
 
-	public void Add(ICanvas c, string name = null)
+	public void Add(ICanvas layer, string name = null)
 	{
-		var cwn = new CanvasWithName(c, name ?? GetDefaultName());
+		var cwn = new CanvasWithName(layer, name ?? GetDefaultName());
 		List.Add(cwn);
 	}
 

@@ -37,13 +37,11 @@ static class Options
 		sb.WT();
 		sb.WT(0,"Options:");
 		sb.ND(1,"-h / --help"                 ,"Show help / full help (provide a function name to show only that help instead");
+		sb.ND(1,"-i / --image (file)"         ,"Load this image as a layer. Supports images with multiple layers");
 		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (registered) format");
 		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
 		sb.ND(1,"-v / --verbose"              ,"Show additional messages");
-		//sb.ND(1,"-le / --engines"             ,"List registered engines");
-		//sb.ND(1,"-lf / --functions"           ,"List registered functions");
-		//sb.ND(1,"-lc / --colors"              ,"List available colors");
 		sb.ND(1,"-lf / --formats"             ,"List engine supported image formats");
 		sb.ND(1,"-ln / --namespace (name)"    ,"List registered items in given namespace (specify 'all' to list everything)");
 		sb.ND(1,"--"                          ,"Pass all remaining options to the function");
@@ -120,6 +118,11 @@ static class Options
 
 		if (p.Has("-lf","--formats").IsGood()) {
 			Show |= PickShow.Formats;
+		}
+
+		//grab all of the inputs images
+		if (!EnumerateInputImages(p)) {
+			return false;
 		}
 
 		//take the first remaining option as the script name
@@ -264,11 +267,29 @@ static class Options
 		return true;
 	}
 
+	static bool EnumerateInputImages(ParseParams p)
+	{
+		bool found = true;
+		while(found) {
+			var oim = p.Default(new[]{"-i","--image"},out string name);
+			if (oim.IsMissingArgument()) {
+				Tell.MissingArgument("--image");
+				return false;
+			}
+			else if (oim.IsGood()) {
+				ImageFileNames.Add(name);
+			}
+			else {
+				found = false;
+			}
+		}
+
+		return true;
+	}
+
 	//Options only helper parameters
 	static string HelpNameSpace = null;
 	static string EngineName = null;
-	//static bool ShowFullHelp = false;
-	//static bool ShowFormats = false;
 	static PickShow Show = PickShow.None;
 
 	//Global options
@@ -278,6 +299,7 @@ static class Options
 	public static string FunctionName;
 	public static string[] FunctionArgs;
 	public static bool BeVerbose = false;
+	public static List<string> ImageFileNames = new();
 
 	[Flags]
 	enum PickShow
@@ -288,6 +310,5 @@ static class Options
 		Registered = 4,
 		Function = 8,
 		All = 8 + 4 + 2 + 1
-
 	}
 }

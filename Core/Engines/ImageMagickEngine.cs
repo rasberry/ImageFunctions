@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using ImageMagick;
@@ -7,35 +8,62 @@ using QType = System.Single;
 
 namespace ImageFunctions.Core.Engines
 {
-	public class ImageMagick : IImageEngine, IDrawEngine
+	public class ImageMagickEngine : IImageEngine, IDrawEngine
 	{
-		static ImageMagick()
+		static ImageMagickEngine()
 		{
 			MagickNET.SetTempDirectory(Environment.CurrentDirectory);
 			//Log.Debug($"Quantum = {Quantum.Depth} {Quantum.Max}");
 		}
 
-		public ICanvas LoadImage(string file)
+		public ILayers LoadImage(string file)
 		{
-			var image = new MagickImage(file);
-			return new IMImage(image);
+			var native = new MagickImageCollection(file);
+			var layers = new IMImage(native);
+			return layers;
 		}
 
-		public ICanvas NewImage(int width, int height)
+		//public ICanvas LoadImage(string file)
+		//{
+		//	var image = new MagickImage(file);
+		//	return new IMImage(image);
+		//}
+
+		public ILayers NewImage(int width, int height)
 		{
 			return new IMImage(width,height);
 		}
 
-		public void SaveImage(ICanvas img, string path, string format = null)
+		//public void SaveImage(ICanvas img, string path, string format = null)
+		//{
+		//	var image = img as IMImage;
+		//	image.Save(path, format);
+		//}
+
+		public void SaveImage(ILayers layers, string path, string format = null)
 		{
-			var image = img as IMImage;
-			image.Save(path, format);
+			//default to the format of the output file
+			if (String.IsNullOrWhiteSpace(format)) {
+				format = Path.GetExtension(path).Remove(0,1); //remove the dot
+			}
+
+			bool good = Enum.TryParse(format,true,out MagickFormat mf);
+			if (good) {
+				var info = MagickFormatInfo.Create(mf);
+				good = info != null && info.SupportsWriting;
+			}
+			if (!good) {
+				throw new NotSupportedException($"Format '{format??""}' is not supported");
+			}
+
+			var wrap = (IMImage)layers;
+			wrap.Layers.Write(path,mf);
 		}
 
 		// http://www.graphicsmagick.org/Magick++/Drawable.html
 		public void DrawLine(ICanvas image, ColorRGBA color, PointD p0, PointD p1, double width = 1.0)
 		{
-			var nativeImage = (IMImage)image;
+			var nativeImage = (IMCanvas)image;
 			var incolor = ImageMagickUtils.ConvertToExternal(color,nativeImage.ChannelCount);
 			var d0 = new DrawableStrokeColor(incolor);
 			var d1 = new DrawableStrokeWidth(width);
@@ -58,21 +86,157 @@ namespace ImageFunctions.Core.Engines
 			}
 		}
 
+		/*
 		public void Resize(ICanvas image, int width, int height)
 		{
 			var nativeImage = (IMImage)image;
 			nativeImage.Resize(width,height);
 		}
+		*/
 	}
 
-	public class IMImage : ICanvas, IDisposable
+	class IMImage : ILayers, IDisposable
 	{
-		public IMImage(MagickImage image)
+		public IMImage(MagickImageCollection image)
 		{
 			Init(image);
 		}
 
 		public IMImage(int w,int h)
+		{
+			var frame = new MagickImage(MagickColors.None,w,h);
+			var image = new MagickImageCollection { frame };
+			Init(image);
+		}
+
+		void Init(MagickImageCollection image)
+		{
+			Layers = image;
+
+			//fill in the names
+			int count = image.Count;
+			Names = new List<string>(count);
+
+			for(int i=0; i < count; i++) {
+				var frame = image[i];
+
+				string fileName = !String.IsNullOrWhiteSpace(frame.FileName)
+					? Path.GetFileName(frame.FileName)
+					: ""
+				;
+				Names[i] = GetDefaultName(fileName,i);
+			}
+		}
+
+		internal MagickImageCollection Layers;
+		List<string> Names;
+
+		public ICanvas this[int index] {
+			get {
+				var imLayer = Layers[index];
+				return new IMCanvas(imLayer);
+			}
+			set {
+				var wrap = (IMCanvas)value;
+				var imLayer = wrap.NativeImage;
+				Layers[index] = imLayer;
+			}
+		}
+
+		public int Count {
+			get {
+				return Layers.Count;
+			}
+		}
+
+		//public void Add(ICanvas layer, string name = null)
+		//{
+		//	var wrap = (IMCanvas)layer;
+		//	Layers.Add(wrap.NativeImage);
+		//	Names.Add(name);
+		//
+		//	if (Layers.Count != Names.Count) {
+		//		throw new NotSupportedException("Layers and Names are out of sync");
+		//	}
+		//}
+
+		public ICanvas AddNew(string name = null)
+		{
+			var (w,h) = GetWidthHeight();
+			var wrap = new IMCanvas(w,h);
+			Layers.Add(wrap.NativeImage);
+			Names.Add(GetDefaultName(name,Layers.Count));
+			return wrap;
+		}
+
+		public IEnumerator<ICanvas> GetEnumerator()
+		{
+			foreach(var frame in Layers) {
+				yield return new IMCanvas(frame);
+			}
+		}
+
+		public int IndexOf(string name, int startIndex = 0)
+		{
+			return Names.IndexOf(name,startIndex);
+		}
+
+		public void InsertAt(int index, ICanvas layer, string name = null)
+		{
+			var wrap = (IMCanvas)layer;
+			Layers.Insert(index, wrap.NativeImage);
+			Names.Insert(index,GetDefaultName(name, Layers.Count));
+		}
+
+		public ICanvas RemoveAt(int index)
+		{
+			var wrap = new IMCanvas(Layers[index]);
+			Layers.RemoveAt(index);
+			return wrap;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+		static string GetDefaultName(string name, int index)
+		{
+			if (string.IsNullOrWhiteSpace(name)) {
+				name = "Layer";
+			}
+			return $"{name}-{index}";
+		}
+
+		(int,int) GetWidthHeight()
+		{
+			if (Layers.Count < 1) {
+				throw new ArgumentOutOfRangeException("Layers.Count");
+			}
+			var layer = Layers[0];
+			return (layer.Width, layer.Height);
+		}
+
+		public void Dispose()
+		{
+			if (Layers != null) {
+				Layers.Dispose();
+			}
+			if (Names != null) {
+				Names = null;
+			}
+		}
+	}
+
+
+	public class IMCanvas : ICanvas
+	{
+		public IMCanvas(IMagickImage<QType> image)
+		{
+			Init(image);
+		}
+
+		public IMCanvas(int w,int h)
 		{
 			var image = new MagickImage(MagickColors.None,w,h);
 			Init(image);
@@ -81,7 +245,7 @@ namespace ImageFunctions.Core.Engines
 		public ColorRGBA this[int x, int y] {
 			get {
 				//Log.Debug("PP1: "+printpixel(Pixels.GetPixel(20,20)));
-				var vals = Pixels.GetValue(x,y);
+				//var vals = Pixels.GetValue(x,y);
 				//Log.Debug(printpixel(new Pixel(x,y,vals)));
 				IPixel<QType> p = Pixels.GetPixel(x,y);
 				//Log.Debug(printpixel(p));
@@ -99,6 +263,7 @@ namespace ImageFunctions.Core.Engines
 			}
 		}
 
+		/*
 		public void Resize(int width, int height)
 		{
 			if (width == NativeImage.Width && height == NativeImage.Height) {
@@ -110,14 +275,14 @@ namespace ImageFunctions.Core.Engines
 			NativeImage.Extent(width,height,Gravity.Northwest,MagickColors.Transparent);
 			Init(NativeImage); //pixels have changed so re-init
 		}
-
-
+		*/
 
 		//string printpixel(IPixel<QType> p)
 		//{
 		//	return $"pix {p.Channels} [{p.X} {p.Y}] ({String.Join(',',p.ToArray())})";
 		//}
 
+		/*
 		public void Save(string path, string format = null)
 		{
 			if (String.IsNullOrWhiteSpace(format)) {
@@ -138,7 +303,9 @@ namespace ImageFunctions.Core.Engines
 				NativeImage.Write(fs,mf);
 			}
 		}
+		*/
 
+		/*
 		public void Dispose()
 		{
 			if (Pixels != null) {
@@ -148,6 +315,7 @@ namespace ImageFunctions.Core.Engines
 				NativeImage.Dispose();
 			}
 		}
+		*/
 
 		public int Width { get { return NativeImage.Width; }}
 		public int Height { get { return NativeImage.Height; }}
@@ -155,13 +323,8 @@ namespace ImageFunctions.Core.Engines
 		void Init(IMagickImage<QType> image)
 		{
 			NativeImage = image;
-			//var cp = image.GetColorProfile();
-			//if (cp != null && cp.ColorSpace != ColorSpace.RGB) {
-			//	image.SetProfile(ColorProfile.SRGB);
-			//}
 			ChannelCount = image.ChannelCount;
 			Pixels = image.GetPixels();
-			//Log.Debug("PP1: "+printpixel(Pixels.GetPixel(20,20)));
 		}
 
 		internal int ChannelCount;
