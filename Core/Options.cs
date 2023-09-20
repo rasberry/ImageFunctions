@@ -175,8 +175,9 @@ static class Options
 			var eng = Engine.Value;
 			sb.WT();
 			sb.WT(0,$"Supported Image Formats for {EngineName}");
+			sb.WT(0,"Legend: R = Reading, W = Writting, M = Multiple layers");
 			foreach(var f in eng.Formats()) {
-				string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}]";
+				string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}{(f.MultiFrame ? "M" : " ")}]";
 				sb.ND(1,f.Name,$"{rw} {f.Description}");
 			}
 		}

@@ -14,6 +14,7 @@ namespace ImageFunctions.Core.Engines
 {
 	public class SixLaborsEngine : IImageEngine, IDrawEngine
 	{
+		/*
 		public ILayers NewImage(int width, int height)
 		{
 			return new SLImage(width,height);
@@ -25,35 +26,86 @@ namespace ImageFunctions.Core.Engines
 			var layers = new SLImage(image, path);
 			return layers;
 		}
+		*/
 
-		public void SaveImage(ILayers layers, string path, string format = null)
+		public void LoadImage(ILayers layers, string fileName)
 		{
-			IImageEncoder enc = null;
-			if (format != null) {
-				var Ifm = Configuration.Default.ImageFormatsManager;
-				//Name doesn't seem to be have a built-in search, so using slow search for now
-				foreach(var f in Ifm.ImageFormats) {
-					bool e = StringComparer.OrdinalIgnoreCase.Equals(f.Name,format);
-					if (e) {
-						enc = Ifm.GetEncoder(f);
-						break;
-					}
+			var image = Image.Load<RgbaD>(fileName);
+
+			//for images with one frame just use the original
+			if (image.Frames.Count == 1) {
+				var lay = new SLCanvas(image);
+				layers.Add(lay);
+				// don't dispose of image since were using it directly
+				return;
+			}
+
+			//otherwise copy each frame to a new image.
+			// dispose of image since were copying the data
+			using (image) {
+				foreach(var frame in image.Frames) {
+					int w = frame.Width;
+					int h = frame.Height;
+
+					var layer = new Image<RgbaD>(w, h);
+					var memory = new RgbaD[w * h];
+					var span = new Span<RgbaD>(memory);
+
+					frame.CopyPixelDataTo(span);
+					var copy = Image.LoadPixelData<RgbaD>(span, w, h);
+					var lay = new SLCanvas(copy);
+					layers.Add(lay);
 				}
-			}
-
-			var wrap = (SLImage)layers;
-
-			if (enc != null) {
-				wrap.Layers.Save(path, enc);
-			}
-			else {
-				//detects format based on extension
-				wrap.Layers.Save(path);
 			}
 		}
 
-		//TODO don't know how to fix this..
-		// can't draw a line on a frame which seems kind of an oversight
+		public void SaveImage(ILayers layers, string path, string format = null)
+		{
+			if (layers.Count == 0) {
+				throw Squeal.NoLayers();
+			}
+
+			IImageFormat sixFormat;
+			var ifm = Configuration.Default.ImageFormatsManager;
+			if (format != null) {
+				if (!ifm.TryFindFormatByFileExtension(format, out sixFormat)) {
+					throw Squeal.FormatIsNotSupported(format);
+				}
+			}
+			else {
+				if (layers.Count == 1) {
+					sixFormat = SixLabors.ImageSharp.Formats.Png.PngFormat.Instance;
+								}
+				else {
+					sixFormat = SixLabors.ImageSharp.Formats.Tiff.TiffFormat.Instance;
+				}
+			}
+
+			//make sure the output file has the right extension
+			Path.ChangeExtension(path,GetBestExtension(sixFormat));
+
+			//copy all frames into a single image
+			var first = layers[0];
+			var final = new Image<RgbaD>(first.Width, first.Height);
+			foreach(var lay in layers) {
+				var native = (SLCanvas)lay;
+				var img = native.Image;
+
+				//each layer should only have a single frame
+				final.Frames.AddFrame(img.Frames.RootFrame);
+			}
+
+			var enc = ifm.GetEncoder(sixFormat);
+			final.Save(path, enc);
+		}
+
+		public ICanvas NewCanvas(int width, int height)
+		{
+			var native = new Image<RgbaD>(width,height);
+			var img = new SLCanvas(native);
+			return img;
+		}
+
 		public void DrawLine(ICanvas image, ColorRGBA color, PointD p0, PointD p1, double width = 1.0)
 		{
 			var opts = new DrawingOptions {
@@ -64,18 +116,10 @@ namespace ImageFunctions.Core.Engines
 			var f0 = new PointF((float)p0.X,(float)p0.Y);
 			var f1 = new PointF((float)p1.X,(float)p1.Y);
 
-			Image<RgbaD> im;
-			im.Mutate((ctx) => {
-
-			});
 			var wrap = (SLCanvas)image;
-			wrap.Frame.Mutate((ctx) => {
+			wrap.Image.Mutate((ctx) => {
 				ctx.DrawLine(opts,c,(float)width,f0,f1);
 			});
-			//Image<RgbaD>.WrapMemory<RgbaD>(wrap.Frame.PixelBuffer.MemoryGroup, wrap.Frame.Width, wrap.Frame.Height);
-
-			var conf = wrap.Frame.GetConfiguration();
-			var obj = conf.ImageOperationsProvider.CreateImageProcessingContext(configuration, source, mutate: true);
 		}
 
 		public IEnumerable<ImageFormat> Formats()
@@ -89,9 +133,42 @@ namespace ImageFunctions.Core.Engines
 					f.Name,
 					$"{f.DefaultMimeType} [{String.Join(",",f.FileExtensions)}]",
 					enc != null,
-					dec != null
+					dec != null,
+					FormatSupportsFrames(f)
 				);
 			}
+		}
+
+		bool FormatSupportsFrames(IImageFormat format)
+		{
+			bool isFramey = format switch {
+				SixLabors.ImageSharp.Formats.Bmp.BmpFormat   => false,
+				SixLabors.ImageSharp.Formats.Gif.GifFormat   => true,
+				SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => false,
+				SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => false,
+				SixLabors.ImageSharp.Formats.Png.PngFormat   => false,
+				SixLabors.ImageSharp.Formats.Tga.TgaFormat   => false,
+				SixLabors.ImageSharp.Formats.Tiff.TiffFormat => true,
+				SixLabors.ImageSharp.Formats.Webp.WebpFormat => false,
+				_ => throw Squeal.FormatIsNotSupported(format.Name)
+			};
+			return isFramey;
+		}
+
+		string GetBestExtension(IImageFormat format)
+		{
+			string ext = format switch {
+				SixLabors.ImageSharp.Formats.Bmp.BmpFormat   => ".bmp",
+				SixLabors.ImageSharp.Formats.Gif.GifFormat   => ".gif",
+				SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => ".jpg",
+				SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => ".pbm",
+				SixLabors.ImageSharp.Formats.Png.PngFormat   => ".png",
+				SixLabors.ImageSharp.Formats.Tga.TgaFormat   => ".tga",
+				SixLabors.ImageSharp.Formats.Tiff.TiffFormat => ".tif",
+				SixLabors.ImageSharp.Formats.Webp.WebpFormat => ".webp",
+				_ => throw Squeal.FormatIsNotSupported(format.Name)
+			};
+			return ext;
 		}
 
 		/*
@@ -110,6 +187,7 @@ namespace ImageFunctions.Core.Engines
 		*/
 	}
 
+	/*
 	class SLImage : ILayers, IDisposable
 	{
 		public SLImage(Image<RgbaD> image, string file)
@@ -142,7 +220,7 @@ namespace ImageFunctions.Core.Engines
 			set {
 				var wrap = (SLCanvas)value;
 				Layers.Frames.RemoveFrame(index);
-				Layers.Frames.InsertFrame(index, wrap.Frame);
+				Layers.Frames.InsertFrame(index, wrap.Image);
 			}
 		}
 
@@ -178,7 +256,7 @@ namespace ImageFunctions.Core.Engines
 		public void InsertAt(int index, ICanvas layer, string name = null)
 		{
 			var wrap = (SLCanvas)layer;
-			Layers.Frames.InsertFrame(index, wrap.Frame);
+			Layers.Frames.InsertFrame(index, wrap.Image);
 			Names.Insert(index, GetDefaultName(name,index));
 		}
 
@@ -210,8 +288,9 @@ namespace ImageFunctions.Core.Engines
 			}
 		}
 	}
+	*/
 
-	class SLCanvas : ICanvas
+	class SLCanvas : ICanvas, IDisposable
 	{
 		//public SLImage(string fileName)
 		//{
@@ -224,21 +303,21 @@ namespace ImageFunctions.Core.Engines
 		//}
 		//internal Image<RgbaD> image;
 
-		public SLCanvas(ImageFrame<RgbaD> frame)
+		public SLCanvas(Image<RgbaD> image)
 		{
-			Frame = frame;
+			Image = image;
 		}
 
-		internal ImageFrame<RgbaD> Frame;
+		internal Image<RgbaD> Image;
 
 		public ColorRGBA this[int x, int y] {
 			get {
-				var ipix = Frame[x,y];
+				var ipix = Image[x,y];
 				return new ColorRGBA(ipix.R,ipix.G,ipix.B,ipix.A);
 			}
 			set {
 				var xpix = new RgbaD { R = value.R, G = value.G, B = value.B, A = value.A };
-				Frame[x,y] = xpix;
+				Image[x,y] = xpix;
 			}
 		}
 
@@ -268,20 +347,20 @@ namespace ImageFunctions.Core.Engines
 		}
 		*/
 
-		public int Width { get { return Frame.Width; }}
-		public int Height { get { return Frame.Height; }}
+		public int Width { get { return Image.Width; }}
+		public int Height { get { return Image.Height; }}
 
-		/*
 		public void Dispose()
 		{
-			if (Frame != null) {
-				Frame.Dispose();
+			if (Image != null) {
+				Image.Dispose();
 			}
 		}
-		*/
 	}
 
 	//since native type is double, using a double based color should minimize conversions
+	// ..admittedly using 64bit floats for each component is massive overkill
+	// TODO consider making this 32bit floats instead
 	struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 	{
 		public RgbaD(double r,double g,double b,double a)

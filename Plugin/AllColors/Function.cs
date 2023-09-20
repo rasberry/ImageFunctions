@@ -29,7 +29,7 @@ public class Function : IFunction
 		}
 
 		//since we're rendering pixels make a new layer each time
-		var image = Tools.Engine.NewImage(O.FourKWidth,O.FourKHeight);
+		var image = Tools.Engine.NewCanvas(O.FourKWidth,O.FourKHeight);
 		Draw(image);
 		layers.Add(image);
 

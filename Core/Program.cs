@@ -53,7 +53,7 @@ class Program
 			return 6;
 		}
 
-		//TODO save layers as an image.. ?
+		//Tools.Engine.SaveImage(layers, //TODO figure out output name(s)
 
 		return 0;
 	}
@@ -67,8 +67,7 @@ class Program
 				Tell.CannotFindFile(i);
 				return false;
 			}
-			var img = Tools.Engine.LoadImage(i);
-			layers.Add(img,Path.GetFileName(i));
+			Tools.Engine.LoadImage(layers, i);
 		}
 
 		return true;

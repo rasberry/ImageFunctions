@@ -16,12 +16,29 @@ namespace ImageFunctions.Core.Engines
 			//Log.Debug($"Quantum = {Quantum.Depth} {Quantum.Max}");
 		}
 
+		public void LoadImage(ILayers layers, string file)
+		{
+			var native = new MagickImageCollection(file);
+			foreach(var frame in native) {
+				var wrap = new IMCanvas(frame);
+				layers.Add(wrap);
+			}
+		}
+
+		public ICanvas NewCanvas(int width, int height)
+		{
+			var wrap = new IMCanvas(width, height);
+			return wrap;
+		}
+
+		/*
 		public ILayers LoadImage(string file)
 		{
 			var native = new MagickImageCollection(file);
 			var layers = new IMImage(native);
 			return layers;
 		}
+		*/
 
 		//public ICanvas LoadImage(string file)
 		//{
@@ -29,10 +46,10 @@ namespace ImageFunctions.Core.Engines
 		//	return new IMImage(image);
 		//}
 
-		public ILayers NewImage(int width, int height)
-		{
-			return new IMImage(width,height);
-		}
+		//public ILayers NewImage(int width, int height)
+		//{
+		//	return new IMImage(width,height);
+		//}
 
 		//public void SaveImage(ICanvas img, string path, string format = null)
 		//{
@@ -42,6 +59,10 @@ namespace ImageFunctions.Core.Engines
 
 		public void SaveImage(ILayers layers, string path, string format = null)
 		{
+			if (layers.Count == 0) {
+				throw Squeal.NoLayers();
+			}
+
 			//default to the format of the output file
 			if (String.IsNullOrWhiteSpace(format)) {
 				format = Path.GetExtension(path).Remove(0,1); //remove the dot
@@ -53,11 +74,19 @@ namespace ImageFunctions.Core.Engines
 				good = info != null && info.SupportsWriting;
 			}
 			if (!good) {
-				throw new NotSupportedException($"Format '{format??""}' is not supported");
+				throw Squeal.FormatIsNotSupported(format);
 			}
 
-			var wrap = (IMImage)layers;
-			wrap.Layers.Write(path,mf);
+			var image = new MagickImageCollection(UnWrapLayers(layers));
+			image.Write(path,mf);
+		}
+
+		static IEnumerable<IMagickImage<QType>> UnWrapLayers(ILayers layers)
+		{
+			foreach(var lay in layers) {
+				var wrap = (IMCanvas)lay;
+				yield return wrap.NativeImage;
+			}
 		}
 
 		// http://www.graphicsmagick.org/Magick++/Drawable.html
@@ -80,7 +109,8 @@ namespace ImageFunctions.Core.Engines
 						mf.ToString(),
 						info.Description,
 						info.SupportsReading,
-						info.SupportsWriting
+						info.SupportsWriting,
+						info.SupportsMultipleFrames
 					);
 				}
 			}
@@ -95,6 +125,7 @@ namespace ImageFunctions.Core.Engines
 		*/
 	}
 
+	/*
 	class IMImage : ILayers, IDisposable
 	{
 		public IMImage(MagickImageCollection image)
@@ -227,9 +258,9 @@ namespace ImageFunctions.Core.Engines
 			}
 		}
 	}
+	*/
 
-
-	public class IMCanvas : ICanvas
+	public class IMCanvas : ICanvas, IDisposable
 	{
 		public IMCanvas(IMagickImage<QType> image)
 		{
@@ -305,7 +336,6 @@ namespace ImageFunctions.Core.Engines
 		}
 		*/
 
-		/*
 		public void Dispose()
 		{
 			if (Pixels != null) {
@@ -315,7 +345,6 @@ namespace ImageFunctions.Core.Engines
 				NativeImage.Dispose();
 			}
 		}
-		*/
 
 		public int Width { get { return NativeImage.Width; }}
 		public int Height { get { return NativeImage.Height; }}
