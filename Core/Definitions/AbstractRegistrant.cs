@@ -1,9 +1,15 @@
-using System.Collections.Generic;
-
 namespace ImageFunctions.Core;
 
+/// <summary>
+/// Extend this abstract to create wrappers for your registration namespaces
+/// </summary>
+/// <typeparam name="T">Type of the item</typeparam>
 public abstract class AbstractRegistrant<T> : IRegistrant<T>
 {
+	/// <summary>
+	/// Creates an instance of the object.
+	/// </summary>
+	/// <param name="register">IRegister that is used to register the items</param>
 	public AbstractRegistrant(IRegister register) {
 		Reg = register;
 	}
@@ -33,6 +39,9 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 		return text.StartsWith(prefix) ? text.Substring(prefix.Length + 1) : text;
 	}
 
-	internal abstract string Namespace { get; }
+	/// <summary>
+	/// Override to specify the namespace for this class of items
+	/// </summary>
+	public abstract string Namespace { get; }
 	IRegister Reg;
 }

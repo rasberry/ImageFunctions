@@ -13,7 +13,7 @@ public class Color3SpaceRegister : AbstractRegistrant<IColor3Space>
 		//Nothing to do
 	}
 
-	internal override string Namespace { get { return "Color3Space"; }}
+	public override string Namespace { get { return "Color3Space"; }}
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
@@ -40,7 +40,7 @@ public class Color4SpaceRegister : AbstractRegistrant<IColor4Space>
 		//Nothing to do
 	}
 
-	internal override string Namespace { get { return "Color4Space"; }}
+	public override string Namespace { get { return "Color4Space"; }}
 
 	[InternalRegister]
 	internal static void Register(IRegister register)

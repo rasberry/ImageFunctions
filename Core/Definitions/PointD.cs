@@ -1,4 +1,4 @@
-
+namespace ImageFunctions.Core;
 
 public readonly struct PointD
 {

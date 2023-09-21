@@ -9,7 +9,7 @@ public class FunctionRegister : AbstractRegistrant<Lazy<IFunction>>
 		//Nothing to do
 	}
 
-	internal override string Namespace { get { return "Function"; }}
+	public override string Namespace { get { return "Function"; }}
 
 	[InternalRegister]
 	internal static void Register(IRegister register)

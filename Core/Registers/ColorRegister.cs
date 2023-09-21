@@ -9,7 +9,7 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 		//Nothing to do
 	}
 
-	internal override string Namespace { get { return "Color"; }}
+	public override string Namespace { get { return "Color"; }}
 
 	[InternalRegister]
 	internal static void Register(IRegister register)

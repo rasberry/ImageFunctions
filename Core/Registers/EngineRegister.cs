@@ -9,7 +9,7 @@ public class EngineRegister : AbstractRegistrant<Lazy<IImageEngine>>
 		//Nothing to do
 	}
 
-	internal override string Namespace { get { return "Engine"; }}
+	public override string Namespace { get { return "Engine"; }}
 
 	[InternalRegister]
 	internal static void Register(IRegister register)

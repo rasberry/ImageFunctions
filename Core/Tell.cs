@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+
 namespace ImageFunctions.Core;
 
 // Put user facing messages here
@@ -42,6 +44,9 @@ public static class Tell
 			: $" given '{format}'"
 		;
 		Log.Error($"Could not determine a usable format{suff}");
+	}
+	public static void NoLayersTosave() {
+		Log.Warning("There are no layers to save");
 	}
 	public static void PriorityMustBeNumber() {
 		Log.Error("Each priority must be a number");

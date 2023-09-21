@@ -22,7 +22,7 @@ public class Function : IFunction
 		this.register = register;
 
 		if (layers == null) {
-			throw new ArgumentNullException("layers");
+			throw Core.Squeal.ArgumentNull(nameof(layers));
 		}
 		if (!O.ParseArgs(args)) {
 			return false;
@@ -30,8 +30,8 @@ public class Function : IFunction
 
 		//since we're rendering pixels make a new layer each time
 		var image = Tools.Engine.NewCanvas(O.FourKWidth,O.FourKHeight);
-		Draw(image);
 		layers.Add(image);
+		Draw(image);
 
 		return true;
 	}
@@ -134,7 +134,7 @@ public class Function : IFunction
 			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order);
 		}
 
-		throw new NotImplementedException($"Space {space} is not implemented");
+		throw PlugSqueal.NotImplementedSpace(space);
 	}
 
 	//return every color in numeric order

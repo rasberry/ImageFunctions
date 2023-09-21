@@ -6,7 +6,7 @@ class RegisterStore
 	{
 		EnsureNameIsNotNull(name);
 		if (instance == null) {
-			throw new ArgumentNullException("instance");
+			throw Squeal.ArgumentNull(nameof(instance));
 		}
 
 		Tell.Registering(name);
@@ -60,7 +60,7 @@ class RegisterStore
 	void EnsureNameIsNotNull(string name)
 	{
 		if (string.IsNullOrWhiteSpace(name)) {
-			throw new ArgumentException("must not be null or empty","name");
+			throw Squeal.ArgumentNullOrEmpty(nameof(name));
 		}
 	}
 

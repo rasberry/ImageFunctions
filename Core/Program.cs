@@ -14,7 +14,7 @@ class Program
 			Log.Error(e.Message);
 			#endif
 
-			return 1;
+			return e.GetHashCode();
 		}
 	}
 
@@ -22,7 +22,7 @@ class Program
 	{
 		//process args in two parts - first part parse the options
 		if (!Options.ParseArgs(args)) {
-			return 2;
+			return ExitCode.StoppedAtParseArgs;
 		}
 
 		var register = new Register();
@@ -32,30 +32,35 @@ class Program
 		//second part do any additional output or checks
 		// based on given options
 		if (!Options.ProcessOptions(RegisterInst)) {
-			return 3;
+			return ExitCode.StoppedAtProcessOptions;
 		}
 
 		//load any input images into layers
 		var layers = new Layers();
 		if (!LoadImages(layers)) {
-			return 4;
+			return ExitCode.StoppedAtLoadImages;
 		}
 
 		// figure out the function to run
 		var fr = new FunctionRegister(register);
 		if (!fr.Try(Options.FunctionName, out var lzFunc)) {
 			Tell.NotRegistered(fr.Namespace,Options.FunctionName);
-			return 5;
+			return ExitCode.StoppedFunctionNotRegistered;
 		}
 
 		//Not really sure how to best use the bool return. Going with exit code for now
 		if (!lzFunc.Value.Run(register,layers,Options.FunctionArgs)) {
-			return 6;
+			return ExitCode.StoppedAfterRun;
 		}
 
-		//Tools.Engine.SaveImage(layers, //TODO figure out output name(s)
+		if (layers.Count > 0) {
+			Tools.Engine.SaveImage(layers, Options.OutputName);
+		}
+		else {
+			Tell.NoLayersTosave();
+		}
 
-		return 0;
+		return ExitCode.Success;
 	}
 
 	static IRegister RegisterInst;

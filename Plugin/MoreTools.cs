@@ -45,7 +45,7 @@ internal static class MoreTools
 			return ParseParams.Result.UnParsable;
 		}
 		else {
-			throw new NotSupportedException($"Type {t?.Name} is not supported by {nameof(BeGreaterThanZero)}");
+			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
 		}
 	}
 

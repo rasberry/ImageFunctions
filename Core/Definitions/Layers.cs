@@ -2,19 +2,65 @@ using System.Collections;
 
 namespace ImageFunctions.Core;
 
+/// <summary>
+/// Represents a list of image layers
+/// </summary>
 public interface ILayers : IEnumerable<ICanvas>
 {
+	/// <summary>
+	/// Get or Set an individual layer
+	/// </summary>
+	/// <param name="index">The index of the layer</param>
+	/// <returns>A ICanvas image object</returns>
 	ICanvas this[int index] { get; set; }
+
+	/// <summary>
+	/// Insert a layer at a specific index and shifts other layers
+	/// </summary>
+	/// <param name="index">The index to use for the insert</param>
+	/// <param name="layer">The ICanvas image object to insert</param>
+	/// <param name="name">The name of the layer</param>
 	void InsertAt(int index, ICanvas layer, string name = null);
+
+	/// <summary>
+	/// Removes the layer at the given index
+	/// </summary>
+	/// <param name="index">The index of the layer to remove</param>
 	void RemoveAt(int index);
+
+	/// <summary>
+	/// Finds a layer with the given name. Use startIndex to find layers with the same name
+	/// </summary>
+	/// <param name="name">The name of the layer to search for</param>
+	/// <param name="startIndex">The index to start searching</param>
+	/// <returns>A positive index number if found or -1 if not found</returns>
 	int IndexOf(string name, int startIndex = 0);
+
+	/// <summary>
+	/// The number of layers in the list
+	/// </summary>
 	int Count { get; }
+
+	/// <summary>
+	/// Appends a new layer to the end of the list
+	/// </summary>
+	/// <param name="layer">The Icanvas object to add</param>
+	/// <param name="name">The name of the layer to add</param>
 	void Add(ICanvas layer, string name = null);
+
+	/// <summary>
+	/// Moves a layer from the one index to another
+	/// </summary>
+	/// <param name="fromIndex">The index of the image to be moved</param>
+	/// <param name="toIndex">The destination index</param>
 	void Move(int fromIndex, int toIndex);
 }
 
 public class Layers : ILayers, IDisposable
 {
+	//construction should be managed by the core project
+	internal Layers() {}
+
 	public ICanvas this[int index] {
 		get {
 			EnsureInRange(index,nameof(index));
@@ -45,7 +91,7 @@ public class Layers : ILayers, IDisposable
 	{
 		EnsureInRange(startIndex, nameof(startIndex));
 		if (startIndex < 0 || startIndex >= List.Count) {
-			throw new ArgumentOutOfRangeException(nameof(startIndex));
+			throw Squeal.ArgumentOutOfRange(nameof(startIndex));
 		}
 
 		for(int c = startIndex; c < List.Count; c++) {
@@ -80,7 +126,7 @@ public class Layers : ILayers, IDisposable
 			!allowOnePast && index < List.Count
 		);
 		if (!isGood) {
-			throw new IndexOutOfRangeException(name);
+			Squeal.IndexOutOfRange(name);
 		}
 	}
 

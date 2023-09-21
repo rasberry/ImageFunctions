@@ -42,6 +42,7 @@ static class Options
 		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
 		sb.ND(1,"-v / --verbose"              ,"Show additional messages");
+		sb.ND(1,"-o / --output (name)"        ,"Output file name");
 		sb.ND(1,"-lf / --formats"             ,"List engine supported image formats");
 		sb.ND(1,"-ln / --namespace (name)"    ,"List registered items in given namespace (specify 'all' to list everything)");
 		sb.ND(1,"--"                          ,"Pass all remaining options to the function");
@@ -51,7 +52,7 @@ static class Options
 	{
 		if (args.Length < 1) {
 			Show |= PickShow.Usage;
-			return false;
+			return true; //there's no arguments so nothing else to do
 		}
 
 		//split the args into two lists at the "--"
@@ -112,6 +113,11 @@ static class Options
 			return false;
 		}
 
+		var oon = p.Default(new[]{"-o","--output"},out OutputName);
+		if (oon.IsMissingArgument()) {
+			Tell.MissingArgument("--output");
+		}
+
 		if (p.Has("-v","--verbose").IsGood()) {
 			BeVerbose = true;
 		}
@@ -128,7 +134,7 @@ static class Options
 		//take the first remaining option as the script name
 		// all other options must be accounted for at this point
 		p.Default(out FunctionName);
-		if (!String.IsNullOrWhiteSpace(FunctionName)) {
+		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(FunctionName)) {
 			Show |= PickShow.Function;
 		}
 
@@ -174,7 +180,7 @@ static class Options
 		if (Show.HasFlag(PickShow.Formats)) {
 			var eng = Engine.Value;
 			sb.WT();
-			sb.WT(0,$"Supported Image Formats for {EngineName}");
+			sb.WT(0,$"Supported Image Formats for Selected Engine - {EngineName}");
 			sb.WT(0,"Legend: R = Reading, W = Writting, M = Multiple layers");
 			foreach(var f in eng.Formats()) {
 				string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}{(f.MultiFrame ? "M" : " ")}]";
@@ -198,6 +204,12 @@ static class Options
 			return false;
 		}
 
+		if (String.IsNullOrWhiteSpace(OutputName)) {
+			var name = nameof(ImageFunctions).ToLowerInvariant();
+			var date = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss");
+			OutputName = $"{name}-{date}";
+		}
+
 		return true;
 	}
 
@@ -214,7 +226,7 @@ static class Options
 
 		string suffix = all ? "" : $" for '{@namespace}'";
 		sb.WT();
-		sb.WT(0,$"Registered Items{suffix}");
+		sb.WT(0,$"Registered Items{suffix}:");
 		foreach(var k in keyList) {
 			sb.WT(1,k);
 		}
@@ -296,6 +308,7 @@ static class Options
 	//Global options
 	public static Lazy<IImageEngine> Engine;
 	public static int? MaxDegreeOfParallelism;
+	public static string OutputName;
 	public static string ImageFormat;
 	public static string FunctionName;
 	public static string[] FunctionArgs;
