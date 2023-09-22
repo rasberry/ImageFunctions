@@ -5,6 +5,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.AreaSmoother;
 
+[InternalRegisterFunction(nameof(AreaSmoother))]
 public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
@@ -21,11 +22,9 @@ public class Function : IFunction
 			return false;
 		}
 
-		if (layers.Count < 1) {
-			PlugTell.LayerMustHaveOne();
+		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var canvas)) {
 			return false;
 		}
-		var canvas = layers[0];
 
 		using var progress = new ProgressBar();
 		Tools.ThreadPixels(canvas, (x,y) => {

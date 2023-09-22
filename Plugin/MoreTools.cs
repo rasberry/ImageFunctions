@@ -93,4 +93,45 @@ internal static class MoreTools
 			}
 		}
 	}
+
+	public static bool ParseNumberPercent(string num, out double? val)
+	{
+		val = null;
+		bool worked = ParseNumberPercent(num,out double v);
+		if (worked) { val = v; }
+		return worked;
+	}
+
+	public static bool ParseNumberPercent(string num, out double val)
+	{
+		val = 0.0;
+		bool isPercent = false;
+		if (num.EndsWith('%')) {
+			isPercent = true;
+			num = num.Remove(num.Length - 1);
+		}
+		if (!double.TryParse(num, out double d)) {
+			Log.Error("could not parse \""+num+"\" as a number");
+			return false;
+		}
+		if (!double.IsFinite(d)) {
+			Log.Error("invalid number \""+d+"\"");
+			return false;
+		}
+		val = isPercent ? d/100.0 : d;
+		return true;
+	}
+
+	public static bool TryNewCanvasFromLayers(this IImageEngine engine, ILayers layers, out ICanvas canvas)
+	{
+		if (layers.Count < 1) {
+			PlugTell.LayerMustHaveOne();
+			canvas = default;
+			return false;
+		}
+
+		var proto = layers.First();
+		canvas = engine.NewCanvas(proto.Width, proto.Height);
+		return true;
+	}
 }

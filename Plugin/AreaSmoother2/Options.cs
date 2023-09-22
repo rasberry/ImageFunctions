@@ -1,13 +1,14 @@
+using ImageFunctions.Core;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.AreaSmoother2;
 
-public static class Options
+public sealed class Options : IOptions
 {
 	public static bool HOnly = false;
 	public static bool VOnly = false;
 
-	public static bool ParseArgs(string[] args)
+	public static bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		if (p.Has("-H").IsGood()) {

@@ -7,6 +7,7 @@ using O = ImageFunctions.Plugin.AllColors.Options;
 
 namespace ImageFunctions.Plugin.AllColors;
 
+[InternalRegisterFunction(nameof(AllColors))]
 public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
@@ -24,7 +25,7 @@ public class Function : IFunction
 		if (layers == null) {
 			throw Core.Squeal.ArgumentNull(nameof(layers));
 		}
-		if (!O.ParseArgs(args)) {
+		if (!O.ParseArgs(args, register)) {
 			return false;
 		}
 

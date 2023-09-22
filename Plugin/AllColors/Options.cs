@@ -35,7 +35,7 @@ namespace ImageFunctions.Plugin.AllColors
 		//Lms
 	}
 
-	public static class Options
+	public sealed class Options : IOptions
 	{
 		public static void Usage(StringBuilder sb)
 		{
@@ -68,7 +68,7 @@ namespace ImageFunctions.Plugin.AllColors
 			return "";
 		}
 
-		public static bool ParseArgs(string[] args)
+		public static bool ParseArgs(string[] args, IRegister register)
 		{
 			var p = new ParseParams(args);
 

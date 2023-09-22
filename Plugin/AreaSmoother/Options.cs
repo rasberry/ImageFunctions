@@ -7,7 +7,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.AreaSmoother;
 
-public static class Options
+public sealed class Options : IOptions
 {
 	public static int TotalTries = 7;
 	public static Lazy<ISampler> Sampler;

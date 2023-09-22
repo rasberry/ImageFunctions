@@ -246,7 +246,7 @@ static class Options
 		}
 		else {
 			//we want everything so show all function help
-			list = fn.All();
+			list = fn.All().Order();
 		}
 
 		foreach(string key in list) {

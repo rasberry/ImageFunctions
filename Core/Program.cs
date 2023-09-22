@@ -49,10 +49,12 @@ class Program
 		}
 
 		//Not really sure how to best use the bool return. Going with exit code for now
+		Log.Info($"Running Function {Options.FunctionName}");
 		if (!lzFunc.Value.Run(register,layers,Options.FunctionArgs)) {
 			return ExitCode.StoppedAfterRun;
 		}
 
+		Log.Info($"Saving image {Options.OutputName}");
 		if (layers.Count > 0) {
 			Tools.Engine.SaveImage(layers, Options.OutputName);
 		}

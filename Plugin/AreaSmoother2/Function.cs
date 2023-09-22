@@ -3,6 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.AreaSmoother2;
 
+[InternalRegisterFunction(nameof(AreaSmoother2))]
 public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
@@ -15,18 +16,16 @@ public class Function : IFunction
 		if (layers == null) {
 			throw Core.Squeal.ArgumentNull(nameof(layers));
 		}
-		if (!Options.ParseArgs(args)) {
+		if (!Options.ParseArgs(args, register)) {
 			return false;
 		}
 
-		var Iis = Tools.Engine;
-		if (layers.Count < 1) {
-			PlugTell.LayerMustHaveOne();
+		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var newCanvas)) {
 			return false;
 		}
-		var origCanvas = layers[0];
+		var origCanvas = layers.First();
 		using var progress = new ProgressBar();
-		using var canvas = Iis.NewCanvas(origCanvas.Width,origCanvas.Height);
+		using var canvas = newCanvas; //can't 'using' the out parameter so doing that here
 
 		if (!Options.VOnly) {
 			MoreTools.ThreadRun(origCanvas.Height - 1, (int y) => {
