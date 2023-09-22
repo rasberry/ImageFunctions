@@ -4,7 +4,7 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
-
+using ImageFunctions.Core;
 
 namespace ImageFunctions.Core.Engines
 {
@@ -174,7 +174,7 @@ namespace ImageFunctions.Core.Engines
 		*/
 	}
 
-	class SLCanvas : ICanvas, IDisposable
+	class SLCanvas : ICanvas
 	{
 		public SLCanvas(Image<RgbaD> image)
 		{
@@ -199,15 +199,13 @@ namespace ImageFunctions.Core.Engines
 
 		public void Dispose()
 		{
-			if (Image != null) {
-				Image.Dispose();
-			}
+			Image?.Dispose();
 		}
 	}
 
 	//since native type is double, using a double based color should minimize conversions
-	// ..admittedly using 64bit floats for each component is massive overkill
-	// TODO consider making this 32bit floats instead
+	// admittedly using 64bit floats for each component is massive overkill but
+	// double and float seem to be about the speed so might as well use the better precision
 	struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 	{
 		public RgbaD(double r,double g,double b,double a)
@@ -238,23 +236,23 @@ namespace ImageFunctions.Core.Engines
 			return !(lhs == rhs);
 		}
 
-		public bool Equals(RgbaD compare)
+		public readonly bool Equals(RgbaD compare)
 		{
 			return this == compare;
 		}
 
-		public override bool Equals(object compare)
+		public override readonly bool Equals(object compare)
 		{
 			var right = (RgbaD)compare;
 			return this == right;
 		}
 
-		public override int GetHashCode()
+		public override readonly int GetHashCode()
 		{
 			return HashCode.Combine(R,G,B,A);
 		}
 
-		public PixelOperations<RgbaD> CreatePixelOperations()
+		public readonly PixelOperations<RgbaD> CreatePixelOperations()
 		{
 			return new PixelOperations<RgbaD>();
 		}
@@ -267,13 +265,13 @@ namespace ImageFunctions.Core.Engines
 			this.A = v.W;
 		}
 
-		public Vector4 ToScaledVector4()
+		public readonly Vector4 ToScaledVector4()
 		{
 			return new Vector4((float)R,(float)G,(float)B,(float)A);
 		}
 		public void FromVector4(Vector4 v) { FromScaledVector4(v); }
-		public Vector4 ToVector4() { return ToScaledVector4(); }
-		public void ToRgba32(ref Rgba32 dest) { dest.FromScaledVector4(ToScaledVector4()); }
+		public readonly Vector4 ToVector4() { return ToScaledVector4(); }
+		public readonly void ToRgba32(ref Rgba32 dest) { dest.FromScaledVector4(ToScaledVector4()); }
 
 		public void FromArgb32(Argb32 source)     { FromScaledVector4(source.ToScaledVector4()); }
 		public void FromBgra5551(Bgra5551 source) { FromScaledVector4(source.ToScaledVector4()); }

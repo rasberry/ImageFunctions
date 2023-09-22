@@ -4,7 +4,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Core.Metrics;
 
-public static class Helpers
+public static class MetricHelpers
 {
 	public static void MetricHelpLine(this StringBuilder sb)
 	{

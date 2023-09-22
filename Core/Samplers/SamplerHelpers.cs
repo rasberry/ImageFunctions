@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Core.Samplers;
 
-public static class Helpers
+public static class SamplerHelpers
 {
 	public static void SamplerHelpLine(this StringBuilder sb)
 	{

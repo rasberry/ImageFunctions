@@ -2,9 +2,18 @@ namespace ImageFunctions.Core;
 
 public static class Log
 {
-	public static void Info(string m)
+	public static void Message(string m)
 	{
 		Console.WriteLine(m);
+	}
+
+	public static void Info(string m)
+	{
+		if (Options.BeVerbose) {
+			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.WriteLine($"I: {m}");
+			Console.ResetColor();
+		}
 	}
 
 	public static void Warning(string m)
@@ -23,11 +32,10 @@ public static class Log
 
 	public static void Debug(string m)
 	{
-		//TODO check a setting here
-		if (Options.BeVerbose) {
-			Console.ForegroundColor = ConsoleColor.DarkGray;
-			Console.WriteLine($"D: {m}");
-			Console.ResetColor();
-		}
+		#if DEBUG
+		Console.ForegroundColor = ConsoleColor.DarkGray;
+		Console.WriteLine($"D: {m}");
+		Console.ResetColor();
+		#endif
 	}
 }

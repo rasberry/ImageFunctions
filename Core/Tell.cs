@@ -12,7 +12,7 @@ public static class Tell
 		Log.Error($"invalid value '{val}' for '{name}'");
 	}
 	public static void InitingPlugin(Type t) {
-		Log.Debug($"Initializing plugin {t.FullName}");
+		Log.Info($"Initializing plugin {t.FullName}");
 	}
 	public static void InvalidPassword() {
 		Log.Error("password is missing or invalid");
@@ -39,13 +39,13 @@ public static class Tell
 		Log.Error($"{@class} '{name}' is not registered");
 	}
 	public static void NoImageFormatFound(string format) {
-		var suff = String.IsNullOrWhiteSpace(format)
+		var suffix = String.IsNullOrWhiteSpace(format)
 			? ". Specify one using --format"
 			: $" given '{format}'"
 		;
-		Log.Error($"Could not determine a usable format{suff}");
+		Log.Error($"Could not determine a usable format{suffix}");
 	}
-	public static void NoLayersTosave() {
+	public static void NoLayersToSave() {
 		Log.Warning("There are no layers to save");
 	}
 	public static void PriorityMustBeNumber() {
@@ -61,9 +61,9 @@ public static class Tell
 		Log.Warning($"Problem initializing plugin {t.FullName} {e.Message}");
 	}
 	public static void PluginFound(string file, string name) {
-		Log.Debug($"Plugin {name} Found {file}");
+		Log.Info($"Plugin {name} Found {file}");
 	}
 	public static void Registering(string name) {
-		Log.Debug($"Registering {name}");
+		Log.Info($"Registering {name}");
 	}
 }

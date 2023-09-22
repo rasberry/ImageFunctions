@@ -57,7 +57,7 @@ class Program
 			Tools.Engine.SaveImage(layers, Options.OutputName);
 		}
 		else {
-			Tell.NoLayersTosave();
+			Tell.NoLayersToSave();
 		}
 
 		return ExitCode.Success;

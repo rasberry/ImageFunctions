@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
@@ -27,6 +28,7 @@ public static class Options
 			.BeGreaterThanZero("-t",TotalTries).IsInvalid()) {
 			return false;
 		}
+
 		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
 			return false;
 		}

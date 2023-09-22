@@ -38,7 +38,7 @@ static class Options
 		sb.WT(0,"Options:");
 		sb.ND(1,"-h / --help"                 ,"Show help / full help (provide a function name to show only that help instead");
 		sb.ND(1,"-i / --image (file)"         ,"Load this image as a layer. Supports images with multiple layers");
-		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (registered) format");
+		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (engine supported) format");
 		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
 		sb.ND(1,"-v / --verbose"              ,"Show additional messages");
@@ -190,7 +190,7 @@ static class Options
 
 		//if there's any help to print do so now
 		if (sb.Length > 0) {
-			Log.Info(sb.ToString());
+			Log.Message(sb.ToString());
 			// stop if we've printed any help
 			return false;
 		}
@@ -219,10 +219,10 @@ static class Options
 
 		bool all;
 		string nameWithDot = @namespace + ".";
-		keyList = (all = @namespace.EqualsIC("all"))
+		keyList = ((all = @namespace.EqualsIC("all"))
 			? register.All()
 			: register.All().Where(k => k.StartsWithIC(nameWithDot))
-		;
+		).Order();
 
 		string suffix = all ? "" : $" for '{@namespace}'";
 		sb.WT();

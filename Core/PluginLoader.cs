@@ -10,7 +10,7 @@ internal static class PluginLoader
 	public static void LoadAllPlugins(IRegister register)
 	{
 		var pluginsPath = GetPluginsFolder();
-		Log.Debug($"Plugin Path is {pluginsPath}");
+		Log.Info($"Plugin Path is {pluginsPath}");
 		var rawList = Directory.EnumerateFiles(pluginsPath);
 
 		foreach(string f in rawList) {
@@ -117,7 +117,7 @@ internal static class PluginLoader
 // https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support
 class PluginLoadContext : AssemblyLoadContext
 {
-	private AssemblyDependencyResolver _resolver;
+	readonly AssemblyDependencyResolver _resolver;
 
 	public PluginLoadContext(string pluginPath)
 	{

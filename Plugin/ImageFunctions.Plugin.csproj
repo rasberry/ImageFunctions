@@ -2,13 +2,16 @@
 
   <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
+    <!-- references to anything referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
-    <PackageReference Include="Rasberry.Cli" Version="1.0.1" />
-    <!--<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" PrivateAssets="all" />-->
-    <!--<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />-->
+    <PackageReference Include="Rasberry.Cli" Version="1.0.1">
+        <Private>false</Private>
+        <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.2.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -18,5 +21,15 @@
     <OutputPath>../build</OutputPath>
     <EnableDynamicLoading>true</EnableDynamicLoading>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Text" />
+    <Using Include="System.Linq" />
+    <Using Include="System.IO" />
+    <Using Include="System.Collections.Generic" />
+  </ItemGroup>
 
 </Project>

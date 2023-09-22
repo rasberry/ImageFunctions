@@ -10,8 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- if any of these packages are included in projects refrencing
+      this one they must be included with <Private>false</Private>
+    -->
     <PackageReference Include="Rasberry.Cli" Version="1.0.1" />
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.2.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
   </ItemGroup>

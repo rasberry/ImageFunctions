@@ -14,7 +14,13 @@ public class Function : IFunction
 
 	public bool Run(IRegister register, ILayers layers, string[] args)
 	{
-		var Iis = Tools.Engine;
+		if (layers == null) {
+			throw Core.Squeal.ArgumentNull(nameof(layers));
+		}
+		if (!Options.ParseArgs(args, register)) {
+			return false;
+		}
+
 		if (layers.Count < 1) {
 			PlugTell.LayerMustHaveOne();
 			return false;
@@ -64,7 +70,7 @@ public class Function : IFunction
 					//bestbpx = bp;
 					double flen = Options.Measurer.Value.Measure(px,py,fp.X,fp.Y);
 					bestratio = flen/len;
-					// Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
+					//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 				}
 			}
 
@@ -86,24 +92,24 @@ public class Function : IFunction
 		return final;
 	}
 
-	Point FindColorAlongRay(ICanvas lb, double a, int px, int py, bool back, ColorRGBA start, out ColorRGBA c)
+	Point FindColorAlongRay(ICanvas canvas, double a, int px, int py, bool back, ColorRGBA start, out ColorRGBA c)
 	{
 		double r=1;
 		c = start;
 		bool done = false;
 		double cosa = Math.Cos(a) * (back ? -1 : 1);
 		double sina = Math.Sin(a) * (back ? -1 : 1);
-		int maxx = lb.Width -1;
-		int maxy = lb.Height -1;
+		int maxx = canvas.Width - 1;
+		int maxy = canvas.Height - 1;
 
 		while(true) {
-			double fx = (int)(cosa * r) + px;
-			double fy = (int)(sina * r) + py;
+			int fx = (int)(cosa * r) + px;
+			int fy = (int)(sina * r) + py;
 			if (fx < 0 || fy < 0 || fx > maxx || fy > maxy) {
 				done = true;
 			}
 			if (!done) {
-				ColorRGBA f = Options.Sampler.Value.GetSample(lb,(int)fx,(int)fy);
+				ColorRGBA f = Options.Sampler.Value.GetSample(canvas,fx,fy);
 				if (!f.Equals(start)) {
 					c = f;
 					done = true;
@@ -111,8 +117,8 @@ public class Function : IFunction
 				}
 			}
 			if (done) {
-				int ix = (int)fx;
-				int iy = (int)fy;
+				int ix = fx;
+				int iy = fy;
 				return new Point(
 					ix < 0 ? 0 : ix > maxx ? maxx : ix
 					,iy < 0 ? 0 : iy > maxy ? maxy : iy

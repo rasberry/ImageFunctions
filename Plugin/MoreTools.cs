@@ -1,3 +1,4 @@
+using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -5,7 +6,7 @@ namespace ImageFunctions.Plugin;
 
 internal static class MoreTools
 {
-	public static void ParalellSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
+	public static void ParallelSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
 	{
 		var ps = new ParallelSort<T>(array,comp,progress);
 		if (MaxDegreeOfParallelism.HasValue && MaxDegreeOfParallelism.Value > 0) {
@@ -61,5 +62,35 @@ internal static class MoreTools
 		var btw = new ColorRGBA(nr,ng,nb,na);
 		// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 		return btw;
+	}
+
+	public static void ThreadRun(int max, Action<int> callback, IProgress<double> progress = null)
+	{
+		int done = 0;
+		var po = new ParallelOptions {
+			MaxDegreeOfParallelism = Tools.MaxDegreeOfParallelism.GetValueOrDefault(1)
+		};
+		Parallel.For(0, max, po, num => {
+			Interlocked.Add(ref done, 1);
+			progress?.Report((double)done / max);
+			callback(num);
+		});
+	}
+
+	public static void CopyFrom(this ICanvas dstImg, ICanvas srcImg,
+		Rectangle dstRect = default,
+		Point srcPoint = default)
+	{
+		if (dstRect.IsEmpty) {
+			dstRect = new Rectangle(0,0,srcImg.Width,srcImg.Height);
+		}
+
+		for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
+			int cy = y - dstRect.Top + srcPoint.Y;
+			for(int x = dstRect.Left; x < dstRect.Right; x++) {
+				int cx = x - dstRect.Left + srcPoint.X;
+				dstImg[x,y] = srcImg[cx,cy];
+			}
+		}
 	}
 }

@@ -1,7 +1,9 @@
+using ImageFunctions.Core;
 using ImageMagick;
 using QType = System.Single;
+using Point = ImageFunctions.Core.PointD;
 
-namespace ImageFunctions.Core.Engines;
+namespace ImageFunctions.Plugin.Engines;
 
 public class ImageMagickEngine : IImageEngine, IDrawEngine
 {
@@ -69,7 +71,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 	}
 
 	// http://www.graphicsmagick.org/Magick++/Drawable.html
-	public void DrawLine(ICanvas image, ColorRGBA color, PointD p0, PointD p1, double width = 1.0)
+	public void DrawLine(ICanvas image, ColorRGBA color, Point p0, Point p1, double width = 1.0)
 	{
 		var nativeImage = (IMCanvas)image;
 		var incolor = ImageMagickUtils.ConvertToExternal(color,nativeImage.ChannelCount);
@@ -104,7 +106,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 	*/
 }
 
-public class IMCanvas : ICanvas, IDisposable
+public class IMCanvas : ICanvas
 {
 	public IMCanvas(IMagickImage<QType> image)
 	{

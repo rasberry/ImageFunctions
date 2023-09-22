@@ -3,7 +3,7 @@ namespace ImageFunctions.Core;
 /// <summary>
 /// ICanvas represents a single layer of pixels
 /// </summary>
-public interface ICanvas
+public interface ICanvas : IDisposable
 {
 	/// <summary>
 	/// Width of the canvas
