@@ -204,7 +204,7 @@ public class Function : IFunction
 					})
 				);
 				var maxp = Tools.MaxDegreeOfParallelism;
-				MoreTools.ParallelSort<(ColorRGBA,T)>(tempList,comp,progress,maxp);
+				MoreTools.ParallelSort(tempList,comp,progress,maxp);
 			}
 		}
 
