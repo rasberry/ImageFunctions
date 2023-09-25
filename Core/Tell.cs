@@ -17,6 +17,9 @@ public static class Tell
 	public static void InvalidPassword() {
 		Log.Error("password is missing or invalid");
 	}
+	public static void LayerMustHaveOne() {
+		Log.Error("layers collection must contain at least one layer");
+	}
 	public static void MissingArgument(string name) {
 		Log.Error($"not enough arguments for '{name}'");
 	}

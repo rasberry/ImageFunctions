@@ -173,24 +173,4 @@ internal static class MoreTools
 		val = isPercent ? d/100.0 : d;
 		return true;
 	}
-
-	/// <summary>
-	/// Helper method to create an image with the same dimensions as the first image in the layers list
-	/// </summary>
-	/// <param name="engine">The IImageEngine object</param>
-	/// <param name="layers">The ILayers object</param>
-	/// <param name="canvas">The newly created canvas</param>
-	/// <returns>False if there are no layers otherwise true</returns>
-	public static bool TryNewCanvasFromLayers(this IImageEngine engine, ILayers layers, out ICanvas canvas)
-	{
-		if (layers.Count < 1) {
-			PlugTell.LayerMustHaveOne();
-			canvas = default;
-			return false;
-		}
-
-		var proto = layers.First();
-		canvas = engine.NewCanvas(proto.Width, proto.Height);
-		return true;
-	}
 }

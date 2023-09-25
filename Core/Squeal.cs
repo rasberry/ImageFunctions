@@ -24,6 +24,10 @@ public static class Squeal
 	public static Exception IndexOutOfRange(string argName) {
 		throw new IndexOutOfRangeException(argName);
 	}
+	public static Exception LayerMustHaveOne() {
+		var message = "layers collection must contain at least one layer";
+		return new ArgumentOutOfRangeException(message);
+	}
 	public static Exception NoLayers() {
 		return new ArgumentOutOfRangeException($"No Layers are present");
 	}

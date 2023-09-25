@@ -20,10 +20,11 @@ public class Function : IFunction
 		}
 
 		if (layers.Count < 1) {
-			PlugTell.LayerMustHaveOne();
+			Tell.LayerMustHaveOne();
 			return false;
 		}
-		var frame = layers.First();
+
+		var frame = layers.Last();
 
 		if (frame.Width < 2 || frame.Height < 2) {
 			return true; //nothing to do

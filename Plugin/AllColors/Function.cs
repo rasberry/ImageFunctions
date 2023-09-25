@@ -22,15 +22,12 @@ public class Function : IFunction
 	{
 		this.register = register;
 
-		if (layers == null) {
-			throw Core.Squeal.ArgumentNull(nameof(layers));
-		}
 		if (!O.ParseArgs(args, register)) {
 			return false;
 		}
 
 		//since we're rendering pixels make a new layer each time
-		var image = Tools.Engine.NewCanvas(O.FourKWidth,O.FourKHeight);
+		var image = layers.NewCanvasFromLayersOrDefault(O.FourKWidth,O.FourKHeight);
 		layers.Add(image);
 		Draw(image);
 

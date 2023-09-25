@@ -9,24 +9,26 @@ public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb);
+		O.Usage(sb);
 	}
 
 	public bool Run(IRegister register, ILayers layers, string[] args)
 	{
 		if (layers == null) {
-			throw Core.Squeal.ArgumentNull(nameof(layers));
+			throw Squeal.ArgumentNull(nameof(layers));
 		}
 		if (!O.ParseArgs(args, register)) {
 			return false;
 		}
 
-		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var newCanvas)) {
+		if (layers.Count < 1) {
+			Tell.LayerMustHaveOne();
 			return false;
 		}
-		var frame = layers.First();
+
+		using var canvas = layers.NewCanvasFromLayers(); //temporary canvas
+		var frame = layers.Last();
 		using var progress = new ProgressBar();
-		using var canvas = newCanvas; //temporary canvas
 
 		double ccx,ccy;
 		if (O.CenterPx != null) {

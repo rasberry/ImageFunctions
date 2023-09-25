@@ -22,9 +22,12 @@ public class Function : IFunction
 			return false;
 		}
 
-		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var canvas)) {
+		if (layers.Count < 1) {
+			Tell.LayerMustHaveOne();
 			return false;
 		}
+
+		var canvas = layers.Last();
 
 		using var progress = new ProgressBar();
 		Tools.ThreadPixels(canvas, (x,y) => {

@@ -20,12 +20,14 @@ public class Function : IFunction
 			return false;
 		}
 
-		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var newCanvas)) {
+		if (layers.Count < 1) {
+			Tell.LayerMustHaveOne();
 			return false;
 		}
-		var frame = layers.First();
+
+		var frame = layers.Last();
 		using var progress = new ProgressBar();
-		using var canvas = newCanvas; //temporary canvas
+		using var canvas = layers.NewCanvasFromLayers();
 		Encryptor processor = new Encryptor() { IVBytes = Options.IVBytes };
 
 		//make a copy of the original

@@ -20,12 +20,14 @@ public class Function : IFunction
 			return false;
 		}
 
-		if (!Tools.Engine.TryNewCanvasFromLayers(layers, out var newCanvas)) {
+		if (layers.Count < 1) {
+			Tell.LayerMustHaveOne();
 			return false;
 		}
-		var origCanvas = layers.First();
+
+		var origCanvas = layers.Last();
 		using var progress = new ProgressBar();
-		using var canvas = newCanvas; //can't 'using' the out parameter so doing that here
+		using var canvas = layers.NewCanvasFromLayers(); //temporary canvas
 
 		if (!Options.VOnly) {
 			MoreTools.ThreadRun(origCanvas.Height - 1, (int y) => {
