@@ -35,15 +35,13 @@ public class Encryptor
 		// System.Security.Cryptography.CryptographicException: Padding is invalid and cannot be removed.
 		agent.Padding = PaddingMode.Zeros;
 
-		var encryptor = decrypt
+		using var encryptor = decrypt
 			? agent.CreateDecryptor()
 			: agent.CreateEncryptor()
 		;
-		var cryptoStream = new CryptoStream(outData, encryptor, CryptoStreamMode.Write);
+		using var cryptoStream = new CryptoStream(outData, encryptor, CryptoStreamMode.Write);
 
-		using (encryptor) using (cryptoStream) {
-			CopyToWithProgress(inData,cryptoStream,progress);
-		}
+		CopyToWithProgress(inData,cryptoStream,progress);
 	}
 
 	// https://referencesource.microsoft.com/#mscorlib/system/io/stream.cs,2a0f078c2e0c0aa8

@@ -32,12 +32,10 @@ public class Function : IFunction
 		canvas.CopyFrom(frame);
 
 		//Encryption really wants to use streams
-		var inStream = new PixelStream(canvas);
-		var outStream = new PixelStream(canvas);
+		using var inStream = new PixelStream(canvas);
+		using var outStream = new PixelStream(canvas);
 
-		using(inStream) using(outStream) {
-			processor.TransformStream(Options.DoDecryption,inStream,outStream,Options.Password,progress);
-		}
+		processor.TransformStream(Options.DoDecryption,inStream,outStream,Options.Password,progress);
 
 		//put processed image back
 		frame.CopyFrom(canvas);
