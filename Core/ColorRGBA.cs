@@ -5,7 +5,7 @@ namespace ImageFunctions.Core;
 /// <summary>
 /// Color with Components R,G,B,A
 /// </summary>
-public readonly struct ColorRGBA : IEquatable<ColorRGBA>, IColor3
+public readonly record struct ColorRGBA : IColor3
 {
 	public ColorRGBA(double r, double g, double b, double a)
 	{
@@ -19,22 +19,6 @@ public readonly struct ColorRGBA : IEquatable<ColorRGBA>, IColor3
 	double IColor3.C2 { get { return G; }}
 	double IColor3.C3 { get { return B; }}
 	double IColor3.A  { get { return A; }}
-
-	public override string ToString()
-	{
-		return $"{nameof(ColorRGBA)} [{R},{G},{B},{A}]";
-	}
-
-	public bool Equals(ColorRGBA other)
-	{
-		return other.R == R && other.G == G &&
-			other.B == B && other.A == A;
-	}
-
-	public override int GetHashCode()
-	{
-		return HashCode.Combine(R,G,B,A);
-	}
 
 	public static ColorRGBA FromRGBA255(byte r, byte g, byte b, byte a)
 	{
