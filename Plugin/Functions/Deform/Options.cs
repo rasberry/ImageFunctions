@@ -3,7 +3,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Samplers;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.Deform;
+namespace ImageFunctions.Plugin.Functions.Deform;
 
 public sealed class Options : IOptions
 {
@@ -35,8 +35,8 @@ public sealed class Options : IOptions
 			out double ppx, out double ppy, //results
 			0.5, 0.5,                       //defaults
 			null,                           //condition
-			MoreTools.ParseNumberPercent,   //custom parser
-			MoreTools.ParseNumberPercent
+			PlugTools.ParseNumberPercent,   //custom parser
+			PlugTools.ParseNumberPercent
 		);
 		if (pcp.IsInvalid()) {
 			return false;

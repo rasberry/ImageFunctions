@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.Encrypt;
+namespace ImageFunctions.Plugin.Functions.Encrypt;
 
 public sealed class Options : IOptions
 {

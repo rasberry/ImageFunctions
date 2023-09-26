@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.Derivatives;
+namespace ImageFunctions.Plugin.Functions.Derivatives;
 
 public sealed class Options : IOptions
 {

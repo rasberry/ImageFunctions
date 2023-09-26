@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Plugin.Derivatives;
+namespace ImageFunctions.Plugin.Functions.Derivatives;
 
 [InternalRegisterFunction(nameof(Derivatives))]
 public class Function : IFunction
@@ -20,7 +20,7 @@ public class Function : IFunction
 		}
 
 		if (layers.Count < 1) {
-			Tell.LayerMustHaveOne();
+			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
@@ -70,7 +70,7 @@ public class Function : IFunction
 		ColorRGBA? n, ColorRGBA? e, ColorRGBA? s, ColorRGBA? w,
 		bool abs)
 	{
-		if (!src.HasValue) { return Transparent; }
+		if (!src.HasValue) { return PlugColors.Transparent; }
 		var rgbaSrc = GetColor(src);
 		var rgbaN = GetColor(n);
 		var rgbaE = GetColor(e);
@@ -126,7 +126,7 @@ public class Function : IFunction
 		if (px.HasValue) {
 			return px.Value;
 		}
-		return new ColorRGBA(0.0,0.0,0.0,0.0);
+		return PlugColors.Transparent;
 	}
 
 	struct QueueItem
@@ -134,12 +134,6 @@ public class Function : IFunction
 		public int X;
 		public int Y;
 		public ColorRGBA Color;
-	}
-
-	static ColorRGBA Transparent {
-		get {
-			return new ColorRGBA(0.0, 0.0, 0.0, 0.0);
-		}
 	}
 
 	//TODO replace this with colorspace (maybe?)

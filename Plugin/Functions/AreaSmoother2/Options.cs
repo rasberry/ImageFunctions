@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.AreaSmoother2;
+namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
 
 public sealed class Options : IOptions
 {

@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace ImageFunctions.Core;
 
 /// <summary>
@@ -33,17 +35,30 @@ public static class Tools
 	public static void ThreadPixels(this ICanvas image, Action<int,int> callback,
 		IProgress<double> progress = null)
 	{
+		var size = new Rectangle(0, 0, image.Width, image.Height);
+		ThreadPixels(size, callback, progress);
+	}
+
+	/// <summary>
+	/// Calls in parallel the given function once for each position (x,y) in the rectangle.
+	/// </summary>
+	/// <param name="rect"></param>
+	/// <param name="callback"></param>
+	/// <param name="progress"></param>
+	public static void ThreadPixels(Rectangle rect, Action<int,int> callback,
+		IProgress<double> progress = null)
+	{
 		long done = 0;
-		long max = (long)image.Width * image.Height;
+		long max = (long)rect.Width * rect.Height;
 		var po = new ParallelOptions {
 			MaxDegreeOfParallelism = MaxDegreeOfParallelism.GetValueOrDefault(1)
 		};
 		Parallel.For(0, max, po, num => {
-			int y = (int)(num / image.Width);
-			int x = (int)(num % image.Width);
+			int y = (int)(num / rect.Width);
+			int x = (int)(num % rect.Width);
 			Interlocked.Add(ref done,1);
 			progress?.Report((double)done / max);
-			callback(x,y);
+			callback(x + rect.Left,y + rect.Top);
 		});
 	}
 

@@ -1,8 +1,8 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Deform.Options;
+using O = ImageFunctions.Plugin.Functions.Deform.Options;
 
-namespace ImageFunctions.Plugin.Deform;
+namespace ImageFunctions.Plugin.Functions.Deform;
 
 [InternalRegisterFunction(nameof(Deform))]
 public class Function : IFunction
@@ -22,7 +22,7 @@ public class Function : IFunction
 		}
 
 		if (layers.Count < 1) {
-			Tell.LayerMustHaveOne();
+			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 

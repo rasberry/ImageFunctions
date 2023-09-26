@@ -3,9 +3,9 @@ using System.Text;
 using ImageFunctions.Core;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.AllColors.Options;
+using O = ImageFunctions.Plugin.Functions.AllColors.Options;
 
-namespace ImageFunctions.Plugin.AllColors;
+namespace ImageFunctions.Plugin.Functions.AllColors;
 
 [InternalRegisterFunction(nameof(AllColors))]
 public class Function : IFunction
@@ -35,15 +35,7 @@ public class Function : IFunction
 	}
 
 	IRegister register;
-
-	public ColorRGBA Transparent {
-		get {
-			return new ColorRGBA(0.0, 0.0, 0.0, 0.0);
-		}
-	}
-
 	const int NumberOfColors = 16777216;
-
 	//there doesn't seem to be a sort with progress so take a guess
 	// at the maximum number of iterations
 	const double SortMax = 24 * NumberOfColors; //log2(n) * n
@@ -66,7 +58,7 @@ public class Function : IFunction
 				nc = colorList[coff];
 			}
 			else {
-				nc = Transparent;
+				nc = PlugColors.Transparent;
 			}
 			image[x,y] = nc;
 		};
@@ -201,7 +193,7 @@ public class Function : IFunction
 					})
 				);
 				var maxp = Tools.MaxDegreeOfParallelism;
-				MoreTools.ParallelSort(tempList,comp,progress,maxp);
+				PlugTools.ParallelSort(tempList,comp,progress,maxp);
 			}
 		}
 

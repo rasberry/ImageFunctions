@@ -2,7 +2,7 @@ using System.Text;
 using Rasberry.Cli;
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Plugin.AllColors
+namespace ImageFunctions.Plugin.Functions.AllColors
 {
 	public enum Pattern {
 		None = 0,

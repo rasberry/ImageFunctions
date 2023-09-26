@@ -1,7 +1,7 @@
 using System.Drawing;
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Plugin.Encrypt;
+namespace ImageFunctions.Plugin.Functions.Encrypt;
 
 public class PixelStream : Stream
 {

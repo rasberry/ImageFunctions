@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.Encrypt;
+namespace ImageFunctions.Plugin.Functions.Encrypt;
 
 [InternalRegisterFunction(nameof(Encrypt))]
 public class Function : IFunction
@@ -21,7 +21,7 @@ public class Function : IFunction
 		}
 
 		if (layers.Count < 1) {
-			Tell.LayerMustHaveOne();
+			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 

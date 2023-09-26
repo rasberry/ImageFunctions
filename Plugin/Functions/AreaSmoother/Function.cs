@@ -3,7 +3,7 @@ using System.Text;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.AreaSmoother;
+namespace ImageFunctions.Plugin.Functions.AreaSmoother;
 
 [InternalRegisterFunction(nameof(AreaSmoother))]
 public class Function : IFunction
@@ -23,7 +23,7 @@ public class Function : IFunction
 		}
 
 		if (layers.Count < 1) {
-			Tell.LayerMustHaveOne();
+			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
@@ -66,8 +66,8 @@ public class Function : IFunction
 				if (len < bestlen) {
 					bestang = a;
 					bestlen = len;
-					bestfc = MoreTools.BetweenColor(fc,start,0.5);
-					bestbc = MoreTools.BetweenColor(bc,start,0.5);
+					bestfc = PlugTools.BetweenColor(fc,start,0.5);
+					bestbc = PlugTools.BetweenColor(bc,start,0.5);
 					//bestfpx = fp;
 					//bestbpx = bp;
 					double flen = Options.Measurer.Value.Measure(px,py,fp.X,fp.Y);
@@ -86,10 +86,10 @@ public class Function : IFunction
 			final = start;
 		}
 		else if (bestratio > 0.5) {
-			final = MoreTools.BetweenColor(start,bestbc,(bestratio-0.5)*2);
+			final = PlugTools.BetweenColor(start,bestbc,(bestratio-0.5)*2);
 		}
 		else {
-			final = MoreTools.BetweenColor(bestfc,start,bestratio*2);
+			final = PlugTools.BetweenColor(bestfc,start,bestratio*2);
 		}
 		return final;
 	}

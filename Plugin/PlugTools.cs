@@ -4,7 +4,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin;
 
-internal static class MoreTools
+internal static class PlugTools
 {
 	/// <summary>
 	/// Sorts a list using a multi-threaded sort. Seems to work best on machines with 4+ cores
@@ -64,8 +64,6 @@ internal static class MoreTools
 			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
 		}
 	}
-
-
 
 	//ratio 0.0 = 100% a
 	//ratio 1.0 = 100% b

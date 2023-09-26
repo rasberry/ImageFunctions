@@ -39,7 +39,7 @@ public sealed class Options : IOptions
 		if (p.Default("-rs",out RandomSeed, null).IsInvalid()) {
 			return false;
 		}
-		if (p.Default("-p",out PertubationRate, 0.0, MoreTools.ParseNumberPercent).IsInvalid()) {
+		if (p.Default("-p",out PertubationRate, 0.0, PlugTools.ParseNumberPercent).IsInvalid()) {
 			return false;
 		}
 

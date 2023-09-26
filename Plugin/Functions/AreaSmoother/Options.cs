@@ -5,7 +5,7 @@ using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.AreaSmoother;
+namespace ImageFunctions.Plugin.Functions.AreaSmoother;
 
 public sealed class Options : IOptions
 {

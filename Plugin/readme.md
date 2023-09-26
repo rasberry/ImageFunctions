@@ -9,12 +9,12 @@ When making a new function:
 * Copy the templates into each file
 * Change MyFunction to the name of your function
 
-## MyFunction/Functions.cs
+## Functions/MyFunction/Functions.cs
 
 ```csharp
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Plugin.MyFunction;
+namespace ImageFunctions.Plugin.Functions.MyFunction;
 
 public class Function : IFunction
 {
@@ -39,13 +39,13 @@ public class Function : IFunction
 }
 ```
 
-## MyFunction/Options.cs
+## Functions/MyFunction/Options.cs
 
 ```csharp
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.MyFunction;
+namespace ImageFunctions.Plugin.Functions.MyFunction;
 
 public sealed class Options : IOptions
 {
