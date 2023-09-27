@@ -30,13 +30,15 @@ public sealed class Options : IOptions
 	public static bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var parser = new ParseParams.Parser<double>((string n, out double p) => {
+			return ExtraParsers.TryParseNumberPercent(n, out p);
+		});
 
 		var pcp = p.Default("-cp",
 			out double ppx, out double ppy, //results
 			0.5, 0.5,                       //defaults
 			null,                           //condition
-			PlugTools.ParseNumberPercent,   //custom parser
-			PlugTools.ParseNumberPercent
+			parser, parser                  //custom parser
 		);
 		if (pcp.IsInvalid()) {
 			return false;

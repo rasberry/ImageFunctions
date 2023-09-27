@@ -27,6 +27,9 @@ public sealed class Options : IOptions
 	public static bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var parser = new ParseParams.Parser<double?>((string s, out double? p) => {
+			return ExtraParsers.TryParseNumberPercent(s,out p);
+		});
 
 		if (p.Has("-i").IsGood()) {
 			MatchSamePixels = true;
@@ -35,7 +38,7 @@ public sealed class Options : IOptions
 			OutputOriginal = true;
 		}
 
-		if(p.Default("-o",out HilightOpacity, par: PlugTools.ParseNumberPercent)
+		if(p.Default("-o",out HilightOpacity, par: parser)
 			.BeGreaterThanZero("-o",HilightOpacity,true).IsInvalid()) {
 			return false;
 		}

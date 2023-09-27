@@ -26,6 +26,9 @@ public sealed class Options : IOptions
 	public static bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var parser = new ParseParams.Parser<double>((string s, out double p) => {
+			return ExtraParsers.TryParseNumberPercent(s,out p);
+		});
 
 		if (p.Default("-b",out States,2).IsInvalid()) {
 			return false;
@@ -39,7 +42,7 @@ public sealed class Options : IOptions
 		if (p.Default("-rs",out RandomSeed, null).IsInvalid()) {
 			return false;
 		}
-		if (p.Default("-p",out PertubationRate, 0.0, PlugTools.ParseNumberPercent).IsInvalid()) {
+		if (p.Default("-p",out PertubationRate, 0.0, parser).IsInvalid()) {
 			return false;
 		}
 
