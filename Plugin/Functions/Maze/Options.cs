@@ -35,15 +35,16 @@ public sealed class Options : IOptions
 	static string MazeDesc(PickMaze maze)
 	{
 		switch(maze) {
-		case PickMaze.Eller: return "Eller's algorithm";
-		case PickMaze.Prims: return "Prim's (Jarník's) algorithm";
-		case PickMaze.Kruskal: return "Kruskal's algorithm 🐢";
-		case PickMaze.BinaryTree: return "Binary tree maze algorithm";
-		case PickMaze.GrowingTree: return "Growing tree maze algorithm";
 		case PickMaze.Automata: return "Cellular automata maze";
+		case PickMaze.BinaryTree: return "Binary tree maze algorithm";
+		case PickMaze.Division: return "Recursize division algorithm";
+		case PickMaze.Eller: return "Eller's algorithm";
+		case PickMaze.GrowingTree: return "Growing tree maze algorithm";
+		case PickMaze.Kruskal: return "Kruskal's algorithm 🐢";
+		case PickMaze.Prims: return "Prim's (Jarník's) algorithm";
 		case PickMaze.ReverseDelete: return "Reverse delete algorithm 🐢";
 		case PickMaze.SideWinder: return "Sidewinder maze algorithm";
-		case PickMaze.Division: return "Recursize division algorithm";
+		case PickMaze.Spiral: return "Experimental maze using a spiral layout";
 		}
 		return "";
 	}
