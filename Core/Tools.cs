@@ -135,7 +135,6 @@ public static class Tools
 
 		var proto = layers.First();
 		canvas = Engine.NewCanvas(proto.Width, proto.Height);
-		layers.Add(canvas);
 
 		return true;
 	}
