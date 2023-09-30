@@ -1,5 +1,6 @@
 using System.Drawing;
 using ImageFunctions.Core;
+using ImageFunctions.Plugin.Functions.Maze;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin;
@@ -120,7 +121,7 @@ internal static class PlugTools
 		Point srcPoint = default)
 	{
 		if (dstRect.IsEmpty) {
-			dstRect = new Rectangle(0,0,srcImg.Width,srcImg.Height);
+			dstRect = dstImg.Bounds();
 		}
 
 		for(int y = dstRect.Top; y < dstRect.Bottom; y++) {
@@ -361,5 +362,11 @@ internal static class PlugTools
 				return m + Math.Abs(5*x) - y - 1;
 			}
 		}
+	}
+
+
+	public static Rectangle Bounds(this ICanvas canvas)
+	{
+		return new Rectangle(0, 0, canvas.Width, canvas.Height);
 	}
 }

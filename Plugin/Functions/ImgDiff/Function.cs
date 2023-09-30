@@ -34,10 +34,7 @@ public class Function : IFunction
 		using var progress = new Rasberry.Cli.ProgressBar();
 
 		double totalDist = 0.0;
-		var minimum = Rectangle.Intersect(
-			new Rectangle(0,0,frame.Width,frame.Height),
-			new Rectangle(0,0,compareImg.Width,compareImg.Height)
-		);
+		var minimum = Rectangle.Intersect(frame.Bounds(), compareImg.Bounds());
 		var colorWhite = PlugColors.White;
 		var colorHilight = O.HilightColor;
 		var colorTransp = PlugColors.Transparent;

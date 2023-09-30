@@ -31,8 +31,7 @@ public class Function : IFunction
 		// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-implement-a-producer-consumer-dataflow-pattern
 
 		var image = layers.Last();
-		var bounds = new Rectangle { X = 0, Y = 0, Width = image.Width, Height = image.Height };
-		SplitAndAverage(layers.Last(), bounds);
+		SplitAndAverage(layers.Last(), image.Bounds());
 
 		return true;
 	}

@@ -29,7 +29,7 @@ public class Function : IFunction
 		var source = layers.Last();
 		using var progress = new ProgressBar();
 		using var canvas = layers.NewCanvasFromLayers();
-		var rect = new Rectangle(0, 0, source.Width, source.Height);
+		var rect = source.Bounds();
 
 		for(int p=0; p<O.Passes; p++) {
 			progress.Prefix = "Pass "+(p+1)+"/"+O.Passes+" ";
