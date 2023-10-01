@@ -163,7 +163,7 @@ public static class First
 			return;
 		}
 		var (r,g,b,a) = Orgb(c);
-		var nc = ColorRGBA.FromRGBA255((byte)(255 - a),(byte)r,(byte)g,(byte)b);
+		var nc = ColorRGBA.FromRGBA255((byte)r,(byte)g,(byte)b,(byte)(255 - a));
 		image[x,y] = nc;
 	}
 }

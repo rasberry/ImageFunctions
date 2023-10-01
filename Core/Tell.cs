@@ -37,7 +37,7 @@ public static class Tell
 		Log.Error("You must provide at least one priority");
 	}
 	public static void MustProvideInput(string name) {
-		Log.Error($"option '{name}' is required");
+		Log.Error($"option '{name}' is required (Note: function arguments must be included after '--')");
 	}
 	public static void NotRegistered(string @class, string name) {
 		Log.Error($"{@class} '{name}' is not registered");

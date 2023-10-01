@@ -20,20 +20,21 @@ public sealed class Options : IOptions
 		sb.ND(1,"-rs (number)","Random Int32 seed value (defaults to system picked)");
 		sb.WT();
 		sb.ND(1,"Available Graphics");
-		sb.PrintEnum<Graphic>(1);
+		sb.PrintEnum<Graphic>(1,excludeZero:true);
 	}
 
 	public static bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
-		if (p.Default("-g",out Spear,Graphic.None).IsInvalid()) {
-			return false;
-		}
 		if (p.Default("-bg",out BackgroundColor,PlugColors.Transparent).IsInvalid()) {
 			return false;
 		}
 		if (p.Default("-rs",out RandomSeed,null).IsInvalid()) {
+			return false;
+		}
+		if (p.Expect("-g",out Spear).IsInvalid()) {
+			Tell.MustProvideInput("-g");
 			return false;
 		}
 

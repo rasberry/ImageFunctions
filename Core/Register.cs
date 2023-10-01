@@ -61,7 +61,7 @@ class Register : IRegister
 	}
 
 	public IEnumerable<INameSpaceName> All() {
-		return Store.Keys;
+		return Store.Keys.Cast<INameSpaceName>();
 	}
 
 	void EnsureNameIsNotNull(string @namespace, string name)
@@ -75,10 +75,12 @@ class Register : IRegister
 		}
 	}
 
-	Dictionary<INameSpaceName,object> Store = new();
+	//can't the the INameSpaceName as the key because the overridden
+	// GetHashCode doesn't get called
+	Dictionary<NameSpaceName,object> Store = new();
 }
 
-internal readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceName>
+readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceName>
 {
 	public string Name { get; init; }
 	public string NameSpace { get; init; }
@@ -93,7 +95,9 @@ internal readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceNam
 
 	public override int GetHashCode()
 	{
-		return HashCode.Combine(NameSpace, Name);
+		var ns = NameSpace.ToLower();
+		var n = Name.ToLower();
+		return HashCode.Combine(ns, n);
 	}
 }
 
