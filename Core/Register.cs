@@ -3,7 +3,6 @@ using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core;
 
-
 class Register : IRegister
 {
 	// DRY methods
@@ -18,6 +17,7 @@ class Register : IRegister
 			Name = name
 		};
 
+		//this is loud to avoid override or re-register bugs
 		if (!Store.TryAdd(full, item)) {
 			throw Squeal.AlreadyRegistered(@namespace,name);
 		}
@@ -30,7 +30,11 @@ class Register : IRegister
 			Name = name
 		};
 
-		return (IRegisteredItem<T>)Store[full];
+		var item = new NameWithItem<T> {
+			Id = full,
+			Item = (T)Store[full]
+		};
+		return item;
 	}
 
 	public bool Try<T>(string @namespace, string name, out IRegisteredItem<T> item) {
@@ -44,8 +48,11 @@ class Register : IRegister
 		bool wasFound = Store.TryGetValue(full,out object o);
 
 		//must be found and be of the correct type
-		if (wasFound && o is IRegisteredItem<T> inst) {
-			item = inst;
+		if (wasFound && o is T inst) {
+			item = new NameWithItem<T> {
+				Id = full,
+				Item = inst
+			};
 			return true;
 		}
 
@@ -90,6 +97,9 @@ internal readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceNam
 	}
 }
 
+//the dictionary is saving both pieces
+// - NameSpaceName in the key and T in the value
+// Use this to combine the two again
 class NameWithItem<T> : IRegisteredItem<T>
 {
 	public string Name { get { return Id.Name; }}

@@ -10,6 +10,7 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 	}
 
 	public override string Namespace { get { return "Color"; }}
+	static int called = 0;
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
@@ -26,7 +27,7 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 		}
 
 		//add in special extras
-		reg.Add("RebeccaPurple",ColorRGBA.FromRGBA255(0xFF,0x66,0x33,0x99));
-		reg.Add("Transparent",new ColorRGBA(0.0, 0.0, 0.0, 0.0));
+		//reg.Add("RebeccaPurple",ColorRGBA.FromRGBA255(0xFF,0x66,0x33,0x99));
+		//reg.Add("Transparent",new ColorRGBA(0.0, 0.0, 0.0, 0.0));
 	}
 }

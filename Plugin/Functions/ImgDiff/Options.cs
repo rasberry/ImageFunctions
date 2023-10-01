@@ -52,10 +52,11 @@ public sealed class Options : IOptions
 		}
 
 		var mr = new MetricRegister(register);
-		if (!mr.Try(MetricName, out MetricInstance)) {
+		if (!mr.Try(MetricName, out var mEntry)) {
 			Tell.NotRegistered(mr.Namespace,MetricName);
 			return false;
 		}
+		MetricInstance = mEntry.Item;
 
 		return true;
 	}

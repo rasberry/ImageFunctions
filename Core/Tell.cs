@@ -62,7 +62,15 @@ public static class Tell
 		Log.Warning($"Error instantiating plugin {t.FullName} {e.Message}");
 	}
 	public static void PluginInitFailed(Type t, Exception e) {
-		Log.Warning($"Problem initializing plugin {t.FullName} {e.Message}");
+		#if DEBUG
+			string err = e.ToString();
+		#else
+			if (e is System.Reflection.TargetInvocationException) {
+				e = e.InnerException;
+			}
+			string err = e.Message;
+		#endif
+		Log.Warning($"Problem initializing plugin {t.FullName} {err}");
 	}
 	public static void PluginFound(string file, string name) {
 		Log.Info($"Plugin {name} Found {file}");
