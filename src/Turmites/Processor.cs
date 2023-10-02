@@ -79,9 +79,9 @@ namespace ImageFunctions.Turmites
 				}
 				else if (O.EdgeRule == PickEdgeRule.Wrap) {
 					if (x >= width)  { x = 0; }
-					else if (x < 0) { x = width - 1; }
+					else if (x < 0)  { x = width - 1; }
 					if (y >= height) { y = 0; }
-					if (y < 0)      { y = height - 1; }
+					if (y < 0)       { y = height - 1; }
 				}
 				else if (O.EdgeRule == PickEdgeRule.Reflect) {
 					if (x >= width)  { x = width - 1; dir = Direction.W; }

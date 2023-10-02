@@ -51,7 +51,7 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 	static double DistanceManhattan(double[] p1, double[] p2)
 	{
 		if (p1.Length != p2.Length) {
-			throw Squeal.ArgumentMustMatch<int>("Length",p1.Length,p2.Length);
+			throw Squeal.ArgumentsMustBeEqual<int>("Length",p1.Length,p2.Length);
 		}
 		double total = 0;
 		for (int p = 0; p < p1.Length; p++) {
@@ -70,7 +70,7 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 	static double DistanceEuclidean(double[] p1, double[] p2)
 	{
 		if (p1.Length != p2.Length) {
-			throw Squeal.ArgumentMustMatch<int>("Length",p1.Length,p2.Length);
+			throw Squeal.ArgumentsMustBeEqual<int>("Length",p1.Length,p2.Length);
 		}
 		double total = 0;
 		for (int p = 0; p < p1.Length; p++) {
@@ -91,7 +91,7 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 	static double DistanceChebyshev(double[] p1, double[] p2, bool invert = false)
 	{
 		if (p1.Length != p2.Length) {
-			throw Squeal.ArgumentMustMatch<int>("Length",p1.Length,p2.Length);
+			throw Squeal.ArgumentsMustBeEqual<int>("Length",p1.Length,p2.Length);
 		}
 		double total = invert ? double.MaxValue : double.MinValue;
 		for (int p = 0; p < p1.Length; p++) {
@@ -114,7 +114,7 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 	static double DistanceCanberra(double[] p1, double[] p2)
 	{
 		if (p1.Length != p2.Length) {
-			throw Squeal.ArgumentMustMatch<int>("Length",p1.Length,p2.Length);
+			throw Squeal.ArgumentsMustBeEqual<int>("Length",p1.Length,p2.Length);
 		}
 		double total = 0;
 		for (int p = 0; p < p1.Length; p++) {

@@ -6,10 +6,10 @@ public static class Squeal
 	public static Exception AlreadyRegistered(string @namespace, string name) {
 		return new ArgumentException($"Item {@namespace}.{name} is already registered");
 	}
-	public static Exception ArgumentMustMatch<T>(string name, T? v1, T? v2) where T : struct
+	public static Exception ArgumentsMustBeEqual<T>(string name, T? v1, T? v2) where T : struct
 	{
 		string vals = (v1.HasValue && v2.HasValue) ? $" [{v1} : {v2}]" : "";
-		var m = $"{name}(s) must match{vals}";
+		var m = $"{name}(s) must be equal{vals}";
 		return new ArgumentException(m);
 	}
 	public static Exception ArgumentNull(string argName) {
