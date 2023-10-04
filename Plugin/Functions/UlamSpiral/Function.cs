@@ -117,6 +117,12 @@ public class Function : IFunction
 	int FindMaxFactor(Rectangle srect)
 	{
 		//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
+		//TODO yes there is! (i think) the most composite number is always the next lowest power of 2
+		// to find it we could just zero all the bits after the most senior '1' bit
+		// there's probably a very fast way to do that
+		// int maxNum = MapXY(width-1, height-1, cx, cy, srect.Width);
+		// int maxFactor = nearlestpowerof2(maxNum);
+		// int count = log2(maxFactor);
 		int maxFactor = int.MinValue;
 		object maxLock = new object();
 		var (cx, cy) = GetCenterXY(srect);
@@ -134,6 +140,24 @@ public class Function : IFunction
 		}, pb1);
 
 		return maxFactor;
+	}
+
+	//TODO compare FindMaxFactor and this to see if they match
+	// https://www.geeksforgeeks.org/highest-power-2-less-equal-given-number/
+	static int HighestPower2(int n)
+	{
+		// check for the set bits
+		n |= n >> 1;
+		n |= n >> 2;
+		n |= n >> 4;
+		n |= n >> 8;
+		n |= n >> 16;
+
+		// Then we remove all but the top bit by xor'ing the
+		// string of 1's with that string of 1's shifted one to
+		// the left, and we end up with just the one top bit
+		// followed by 0's.
+		return n ^ (n >> 1);
 	}
 
 	(int,int) GetCenterXY(Rectangle rect)
