@@ -21,6 +21,9 @@ public static class Squeal
 	public static Exception ArgumentOutOfRange(string argName) {
 		throw new ArgumentOutOfRangeException(argName);
 	}
+	public static Exception CouldNotLoadFile(string file, string extra) {
+		throw new FileLoadException($"Could not load file ({extra})",file);
+	}
 	public static Exception EngineCannotDrawLines(string name) {
 		return new NotSupportedException($"Engine {name} does not support drawing lines");
 	}

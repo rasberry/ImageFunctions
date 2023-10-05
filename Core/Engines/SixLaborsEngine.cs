@@ -12,17 +12,19 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 	public void LoadImage(ILayers layers, string fileName)
 	{
 		var image = Image.Load<RgbaD>(fileName);
+		string name = Path.GetFileName(fileName);
 
 		//for images with one frame just use the original
 		if (image.Frames.Count == 1) {
 			var lay = new SLCanvas(image);
-			layers.Push(lay);
+			layers.Push(lay, name);
 			// don't dispose of image since were using it directly
 			return;
 		}
 
 		//otherwise copy each frame to a new image.
 		// dispose of image since were copying the data
+		int count = 0;
 		using (image) {
 			foreach(var frame in image.Frames) {
 				int w = frame.Width;
@@ -35,7 +37,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				frame.CopyPixelDataTo(span);
 				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
 				var lay = new SLCanvas(copy);
-				layers.Push(lay);
+				layers.Push(lay, $"{name}.{++count}");
 			}
 		}
 	}
@@ -81,16 +83,16 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 
 		if (hasMulti && !canMulti) {
 			//save each frame as it's own image
-			var noExt = Path.GetFileNameWithoutExtension(path);
-			var ext = Path.GetExtension(path);
+			var ext = Path.GetExtension(path); //includes '.'
 			var enc = ifm.GetEncoder(sixFormat);
 
 			int count = 1;
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay;
 				var img = native.Image;
+				string name = Path.ChangeExtension(path,$"{count}{ext}");
 
-				img.Save($"{noExt}.{count}.{ext}", enc);
+				img.Save(name, enc);
 				count++;
 			}
 		}

@@ -14,6 +14,7 @@ class Adapter : IPlugin
 		//register engines
 		var er = new EngineRegister(register);
 		er.Add("ImageMagick",new Lazy<IImageEngine>(() => new Engines.ImageMagickEngine()));
+		er.Add("SkiaSharp",new Lazy<IImageEngine>(() => new Engines.SkiaSharpEngine()));
 
 		//register functions
 		var reg = new FunctionRegister(register);

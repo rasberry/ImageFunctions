@@ -12,6 +12,10 @@
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.2.0" />
+    <PackageReference Include="skiasharp" Version="2.88.6" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
 
   <PropertyGroup>
