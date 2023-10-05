@@ -3,7 +3,7 @@ using System.Collections;
 namespace ImageFunctions.Core;
 
 /// <summary>
-/// Represents a list of image layers
+/// Represents a stack of image layers
 /// </summary>
 public interface ILayers : IEnumerable<ICanvas>
 {
@@ -20,13 +20,13 @@ public interface ILayers : IEnumerable<ICanvas>
 	/// <param name="index">The index to use for the insert</param>
 	/// <param name="layer">The ICanvas image object to insert</param>
 	/// <param name="name">The name of the layer</param>
-	void InsertAt(int index, ICanvas layer, string name = null);
+	void PushAt(int index, ICanvas layer, string name = null);
 
 	/// <summary>
 	/// Removes the layer at the given index
 	/// </summary>
 	/// <param name="index">The index of the layer to remove</param>
-	void RemoveAt(int index);
+	void PopAt(int index);
 
 	/// <summary>
 	/// Finds a layer with the given name. Use startIndex to find layers with the same name
@@ -37,16 +37,16 @@ public interface ILayers : IEnumerable<ICanvas>
 	int IndexOf(string name, int startIndex = 0);
 
 	/// <summary>
-	/// The number of layers in the list
+	/// The number of layers in the stack
 	/// </summary>
 	int Count { get; }
 
 	/// <summary>
-	/// Appends a new layer to the end of the list
+	/// Pushes a new layer on top of the stack
 	/// </summary>
 	/// <param name="layer">The Icanvas object to add</param>
 	/// <param name="name">The name of the layer to add</param>
-	void Add(ICanvas layer, string name = null);
+	void Push(ICanvas layer, string name = null);
 
 	/// <summary>
 	/// Moves a layer from the one index to another
@@ -63,38 +63,40 @@ public class Layers : ILayers, IDisposable
 
 	public ICanvas this[int index] {
 		get {
-			EnsureInRange(index,nameof(index));
-			return List[index].Canvas;
+			int ix = StackIxToListIx(index);
+			EnsureInRange(index,nameof(ix));
+			return List[ix].Canvas;
 		}
 		set {
-			List[index] = new CanvasWithName(value, GetDefaultName());
+			int ix = StackIxToListIx(index);
+			Evict(ix);
+			List[ix] = new CanvasWithName(value, GetDefaultName());
 		}
 	}
 
-	public void InsertAt(int index, ICanvas layer, string name = null)
+	public void PushAt(int index, ICanvas layer, string name = null)
 	{
-		EnsureInRange(index, nameof(index), true);
+		int ix = StackIxToListIx(index - 1);
+		EnsureInRange(ix, nameof(index), true);
 		var cwn = new CanvasWithName(layer, name ?? GetDefaultName());
-		List.Insert(index,cwn);
+		List.Insert(ix,cwn);
 	}
 
-	public void RemoveAt(int index)
+	public void PopAt(int index)
 	{
-		var layer = List[index];
-		List.RemoveAt(index);
-		if (layer.Canvas is IDisposable dis) {
-			dis.Dispose();
-		}
+		int ix = StackIxToListIx(index);
+		EnsureInRange(ix, nameof(index));
+		Evict(ix);
+		List.RemoveAt(ix);
 	}
 
 	public int IndexOf(string name, int startIndex = 0)
 	{
-		EnsureInRange(startIndex, nameof(startIndex));
-		if (startIndex < 0 || startIndex >= List.Count) {
-			throw Squeal.ArgumentOutOfRange(nameof(startIndex));
-		}
+		int six = StackIxToListIx(startIndex);
+		EnsureInRange(six, nameof(startIndex));
 
-		for(int c = startIndex; c < List.Count; c++) {
+		//enumerations are backwards (stack ordering)
+		for(int c = List.Count - six - 1; c >= 0; c--) {
 			if (List[c].Name == name) {
 				return c;
 			}
@@ -102,7 +104,7 @@ public class Layers : ILayers, IDisposable
 		return -1;
 	}
 
-	public void Add(ICanvas layer, string name = null)
+	public void Push(ICanvas layer, string name = null)
 	{
 		var cwn = new CanvasWithName(layer, name ?? GetDefaultName());
 		List.Add(cwn);
@@ -110,25 +112,18 @@ public class Layers : ILayers, IDisposable
 
 	public void Move(int fromIndex, int toIndex)
 	{
-		EnsureInRange(fromIndex, nameof(fromIndex));
-		EnsureInRange(toIndex, nameof(toIndex));
 		if (fromIndex == toIndex) { return; }
 
-		var item = List[fromIndex];
-		List.RemoveAt(fromIndex);
-		List.Insert(toIndex,item);
+		int fix = StackIxToListIx(fromIndex);
+		int tix = StackIxToListIx(toIndex);
+		EnsureInRange(fix, nameof(fromIndex));
+		EnsureInRange(tix, nameof(toIndex));
+
+		var item = List[fix];
+		List.RemoveAt(fix); //we're not evicting just moving
+		List.Insert(tix,item);
 	}
 
-	void EnsureInRange(int index, string name, bool allowOnePast = false)
-	{
-		bool isGood = index >= 0 && (
-			allowOnePast && index <= List.Count ||
-			!allowOnePast && index < List.Count
-		);
-		if (!isGood) {
-			Squeal.IndexOutOfRange(name);
-		}
-	}
 
 	public int Count {
 		get {
@@ -142,7 +137,41 @@ public class Layers : ILayers, IDisposable
 		// shift everything each time.
 		int count = List.Count;
 		for(int i = count - 1; i >= 0; i--) {
-			RemoveAt(i); //RemoveAt handles IDisposible for each layer
+			Evict(i); //Evict handles IDisposable for each layer
+			List.RemoveAt(i);
+		}
+	}
+
+	public IEnumerator<ICanvas> GetEnumerator()
+	{
+		//enumerations are backwards (stack ordering)
+		int count = List.Count;
+		for(int i = count - 1; i >= 0; i--) {
+			yield return List[i].Canvas;
+		}
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return List.GetEnumerator();
+	}
+
+	void Evict(int index)
+	{
+		var layer = List[index];
+		if (layer.Canvas is IDisposable dis) {
+			dis.Dispose();
+		}
+	}
+
+	void EnsureInRange(int index, string name, bool allowOnePast = false)
+	{
+		bool isGood = index >= 0 && (
+			allowOnePast && index <= List.Count ||
+			!allowOnePast && index < List.Count
+		);
+		if (!isGood) {
+			Squeal.IndexOutOfRange(name);
 		}
 	}
 
@@ -151,16 +180,9 @@ public class Layers : ILayers, IDisposable
 		return $"Layer-({List.Count + 1})";
 	}
 
-	public IEnumerator<ICanvas> GetEnumerator()
+	int StackIxToListIx(int index)
 	{
-		foreach(var item in List) {
-			yield return item.Canvas;
-		}
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return List.GetEnumerator();
+		return List.Count - index - 1;
 	}
 
 	List<CanvasWithName> List = new();

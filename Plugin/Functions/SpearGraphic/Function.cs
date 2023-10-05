@@ -21,7 +21,7 @@ public class Function : IFunction
 		}
 
 		var img = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth,O.DefaultHeight);
-		layers.Add(img);
+		layers.Push(img);
 
 		switch(O.Spear)
 		{

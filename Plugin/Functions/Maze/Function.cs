@@ -22,7 +22,7 @@ public class Function : IFunction
 		}
 
 		canvas = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
-		layers.Add(canvas);
+		layers.Push(canvas);
 
 		switch(O.Which) {
 		case PickMaze.Eller:         Maze = new Ellers(); break;

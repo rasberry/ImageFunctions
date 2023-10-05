@@ -18,7 +18,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		var native = new MagickImageCollection(file);
 		foreach(var frame in native) {
 			var wrap = new IMCanvas(frame);
-			layers.Add(wrap);
+			layers.Push(wrap);
 		}
 	}
 

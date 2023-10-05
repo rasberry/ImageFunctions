@@ -29,7 +29,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var source = layers.Last();
+		var source = layers.First();
 		var bounds = source.Bounds();
 
 		using var progress = new ProgressBar();

@@ -27,7 +27,7 @@ public class Function : IFunction
 		}
 
 		using var canvas = layers.NewCanvasFromLayers(); //temporary canvas
-		var frame = layers.Last();
+		var frame = layers.First();
 		using var progress = new ProgressBar();
 
 		double ccx,ccy;

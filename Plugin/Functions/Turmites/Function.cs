@@ -22,7 +22,7 @@ public class Function : IFunction
 		}
 
 		var source = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
-		layers.Add(source);
+		layers.Push(source);
 
 		int x,y;
 		if (O.Start.HasValue) {

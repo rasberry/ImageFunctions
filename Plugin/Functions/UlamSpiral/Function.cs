@@ -24,7 +24,7 @@ public class Function : IFunction
 		}
 
 		var source = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
-		layers.Add(source);
+		layers.Push(source);
 		var bounds = source.Bounds();
 
 		Init(register);

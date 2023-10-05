@@ -28,7 +28,7 @@ public class Function : IFunction
 
 		//since we're rendering pixels make a new layer each time
 		var image = layers.NewCanvasFromLayersOrDefault(O.FourKWidth,O.FourKHeight);
-		layers.Add(image);
+		layers.Push(image);
 		Draw(image);
 
 		return true;

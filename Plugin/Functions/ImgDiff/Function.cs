@@ -27,10 +27,10 @@ public class Function : IFunction
 			return false;
 		}
 
-		int lastIndex = layers.Count - 1;
-		int setlIndex = layers.Count - 2;
-		var frame = layers[lastIndex];
-		var compareImg = layers[setlIndex];
+		const int topIx = 0;
+		const int nextIx = 1;
+		var frame = layers[topIx];
+		var compareImg = layers[nextIx];
 		using var progress = new Rasberry.Cli.ProgressBar();
 
 		double totalDist = 0.0;
@@ -73,7 +73,7 @@ public class Function : IFunction
 			//otherwise leave empty
 		},progress);
 
-		layers.RemoveAt(setlIndex);
+		layers.PopAt(nextIx);
 		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
 		return true;
 	}

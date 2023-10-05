@@ -25,7 +25,7 @@ public class Function : IFunction
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
-		var source = layers.Last();
+		var source = layers.First();
 
 		double swirlRadius;
 		double swirlTwists = O.Rotations;

@@ -43,8 +43,4 @@ public static class Squeal
 	public static Exception NotSupportedCMYK() {
 		return new NotSupportedException("CMYK is not supported");
 	}
-
-	//public static Exception NotSupported(string message) {
-	//	throw new NotSupportedException(message);
-	//}
 }

@@ -56,7 +56,7 @@ class Program
 
 		Log.Info($"Saving image {Options.OutputName}");
 		if (layers.Count > 0) {
-			Tools.Engine.Item.Value.SaveImage(layers, Options.OutputName);
+			Tools.Engine.Item.Value.SaveImage(layers, Options.OutputName, Options.ImageFormat);
 		}
 		else {
 			Tell.NoLayersToSave();

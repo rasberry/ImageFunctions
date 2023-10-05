@@ -26,7 +26,7 @@ public class Function : IFunction
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
-		var source = layers.Last();
+		var source = layers.First();
 		using var progress = new ProgressBar();
 		using var canvas = layers.NewCanvasFromLayers();
 		var rect = source.Bounds();

@@ -25,7 +25,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var origCanvas = layers.Last();
+		var origCanvas = layers.First();
 		using var progress = new ProgressBar();
 		using var canvas = layers.NewCanvasFromLayers(); //temporary canvas
 

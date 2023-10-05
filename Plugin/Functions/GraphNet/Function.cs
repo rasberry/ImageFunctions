@@ -22,7 +22,7 @@ public class Function : IFunction
 		}
 
 		var canvas = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
-		layers.Add(canvas);
+		layers.Push(canvas);
 
 		if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
 			Tell.MustBeBetween("-n","1",canvas.ToString());

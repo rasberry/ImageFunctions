@@ -16,7 +16,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		//for images with one frame just use the original
 		if (image.Frames.Count == 1) {
 			var lay = new SLCanvas(image);
-			layers.Add(lay);
+			layers.Push(lay);
 			// don't dispose of image since were using it directly
 			return;
 		}
@@ -35,7 +35,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				frame.CopyPixelDataTo(span);
 				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
 				var lay = new SLCanvas(copy);
-				layers.Add(lay);
+				layers.Push(lay);
 			}
 		}
 	}

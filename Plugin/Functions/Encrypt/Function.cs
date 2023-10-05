@@ -25,7 +25,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var frame = layers.Last();
+		var frame = layers.First();
 		using var progress = new ProgressBar();
 		using var canvas = layers.NewCanvasFromLayers();
 		Encryptor processor = new Encryptor() { IVBytes = Options.IVBytes };

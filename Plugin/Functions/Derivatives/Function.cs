@@ -24,7 +24,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var frame = layers.Last();
+		var frame = layers.First();
 
 		if (frame.Width < 2 || frame.Height < 2) {
 			return true; //nothing to do

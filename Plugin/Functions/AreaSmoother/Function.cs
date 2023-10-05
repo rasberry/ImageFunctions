@@ -27,7 +27,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var canvas = layers.Last();
+		var canvas = layers.First();
 
 		using var progress = new ProgressBar();
 		Tools.ThreadPixels(canvas, (x,y) => {

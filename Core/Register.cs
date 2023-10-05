@@ -5,7 +5,6 @@ namespace ImageFunctions.Core;
 
 class Register : IRegister
 {
-	// DRY methods
 	public void Add<T>(string @namespace, string name, T item) {
 		EnsureNameIsNotNull(@namespace, name);
 		if (item == null) {
@@ -75,7 +74,7 @@ class Register : IRegister
 		}
 	}
 
-	//can't the the INameSpaceName as the key because the overridden
+	//can't use the INameSpaceName as the key because the overridden
 	// GetHashCode doesn't get called
 	Dictionary<NameSpaceName,object> Store = new();
 }
@@ -87,9 +86,8 @@ readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceName>
 
 	public bool Equals(NameSpaceName other)
 	{
-		var comp = StringComparison.CurrentCultureIgnoreCase;
-		return NameSpace.Equals(other.NameSpace, comp)
-			&& Name.Equals(other.Name, comp)
+		return NameSpace.EqualsIC(other.NameSpace)
+			&& Name.EqualsIC(other.Name)
 		;
 	}
 
