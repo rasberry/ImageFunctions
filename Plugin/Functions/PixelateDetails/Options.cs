@@ -5,11 +5,11 @@ namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 
 public sealed class Options : IOptions
 {
-	public static bool UseProportionalSplit = false;
-	public static double ImageSplitFactor = 2.0;
-	public static double DescentFactor = 0.5;
+	public bool UseProportionalSplit = false;
+	public double ImageSplitFactor = 2.0;
+	public double DescentFactor = 0.5;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Creates areas of flat color by recursively splitting high detail chunks");
 		sb.ND(1,"-p"            ,"Use proportianally sized sections (default is square sized sections)");
@@ -17,7 +17,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-r (number)[%]","Count or percent or sections to re-split (default 50%)");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

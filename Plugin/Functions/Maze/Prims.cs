@@ -1,12 +1,15 @@
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Prims : IMaze
 {
+	public Prims(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
@@ -26,13 +29,11 @@ public class Prims : IMaze
 		}
 	}
 
-	Random Rnd = null;
-	List<Cell> Walls = new List<Cell>();
+	readonly Random Rnd;
+	readonly List<Cell> Walls = new();
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
-
 		Point first = FindCell();
 		AddWallsForCell(first.X,first.Y);
 		DrawCell(first.X,first.Y,PickWall.None);

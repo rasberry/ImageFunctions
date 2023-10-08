@@ -7,7 +7,7 @@ namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Fourth
 {
-	public static void Draw(ICanvas image,int w,int h, int? seed = null)
+	public static void Draw(ICanvas image,DrawLineFunc dlf, int w,int h, int? seed = null)
 	{
 		InitRandom(seed);
 
@@ -24,7 +24,7 @@ public static class Fourth
 			,PenRateMax = 3
 		};
 
-		Twist1(image,w,h,p1);
+		Twist1(image,dlf,w,h,p1);
 
 		var p2 = new Twist1Params {
 			RadRateMax = 0.3
@@ -39,7 +39,7 @@ public static class Fourth
 			,PenRateMax = 3
 		};
 
-		Twist1(image,w,h,p2);
+		Twist1(image,dlf,w,h,p2);
 
 		var p3 = new Twist1Params {
 			RadRateMax = 0.3
@@ -77,7 +77,7 @@ public static class Fourth
 		public Color PenStart { get; set; }
 	}
 
-	static void Twist1(ICanvas image, int w, int h, Twist1Params p)
+	static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, Twist1Params p)
 	{
 		DPoint cen = new DPoint(w / 2.0,h / 2.0);
 
@@ -106,9 +106,13 @@ public static class Fourth
 			penw += penrate;
 
 			Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
-			DrawLine(image,c,lx,ly,x,y,Math.Max(penw,0.01));
 
-			double dist = Dist(cen,new DPoint(x,y));
+			var nc = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
+
+			//Draw the line
+			dlf(image,nc,new(lx,ly),new(x,y),Math.Max(penw,0.01));
+
+			double dist = Dist(cen,new(x,y));
 			if (dist < 1.0) {
 				break;
 			}
@@ -124,12 +128,6 @@ public static class Fourth
 			double radrate = Random(p.RadRatemin,p.RadRateMax);
 			rad = Math.Max(rad - radrate,0);
 		}
-	}
-
-	static void DrawLine(ICanvas img,Color c,double x0, double y0, double x1, double y1, double w)
-	{
-		var nc = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
-		Tools.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1),w);
 	}
 
 	static double Dist(DPoint one,DPoint two)

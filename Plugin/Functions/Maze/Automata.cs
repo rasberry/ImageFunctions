@@ -1,22 +1,26 @@
 using System.Collections;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Automata : IBasicMaze
 {
+	public Automata(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+		O = o;
+	}
+
 	public ICanvas PixelGrid { get; set; }
-	Random Rnd = null;
+	readonly Random Rnd = null;
+	readonly Options O;
+
 	// need to update next layer without changing current layer
 	BitArray Curr;
 	BitArray Next;
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
-
 		// B3/S12345
 
 		int bitLen = PixelGrid.Width * PixelGrid.Height;

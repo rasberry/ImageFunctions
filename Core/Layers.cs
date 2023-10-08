@@ -56,10 +56,10 @@ public interface ILayers : IEnumerable<ICanvas>
 	void Move(int fromIndex, int toIndex);
 }
 
-public class Layers : ILayers, IDisposable
+public class CoreLayers : ILayers, IDisposable
 {
 	//construction should be managed by the core project
-	internal Layers() {}
+	internal CoreLayers() {}
 
 	public ICanvas this[int index] {
 		get {

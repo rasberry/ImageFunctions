@@ -7,7 +7,7 @@ namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Second
 {
-	public static void Twist3(ICanvas image, int w, int h, int which = 2)
+	public static void Twist3(ICanvas image, DrawLineFunc dlf, int w, int h, int which = 2)
 	{
 		if (which == 0)
 		{
@@ -128,7 +128,7 @@ public static class Second
 		}
 	}
 
-	public static void Twist4(ICanvas image, int w, int h)
+	public static void Twist4(ICanvas image, DrawLineFunc dlf, int w, int h)
 	{
 		double max = w*9;
 		double s = w/32.0; //stretch x
@@ -158,14 +158,9 @@ public static class Second
 							? ColorFade(v-m2,m2,FadeComp.B)
 							: ColorFade(m2-v,m2,FadeComp.R);
 
-						DrawLine(image,p,lx,ly,x-oo,y-oo);
-						DrawLine(image,p,ly,lx,y+oo,x+oo);
-						/* TODO need replacement for DrawLine
-						image.Mutate(op => {
-							DrawLine(op,gop,p,lx,ly,x-oo,y-oo);
-							DrawLine(op,gop,p,ly,lx,y+oo,x+oo);
-						});
-						*/
+						var np = ColorRGBA.FromRGBA255(p.R, p.G, p.B, p.A);
+						dlf(image,np,new(lx,ly),new(x-oo,y-oo));
+						dlf(image,np,new(ly,lx),new(y+oo,x+oo));
 					}
 					lx = x;
 					ly = y;
@@ -173,12 +168,6 @@ public static class Second
 				progress.Report(v/max);
 			}
 		}
-	}
-
-	static void DrawLine(ICanvas img,Color c,double x0, double y0, double x1, double y1)
-	{
-		var nc = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
-		Tools.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1));
 	}
 
 	enum FadeComp { R, G, B }

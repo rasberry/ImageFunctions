@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Text;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
@@ -9,11 +7,11 @@ namespace ImageFunctions.Plugin.Functions.AreaSmoother;
 
 public sealed class Options : IOptions
 {
-	public static int TotalTries = 7;
-	public static Lazy<ISampler> Sampler;
-	public static Lazy<IMetric> Measurer;
+	public int TotalTries = 7;
+	public Lazy<ISampler> Sampler;
+	public Lazy<IMetric> Measurer;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
 		sb.ND(1,"-t (number)","Number of times to run fit function (default 7)");
@@ -21,7 +19,7 @@ public sealed class Options : IOptions
 		sb.MetricHelpLine();
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		if (p.Default("-t",out TotalTries,7)

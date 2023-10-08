@@ -3,7 +3,7 @@ using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core;
 
-class Register : IRegister
+internal class CoreRegister : IRegister
 {
 	public void Add<T>(string @namespace, string name, T item) {
 		EnsureNameIsNotNull(@namespace, name);

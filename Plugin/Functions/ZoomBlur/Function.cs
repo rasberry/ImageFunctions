@@ -1,7 +1,6 @@
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.ZoomBlur.Options;
 
 namespace ImageFunctions.Plugin.Functions.ZoomBlur;
 
@@ -13,7 +12,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -27,9 +26,12 @@ public class Function : IFunction
 			return false;
 		}
 
+		var engine = core.Engine.Item.Value;
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+
 		var source = layers.First();
 		using var progress = new ProgressBar();
-		using var canvas = layers.NewCanvasFromLayers();
+		using var canvas = engine.NewCanvasFromLayers(layers);
 		var bounds = canvas.Bounds();
 
 		double w2 = bounds.Width / 2.0;
@@ -52,7 +54,7 @@ public class Function : IFunction
 			int cx = x - bounds.Left;
 			//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 			canvas[cx,cy] = nc;
-		},progress);
+		},maxThreads,progress);
 
 		source.CopyFrom(canvas, bounds);
 		return true;
@@ -101,4 +103,6 @@ public class Function : IFunction
 		}
 		return avg;
 	}
+
+	Options O = new Options();
 }

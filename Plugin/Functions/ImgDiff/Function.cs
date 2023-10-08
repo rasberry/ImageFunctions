@@ -1,7 +1,5 @@
 using System.Drawing;
 using ImageFunctions.Core;
-using O = ImageFunctions.Plugin.Functions.ImgDiff.Options;
-
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
@@ -13,7 +11,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -40,6 +38,7 @@ public class Function : IFunction
 		var colorTransp = PlugColors.Transparent;
 		InitMetric();
 
+		var maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		Tools.ThreadPixels(minimum, (x,y) => {
 			var one = frame[x,y];
 			var two = compareImg[x,y];
@@ -71,7 +70,7 @@ public class Function : IFunction
 				frame[x,y] = overlay;
 			}
 			//otherwise leave empty
-		},progress);
+		},maxThreads,progress);
 
 		layers.PopAt(nextIx);
 		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
@@ -96,4 +95,6 @@ public class Function : IFunction
 			new double[] { 1.0,1.0,1.0,1.0 }
 		);
 	}
+
+	Options O = new Options();
 }

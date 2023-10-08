@@ -10,21 +10,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- if any of these packages are included in projects refrencing
-      this one they must be included with <Private>false</Private>
+    <!-- if referencing this project, references in *your* project to these packages
+      must be included with <Private>false</Private>
     -->
     <PackageReference Include="Rasberry.Cli" Version="1.0.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
+
+    <InternalsVisibleTo Include="ImageFunctions.Test" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="System" />
     <Using Include="System.Threading" />
     <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Text" />
     <Using Include="System.Linq" />
     <Using Include="System.IO" />
     <Using Include="System.Collections.Generic" />
   </ItemGroup>
+
+<ItemGroup>
+  <InternalsVisibleTo Include="ProjectName.Tests" />
+</ItemGroup>
 
 </Project>

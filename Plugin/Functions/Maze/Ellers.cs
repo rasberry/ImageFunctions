@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -10,16 +9,18 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Ellers : IMaze
 {
+	public Ellers(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
-	Random Rnd = null;
+	readonly Random Rnd;
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
-
 		PickWall M = PickWall.None;
 		int W = CellsWide + 1; //+1 to account for the ghost column
 		int H = CellsHigh - 1; //-1 to leave room for the last row

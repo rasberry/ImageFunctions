@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -12,7 +11,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -21,20 +20,21 @@ public class Function : IFunction
 			return false;
 		}
 
-		canvas = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
+		var engine = core.Engine.Item.Value;
+		canvas = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
 		layers.Push(canvas);
 
 		switch(O.Which) {
-		case PickMaze.Eller:         Maze = new Ellers(); break;
-		case PickMaze.Prims:         Maze = new Prims(); break;
-		case PickMaze.Kruskal:       Maze = new Kruskal(); break;
-		case PickMaze.BinaryTree:    Maze = new BinaryTree(); break;
-		case PickMaze.GrowingTree:   Maze = new GrowingTree() { Sequence = O.Sequence }; break;
-		case PickMaze.Spiral:        Maze = new Spiral(); break;
-		case PickMaze.ReverseDelete: Maze = new ReverseDelete(); break;
-		case PickMaze.SideWinder:    Maze = new SideWinder(); break;
-		case PickMaze.Division:      Maze = new Division(); break;
-		case PickMaze.Automata: BasicMaze = new Automata { PixelGrid = canvas }; break;
+		case PickMaze.Eller:         Maze = new Ellers(O); break;
+		case PickMaze.Prims:         Maze = new Prims(O); break;
+		case PickMaze.Kruskal:       Maze = new Kruskal(O); break;
+		case PickMaze.BinaryTree:    Maze = new BinaryTree(O); break;
+		case PickMaze.GrowingTree:   Maze = new GrowingTree(O); break;
+		case PickMaze.Spiral:        Maze = new Spiral(O); break;
+		case PickMaze.ReverseDelete: Maze = new ReverseDelete(O); break;
+		case PickMaze.SideWinder:    Maze = new SideWinder(O); break;
+		case PickMaze.Division:      Maze = new Division(O); break;
+		case PickMaze.Automata: BasicMaze = new Automata(O) { PixelGrid = canvas }; break;
 		}
 		//Log.Debug("maze :"+O.Which);
 
@@ -109,4 +109,5 @@ public class Function : IFunction
 	ICanvas canvas;
 	IBasicMaze BasicMaze = null;
 	IMaze Maze = null;
+	Options O = new Options();
 }

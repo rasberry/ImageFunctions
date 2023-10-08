@@ -1,6 +1,5 @@
 using System.Drawing;
 using ImageFunctions.Core;
-using O = ImageFunctions.Plugin.Functions.PixelateDetails.Options;
 
 namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 
@@ -12,7 +11,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -185,6 +184,8 @@ public class Function : IFunction
 		//Log.Debug("GetPixelValue val="+val+" r="+c.R+" g="+c.G+" b="+c.B);
 		return val;
 	}
+
+	Options O = new Options();
 
 	struct SortPair : IComparable
 	{

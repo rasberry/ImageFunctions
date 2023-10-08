@@ -6,14 +6,14 @@ namespace ImageFunctions.Plugin.Functions.Turmites;
 
 public sealed class Options : IOptions
 {
-	public static PickEdgeRule EdgeRule = PickEdgeRule.None;
-	public static IReadOnlyList<Rule> Sequence = null;
-	public static Point? Start = null;
-	public static ulong Iterations = 0;
+	public PickEdgeRule EdgeRule = PickEdgeRule.None;
+	public IReadOnlyList<Rule> Sequence = null;
+	public Point? Start = null;
+	public ulong Iterations = 0;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
 		sb.ND(1,"-p (string)"   ,"LR pattern string. See below for full language (default 'LR')");
@@ -39,7 +39,7 @@ public sealed class Options : IOptions
 		sb.ND(2,"W","Point west");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

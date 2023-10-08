@@ -8,16 +8,16 @@ namespace ImageFunctions.Plugin.Functions.Swirl;
 
 public sealed class Options : IOptions
 {
-	public static Point? CenterPx;
-	public static PointF? CenterPp;
-	public static int? RadiusPx;
-	public static double? RadiusPp;
-	public static double Rotations;
-	public static bool CounterClockwise;
-	public static Lazy<ISampler> Sampler;
-	public static Lazy<IMetric> Metric;
+	public Point? CenterPx;
+	public PointF? CenterPp;
+	public int? RadiusPx;
+	public double? RadiusPp;
+	public double Rotations;
+	public bool CounterClockwise;
+	public Lazy<ISampler> Sampler;
+	public Lazy<IMetric> Metric;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Smears pixels in a circle around a point");
 		sb.ND(1,"-cx (number) (number)"      ,"Swirl center X and Y coordinate in pixels");
@@ -30,7 +30,7 @@ public sealed class Options : IOptions
 		sb.MetricHelpLine();
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

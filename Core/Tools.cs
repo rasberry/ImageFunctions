@@ -8,24 +8,6 @@ namespace ImageFunctions.Core;
 public static class Tools
 {
 	/// <summary>
-	/// The chosen IImageEngine
-	/// </summary>
-	public static IRegisteredItem<Lazy<IImageEngine>> Engine {
-		get {
-			return Options.Engine;
-		}
-	}
-
-	/// <summary>
-	/// The MaxDegreeOfParallelism settings value
-	/// </summary>
-	public static int? MaxDegreeOfParallelism {
-		get {
-			return Options.MaxDegreeOfParallelism;
-		}
-	}
-
-	/// <summary>
 	/// Calls in parallel the given function once for each pixel (x,y) in the image.
 	///  Note: ICanvas is not thread safe.
 	/// </summary>
@@ -33,10 +15,10 @@ public static class Tools
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this ICanvas image, Action<int,int> callback,
-		IProgress<double> progress = null)
+		int maxThreads = 1, IProgress<double> progress = null)
 	{
 		var size = new Rectangle(0, 0, image.Width, image.Height);
-		ThreadPixels(size, callback, progress);
+		ThreadPixels(size, callback, maxThreads, progress);
 	}
 
 	/// <summary>
@@ -45,13 +27,13 @@ public static class Tools
 	/// <param name="rect"></param>
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
-	public static void ThreadPixels(Rectangle rect, Action<int,int> callback,
-		IProgress<double> progress = null)
+	public static void ThreadPixels(this Rectangle rect, Action<int,int> callback,
+		int maxThreads = 1, IProgress<double> progress = null)
 	{
 		long done = 0;
 		long max = (long)rect.Width * rect.Height;
 		var po = new ParallelOptions {
-			MaxDegreeOfParallelism = MaxDegreeOfParallelism.GetValueOrDefault(1)
+			MaxDegreeOfParallelism = maxThreads < 1 ? 1 : maxThreads
 		};
 		Parallel.For(0, max, po, num => {
 			int y = (int)(num / rect.Width);
@@ -97,7 +79,7 @@ public static class Tools
 	/// <param name="width">default width - used if no layers exist</param>
 	/// <param name="height">default height - used if no layers exist</param>
 	/// <returns>The created ICanvas</returns>
-	public static ICanvas NewCanvasFromLayersOrDefault(this ILayers layers, int width, int height)
+	public static ICanvas NewCanvasFromLayersOrDefault(this IImageEngine engine, ILayers layers, int width, int height)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -105,11 +87,11 @@ public static class Tools
 
 		ICanvas more;
 		if (layers.Count < 1) {
-			more = Engine.Item.Value.NewCanvas(width, height);
+			more = engine.NewCanvas(width, height);
 		}
 		else {
 			var proto = layers.First();
-			more = Engine.Item.Value.NewCanvas(proto.Width, proto.Height);
+			more = engine.NewCanvas(proto.Width, proto.Height);
 		}
 
 		return more;
@@ -122,7 +104,7 @@ public static class Tools
 	/// <param name="layers">The ILayers object</param>
 	/// <param name="canvas">The newly created canvas</param>
 	/// <returns>false if there are no layers otherwise true</returns>
-	public static bool TryNewCanvasFromLayers(this ILayers layers, out ICanvas canvas)
+	public static bool TryNewCanvasFromLayers(this IImageEngine engine, ILayers layers, out ICanvas canvas)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -134,7 +116,7 @@ public static class Tools
 		}
 
 		var proto = layers.First();
-		canvas = Engine.Item.Value.NewCanvas(proto.Width, proto.Height);
+		canvas = engine.NewCanvas(proto.Width, proto.Height);
 
 		return true;
 	}
@@ -145,21 +127,19 @@ public static class Tools
 	/// </summary>
 	/// <param name="layers">The ILayers object</param>
 	/// <returns>The newly created canvas</returns>
-	public static ICanvas NewCanvasFromLayers(this ILayers layers)
+	public static ICanvas NewCanvasFromLayers(this IImageEngine engine, ILayers layers)
 	{
-		bool worked = TryNewCanvasFromLayers(layers, out var canvas);
+		bool worked = engine.TryNewCanvasFromLayers(layers, out var canvas);
 		if (!worked) {
 			throw Squeal.LayerMustHaveOne();
 		}
 		return canvas;
 	}
 
-	public static void DrawLine(ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0)
+	public static void DrawLine(this IImageEngine engine, ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0)
 	{
-		var eng = Engine.Item.Value;
-		if (!(eng is IDrawEngine artist)) {
-			throw Squeal.EngineCannotDrawLines(Engine.ToString());
-
+		if (!(engine is IDrawEngine artist)) {
+			throw Squeal.EngineCannotDrawLines(engine.ToString());
 		}
 
 		artist.DrawLine(canvas, color, start, end, width);

@@ -7,13 +7,13 @@ namespace ImageFunctions.Plugin.Functions.PixelRules;
 
 public sealed class Options : IOptions
 {
-	public static Mode WhichMode = Mode.StairCaseDescend;
-	public static int Passes = 1;
-	public static int MaxIters = 100;
-	public static Lazy<IMetric> Metric;
-	public static Lazy<ISampler> Sampler;
+	public Mode WhichMode = Mode.StairCaseDescend;
+	public int Passes = 1;
+	public int MaxIters = 100;
+	public Lazy<IMetric> Metric;
+	public Lazy<ISampler> Sampler;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Average a set of pixels by following a minimaztion function");
 		sb.ND(1,"-m (mode)"  ,"Which mode to use (default StairCaseDescend)");
@@ -26,7 +26,7 @@ public sealed class Options : IOptions
 		sb.PrintEnum<Mode>(1,ModeDesc);
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

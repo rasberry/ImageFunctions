@@ -9,7 +9,7 @@ public static class Log
 
 	public static void Info(string m)
 	{
-		if (Options.BeVerbose) {
+		if (BeVerbose) {
 			Console.ForegroundColor = ConsoleColor.Gray;
 			Console.WriteLine($"I: {m}");
 			Console.ResetColor();
@@ -38,4 +38,6 @@ public static class Log
 		Console.ResetColor();
 		#endif
 	}
+
+	public static bool BeVerbose { get; set; }
 }

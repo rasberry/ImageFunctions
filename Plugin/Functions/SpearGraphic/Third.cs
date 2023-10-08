@@ -7,7 +7,7 @@ namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Third
 {
-	public static void Twist1(ICanvas image, int w, int h, int? seed = null)
+	public static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, int? seed = null)
 	{
 		InitRandom(seed);
 
@@ -67,19 +67,13 @@ public static class Third
 				Color p1 = ColorFade(PumpAt(colorDistMax-dist,0),colorDistMax,fcolor);
 				Color p2 = ColorFade(CapAt(dist,colorDistMax),colorDistMax,fcolor);
 
-				DrawLine(image,p2,last.X,last.Y,curr.X,curr.Y);
-				DrawLine(image,p2,dest.X,dest.Y,curr.X,curr.Y);
-				DPoint ext = Move(curr,2*Math.PI-dir,100);
-				DrawLine(image,p1,ext.X,ext.Y,curr.X,curr.Y);
+				var np1 = ColorRGBA.FromRGBA255(p1.R, p1.G, p1.B, p1.A);
+				var np2 = ColorRGBA.FromRGBA255(p2.R, p2.G, p2.B, p2.A);
 
-				/* // TODO need replacement for DrawLine
-				image.Mutate(op => {
-					DrawLine(op,gop,p2,last.X,last.Y,curr.X,curr.Y);
-					DrawLine(op,gop,p2,dest.X,dest.Y,curr.X,curr.Y);
-					DPoint ext = Move(curr,2*Math.PI-dir,100);
-					DrawLine(op,gop,p1,ext.X,ext.Y,curr.X,curr.Y);
-				});
-				*/
+				dlf(image,np2,new(last.X,last.Y),new(curr.X,curr.Y));
+				dlf(image,np2,new(dest.X,dest.Y),new(curr.X,curr.Y));
+				DPoint ext = Move(curr,2*Math.PI-dir,100);
+				dlf(image,np1,new(ext.X,ext.Y),new(curr.X,curr.Y));
 
 				//if (dist < 100 && angadd > 0.01) {
 				//	angadd -= 0.01;
@@ -106,19 +100,6 @@ public static class Third
 			}
 		}
 	}
-
-	static void DrawLine(ICanvas img,Color c,double x0, double y0, double x1, double y1)
-	{
-		var nc = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
-		Tools.DrawLine(img,nc,new PointD(x0,y0),new PointD(x1,y1));
-	}
-
-	//static void DrawLine(IImageProcessingContext op, GraphicsOptions gop,Rgba32 p, double x0,double y0,double x1,double y1)
-	//{
-	//	var p0 = new PointF((float)x0,(float)y0);
-	//	var p1 = new PointF((float)x1,(float)y1);
-	//	op.DrawLines(gop,(Color)p,1.0f,p0,p1);
-	//}
 
 	static double Dist(DPoint one,DPoint two)
 	{

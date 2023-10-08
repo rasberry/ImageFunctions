@@ -5,16 +5,16 @@ namespace ImageFunctions.Plugin.Functions.Encrypt;
 
 public sealed class Options : IOptions
 {
-	public static bool DoDecryption;
-	public static byte[] Password;
-	public static string UserPassword;
-	public static byte[] IVBytes;
-	//public static byte[] SaltBytes = Encryptor.DefaultSalt;
-	public static bool TreatPassAsRaw = false;
-	public static bool TestMode = false;
-	//public static int PasswordIterations = Encryptor.DefaultIterations;
+	public bool DoDecryption;
+	public byte[] Password;
+	public string UserPassword;
+	public byte[] IVBytes;
+	//public byte[] SaltBytes = Encryptor.DefaultSalt;
+	public bool TreatPassAsRaw = false;
+	public bool TestMode = false;
+	//public int PasswordIterations = Encryptor.DefaultIterations;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Encrypt or Decrypts the pixels of an image");
 		sb.ND(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
@@ -26,7 +26,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

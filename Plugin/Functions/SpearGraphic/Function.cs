@@ -1,7 +1,8 @@
 using ImageFunctions.Core;
-using O = ImageFunctions.Plugin.Functions.SpearGraphic.Options;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
+
+public delegate void DrawLineFunc(ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0);
 
 [InternalRegisterFunction(nameof(SpearGraphic))]
 public class Function : IFunction
@@ -11,7 +12,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -20,8 +21,12 @@ public class Function : IFunction
 			return false;
 		}
 
-		var img = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth,O.DefaultHeight);
+		var engine = core.Engine.Item.Value;
+		var img = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth,Options.DefaultHeight);
 		layers.Push(img);
+
+		//tell functions how to draw a line instead of them having to figure it out
+		var dlf = new DrawLineFunc(engine.DrawLine);
 
 		switch(O.Spear)
 		{
@@ -32,19 +37,21 @@ public class Function : IFunction
 		case Graphic.First_Twist3:
 			First.Twist3(img,img.Width,img.Height); break;
 		case Graphic.Second_Twist3a:
-			Second.Twist3(img,img.Width,img.Height,0); break;
+			Second.Twist3(img,dlf,img.Width,img.Height,0); break;
 		case Graphic.Second_Twist3b:
-			Second.Twist3(img,img.Width,img.Height,1); break;
+			Second.Twist3(img,dlf,img.Width,img.Height,1); break;
 		case Graphic.Second_Twist3c:
-			Second.Twist3(img,img.Width,img.Height,2); break;
+			Second.Twist3(img,dlf,img.Width,img.Height,2); break;
 		case Graphic.Second_Twist4:
-			Second.Twist4(img,img.Width,img.Height); break;
+			Second.Twist4(img,dlf,img.Width,img.Height); break;
 		case Graphic.Third:
-			Third.Twist1(img,img.Width,img.Width,O.RandomSeed); break;
+			Third.Twist1(img,dlf,img.Width,img.Width,O.RandomSeed); break;
 		case Graphic.Fourth:
-			Fourth.Draw(img,img.Width,img.Height,O.RandomSeed); break;
+			Fourth.Draw(img,dlf,img.Width,img.Height,O.RandomSeed); break;
 		}
 
 		return true;
 	}
+
+	Options O = new Options();
 }

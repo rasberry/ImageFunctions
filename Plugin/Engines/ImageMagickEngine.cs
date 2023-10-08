@@ -119,13 +119,11 @@ public class IMCanvas : ICanvas
 		Init(image);
 	}
 
+	//This is slow but I don't see Span<T> accessor functions
+	// I don't really want to copy the whole image out then back in
 	public ColorRGBA this[int x, int y] {
 		get {
-			//Log.Debug("PP1: "+printpixel(Pixels.GetPixel(20,20)));
-			//var vals = Pixels.GetValue(x,y);
-			//Log.Debug(printpixel(new Pixel(x,y,vals)));
 			IPixel<QType> p = Pixels.GetPixel(x,y);
-			//Log.Debug(printpixel(p));
 			IMagickColor<QType> c = p.ToColor();
 			if (c.IsCmyk) {
 				throw Squeal.NotSupportedCMYK();
@@ -142,22 +140,20 @@ public class IMCanvas : ICanvas
 
 	public void Dispose()
 	{
-		if (Pixels != null) {
-			Pixels.Dispose();
-		}
-		if (NativeImage != null) {
-			NativeImage.Dispose();
-		}
+		Pixels?.Dispose();
+		NativeImage?.Dispose();
 	}
 
-	public int Width { get { return NativeImage.Width; }}
-	public int Height { get { return NativeImage.Height; }}
+	public int Width { get; private set; }
+	public int Height { get; private set; }
 
 	void Init(IMagickImage<QType> image)
 	{
 		NativeImage = image;
 		ChannelCount = image.ChannelCount;
 		Pixels = image.GetPixels();
+		Width = image.Width;
+		Height = image.Height;
 	}
 
 	internal int ChannelCount;

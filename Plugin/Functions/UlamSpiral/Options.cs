@@ -6,23 +6,23 @@ namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
 public sealed class Options : IOptions
 {
-	public static bool ColorComposites;
-	public static bool ColorPrimesBy6m;
-	public static bool ColorPrimesForce;
-	public static int? CenterX;
-	public static int? CenterY;
-	public static int Spacing;
-	public static double DotSize;
-	public static PickDot WhichDot;
-	public static PickMapping Mapping;
-	public static ColorRGBA? Color1;
-	public static ColorRGBA? Color2;
-	public static ColorRGBA? Color3;
-	public static ColorRGBA? Color4;
+	public bool ColorComposites;
+	public bool ColorPrimesBy6m;
+	public bool ColorPrimesForce;
+	public int? CenterX;
+	public int? CenterY;
+	public int Spacing;
+	public double DotSize;
+	public PickDot WhichDot;
+	public PickMapping Mapping;
+	public ColorRGBA? Color1;
+	public ColorRGBA? Color2;
+	public ColorRGBA? Color3;
+	public ColorRGBA? Color4;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Creates an Ulam spiral graphic ");
 		sb.ND(1,"-p"                  ,"Color pixel if prime (true if -f not specified)");
@@ -69,7 +69,7 @@ public sealed class Options : IOptions
 		return "";
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

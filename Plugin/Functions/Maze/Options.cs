@@ -5,17 +5,17 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 
 public sealed class Options : IOptions
 {
-	public static ColorRGBA CellColor;
-	public static ColorRGBA WallColor;
-	public static int? RndSeed;
-	public static PickMaze Which;
-	public static IReadOnlyList<PickNext> Sequence;
-	public static bool SequenceRandomPick;
+	public ColorRGBA CellColor;
+	public ColorRGBA WallColor;
+	public int? RndSeed;
+	public PickMaze Which;
+	public IReadOnlyList<PickNext> Sequence;
+	public bool SequenceRandomPick;
 
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Draws one of several mazes");
 		sb.ND(1,"-m  (maze)"     ,"Choose a maze (default prims)");
@@ -85,7 +85,7 @@ public sealed class Options : IOptions
 		return ExtraParsers.TryParseSequence(arg, new char[] {','}, out seq, parser);
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

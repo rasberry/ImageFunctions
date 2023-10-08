@@ -1,7 +1,6 @@
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Swirl.Options;
 
 namespace ImageFunctions.Plugin.Functions.Swirl;
 
@@ -13,7 +12,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -51,15 +50,17 @@ public class Function : IFunction
 			swirly = rect.Height * py + rect.Top;
 		}
 
+		var engine = core.Engine.Item.Value;
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		using var progress = new ProgressBar();
-		using var canvas = layers.NewCanvasFromLayers();
+		using var canvas = engine.NewCanvasFromLayers(layers);
 
-		Tools.ThreadPixels(rect, (x,y) => {
+		rect.ThreadPixels((x,y) => {
 			int cy = y - rect.Top;
 			int cx = x - rect.Left;
 			ColorRGBA nc = SwirlPixel(source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
 			canvas[cx,cy] = nc;
-		},progress);
+		},maxThreads,progress);
 
 		source.CopyFrom(canvas,rect);
 		return true;
@@ -86,4 +87,6 @@ public class Function : IFunction
 			(int)(swirlx + pixelx), (int)(swirly + pixely));
 		return c;
 	}
+
+	Options O = new Options();
 }

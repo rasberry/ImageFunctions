@@ -5,11 +5,11 @@ namespace ImageFunctions.Plugin.Functions.AutoWhiteBalance;
 
 public sealed class Options : IOptions
 {
-	public static double DiscardRatio;
-	public static int BucketCount;
-	public static bool StretchAlpha;
+	public double DiscardRatio;
+	public int BucketCount;
+	public bool StretchAlpha;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Balances the image by stretching the color channels separately. The process"
 			+" 'trims' the color histogram removing sections of low color use at the top and bottom of the range"
@@ -19,7 +19,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-a"             ,"Also stretch alpha channel");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		var parser = new ParseParams.Parser<double>((string n, out double p) => {

@@ -200,9 +200,8 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			Bitmap = new SKBitmap(width,height,SKColorType.Rgba8888,SKAlphaType.Unpremul);
 		}
 
-		//TODO pixel access is crazy slow
-		// it would be better to maintain our own data structure
-		// and copy in / out during load / save
+		//This is slow but SkiaSharp is a mess of a library
+		// so not going to fix
 		public ColorRGBA this[int x, int y] {
 			get {
 				var pix = Bitmap.GetPixel(x,y);

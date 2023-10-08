@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Concurrent;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.AutoWhiteBalance.Options;
 
 namespace ImageFunctions.Plugin.Functions.AutoWhiteBalance;
 
@@ -15,7 +14,7 @@ public class Function : IFunction
 	}
 
 	// based on https://docs.gimp.org/2.8/en/gimp-layer-white-balance.html
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -33,6 +32,7 @@ public class Function : IFunction
 		var hist = CalcHistorgram(progress, source, O.BucketCount);
 		var factors = CalcStretchFactors(hist, source.Width, source.Height, O.DiscardRatio);
 
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		progress.Prefix = "Modifying Colors ";
 		Tools.ThreadPixels(source,(int x, int y) => {
 			Core.ColorSpace.IColor3 orig = source[x,y];
@@ -43,7 +43,7 @@ public class Function : IFunction
 				? Math.Clamp((orig.A  - factors.AShift)  * factors.AStretch,  0.0, 1.0)
 				: orig.A;
 			source[x,y] = new ColorRGBA(c1,c2,c3,a);
-		},progress);
+		},maxThreads,progress);
 
 		return true;
 	}
@@ -123,6 +123,8 @@ public class Function : IFunction
 		}
 		return buckets;
 	}
+
+	Options O = new Options();
 
 	class Histogram3Data
 	{

@@ -6,15 +6,15 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.ZoomBlur;
 
-public sealed class Options : IOptions
+public class Options : IOptions
 {
-	public static Lazy<ISampler> Sampler;
-	public static Lazy<IMetric> Measurer;
-	public static Point? CenterPx;
-	public static PointF? CenterRt;
-	public static double ZoomAmount;
+	public Lazy<ISampler> Sampler;
+	public Lazy<IMetric> Measurer;
+	public Point? CenterPx;
+	public PointF? CenterRt;
+	public double ZoomAmount;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Blends rays of pixels to produce a 'zoom' effect");
 		sb.ND(1,"-z  (number)[%]"             ,"Zoom amount (default 1.1)");
@@ -26,7 +26,7 @@ public sealed class Options : IOptions
 		sb.MetricHelpLine();
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		var parser = new ParseParams.Parser<double>((string n, out double p) => {

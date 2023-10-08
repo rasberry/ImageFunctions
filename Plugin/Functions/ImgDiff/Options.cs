@@ -6,14 +6,14 @@ namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
 public sealed class Options : IOptions
 {
-	public static double? HilightOpacity;
-	public static bool MatchSamePixels;
-	public static bool OutputOriginal;
-	public static ColorRGBA HilightColor;
-	public static string MetricName;
-	internal static Lazy<IMetric> MetricInstance;
+	public double? HilightOpacity;
+	public bool MatchSamePixels;
+	public bool OutputOriginal;
+	public ColorRGBA HilightColor;
+	public string MetricName;
+	internal Lazy<IMetric> MetricInstance;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Highlights differences between two images.");
 		sb.ND(1,"By default differences are highlighted based on distance ranging from highlight color to white");
@@ -24,7 +24,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-m (metric)"   ,"Use another (registered) distance metric (default Euclidean)");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		var parser = new ParseParams.Parser<double?>((string s, out double? p) => {

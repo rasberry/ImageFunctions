@@ -1,4 +1,3 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -6,11 +5,11 @@ namespace ImageFunctions.Plugin.Functions.ProbableImg;
 
 public sealed class Options : IOptions
 {
-	public static int? RandomSeed = null;
-	public static int? TotalNodes = null;
-	public static List<StartPoint> StartLoc = new List<StartPoint>();
+	public int? RandomSeed = null;
+	public int? TotalNodes = null;
+	public List<StartPoint> StartLoc = new List<StartPoint>();
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Generate a new image using a probability profile based on the input image");
 		sb.ND(1,"-n (number)"                ,"Max Number of start nodes (defaults to 1 or number of -pp/-xy options)");
@@ -19,7 +18,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-pp (number)[%] (number)[%]","Add a start node (by proportion) - multiple allowed");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 

@@ -5,10 +5,10 @@ namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
 
 public sealed class Options : IOptions
 {
-	public static bool HOnly = false;
-	public static bool VOnly = false;
+	public bool HOnly = false;
+	public bool VOnly = false;
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		if (p.Has("-H").IsGood()) {
@@ -21,7 +21,7 @@ public sealed class Options : IOptions
 		return true;
 	}
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
 		sb.ND(1,"-H","Horizontal only");

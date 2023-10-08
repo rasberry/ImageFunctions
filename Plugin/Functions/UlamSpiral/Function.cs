@@ -2,7 +2,6 @@ using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.UlamSpiral.Options;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -14,7 +13,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -23,7 +22,10 @@ public class Function : IFunction
 			return false;
 		}
 
-		var source = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
+		var engine = core.Engine.Item.Value;
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+
+		var source = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
 		layers.Push(source);
 		var bounds = source.Bounds();
 
@@ -31,7 +33,7 @@ public class Function : IFunction
 		PlugTools.FillWithColor(source,GetColor(PickColor.Back),bounds);
 
 		var srect = GetSpacedRectangle(bounds);
-		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds) : 1;
+		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds, maxThreads) : 1;
 		double factor = 1.0 / maxFactor;
 		var drawFunc = GetDrawFunc();
 		var (cx, cy) = GetCenterXY(srect);
@@ -96,9 +98,9 @@ public class Function : IFunction
 			}
 		}
 		else {
-			Tools.ThreadPixels(srect, (x, y) => {
+			srect.ThreadPixels((x, y) => {
 				drawOne(x,y);
-			}, pb2);
+			}, maxThreads, pb2);
 		}
 
 		return true;
@@ -114,7 +116,7 @@ public class Function : IFunction
 		drawFunc(frame, x, y, color, amount);
 	}
 
-	int FindMaxFactor(Rectangle srect)
+	int FindMaxFactor(Rectangle srect, int maxThreads)
 	{
 		//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
 		//TODO yes there is! (i think) the most composite number is always the next lowest power of 2
@@ -128,7 +130,7 @@ public class Function : IFunction
 		var (cx, cy) = GetCenterXY(srect);
 		using var pb1 = new ProgressBar() { Prefix = "Calculating " };
 
-		Tools.ThreadPixels(srect, (x, y) => {
+		srect.ThreadPixels((x, y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
 			int count = Primes.CountFactors(num);
 			if (count > maxFactor) {
@@ -137,7 +139,7 @@ public class Function : IFunction
 					if (count > maxFactor) { maxFactor = count; }
 				}
 			}
-		}, pb1);
+		}, maxThreads, pb1);
 
 		return maxFactor;
 	}
@@ -260,6 +262,8 @@ public class Function : IFunction
 
 	ColorRGBA[] c_color = new ColorRGBA[4];
 	Lazy<IMetric> Metric;
+	Options O = new Options();
+
 	void Init(IRegister register)
 	{
 		var def = O.Color1.Value;

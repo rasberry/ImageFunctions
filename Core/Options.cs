@@ -29,9 +29,14 @@ gf - given function name == -h && gf
  1   1   1  1 |  1  1  1  1
 */
 
-static class Options
+internal class Options : ICoreOptions
 {
-	public static void ShowUsage(StringBuilder sb)
+	public Options(IRegister register)
+	{
+		Register = register;
+	}
+
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(0,"Usage: "+nameof(ImageFunctions)+" [options] [function name] [-- function options]");
 		sb.WT();
@@ -48,7 +53,7 @@ static class Options
 		sb.ND(1,"--"                          ,"Pass all remaining options to the function");
 	}
 
-	public static bool ParseArgs(string[] args)
+	public bool ParseArgs(string[] args, IRegister _)
 	{
 		if (args.Length < 1) {
 			Show |= PickShow.Usage;
@@ -108,18 +113,18 @@ static class Options
 			MaxDegreeOfParallelism = mdop;
 		}
 
-		var ofmt = p.Default(new[]{"-f","--format"},out ImageFormat);
+		var ofmt = p.Default(new[]{"-f","--format"},out _imageFormat);
 		if (ofmt.IsInvalid()) {
 			return false;
 		}
 
-		var oon = p.Default(new[]{"-o","--output"},out OutputName);
+		var oon = p.Default(new[]{"-o","--output"}, out _outputName);
 		if (oon.IsMissingArgument()) {
 			Tell.MissingArgument("--output");
 		}
 
 		if (p.Has("-v","--verbose").IsGood()) {
-			BeVerbose = true;
+			Log.BeVerbose = true;
 		}
 
 		if (p.Has("-lf","--formats").IsGood()) {
@@ -133,25 +138,26 @@ static class Options
 
 		//take the first remaining option as the script name
 		// all other options must be accounted for at this point
-		p.Default(out FunctionName);
-		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(FunctionName)) {
+		p.Default(out _functionName);
+		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(_functionName)) {
 			Show |= PickShow.Function;
 		}
+
 
 		return true;
 	}
 
-	public static bool ProcessOptions(IRegister register)
+	public bool ProcessOptions()
 	{
 		StringBuilder sb = new StringBuilder();
 
 		//show normal options and function options
 		if (Show.HasFlag(PickShow.Usage)) {
-			ShowUsage(sb);
+			Usage(sb);
 		}
 
 		if (Show.HasFlag(PickShow.Function)) {
-			if (!ShowFunctionHelp(FunctionName, register, sb)) {
+			if (!ShowFunctionHelp(_functionName, sb)) {
 				return false;
 			}
 		}
@@ -160,11 +166,11 @@ static class Options
 		if (Show.HasFlag(PickShow.Registered)) {
 			bool namespaceGiven = !String.IsNullOrWhiteSpace(HelpNameSpace);
 			var space = namespaceGiven ? HelpNameSpace : "all";
-			ShowRegisteredItems(space, register, sb);
+			ShowRegisteredItems(space, sb);
 		}
 
 		//need to select the engine so we can show formats
-		var er = new EngineRegister(register);
+		var er = new EngineRegister(Register);
 		if (!String.IsNullOrWhiteSpace(EngineName)) {
 			if (!er.Try(EngineName, out var engineEntry)) {
 				Tell.NotRegistered(engineEntry.NameSpace, engineEntry.Name);
@@ -200,28 +206,28 @@ static class Options
 			return false;
 		}
 
-		if (String.IsNullOrWhiteSpace(FunctionName)) {
+		if (String.IsNullOrWhiteSpace(_functionName)) {
 			Tell.MustProvideInput("function name");
 			return false;
 		}
 
-		if (String.IsNullOrWhiteSpace(OutputName)) {
+		if (String.IsNullOrWhiteSpace(_outputName)) {
 			var name = nameof(ImageFunctions).ToLowerInvariant();
 			var date = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss");
-			OutputName = $"{name}-{date}";
+			_outputName = $"{name}-{date}";
 		}
 
 		return true;
 	}
 
-	static void ShowRegisteredItems(string @namespace, IRegister register, StringBuilder sb)
+	void ShowRegisteredItems(string @namespace, StringBuilder sb)
 	{
 		IEnumerable<string> keyList = null;
 
 		bool all;
 		keyList = ((all = @namespace.EqualsIC("all"))
-			? register.All()
-			: register.All().Where(k => k.NameSpace.StartsWithIC(@namespace))
+			? Register.All()
+			: Register.All().Where(k => k.NameSpace.StartsWithIC(@namespace))
 		).Select(n => n.ToString()).Order();
 
 		string suffix = all ? "" : $" for '{@namespace}'";
@@ -232,9 +238,9 @@ static class Options
 		}
 	}
 
-	static bool ShowFunctionHelp(string name, IRegister register, StringBuilder sb)
+	bool ShowFunctionHelp(string name, StringBuilder sb)
 	{
-		var fn = new FunctionRegister(register);
+		var fn = new FunctionRegister(Register);
 		IEnumerable<string> list = null;
 		if (!String.IsNullOrWhiteSpace(name)) {
 			//show specific help for given function
@@ -259,13 +265,13 @@ static class Options
 		return true;
 	}
 
-	static bool DetermineImageFormat()
+	bool DetermineImageFormat()
 	{
 		var eng = Engine.Item.Value;
-		bool formatGiven = !String.IsNullOrWhiteSpace(ImageFormat);
+		bool formatGiven = !String.IsNullOrWhiteSpace(_imageFormat);
 		ImageFormat? found = null;
 		foreach(var f in  eng.Formats()) {
-			if (formatGiven && f.Name.EqualsIC(ImageFormat)) {
+			if (formatGiven && f.Name.EqualsIC(_imageFormat)) {
 				found = f;
 			}
 			else if (f.Name.EqualsIC("png")) {
@@ -274,13 +280,13 @@ static class Options
 		}
 
 		if (found == null) {
-			Tell.NoImageFormatFound(ImageFormat);
+			Tell.NoImageFormatFound(_imageFormat);
 		}
 
 		return true;
 	}
 
-	static bool EnumerateInputImages(ParseParams p)
+	bool EnumerateInputImages(ParseParams p)
 	{
 		bool found = true;
 		while(found) {
@@ -290,7 +296,7 @@ static class Options
 				return false;
 			}
 			else if (oim.IsGood()) {
-				ImageFileNames.Add(name);
+				_imageFileNames.Add(name);
 			}
 			else {
 				found = false;
@@ -301,19 +307,23 @@ static class Options
 	}
 
 	//Options only helper parameters
-	static string HelpNameSpace = null;
-	static string EngineName = null;
-	static PickShow Show = PickShow.None;
+	string HelpNameSpace = null;
+	string EngineName = null;
+	PickShow Show = PickShow.None;
+	readonly List<string> _imageFileNames = new();
+	string _functionName;
+	string _imageFormat;
+	string _outputName;
+	readonly IRegister Register;
 
 	//Global options
-	public static IRegisteredItem<Lazy<IImageEngine>> Engine;
-	public static int? MaxDegreeOfParallelism;
-	public static string OutputName;
-	public static string ImageFormat;
-	public static string FunctionName;
-	public static string[] FunctionArgs;
-	public static bool BeVerbose = false;
-	public static List<string> ImageFileNames = new();
+	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; private set; }
+	public int? MaxDegreeOfParallelism  { get; private set; }
+	public string OutputName { get { return _outputName; }}
+	public string ImageFormat { get { return _imageFormat; }}
+	public string FunctionName { get { return _functionName; }}
+	public string[] FunctionArgs { get; private set; }
+	public IReadOnlyList<string> ImageFileNames { get { return _imageFileNames.AsReadOnly(); }}
 
 	[Flags]
 	enum PickShow

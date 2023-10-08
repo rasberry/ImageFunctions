@@ -7,15 +7,15 @@ public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb);
+		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Core.Squeal.ArgumentNull(nameof(layers));
 		}
-		if (!Options.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, register)) {
 			return false;
 		}
 
@@ -45,10 +45,10 @@ public class Function : IFunction
 				if (y > 0)              { n = frame[x,y-1]; }
 				if (y < frame.Height-1) { s = frame[x,y+1]; }
 
-				var color = DoDiff(c,n,e,s,w,Options.UseABS);
+				var color = DoDiff(c,n,e,s,w,O.UseABS);
 				var qi = new QueueItem {
 					X = x, Y = y,
-					Color = Options.DoGrayscale ? ToGrayScale(color) : color
+					Color = O.DoGrayscale ? ToGrayScale(color) : color
 				};
 
 				if (queue.Count >= qLength) {
@@ -143,4 +143,6 @@ public class Function : IFunction
 		var vGray = new ColorRGBA(val,val,val,c.A);
 		return vGray;
 	}
+
+	Options O = new Options();
 }

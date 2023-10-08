@@ -1,5 +1,4 @@
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -7,19 +6,22 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 // https://en.wikipedia.org/wiki/Reverse-delete_algorithm
 public class ReverseDelete : IMaze
 {
+	public ReverseDelete(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
-	Random Rnd;
-	PickWall[] Walls = new PickWall[] { PickWall.N, PickWall.W, PickWall.S, PickWall.E };
+	readonly Random Rnd;
+	readonly PickWall[] Walls = new PickWall[] { PickWall.N, PickWall.W, PickWall.S, PickWall.E };
 	int[] Parent = null;
 	int MaxDepth = 0;
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 		int len = CellsHigh * CellsWide;
 		MaxDepth = len;
 		Parent = new int[len];

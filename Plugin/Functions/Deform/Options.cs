@@ -7,13 +7,13 @@ namespace ImageFunctions.Plugin.Functions.Deform;
 
 public sealed class Options : IOptions
 {
-	public static Point? CenterPx;
-	public static PointF? CenterPp;
-	public static Mode WhichMode;
-	public static double Power;
-	public static Lazy<ISampler> Sampler;
+	public Point? CenterPx;
+	public PointF? CenterPp;
+	public Mode WhichMode;
+	public double Power;
+	public Lazy<ISampler> Sampler;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Warps an image using a mapping function");
 		sb.ND(1,"-cx (number) (number)"      ,"Coordinates of center in pixels");
@@ -27,7 +27,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"2. Inverted"  ,"n/x, n/y; n = (x^e + y^e)");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 		var parser = new ParseParams.Parser<double>((string n, out double p) => {

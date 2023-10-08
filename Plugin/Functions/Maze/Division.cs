@@ -1,7 +1,6 @@
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -10,18 +9,20 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Division : IMaze
 {
+	public Division(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
-	Random Rnd = null;
+	readonly Random Rnd;
 	enum PickHV { H = 0, V = 1 }
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
-
 		var stack = new Stack<Rectangle>();
 		stack.Push(new Rectangle(0,0,CellsWide,CellsHigh));
 		double total = CellsHigh * (double)CellsWide;

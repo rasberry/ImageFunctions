@@ -1,6 +1,5 @@
 using System.Drawing;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -8,16 +7,19 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Kruskal : IMaze
 {
+	public Kruskal(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
-	Random Rnd;
+	readonly Random Rnd;
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 		int len = CellsHigh * CellsWide;
 
 		//init structures

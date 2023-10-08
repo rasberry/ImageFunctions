@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.ProbableImg.Options;
 
 namespace ImageFunctions.Plugin.Functions.ProbableImg;
 
@@ -15,7 +14,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -32,15 +31,17 @@ public class Function : IFunction
 		var source = layers.First();
 		var bounds = source.Bounds();
 
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		using var progress = new ProgressBar();
-		CreateProfile(progress,source,bounds);
+		CreateProfile(progress,source,bounds, maxThreads);
 
 		//foreach(var kvp in Profile) {
 		//	Log.Debug($"Key = {kvp.Key}");
 		//	Log.Debug(kvp.Value.ToString());
 		//}
 
-		using var canvas = layers.NewCanvasFromLayers();
+		var engine = core.Engine.Item.Value;
+		using var canvas = engine.NewCanvasFromLayers(layers);
 		CreateImage(progress,canvas);
 		source.CopyFrom(canvas);
 		//Source.BlitImage(canvas, resize:true);
@@ -48,14 +49,14 @@ public class Function : IFunction
 		return true;
 	}
 
-	void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect)
+	void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect, int maxThreads)
 	{
 		Profile = new ConcurrentDictionary<long,ColorProfile>();
 		CToIndex = new Dictionary<ColorRGBA, long>();
 		IToColor = new Dictionary<long, ColorRGBA>();
 
 		pbar.Prefix = "Creating Profile ";
-		Tools.ThreadPixels(rect, (x,y) => {
+		rect.ThreadPixels((x,y) => {
 			int cy = y - rect.Top;
 			int cx = x - rect.Left;
 			var oc = frame[cx,cy];
@@ -88,7 +89,7 @@ public class Function : IFunction
 				if (cs != null) { AddUpdateCount(cc.SColor,cs.Value); }
 				if (ce != null) { AddUpdateCount(cc.EColor,ce.Value); }
 			}
-		},pbar);
+		},maxThreads,pbar);
 	}
 
 	void AddUpdateCount(IDictionary<long,long> dict, ColorRGBA color)
@@ -238,6 +239,7 @@ public class Function : IFunction
 	long LastIndex = 0;
 	Random Rnd;
 	BitArray[] VisitNest;
+	Options O = new Options();
 
 	public long CtoI(ColorRGBA c)
 	{

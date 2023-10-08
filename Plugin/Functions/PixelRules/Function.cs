@@ -1,7 +1,6 @@
 using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.PixelRules.Options;
 
 namespace ImageFunctions.Plugin.Functions.PixelRules;
 
@@ -13,7 +12,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -26,9 +25,12 @@ public class Function : IFunction
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
+
+		var engine = core.Engine.Item.Value;
+		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		var source = layers.First();
 		using var progress = new ProgressBar();
-		using var canvas = layers.NewCanvasFromLayers();
+		using var canvas = engine.NewCanvasFromLayers(layers);
 		var rect = source.Bounds();
 
 		for(int p=0; p<O.Passes; p++) {
@@ -36,7 +38,7 @@ public class Function : IFunction
 			Tools.ThreadPixels(canvas, (x,y) => {
 				ColorRGBA nc = RunRule(source,rect,x,y);
 				canvas[x,y] = nc;
-			},progress);
+			},maxThreads,progress);
 			source.CopyFrom(canvas);
 		}
 
@@ -178,4 +180,6 @@ public class Function : IFunction
 		double dist = O.Metric.Value.Measure(vo,vt);
 		return dist;
 	}
+
+	Options O = new Options();
 }

@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Turmites.Options;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
 
@@ -12,7 +11,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -21,7 +20,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var source = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
+		var engine = core.Engine.Item.Value;
+		var source = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
 		layers.Push(source);
 
 		int x,y;
@@ -105,6 +105,8 @@ public class Function : IFunction
 			}
 		}
 	}
+
+	Options O = new Options();
 
 	enum Direction : int {
 		N = 0,

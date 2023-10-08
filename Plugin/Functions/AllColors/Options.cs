@@ -1,4 +1,3 @@
-using System.Text;
 using Rasberry.Cli;
 using ImageFunctions.Core;
 
@@ -37,7 +36,7 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 
 	public sealed class Options : IOptions
 	{
-		public static void Usage(StringBuilder sb)
+		public void Usage(StringBuilder sb)
 		{
 			sb.ND(1,"Creates an image with every possible 24-bit color ordered by chosen pattern.");
 			sb.ND(1,"-p (pattern)","Sort by Pattern (default BitOrder)");
@@ -68,7 +67,7 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			return "";
 		}
 
-		public static bool ParseArgs(string[] args, IRegister register)
+		public bool ParseArgs(string[] args, IRegister register)
 		{
 			var p = new ParseParams(args);
 
@@ -109,10 +108,10 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			return true;
 		}
 
-		public static Pattern SortBy = Pattern.None;
-		public static Space WhichSpace = Space.None;
-		public static int[] Order = null;
-		public static bool NoParallelSort = false;
+		public Pattern SortBy = Pattern.None;
+		public Space WhichSpace = Space.None;
+		public int[] Order = null;
+		public bool NoParallelSort = false;
 		public const int FourKWidth = 4096;
 		public const int FourKHeight = 4096;
 	}

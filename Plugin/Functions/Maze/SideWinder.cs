@@ -1,21 +1,23 @@
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
 // http://weblog.jamisbuck.org/2011/2/3/maze-generation-sidewinder-algorithm
 public class SideWinder : IMaze
 {
+	public SideWinder(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
-	Random Rnd;
+    readonly Random Rnd;
 
 	public void DrawMaze(ProgressBar prog)
 	{
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 		int lastx = CellsWide - 1;
 		for(int y = 0; y < CellsHigh; y++) {
 			int start = 0;

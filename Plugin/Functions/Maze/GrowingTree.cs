@@ -1,26 +1,30 @@
 using System.Drawing;
-using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.Functions.Maze.Options;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class GrowingTree : IMaze
 {
+	public GrowingTree(Options o) {
+		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
+		Sequence = o.Sequence;
+		O = o;
+	}
+
 	public Action<int,int,PickWall> DrawCell { get; set; }
 	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
-	public IReadOnlyList<PickNext> Sequence { get; set; }
+	public IReadOnlyList<PickNext> Sequence { get; }
 
-	Random Rnd = null;
-	List<Point> CellList = new List<Point>();
+	readonly Random Rnd;
+	readonly List<Point> CellList = new();
+	readonly Options O;
 
 	public void DrawMaze(ProgressBar prog)
 	{
 		//Log.Debug($"Seq [{String.Join(',',Sequence)}]");
-		Rnd = O.RndSeed.HasValue ? new Random(O.RndSeed.Value) : new Random();
 		var have = new List<PickWall>();
 		int W = CellsWide - 1;
 		int H = CellsHigh - 1;

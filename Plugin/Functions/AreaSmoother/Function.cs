@@ -10,15 +10,15 @@ public class Function : IFunction
 {
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb);
+		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
-			throw Core.Squeal.ArgumentNull(nameof(layers));
+			throw Squeal.ArgumentNull(nameof(layers));
 		}
-		if (!Options.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, register)) {
 			return false;
 		}
 
@@ -30,10 +30,11 @@ public class Function : IFunction
 		var canvas = layers.First();
 
 		using var progress = new ProgressBar();
+		var maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		Tools.ThreadPixels(canvas, (x,y) => {
 			var nc = SmoothPixel(canvas,x,y);
 			canvas[x,y] = nc;
-		},progress);
+		},maxThreads,progress);
 
 		return true;
 	}
@@ -53,7 +54,7 @@ public class Function : IFunction
 		double ahigh = Math.PI;
 		double alow = 0;
 
-		for(int tries=1; tries <= Options.TotalTries; tries++)
+		for(int tries=1; tries <= O.TotalTries; tries++)
 		{
 			double dang = (ahigh - alow)/3;
 			for(double a = alow; a<ahigh; a+=dang)
@@ -61,7 +62,7 @@ public class Function : IFunction
 				Point fp = FindColorAlongRay(frame,a,px,py,false,start,out ColorRGBA fc);
 				Point bp = FindColorAlongRay(frame,a,px,py,true,start,out ColorRGBA bc);
 
-				double len = Options.Measurer.Value.Measure(fp.X,fp.Y,bp.X,bp.Y);
+				double len = O.Measurer.Value.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
 				if (len < bestlen) {
 					bestang = a;
@@ -70,7 +71,7 @@ public class Function : IFunction
 					bestbc = PlugTools.BetweenColor(bc,start,0.5);
 					//bestfpx = fp;
 					//bestbpx = bp;
-					double flen = Options.Measurer.Value.Measure(px,py,fp.X,fp.Y);
+					double flen = O.Measurer.Value.Measure(px,py,fp.X,fp.Y);
 					bestratio = flen/len;
 					//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
 				}
@@ -111,7 +112,7 @@ public class Function : IFunction
 				done = true;
 			}
 			if (!done) {
-				ColorRGBA f = Options.Sampler.Value.GetSample(canvas,fx,fy);
+				ColorRGBA f = O.Sampler.Value.GetSample(canvas,fx,fy);
 				if (!f.Equals(start)) {
 					c = f;
 					done = true;
@@ -129,4 +130,6 @@ public class Function : IFunction
 			r+=1;
 		}
 	}
+
+	Options O = new Options();
 }

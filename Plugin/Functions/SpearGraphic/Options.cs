@@ -5,14 +5,14 @@ namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public sealed class Options : IOptions
 {
-	public static Graphic Spear;
-	public static ColorRGBA BackgroundColor;
-	public static int? RandomSeed;
+	public Graphic Spear;
+	public ColorRGBA BackgroundColor;
+	public int? RandomSeed;
 
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Creates a spear graphic");
 		sb.ND(1,"-g (name)"   ,"Choose which graphic to create");
@@ -23,7 +23,7 @@ public sealed class Options : IOptions
 		sb.PrintEnum<Graphic>(1,excludeZero:true);
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
@@ -55,26 +55,3 @@ public enum Graphic
 	Third,
 	Fourth
 }
-
-/*
-	public enum Graphic
-	{
-		None = 0,
-		First_Twist1,
-		First_Twist2,
-		First_Twist3,
-		Second_Twist3a,
-		Second_Twist3b,
-		Second_Twist3c,
-		Second_Twist4,
-		Third,
-		Fourth
-	}
-
-	public class Options
-	{
-		public Graphic Spear = Graphic.None;
-		public IColor BackgroundColor = ColorHelpers.Transparent;
-		public int? RandomSeed = null;
-	}
-*/

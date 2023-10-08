@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
-using O = ImageFunctions.Plugin.GraphNet.Options;
 
 namespace ImageFunctions.Plugin.GraphNet;
 
@@ -12,7 +11,7 @@ public class Function : IFunction
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -21,7 +20,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var canvas = layers.NewCanvasFromLayersOrDefault(O.DefaultWidth, O.DefaultHeight);
+		var engine = core.Engine.Item.Value;
+		var canvas = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
 		layers.Push(canvas);
 
 		if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
@@ -182,5 +182,5 @@ public class Function : IFunction
 	}
 
 	Random Rnd = null;
-
+	Options O = new Options();
 }
