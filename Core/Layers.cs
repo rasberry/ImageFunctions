@@ -23,10 +23,17 @@ public interface ILayers : IEnumerable<ICanvas>
 	void PushAt(int index, ICanvas layer, string name = null);
 
 	/// <summary>
-	/// Removes the layer at the given index
+	/// Removes the layer at the given index and returns it as a ICanvas
 	/// </summary>
 	/// <param name="index">The index of the layer to remove</param>
-	void PopAt(int index);
+	/// <returns>A ICanvas image object</returns>
+	ICanvas PopAt(int index, out string name);
+
+	/// <summary>
+	/// Destroys the layer at the given index. Use this to permanently delete the layer
+	/// </summary>
+	/// <param name="index">The index of the layer to remove</param>
+	void DisposeAt(int index);
 
 	/// <summary>
 	/// Finds a layer with the given name. Use startIndex to find layers with the same name
@@ -56,10 +63,10 @@ public interface ILayers : IEnumerable<ICanvas>
 	void Move(int fromIndex, int toIndex);
 }
 
-public class CoreLayers : ILayers, IDisposable
+public class Layers : ILayers, IDisposable
 {
 	//construction should be managed by the core project
-	internal CoreLayers() {}
+	internal Layers() {}
 
 	public ICanvas this[int index] {
 		get {
@@ -82,7 +89,17 @@ public class CoreLayers : ILayers, IDisposable
 		List.Insert(ix,cwn);
 	}
 
-	public void PopAt(int index)
+	public ICanvas PopAt(int index, out string name)
+	{
+		int ix = StackIxToListIx(index);
+		EnsureInRange(ix, nameof(index));
+		var img = List[index];
+		List.RemoveAt(ix);
+		name = img.Name;
+		return img.Canvas;
+	}
+
+	public void DisposeAt(int index)
 	{
 		int ix = StackIxToListIx(index);
 		EnsureInRange(ix, nameof(index));

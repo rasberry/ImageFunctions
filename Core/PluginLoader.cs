@@ -49,7 +49,7 @@ internal static class PluginLoader
 		//return root;
 	}
 
-	static void RegisterPlugin(Assembly plugin, IRegister register)
+	public static void RegisterPlugin(Assembly plugin, IRegister register)
 	{
 		var plugTypes = plugin.GetTypes();
 		//var iPluginType = typeof(IPlugin);

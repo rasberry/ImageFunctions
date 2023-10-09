@@ -8,8 +8,9 @@ public static class Tell
 	public static void CannotFindFile(string path) {
 		Log.Error($"cannot find input image '{path}'");
 	}
-	public static void CouldNotParse(string name, object val) {
-		Log.Error($"invalid value '{val}' for '{name}'");
+	public static void CouldNotParse(string name, object val = null) {
+		string sval = val == null ? "" : $" '{val}'";
+		Log.Error($"invalid value{sval} for '{name}'");
 	}
 	public static void InitingPlugin(Type t) {
 		Log.Info($"Initializing plugin {t.FullName}");
@@ -18,7 +19,7 @@ public static class Tell
 		Log.Error("password is missing or invalid");
 	}
 	public static void LayerMustHaveAtLeast(int count = 1) {
-		var word = NumberToWord(count);
+		var word = Tools.NumberToWord(count);
 		Log.Error($"layers collection must contain at least {word} layer{(count > 1 ? "s" : "")}");
 	}
 	public static void MissingArgument(string name) {
@@ -77,22 +78,5 @@ public static class Tell
 	}
 	public static void Registering(string @namespace, string name) {
 		Log.Info($"Registering {@namespace}.{name}");
-	}
-
-	static string NumberToWord(int number)
-	{
-		switch(number) {
-			case 0: return "zero";
-			case 1: return "one";
-			case 2: return "two";
-			case 3: return "three";
-			case 4: return "four";
-			case 5: return "five";
-			case 6: return "six";
-			case 7: return "seven";
-			case 8: return "eight";
-			case 9: return "nine";
-		}
-		throw Squeal.ArgumentOutOfRange(nameof(number));
 	}
 }

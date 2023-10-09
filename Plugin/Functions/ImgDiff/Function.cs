@@ -72,7 +72,7 @@ public class Function : IFunction
 			//otherwise leave empty
 		},maxThreads,progress);
 
-		layers.PopAt(nextIx);
+		layers.DisposeAt(nextIx); //TODO maybe add option to keep the previous layers
 		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
 		return true;
 	}

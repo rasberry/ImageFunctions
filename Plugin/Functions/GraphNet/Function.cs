@@ -21,7 +21,8 @@ public class Function : IFunction
 		}
 
 		var engine = core.Engine.Item.Value;
-		var canvas = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
+		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var canvas = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
 		layers.Push(canvas);
 
 		if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {

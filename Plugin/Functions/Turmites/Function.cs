@@ -21,7 +21,8 @@ public class Function : IFunction
 		}
 
 		var engine = core.Engine.Item.Value;
-		var source = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
+		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var source = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
 		layers.Push(source);
 
 		int x,y;

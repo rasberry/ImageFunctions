@@ -45,7 +45,7 @@ public class Options : IOptions
 			CenterPx = new Point(cx,cy);
 		}
 		var pcp = p.Default("-cp",out double px, out double py,
-			lefthPar: parser, rightPar: parser
+			leftPar: parser, rightPar: parser
 		);
 		if (pcp.IsInvalid()) {
 			return false;

@@ -22,7 +22,8 @@ public class Function : IFunction
 		}
 
 		var engine = core.Engine.Item.Value;
-		var img = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth,Options.DefaultHeight);
+		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var img = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
 		layers.Push(img);
 
 		//tell functions how to draw a line instead of them having to figure it out

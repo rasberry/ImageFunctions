@@ -131,7 +131,7 @@ public static class Tools
 	{
 		bool worked = engine.TryNewCanvasFromLayers(layers, out var canvas);
 		if (!worked) {
-			throw Squeal.LayerMustHaveOne();
+			throw Squeal.LayerMustHaveAtLeast();
 		}
 		return canvas;
 	}
@@ -143,5 +143,22 @@ public static class Tools
 		}
 
 		artist.DrawLine(canvas, color, start, end, width);
+	}
+
+	internal static string NumberToWord(int number)
+	{
+		switch(number) {
+			case 0: return "zero";
+			case 1: return "one";
+			case 2: return "two";
+			case 3: return "three";
+			case 4: return "four";
+			case 5: return "five";
+			case 6: return "six";
+			case 7: return "seven";
+			case 8: return "eight";
+			case 9: return "nine";
+		}
+		throw Squeal.ArgumentOutOfRange(nameof(number));
 	}
 }

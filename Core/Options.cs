@@ -43,6 +43,7 @@ internal class Options : ICoreOptions
 		sb.WT(0,"Options:");
 		sb.ND(1,"-h / --help"                 ,"Show help / full help (provide a function name to show only that help instead");
 		sb.ND(1,"-i / --image (file)"         ,"Load this image as a layer. Supports images with multiple layers");
+		sb.ND(1,"-# / --size (width) (height)","Set the default size in pixels when no images are loaded");
 		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (engine supported) format");
 		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
 		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
@@ -121,6 +122,13 @@ internal class Options : ICoreOptions
 		var oon = p.Default(new[]{"-o","--output"}, out _outputName);
 		if (oon.IsMissingArgument()) {
 			Tell.MissingArgument("--output");
+			return false;
+		}
+
+		var osz = p.Default(new[] {"-#","--size"}, out _defaultWidth, out _defaultHeight);
+		if (osz.IsInvalid()) {
+			Tell.CouldNotParse("--size");
+			return false;
 		}
 
 		if (p.Has("-v","--verbose").IsGood()) {
@@ -142,7 +150,6 @@ internal class Options : ICoreOptions
 		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(_functionName)) {
 			Show |= PickShow.Function;
 		}
-
 
 		return true;
 	}
@@ -315,15 +322,19 @@ internal class Options : ICoreOptions
 	string _imageFormat;
 	string _outputName;
 	readonly IRegister Register;
+	int? _defaultWidth;
+	int? _defaultHeight;
 
 	//Global options
-	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; private set; }
-	public int? MaxDegreeOfParallelism  { get; private set; }
+	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }
+	public int? MaxDegreeOfParallelism  { get; internal set; }
 	public string OutputName { get { return _outputName; }}
 	public string ImageFormat { get { return _imageFormat; }}
 	public string FunctionName { get { return _functionName; }}
-	public string[] FunctionArgs { get; private set; }
+	public string[] FunctionArgs { get; internal set; }
 	public IReadOnlyList<string> ImageFileNames { get { return _imageFileNames.AsReadOnly(); }}
+	public int? DefaultWidth { get { return _defaultWidth; }}
+	public int? DefaultHeight { get { return _defaultHeight; }}
 
 	[Flags]
 	enum PickShow

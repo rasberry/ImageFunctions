@@ -348,12 +348,18 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
-# End of https://www.gitignore.io/api/csharp
-/*.png
+# End of https://www.gitignore.io/api/csharp ===================================
+
+# dotnet-trace output files
+*.nettrace
+*.nettrace.etlx
+
+/*.[Pp][Nn][Gg]
 .vscode
-*.tab
-*.txt
-*.jpg
+*.[Tt][Aa][Bb]
+*.[Tt][Xx][Tt]
+*.[Jj][Pp][Gg]
+*.[Gg][Ii][Ff]
 test.sh
 /stuff
 /build

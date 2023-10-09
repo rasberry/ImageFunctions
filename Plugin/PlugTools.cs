@@ -365,8 +365,30 @@ internal static class PlugTools
 	}
 
 
+	/// <summary>
+	/// Shortcut for getting the bounds rectangle for a canvas
+	/// </summary>
+	/// <param name="canvas">The canvas</param>
+	/// <returns>A rectangle starting at point 0,0 and width/height matching the canvas</returns>
 	public static Rectangle Bounds(this ICanvas canvas)
 	{
 		return new Rectangle(0, 0, canvas.Width, canvas.Height);
+	}
+
+	const int NomSize = 1024;
+	/// <summary>
+	/// Helpers to get the default width / height either provided by the user
+	///  or provided as an input
+	/// </summary>
+	/// <param name="options">ICoreOptions object - usually passed to a function</param>
+	/// <param name="defaultWidth">The fallback width to use</param>
+	/// <param name="defaultHeight">The fallback height to use/param>
+	/// <returns>A tuple with width, height</returns>
+	public static (int,int) GetDefaultWidthHeight(this ICoreOptions options, int defaultWidth = NomSize, int defaultHeight = NomSize)
+	{
+		return (
+			options.DefaultWidth.GetValueOrDefault(defaultWidth),
+			options.DefaultHeight.GetValueOrDefault(defaultHeight)
+		);
 	}
 }

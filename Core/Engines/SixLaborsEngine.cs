@@ -9,10 +9,10 @@ namespace ImageFunctions.Core.Engines;
 
 public class SixLaborsEngine : IImageEngine, IDrawEngine
 {
-	public void LoadImage(ILayers layers, string fileName)
+	public void LoadImage(ILayers layers, string fileName, string name = null)
 	{
 		var image = Image.Load<RgbaD>(fileName);
-		string name = Path.GetFileName(fileName);
+		name ??= Path.GetFileName(fileName);
 
 		//for images with one frame just use the original
 		if (image.Frames.Count == 1) {

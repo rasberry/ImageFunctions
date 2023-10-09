@@ -1,3 +1,5 @@
+using System.Drawing;
+
 namespace ImageFunctions.Core;
 
 /// <summary>
@@ -22,4 +24,8 @@ public interface ICanvas : IDisposable
 	/// <param name="y">The y-coordinate</param>
 	/// <returns>The pixels color in RGBA format</returns>
 	ColorRGBA this[int x, int y] { get; set; }
+
+	//TODO maybe add these for faster access
+	//Span<ColorRGBA> Row(int y);
+	//Span2D<ColorRGBA> Block(Rectangle rect);
 }

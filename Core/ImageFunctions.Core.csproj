@@ -10,14 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="ImageFunctions.Test" />
+
     <!-- if referencing this project, references in *your* project to these packages
       must be included with <Private>false</Private>
     -->
-    <PackageReference Include="Rasberry.Cli" Version="1.0.1" />
+    <PackageReference Include="Rasberry.Cli" Version="1.1.0" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0" />
-
-    <InternalsVisibleTo Include="ImageFunctions.Test" />
   </ItemGroup>
 
   <ItemGroup>

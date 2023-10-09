@@ -35,7 +35,7 @@ public sealed class Options : IOptions
 
 		while(true) {
 			var pcp = p.Default("-pp",out double ppx, out double ppy,
-				lefthPar:parser,
+				leftPar:parser,
 				rightPar:parser
 			);
 			if (pcp.IsMissing()) { break; }

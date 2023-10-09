@@ -6,9 +6,9 @@ internal class Program
 	static int Main(string[] args)
 	{
 		try {
-			var register = new CoreRegister();
+			var register = new Register();
 			var options = new Options(register);
-			using var layers = new CoreLayers();
+			using var layers = new Layers();
 			var main = new Program(register, options, layers);
 			return main.Run(args);
 		}
@@ -23,10 +23,10 @@ internal class Program
 		}
 	}
 
-	Program(IRegister register, Options options, ILayers layers)
+	internal Program(IRegister register, Options options, ILayers layers)
 	{
 		Register = register;
-		O = options;
+		Options = options;
 		Layers = layers;
 	}
 
@@ -50,9 +50,9 @@ internal class Program
 		}
 
 		//save the layers to one or more images
-		Log.Info($"Saving image {O.OutputName}");
+		Log.Info($"Saving image {Options.OutputName}");
 		if (Layers.Count > 0) {
-			O.Engine.Item.Value.SaveImage(Layers, O.OutputName, O.ImageFormat);
+			Options.Engine.Item.Value.SaveImage(Layers, Options.OutputName, Options.ImageFormat);
 		}
 		else {
 			Tell.NoLayersToSave();
@@ -65,7 +65,7 @@ internal class Program
 	internal bool TrySetup(string[] args, out int exitCode)
 	{
 		//process args in two parts - first part parse the options
-		if (!O.ParseArgs(args, null)) {
+		if (!Options.ParseArgs(args, null)) {
 			exitCode = ExitCode.StoppedAtParseArgs;
 			return false;
 		}
@@ -74,7 +74,7 @@ internal class Program
 		PluginLoader.LoadAllPlugins(Register);
 
 		//second part - do any additional output or checks based on given options
-		if (!O.ProcessOptions()) {
+		if (!Options.ProcessOptions()) {
 			exitCode = ExitCode.StoppedAtProcessOptions;
 			return false;
 		}
@@ -87,15 +87,15 @@ internal class Program
 	{
 		// figure out the function to run
 		var fr = new FunctionRegister(Register);
-		if (!fr.Try(O.FunctionName, out var lzFunc)) {
-			Tell.NotRegistered(fr.Namespace,O.FunctionName);
+		if (!fr.Try(Options.FunctionName, out var lzFunc)) {
+			Tell.NotRegistered(fr.Namespace,Options.FunctionName);
 			exitCode = ExitCode.StoppedFunctionNotRegistered;
 			return false;
 		}
 
 		//Not really sure how to best use the bool return. Going with exit code for now
 		Log.Info($"Running Function {lzFunc}");
-		if (!lzFunc.Item.Value.Run(Register, Layers, O, O.FunctionArgs)) {
+		if (!lzFunc.Item.Value.Run(Register, Layers, Options, Options.FunctionArgs)) {
 			exitCode = ExitCode.StoppedAfterRun;
 			return false;
 		}
@@ -106,12 +106,12 @@ internal class Program
 
 	bool LoadImages()
 	{
-		foreach(var i in O.ImageFileNames) {
+		foreach(var i in Options.ImageFileNames) {
 			if (!File.Exists(i)) {
 				Tell.CannotFindFile(i);
 				return false;
 			}
-			O.Engine.Item.Value.LoadImage(Layers, i);
+			Options.Engine.Item.Value.LoadImage(Layers, i);
 		}
 
 		return true;
@@ -119,5 +119,5 @@ internal class Program
 
 	internal ILayers Layers;
 	internal IRegister Register;
-	internal Options O; //not using interface to allow access to extra methods
+	internal Options Options; //not using interface to allow access to extra methods
 }

@@ -62,7 +62,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		return null;
 	}
 
-	public void LoadImage(ILayers layers, string path)
+	public void LoadImage(ILayers layers, string path, string name = null)
 	{
 		if (layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -74,7 +74,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			throw Squeal.CouldNotLoadFile(path, result.ToString());
 		}
 
-		string name = Path.GetFileName(path);
+		name ??= Path.GetFileName(path);
 
 		//images with no frames are normal images with one layer
 		if (codec.FrameCount == 0) {

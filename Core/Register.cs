@@ -1,9 +1,6 @@
-using System.Reflection;
-using ImageFunctions.Core.Attributes;
-
 namespace ImageFunctions.Core;
 
-internal class CoreRegister : IRegister
+internal class Register : IRegister
 {
 	public void Add<T>(string @namespace, string name, T item) {
 		EnsureNameIsNotNull(@namespace, name);

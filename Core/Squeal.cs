@@ -33,8 +33,9 @@ public static class Squeal
 	public static Exception IndexOutOfRange(string argName) {
 		throw new IndexOutOfRangeException(argName);
 	}
-	public static Exception LayerMustHaveOne() {
-		var message = "layers collection must contain at least one layer";
+	public static Exception LayerMustHaveAtLeast(int count = 1) {
+		var word = Tools.NumberToWord(count);
+		var message = $"layers collection must contain at least {word} layer{(count > 1 ? "s" : "")}";
 		return new ArgumentOutOfRangeException(message);
 	}
 	public static Exception NoLayers() {

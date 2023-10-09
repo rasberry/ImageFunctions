@@ -33,7 +33,7 @@ public sealed class Options : IOptions
 		if (p.Default("-rs",out RandomSeed,null).IsInvalid()) {
 			return false;
 		}
-		if (p.Expect("-g",out Spear).IsInvalid()) {
+		if (p.Expect("-g",out Spear).IsBad()) {
 			Tell.MustProvideInput("-g");
 			return false;
 		}

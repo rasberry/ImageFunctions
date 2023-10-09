@@ -24,8 +24,8 @@ public class Function : IFunction
 
 		var engine = core.Engine.Item.Value;
 		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-
-		var source = engine.NewCanvasFromLayersOrDefault(layers, Options.DefaultWidth, Options.DefaultHeight);
+		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var source = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
 		layers.Push(source);
 		var bounds = source.Bounds();
 
@@ -42,7 +42,7 @@ public class Function : IFunction
 		bool drawPrimes = O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m);
 		double primeFactor = O.ColorComposites ? 0.0 : 1.0;
 
-		//using a closure is not my favorite way of dong this,
+		//using a closure is not my favorite way of doing this,
 		// but easier than passing tons of arguments to a function
 		Action<int,int> drawOne = (int x, int y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
@@ -75,7 +75,7 @@ public class Function : IFunction
 		using var pb2 = new ProgressBar() { Prefix = "Drawing " };
 
 		if (drawSlow) {
-			//have to keep track o progress manually
+			//have to keep track of progress manually
 			double pbmax = srect.Width * srect.Height;
 			double pbcount = 0;
 			for(int y = srect.Top; y < srect.Bottom; y++) {

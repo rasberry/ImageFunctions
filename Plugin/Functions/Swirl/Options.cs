@@ -47,7 +47,7 @@ public sealed class Options : IOptions
 		}
 
 		var pcp = p.Default("-cp",out double? ppx,out double? ppy,
-			lefthPar: parser, rightPar: parser
+			leftPar: parser, rightPar: parser
 		);
 		if (pcp.IsInvalid()) {
 			return false;

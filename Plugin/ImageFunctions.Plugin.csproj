@@ -2,12 +2,14 @@
 
   <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
+    <InternalsVisibleTo Include="ImageFunctions.Test" />
+
     <!-- references to anything referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
-    <PackageReference Include="Rasberry.Cli" Version="1.0.1">
+    <PackageReference Include="Rasberry.Cli" Version="1.1.0">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

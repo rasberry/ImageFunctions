@@ -25,7 +25,8 @@ public class Function : IFunction
 
 		//since we're rendering pixels make a new layer each time
 		var engine = core.Engine.Item.Value;
-		var image = engine.NewCanvasFromLayersOrDefault(layers, Options.FourKWidth,Options.FourKHeight);
+		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.FourKWidth,Options.FourKHeight);
+		var image = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
 		layers.Push(image);
 		Draw(image, core.MaxDegreeOfParallelism.GetValueOrDefault(1));
 
