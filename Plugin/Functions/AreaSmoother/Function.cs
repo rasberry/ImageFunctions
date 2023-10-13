@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Text;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -27,15 +26,16 @@ public class Function : IFunction
 			return false;
 		}
 
-		var canvas = layers.First();
-
+		var frame = layers.First();
 		using var progress = new ProgressBar();
+		using var canvas = core.Engine.Item.Value.NewCanvasFromLayers(layers);
 		var maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		Tools.ThreadPixels(canvas, (x,y) => {
-			var nc = SmoothPixel(canvas,x,y);
+		Tools.ThreadPixels(frame, (x,y) => {
+			var nc = SmoothPixel(frame,x,y);
 			canvas[x,y] = nc;
 		},maxThreads,progress);
 
+		frame.CopyFrom(canvas);
 		return true;
 	}
 
@@ -49,8 +49,6 @@ public class Function : IFunction
 		double bestratio = 1;
 		ColorRGBA bestfc = start;
 		ColorRGBA bestbc = start;
-		//Point bestfpx = new Point(px,py);
-		//Point bestbpx = new Point(px,py);
 		double ahigh = Math.PI;
 		double alow = 0;
 
@@ -60,7 +58,7 @@ public class Function : IFunction
 			for(double a = alow; a<ahigh; a+=dang)
 			{
 				Point fp = FindColorAlongRay(frame,a,px,py,false,start,out ColorRGBA fc);
-				Point bp = FindColorAlongRay(frame,a,px,py,true,start,out ColorRGBA bc);
+				Point bp = FindColorAlongRay(frame,a,px,py,true ,start,out ColorRGBA bc);
 
 				double len = O.Measurer.Value.Measure(fp.X,fp.Y,bp.X,bp.Y);
 
@@ -69,8 +67,6 @@ public class Function : IFunction
 					bestlen = len;
 					bestfc = PlugTools.BetweenColor(fc,start,0.5);
 					bestbc = PlugTools.BetweenColor(bc,start,0.5);
-					//bestfpx = fp;
-					//bestbpx = bp;
 					double flen = O.Measurer.Value.Measure(px,py,fp.X,fp.Y);
 					bestratio = flen/len;
 					//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
@@ -79,6 +75,10 @@ public class Function : IFunction
 
 			alow = bestang - Math.PI/3/tries;
 			ahigh = bestang + Math.PI/3/tries;
+		}
+
+		if (O.DrawRatio) {
+			return PlugTools.BetweenColor(PlugColors.Black, PlugColors.White, bestratio);
 		}
 
 		ColorRGBA final;
