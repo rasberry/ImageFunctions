@@ -248,15 +248,12 @@ struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 		A = Math.Clamp(a,0.0,1.0);
 	}
 
-	public double R;
-	public double G;
-	public double B;
-	public double A;
+	public double R,G,B,A;
 
 	public static bool operator == (RgbaD lhs, RgbaD rhs)
 	{
 		return
-				lhs.R == rhs.R
+			   lhs.R == rhs.R
 			&& lhs.G == rhs.G
 			&& lhs.B == rhs.B
 			&& lhs.A == rhs.A
