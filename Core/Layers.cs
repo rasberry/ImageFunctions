@@ -109,6 +109,9 @@ public class Layers : ILayers, IDisposable
 
 	public int IndexOf(string name, int startIndex = 0)
 	{
+		//if there's nothing in the list no match possible
+		if (List.Count < 1) { return -1; }
+
 		int six = StackIxToListIx(startIndex);
 		EnsureInRange(six, nameof(startIndex));
 
