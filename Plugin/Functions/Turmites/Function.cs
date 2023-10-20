@@ -6,24 +6,33 @@ namespace ImageFunctions.Plugin.Functions.Turmites;
 [InternalRegisterFunction(nameof(Turmites))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		var engine = core.Engine.Item.Value;
-		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
-		var source = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
-		layers.Push(source);
+		var engine = Core.Engine.Item.Value;
+		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
+		Layers.Push(source);
 
 		int x,y;
 		if (O.Start.HasValue) {
@@ -107,7 +116,10 @@ public class Function : IFunction
 		}
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ICoreOptions Core;
+	ILayers Layers;
 
 	enum Direction : int {
 		N = 0,

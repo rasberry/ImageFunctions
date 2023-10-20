@@ -9,6 +9,7 @@ public sealed class Options : IOptions
 	public double? HilightOpacity;
 	public bool MatchSamePixels;
 	public bool OutputOriginal;
+	public bool MakeThirdLayer;
 	public ColorRGBA HilightColor;
 	public string MetricName;
 	internal Lazy<IMetric> MetricInstance;
@@ -22,6 +23,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-x"            ,"Output original pixels instead of highlighting them");
 		sb.ND(1,"-c (color)"    ,"Change highlight color (default is magenta)");
 		sb.ND(1,"-m (metric)"   ,"Use another (registered) distance metric (default Euclidean)");
+		sb.ND(1,"-nl"           ,"Create a third layer instead of replacing two with one");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -36,6 +38,9 @@ public sealed class Options : IOptions
 		}
 		if (p.Has("-x").IsGood()) {
 			OutputOriginal = true;
+		}
+		if (p.Has("-nl").IsGood()) {
+			MakeThirdLayer = true;
 		}
 
 		if(p.Default("-o",out HilightOpacity, par: parser)

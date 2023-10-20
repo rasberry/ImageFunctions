@@ -7,29 +7,39 @@ namespace ImageFunctions.Plugin.Functions.AreaSmoother;
 [InternalRegisterFunction(nameof(AreaSmoother))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
+
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
-		var frame = layers.First();
+		var frame = Layers.First();
 		using var progress = new ProgressBar();
-		using var canvas = core.Engine.Item.Value.NewCanvasFromLayers(layers);
-		var maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		using var canvas = Core.Engine.Item.Value.NewCanvasFromLayers(Layers);
+		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		Tools.ThreadPixels(frame, (x,y) => {
 			var nc = SmoothPixel(frame,x,y);
 			canvas[x,y] = nc;
@@ -131,5 +141,8 @@ public class Function : IFunction
 		}
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	ILayers Layers;
+	ICoreOptions Core;
+	IRegister Register;
 }

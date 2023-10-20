@@ -15,7 +15,7 @@ public static class Tools
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this ICanvas image, Action<int,int> callback,
-		int maxThreads = 1, IProgress<double> progress = null)
+		int? maxThreads = null, IProgress<double> progress = null)
 	{
 		var size = new Rectangle(0, 0, image.Width, image.Height);
 		ThreadPixels(size, callback, maxThreads, progress);
@@ -28,13 +28,17 @@ public static class Tools
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this Rectangle rect, Action<int,int> callback,
-		int maxThreads = 1, IProgress<double> progress = null)
+		int? maxThreads = null, IProgress<double> progress = null)
 	{
 		long done = 0;
 		long max = (long)rect.Width * rect.Height;
-		var po = new ParallelOptions {
-			MaxDegreeOfParallelism = maxThreads < 1 ? 1 : maxThreads
-		};
+
+		ParallelOptions po = null;
+		if (maxThreads.HasValue) {
+			po = new ParallelOptions {
+				MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value
+			};
+		}
 		Parallel.For(0, max, po, num => {
 			int y = (int)(num / rect.Width);
 			int x = (int)(num % rect.Width);

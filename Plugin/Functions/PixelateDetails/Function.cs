@@ -6,21 +6,30 @@ namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 [InternalRegisterFunction(nameof(PixelateDetails))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Layers = layers
+			// Core = core - not used
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
@@ -29,7 +38,7 @@ public class Function : IFunction
 		// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/dataflow-task-parallel-library
 		// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-implement-a-producer-consumer-dataflow-pattern
 
-		var image = layers.First();
+		var image = Layers.First();
 		SplitAndAverage(image, image.Bounds());
 
 		return true;
@@ -185,7 +194,9 @@ public class Function : IFunction
 		return val;
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ILayers Layers;
 
 	struct SortPair : IComparable
 	{

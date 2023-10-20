@@ -2,7 +2,9 @@ using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core;
 
-public class FunctionRegister : AbstractRegistrant<Lazy<IFunction>>
+public delegate IFunction FunctionSpawner(IRegister register, ILayers layers, ICoreOptions options);
+
+public class FunctionRegister : AbstractRegistrant<FunctionSpawner>
 {
 	public FunctionRegister(IRegister register) : base(register)
 	{

@@ -39,10 +39,13 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 		public void Usage(StringBuilder sb)
 		{
 			sb.ND(1,"Creates an image with every possible 24-bit color ordered by chosen pattern.");
-			sb.ND(1,"-p (pattern)","Sort by Pattern (default BitOrder)");
-			sb.ND(1,"-s (space)"  ,"Sort by color space components (instead of pattern)");
-			sb.ND(1,"-so (n,...)" ,"Change priority order of components (default 1,2,3,4)");
-			sb.ND(1,"-np"         ,"Use single threaded sort function instead of parallel sort");
+			sb.ND(1,"-p (pattern)"   ,"Sort by Pattern (default BitOrder)");
+			sb.ND(1,"-s (space)"     ,"Sort by color space components (instead of pattern)");
+			sb.ND(1,"-so (n,...)"    ,"Change priority order of components (default 1,2,3,4)");
+			sb.ND(1,"-ps"            ,"Use multi-threaded sort function instead of regular sort");
+			sb.ND(1,"-o (number)[%]" ,"Color Offset to use (should be between 0% nad 100%");
+			sb.ND(1,"-on (number)"   ,$"Absoulte Color Offset to use (should be between {int.MinValue} and {int.MaxValue}");
+			sb.ND(1,"-l / --legacy"  ,"Use original (legacy) algorithm");
 			sb.WT();
 			sb.ND(1,"Available Patterns");
 			sb.PrintEnum<Pattern>(1,GetPatternDescription);
@@ -77,8 +80,21 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			if (p.Default("-s",out WhichSpace,Space.None).IsInvalid()) {
 				return false;
 			}
-			if (p.Has("-np").IsGood()) {
-				NoParallelSort = true;
+			if (p.Has("-ps").IsGood()) {
+				ParallelSort = true;
+			}
+			if (p.Has("-l").IsGood() || p.Has("--legacy").IsGood()) {
+				UseOriginalCode = true;
+			}
+
+			var parser = new ParseParams.Parser<double?>((string n, out double? p) => {
+				return ExtraParsers.TryParseNumberPercent(n,out p);
+			});
+			if (p.Default("-o", out ColorOffsetPct, 0.0, parser).IsInvalid()) {
+				return false;
+			}
+			if (p.Default("-on", out ColorOffsetAbs, 0).IsInvalid()) {
+				return false;
 			}
 
 			var pso = p.Default("-so",out string pri);
@@ -108,11 +124,23 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			return true;
 		}
 
-		public Pattern SortBy = Pattern.None;
-		public Space WhichSpace = Space.None;
-		public int[] Order = null;
-		public bool NoParallelSort = false;
+		public Pattern SortBy;
+		public Space WhichSpace;
+		public int[] Order;
+		public bool ParallelSort = false;
+		public bool UseOriginalCode = false;
+		public double? ColorOffsetPct;
+		public int? ColorOffsetAbs;
 		public const int FourKWidth = 4096;
 		public const int FourKHeight = 4096;
+
+		internal int ColorOffset { get {
+			if (ColorOffsetAbs.HasValue) {
+				return ColorOffsetAbs.Value;
+			}
+			else {
+				return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
+			}
+		}}
 	}
 }

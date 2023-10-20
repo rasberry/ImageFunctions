@@ -10,34 +10,40 @@ public static class Log
 	public static void Info(string m)
 	{
 		if (BeVerbose) {
-			Console.ForegroundColor = ConsoleColor.Gray;
-			Console.WriteLine($"I: {m}");
-			Console.ResetColor();
+			WithColor($"I: {m}",ConsoleColor.Gray);
 		}
 	}
 
 	public static void Warning(string m)
 	{
-		Console.ForegroundColor = ConsoleColor.Yellow;
-		Console.WriteLine($"W: {m}");
-		Console.ResetColor();
+		WithColor($"W: {m}",ConsoleColor.Yellow, true);
 	}
 
 	public static void Error(string m)
 	{
-		Console.ForegroundColor = ConsoleColor.Red;
-		Console.Error.WriteLine($"E: {m}");
-		Console.ResetColor();
+		WithColor($"E: {m}",ConsoleColor.Red,true);
 	}
 
 	public static void Debug(string m)
 	{
 		#if DEBUG
-		Console.ForegroundColor = ConsoleColor.DarkGray;
-		Console.WriteLine($"D: {m}");
-		Console.ResetColor();
+		WithColor($"D: {m}",ConsoleColor.DarkGray);
 		#endif
 	}
 
 	public static bool BeVerbose { get; set; }
+
+	static void WithColor(string m, ConsoleColor color, bool error = false)
+	{
+		//using try-finally to make sure the console color gets reset
+		// otherwise stopping the program (ctrl-c) can leave the console with a leftover color
+		try {
+			Console.ForegroundColor = color;
+			var tw = error ? Console.Error : Console.Out;
+			tw.WriteLine(m);
+		}
+		finally {
+			Console.ResetColor();
+		}
+	}
 }

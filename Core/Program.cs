@@ -87,15 +87,16 @@ internal class Program
 	{
 		// figure out the function to run
 		var fr = new FunctionRegister(Register);
-		if (!fr.Try(Options.FunctionName, out var lzFunc)) {
+		if (!fr.Try(Options.FunctionName, out var funcItem)) {
 			Tell.NotRegistered(fr.Namespace,Options.FunctionName);
 			exitCode = ExitCode.StoppedFunctionNotRegistered;
 			return false;
 		}
 
 		//Not really sure how to best use the bool return. Going with exit code for now
-		Log.Info($"Running Function {lzFunc}");
-		if (!lzFunc.Item.Value.Run(Register, Layers, Options, Options.FunctionArgs)) {
+		Log.Info($"Running Function {funcItem}");
+		var func = funcItem.Item.Invoke(Register, Layers, Options);
+		if (!func.Run(Options.FunctionArgs)) {
 			exitCode = ExitCode.StoppedAfterRun;
 			return false;
 		}

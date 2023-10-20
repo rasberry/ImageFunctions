@@ -5,26 +5,35 @@ namespace ImageFunctions.Plugin.Functions.Derivatives;
 [InternalRegisterFunction(nameof(Derivatives))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Layers = layers
+			// Core = core - not used
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Core.Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
-		var frame = layers.First();
+		var frame = Layers.First();
 
 		if (frame.Width < 2 || frame.Height < 2) {
 			return true; //nothing to do
@@ -144,5 +153,7 @@ public class Function : IFunction
 		return vGray;
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	ILayers Layers;
+	IRegister Register;
 }

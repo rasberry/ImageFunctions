@@ -8,31 +8,41 @@ namespace ImageFunctions.Plugin.Functions.AutoWhiteBalance;
 [InternalRegisterFunction(nameof(AutoWhiteBalance))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
+
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
 	// based on https://docs.gimp.org/2.8/en/gimp-layer-white-balance.html
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
-		var source = layers.First();
+		var source = Layers.First();
 		using var progress = new ProgressBar();
 		var hist = CalcHistorgram(progress, source, O.BucketCount);
 		var factors = CalcStretchFactors(hist, source.Width, source.Height, O.DiscardRatio);
 
-		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		progress.Prefix = "Modifying Colors ";
 		Tools.ThreadPixels(source,(int x, int y) => {
 			Core.ColorSpace.IColor3 orig = source[x,y];
@@ -124,7 +134,10 @@ public class Function : IFunction
 		return buckets;
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ICoreOptions Core;
+	ILayers Layers;
 
 	class Histogram3Data
 	{

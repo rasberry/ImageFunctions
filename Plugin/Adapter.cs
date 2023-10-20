@@ -20,17 +20,13 @@ class Adapter : IPlugin
 		var reg = new FunctionRegister(register);
 		var assembly = this.GetType().Assembly;
 		var functions = SelectFunctions(assembly);
-		foreach(var f in functions) {
+		foreach(var (name,spawn) in functions) {
 			//Log.Debug($"register method: {m.Name} {m.DeclaringType.Name}");
-			reg.Add(f.Item1, f.Item2);
+			reg.Add(name,spawn);
 		}
-
-		//reg.Add("AllColors",new Lazy<IFunction>(() => new AllColors.Function()));
-		//reg.Add("AreaSmoother",new Lazy<IFunction>(() => new AreaSmoother.Function()));
-		//reg.Add("AreaSmoother2",new Lazy<IFunction>(() => new AreaSmoother2.Function()));
 	}
 
-	static IEnumerable<(string,Lazy<IFunction>)> SelectFunctions(Assembly assembly)
+	static IEnumerable<(string,FunctionSpawner)> SelectFunctions(Assembly assembly)
 	{
 		var all = assembly.GetTypes();
 		foreach(var type in all) {
@@ -39,7 +35,9 @@ class Adapter : IPlugin
 				continue;
 			}
 
-			var wrap = new Lazy<IFunction>(() => (IFunction)Activator.CreateInstance(type));
+			var flags = BindingFlags.Static | BindingFlags.Public;
+			var spawn = type.GetMethod(nameof(IFunction.Create),flags);
+			var wrap = spawn.CreateDelegate<FunctionSpawner>();
 			var name = ((InternalRegisterFunctionAttribute)att.First()).Name;
 			yield return (name,wrap);
 		}

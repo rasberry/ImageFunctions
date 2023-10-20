@@ -263,10 +263,11 @@ internal class Options : ICoreOptions
 		}
 
 		foreach(string key in list) {
-			var lzFunc = fn.Get(key);
+			var funcItem = fn.Get(key);
 			sb.WT();
 			sb.WT(0,$"Function {key}:");
-			lzFunc.Item.Value.Usage(sb);
+			var inst = funcItem.Item.Invoke(Register, null, this);
+			inst.Usage(sb);
 		}
 
 		return true;

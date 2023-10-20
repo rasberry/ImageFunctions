@@ -7,30 +7,39 @@ namespace ImageFunctions.Plugin.Functions.PixelRules;
 [InternalRegisterFunction(nameof(PixelRules))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
-		var engine = core.Engine.Item.Value;
-		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		var source = layers.First();
+		var engine = Core.Engine.Item.Value;
+		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		var source = Layers.First();
 		using var progress = new ProgressBar();
-		using var canvas = engine.NewCanvasFromLayers(layers);
+		using var canvas = engine.NewCanvasFromLayers(Layers);
 		var rect = source.Bounds();
 
 		for(int p=0; p<O.Passes; p++) {
@@ -181,5 +190,8 @@ public class Function : IFunction
 		return dist;
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ILayers Layers;
+	ICoreOptions Core;
 }

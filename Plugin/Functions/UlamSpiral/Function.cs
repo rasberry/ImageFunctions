@@ -8,28 +8,37 @@ namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 [InternalRegisterFunction(nameof(UlamSpiral))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		var engine = core.Engine.Item.Value;
-		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		var (dfw,dfh) = core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
-		var source = engine.NewCanvasFromLayersOrDefault(layers, dfw, dfh);
-		layers.Push(source);
+		var engine = Core.Engine.Item.Value;
+		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
+		Layers.Push(source);
 		var bounds = source.Bounds();
 
-		Init(register);
+		Init(Register);
 		PlugTools.FillWithColor(source,GetColor(PickColor.Back),bounds);
 
 		var srect = GetSpacedRectangle(bounds);
@@ -262,7 +271,10 @@ public class Function : IFunction
 
 	ColorRGBA[] c_color = new ColorRGBA[4];
 	Lazy<IMetric> Metric;
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ICoreOptions Core;
+	ILayers Layers;
 
 	void Init(IRegister register)
 	{

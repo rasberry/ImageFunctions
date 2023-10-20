@@ -1,101 +1,47 @@
+using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 
-[InternalRegisterFunction(nameof(AllColors))]
-public class Function : IFunction
+public static class DrawOriginal
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	internal static void Draw(ICanvas image, int maxThreads, Options O)
 	{
-		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
-		};
-		return f;
-	}
-
-	public void Usage(StringBuilder sb)
-	{
-		O.Usage(sb);
-	}
-
-	// Inspired by
-	// https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
-
-	public bool Run(string[] args)
-	{
-		if (Layers == null) {
-			throw Squeal.ArgumentNull(nameof(Layers));
-		}
-		if (!O.ParseArgs(args, Register)) {
-			return false;
-		}
-
-		//since we're rendering pixels make a new layer each time
-		var engine = Core.Engine.Item.Value;
-		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.FourKWidth,Options.FourKHeight);
-		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
-		Layers.Push(image);
-
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		if (O.UseOriginalCode) {
-			DrawOriginal.Draw(image, maxThreads, O);
-		}
-		else {
-			Draw(image, maxThreads);
-		}
-
-		return true;
-	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions Core;
-
-	internal const int NumberOfColors = 16777216;
-	//there doesn't seem to be a sort with progress so take a guess
-	// at the maximum number of iterations
-	internal const double SortMax = 24 * NumberOfColors; //log2(n) * n
-
-	void Draw(ICanvas image, int maxThreads)
-	{
-		List<ColorRGBA> colorList = null;
+		List<Color> colorList = null;
+		var bounds = image.Bounds();
 
 		if (O.WhichSpace != Space.None) {
-			colorList = ConvertBySpace(image, O.WhichSpace, O.Order, maxThreads);
+			colorList = ConvertBySpace(bounds, O.WhichSpace, O.Order, maxThreads, O);
 		}
 		else {
-			colorList = ConvertByPattern(image, O.SortBy, maxThreads);
+			colorList = ConvertByPattern(bounds, O.SortBy, maxThreads, O);
 		}
 
-		//int coff = -1;
+		int coff = -1;
 		var work = (int x, int y) => {
-			//coff++;
-			int coff = y * image.Height + x;
-			var nc = coff < colorList.Count
+			int cy = y - bounds.Top;
+			int cx = x - bounds.Left;
+			var nc = ++coff < colorList.Count
 				? colorList[coff]
-				: PlugColors.Transparent;
+				: Color.Transparent;
 
-			image[x,y] = nc;
+			image[cx,cy] = ColorRGBA.FromRGBA255(nc.R,nc.G,nc.B,nc.A);
 		};
 
 		using var progress = new ProgressBar();
 		progress.Prefix = "Rendering...";
-		Tools.ThreadPixels(image, work, maxThreads, progress);
+		Tools.ThreadPixels(bounds, work, maxThreads, progress);
 	}
 
-	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, int maxThreads)
+	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int maxThreads,Options O)
 	{
-		Func<ColorRGBA,double> converter = null;
+		Func<Color,double> converter = null;
 		switch(p)
 		{
 		default:
-		case Pattern.BitOrder:      return PatternBitOrder(image).ToList();
-		//case Pattern.BitOrder:      converter = ConvertRGBA; break;
+		case Pattern.BitOrder:      return PatternBitOrder(bounds, O).ToList();
 		case Pattern.AERT:          converter = ConvertAERT; break;
 		case Pattern.HSP:           converter = ConvertHSP; break;
 		case Pattern.WCAG2:         converter = ConvertWCAG2; break;
@@ -105,15 +51,15 @@ public class Function : IFunction
 		case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
 		}
 
-		return ConvertAndSort(image, converter, ComparersLuminance(), null, maxThreads);
+		return ConvertAndSort(bounds, converter, ComparersLuminance(), null, maxThreads,O);
 	}
 
-	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, int[] order, int maxThreads)
+	static List<Color> ConvertBySpace(Rectangle bounds, Space space, int[] order, int maxThreads, Options O)
 	{
 		switch(space)
 		{
 		case Space.RGB:
-			return ConvertAndSort(image, c => c, CompareColorRGBA(),order,maxThreads);
+			return ConvertAndSort(bounds, c => c, ComparersRgba32(),order,maxThreads,O);
 		//case Space.CieLab:
 		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order,maxThreads);
 		//case Space.CieLch:
@@ -125,15 +71,15 @@ public class Function : IFunction
 		//case Space.CieXyy:
 		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order,maxThreads);
 		case Space.CieXyz:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCie1931()),CompareIColor3(),order,maxThreads,O);
 		case Space.Cmyk:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCmyk()),CompareIColor4(),order,maxThreads,O);
 		case Space.HSI:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsi()),CompareIColor3(),order,maxThreads,O);
 		case Space.HSL:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsl()),CompareIColor3(),order,maxThreads,O);
 		case Space.HSV:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsv()),CompareIColor3(),order,maxThreads,O);
 		//case Space.HunterLab:
 		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order,maxThreads);
 		//case Space.LinearRgb:
@@ -141,32 +87,55 @@ public class Function : IFunction
 		//case Space.Lms:
 		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order,maxThreads);
 		case Space.YCbCr:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order,maxThreads,O);
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
 	}
 
-	//return every color in numeric order
-	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image)
-	{
-		int total = Math.Min(image.Width * image.Height, NumberOfColors);
+	//for some reason this offset produces the closest colors to the original
+	// version of AllColors - not sure what changed
+	const int magickOffset = 427296640;
 
-		for(int i = 0; i < total; i++) {
-			int ic = (i + O.ColorOffset) % int.MaxValue;
-			double r = ((ic >> 00) & 255) / 255.0;
-			double g = ((ic >> 08) & 255) / 255.0;
-			double b = ((ic >> 16) & 255) / 255.0;
-			//Log.Debug($"i={i} r={r} g={g} b={b}");
-			yield return new ColorRGBA(r, g, b, 1.0);
+	//return every color in numeric order
+	static List<Color> PatternBitOrder(Rectangle rect, Options O)
+	{
+		bool isEmpty = rect == Rectangle.Empty;
+		int num = isEmpty
+			? Function.NumberOfColors
+			: rect.Width * rect.Height;
+		int offset = O.ColorOffset;
+		//Log.Debug($"ColorOffset = {offset}");
+
+		var cList = new List<Color>(num);
+		for(int i=0; i<Function.NumberOfColors; i++) {
+			if (!isEmpty) {
+				int y = i / Options.FourKWidth;
+				int x = i % Options.FourKWidth;
+				if (!rect.Contains(x,y)) { continue; }
+			}
+
+			int oi = (i + magickOffset + offset) % int.MaxValue;
+			var color = ToColor(oi);
+			cList.Add(color);
 		}
+		return cList;
 	}
 
-	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList,
-		int[] order, int maxThreads)
+	//const int offset = 128 * 13421771; //(int)(2147483648.0 * 8/9);
+	static Color ToColor(int color)
 	{
-		var colorList = PatternBitOrder(image).ToList();
-		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
+		int r = (color >> 00) & 255;
+		int g = (color >> 08) & 255;
+		int b = (color >> 16) & 255;
+		return Color.FromArgb(255,r,g,b);
+	}
+
+	static List<Color> ConvertAndSort<T>(Rectangle bounds, Func<Color,T> conv, Func<T,T,int>[] compList,
+		int[] order, int maxThreads, Options O)
+	{
+		var colorList = PatternBitOrder(bounds, O).ToList();
+		var tempList = new List<(Color,T)>(colorList.Count);
 		if (order != null) {
 			//make sure order is at least as long as the colorList
 			if (order.Length < compList.Length) {
@@ -185,7 +154,7 @@ public class Function : IFunction
 		{
 			progress.Prefix = "Converting...";
 			for(int t=0; t<colorList.Count; t++) {
-				var c = colorList[t];
+				Color c = colorList[t];
 				T next = conv(c);
 				tempList.Add((c,next));
 				progress.Report((double)t / colorList.Count);
@@ -197,16 +166,16 @@ public class Function : IFunction
 			progress.Prefix = "Sorting...";
 
 			int count = 0;
-			var progressSorter = new Comparison<(ColorRGBA,T)>((a,b) => {
+			var progressSorter = new Comparison<(Color,T)>((a,b) => {
 				count++;
-				progress.Report(count / SortMax);
+				progress.Report(count / Function.SortMax);
 				return MultiSort(compList,a.Item2,b.Item2);
 			});
 
 			if (O.ParallelSort) {
 				//parallel version seems to works best on 4+ cores
-				var comp = Comparer<(ColorRGBA,T)>.Create(
-					new Comparison<(ColorRGBA,T)>((a,b) => {
+				var comp = Comparer<(Color,T)>.Create(
+					new Comparison<(Color,T)>((a,b) => {
 						return MultiSort(compList,a.Item2,b.Item2);
 					})
 				);
@@ -237,7 +206,7 @@ public class Function : IFunction
 		return 0;
 	}
 
-	static Func<ColorRGBA,IColor3> GetConverter(IColor3Space space)
+	static Func<Color,IColor3> GetConverter(IColor3Space space)
 	{
 		var c = new Converter3Helper() { Space = space };
 		return c.Convert;
@@ -246,13 +215,14 @@ public class Function : IFunction
 	class Converter3Helper
 	{
 		public IColor3Space Space;
-		public IColor3 Convert(ColorRGBA c)
+		public IColor3 Convert(Color c)
 		{
-			return Space.ToSpace(c);
+			var nc = ColorRGBA.FromRGBA255(c.R,c.G,c.B,c.A);
+			return Space.ToSpace(nc);
 		}
 	}
 
-	static Func<ColorRGBA,IColor4> GetConverter(IColor4Space space)
+	static Func<Color,IColor4> GetConverter(IColor4Space space)
 	{
 		var c = new Converter4Helper() { Space = space };
 		return c.Convert;
@@ -261,9 +231,10 @@ public class Function : IFunction
 	class Converter4Helper
 	{
 		public IColor4Space Space;
-		public IColor4 Convert(ColorRGBA c)
+		public IColor4 Convert(Color c)
 		{
-			return Space.ToSpace(c);
+			var nc = ColorRGBA.FromRGBA255(c.R,c.G,c.B,c.A);
+			return Space.ToSpace(nc);
 		}
 	}
 
@@ -275,12 +246,8 @@ public class Function : IFunction
 		return arr;
 	}
 
-	static double ConvertRGBA(ColorRGBA c) {
-		return 1.0;
-	}
-
 	// https://en.wikipedia.org/wiki/Rec._709
-	static double ConvertLuminance709(ColorRGBA c)
+	static double ConvertLuminance709(Color c)
 	{
 		double l = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B;
 		return l;
@@ -289,28 +256,28 @@ public class Function : IFunction
 	// https://en.wikipedia.org/wiki/YCbCr#ITU-R_BT.601_conversion
 	// https://en.wikipedia.org/wiki/HSL_and_HSV#Lightness
 	// https://en.wikipedia.org/wiki/Rec._601
-	static double ConvertLuminance601(ColorRGBA c)
+	static double ConvertLuminance601(Color c)
 	{
 		double l = 0.2989 * c.R + 0.5870 * c.G + 0.1140 * c.B;
 		return l;
 	}
 
 	// https://en.wikipedia.org/wiki/Rec._2020
-	static double ConvertLuminance2020(ColorRGBA c)
+	static double ConvertLuminance2020(Color c)
 	{
 		double l = 0.2627 * c.R + 0.6780 * c.G + 0.0593 * c.B;
 		return l;
 	}
 
 	// http://www.w3.org/TR/AERT#color-contrast
-	static double ConvertAERT(ColorRGBA c)
+	static double ConvertAERT(Color c)
 	{
 		double l = 0.2990 * c.R + 0.5870 * c.G + 0.1140 * c.B;
 		return l;
 	}
 
 	// http://alienryderflex.com/hsp.html
-	static double ConvertHSP(ColorRGBA c)
+	static double ConvertHSP(Color c)
 	{
 		double rr = c.R * c.R, gg = c.G * c.G, bb = c.B * c.B;
 		double l = 0.2990 * rr + 0.5870 * gg + 0.1140 * bb;
@@ -318,7 +285,7 @@ public class Function : IFunction
 	}
 
 	// http://www.w3.org/TR/WCAG20/#relativeluminancedef
-	static double ConvertWCAG2(ColorRGBA c)
+	static double ConvertWCAG2(Color c)
 	{
 		double l =
 			  0.2126 * WCAG2Normalize(c.R)
@@ -326,8 +293,9 @@ public class Function : IFunction
 			+ 0.0722 * WCAG2Normalize(c.B);
 		return l;
 	}
-	static double WCAG2Normalize(double val)
+	static double WCAG2Normalize(byte component)
 	{
+		double val = component / 255.0;
 		double c = val <= 0.03928
 			? val / 12.92
 			: Math.Pow((val + 0.055)/1.055,2.4)
@@ -336,15 +304,15 @@ public class Function : IFunction
 	}
 
 	// http://discoverybiz.net/enu0/faq/faq_YUV_YCbCr_YPbPr.html
-	static double ConvertSmpte1999(ColorRGBA c)
+	static double ConvertSmpte1999(Color c)
 	{
 		double l = 0.2120 * c.R + 0.7010 * c.G + 0.0870 * c.B;
 		return l;
 	}
 
-	static Func<ColorRGBA,ColorRGBA,int>[] CompareColorRGBA()
+	static Func<Color,Color,int>[] ComparersRgba32()
 	{
-		var arr = new Func<ColorRGBA,ColorRGBA,int>[] {
+		var arr = new Func<Color,Color,int>[] {
 			(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
 			(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
 			(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,

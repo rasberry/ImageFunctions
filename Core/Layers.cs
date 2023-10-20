@@ -66,7 +66,7 @@ public interface ILayers : IEnumerable<ICanvas>
 public class Layers : ILayers, IDisposable
 {
 	//construction should be managed by the core project
-	internal Layers() {}
+	//internal Layers() {}
 
 	public ICanvas this[int index] {
 		get {
@@ -143,7 +143,6 @@ public class Layers : ILayers, IDisposable
 		List.RemoveAt(fix); //we're not evicting just moving
 		List.Insert(tix,item);
 	}
-
 
 	public int Count {
 		get {

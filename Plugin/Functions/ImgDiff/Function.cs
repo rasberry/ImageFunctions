@@ -1,47 +1,77 @@
 using System.Drawing;
 using ImageFunctions.Core;
+using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
 [InternalRegisterFunction(nameof(ImgDiff))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 2) {
+		if (Layers.Count < 2) {
 			Tell.LayerMustHaveAtLeast(2);
 			return false;
 		}
 
 		const int topIx = 0;
 		const int nextIx = 1;
-		var frame = layers[topIx];
-		var compareImg = layers[nextIx];
-		using var progress = new Rasberry.Cli.ProgressBar();
 
-		double totalDist = 0.0;
+		var srcImg = Layers[topIx];
+		var compareImg = Layers[nextIx];
+		ICanvas frame = O.MakeThirdLayer
+			? Core.Engine.Item.Value.NewCanvasFromLayers(Layers)
+			: srcImg;
+
+		InitMetric();
+		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+
+		var totalDist = ProcessDiff(frame, srcImg, compareImg, maxThreads);
+		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
+
+		if (O.MakeThirdLayer) {
+			Layers.Push(frame);
+		}
+		else {
+			Layers.DisposeAt(nextIx);
+		}
+
+		return true;
+	}
+
+	double ProcessDiff(ICanvas frame, ICanvas srcImg, ICanvas compareImg, int maxThreads)
+	{
 		var minimum = Rectangle.Intersect(frame.Bounds(), compareImg.Bounds());
 		var colorWhite = PlugColors.White;
 		var colorHilight = O.HilightColor;
 		var colorTransp = PlugColors.Transparent;
-		InitMetric();
+		double totalDist = 0.0;
+		var progress = new ProgressBar();
 
-		var maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		Tools.ThreadPixels(minimum, (x,y) => {
-			var one = frame[x,y];
-			var two = compareImg[x,y];
+		Tools.ThreadPixels(minimum, (x, y) => {
+			var one = srcImg[x, y];
+			var two = compareImg[x, y];
 			bool areSame = one.Equals(two);
 			//toggle matching of different pixels vs same pixels
 			bool sameSame = O.MatchSamePixels ^ areSame; //XOR
@@ -49,14 +79,14 @@ public class Function : IFunction
 			//option to output original pixels if they 'match'
 			if (O.OutputOriginal) {
 				if (sameSame) {
-					frame[x,y] = colorTransp;
+					frame[x, y] = colorTransp;
 				}
 			}
 			//otherwise highlight 'unmatched' pixels
 			else if (!sameSame) {
-				double dist; ColorRGBA sc,ec;
+				double dist; ColorRGBA sc, ec;
 				if (O.HilightOpacity == null) {
-					dist = ColorDistanceRatio(one,two);
+					dist = ColorDistanceRatio(one, two);
 					sc = colorHilight;
 					ec = colorWhite;
 				}
@@ -66,15 +96,13 @@ public class Function : IFunction
 					ec = colorHilight;
 				}
 				totalDist += dist;
-				var overlay = PlugTools.BetweenColor(sc,ec,dist);
-				frame[x,y] = overlay;
+				var overlay = PlugTools.BetweenColor(sc, ec, dist);
+				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		},maxThreads,progress);
+		}, maxThreads, progress);
 
-		layers.DisposeAt(nextIx); //TODO maybe add option to keep the previous layers
-		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
-		return true;
+		return totalDist;
 	}
 
 	double ColorDistanceRatio(ColorRGBA one, ColorRGBA two)
@@ -96,5 +124,8 @@ public class Function : IFunction
 		);
 	}
 
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ILayers Layers;
+	ICoreOptions Core;
 }

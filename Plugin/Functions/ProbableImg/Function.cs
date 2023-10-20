@@ -9,29 +9,38 @@ namespace ImageFunctions.Plugin.Functions.ProbableImg;
 [InternalRegisterFunction(nameof(ProbableImg))]
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		O.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, ICoreOptions core, string[] args)
+	public bool Run( string[] args)
 	{
-		if (layers == null) {
-			throw Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, register)) {
+		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (layers.Count < 1) {
+		if (Layers.Count < 1) {
 			Tell.LayerMustHaveAtLeast();
 			return false;
 		}
 
-		var source = layers.First();
+		var source = Layers.First();
 		var bounds = source.Bounds();
 
-		int maxThreads = core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		using var progress = new ProgressBar();
 		CreateProfile(progress,source,bounds, maxThreads);
 
@@ -40,8 +49,8 @@ public class Function : IFunction
 		//	Log.Debug(kvp.Value.ToString());
 		//}
 
-		var engine = core.Engine.Item.Value;
-		using var canvas = engine.NewCanvasFromLayers(layers);
+		var engine = Core.Engine.Item.Value;
+		using var canvas = engine.NewCanvasFromLayers(Layers);
 		CreateImage(progress,canvas);
 		source.CopyFrom(canvas);
 		//Source.BlitImage(canvas, resize:true);
@@ -239,7 +248,10 @@ public class Function : IFunction
 	long LastIndex = 0;
 	Random Rnd;
 	BitArray[] VisitNest;
-	Options O = new Options();
+	readonly Options O = new();
+	IRegister Register;
+	ICoreOptions Core;
+	ILayers Layers;
 
 	public long CtoI(ColorRGBA c)
 	{
