@@ -8,6 +8,10 @@ public abstract class AbstractFunctionTest
 
 	public void RunFunction(TestFunctionInfo info)
 	{
+		if (info.Layers == null) {
+			throw Squeal.ArgumentNull("info.Layers - Layers should be managed from the test method");
+		}
+
 		//concat global arguments with test arguments
 		var args = new List<string>();
 		args.Add(FunctionName);

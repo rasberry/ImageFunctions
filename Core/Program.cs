@@ -6,7 +6,7 @@ internal class Program
 	static int Main(string[] args)
 	{
 		try {
-			var register = new Register();
+			using var register = new Register();
 			var options = new Options(register);
 			using var layers = new Layers();
 			var main = new Program(register, options, layers);
@@ -32,10 +32,9 @@ internal class Program
 
 	int Run(string[] args)
 	{
-		int exitCode;
 
 		//setup stage
-		if (!TrySetup(args, out exitCode)) {
+		if (!TrySetup(args, out int exitCode)) {
 			return exitCode;
 		}
 

@@ -13,11 +13,6 @@ public class Setup
 		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
 
 		Register = new Register();
-		//var layers = new Layers();
-		//var options = new Options(register);
-		//Log.BeVerbose = true;
-		//var prog = new Program(register, options, layers);
-
 		PluginLoader.RegisterPlugin(typeof(Core.Adapter).Assembly, Register);
 		PluginLoader.RegisterPlugin(typeof(Plugin.Adapter).Assembly, Register);
 	}
@@ -25,14 +20,14 @@ public class Setup
 	[AssemblyCleanup]
 	public static void Cleanup()
 	{
-		//if (Instance != null && Instance.Layers != null) {
-		//	((Layers)Instance.Layers).Dispose();
-		//	Instance.Layers = null;
-		//}
+		if (Register != null) {
+			Register.Dispose();
+			Register = null;
+		}
 	}
 
 	//internal static Program Instance;
-	internal static IRegister Register;
+	internal static Register Register;
 
 	// https://stackoverflow.com/questions/816566/how-do-you-get-the-current-project-directory-from-c-sharp-code-when-creating-a-c
 	internal static string ProjectRootPath { get { return runTimePath ??= CalculatePath(); }}

@@ -235,7 +235,8 @@ internal class Options : ICoreOptions
 		keyList = ((all = @namespace.EqualsIC("all"))
 			? Register.All()
 			: Register.All().Where(k => k.NameSpace.StartsWithIC(@namespace))
-		).Select(n => n.ToString()).Order();
+		)
+		.Select(n => $"{n.NameSpace}.{n.Name}").Order();
 
 		string suffix = all ? "" : $" for '{@namespace}'";
 		sb.WT();

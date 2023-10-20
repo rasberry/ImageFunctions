@@ -1,6 +1,6 @@
 namespace ImageFunctions.Core;
 
-internal class Register : IRegister
+internal class Register : IRegister, IDisposable
 {
 	public void Add<T>(string @namespace, string name, T item) {
 		EnsureNameIsNotNull(@namespace, name);
@@ -69,6 +69,17 @@ internal class Register : IRegister
 		if (string.IsNullOrWhiteSpace(name)) {
 			throw Squeal.ArgumentNullOrEmpty(nameof(name));
 		}
+	}
+
+	public void Dispose()
+	{
+		if (Store == null) { return; }
+		foreach(var kvp in Store) {
+			if (kvp.Value is IDisposable disposable) {
+				disposable.Dispose();
+			}
+		}
+		Store = null;
 	}
 
 	//can't use the INameSpaceName as the key because the overridden

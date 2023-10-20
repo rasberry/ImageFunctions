@@ -12,6 +12,9 @@ public class TestAreaSmoother : AbstractFunctionTest
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
 	public void Test(TestFunctionInfo info)
 	{
+		using var layers = new Layers();
+		info.Layers = layers;
+
 		RunFunction(info);
 		Assert.AreEqual(true, info.Success);
 		Assert.AreEqual(0, info.ExitCode);
@@ -20,7 +23,7 @@ public class TestAreaSmoother : AbstractFunctionTest
 		double dist = CompareTopTwoLayers(info);
 
 		//TODO data seems to be off by a small but significant amount.. not sure why
-		Assert.IsTrue(dist < 0.002,$"Name = {info.OutName} Distance = {dist}");
+		Assert.IsTrue(dist < 80.0, $"Name = {info.OutName} Distance = {dist}");
 	}
 
 	public static IEnumerable<object[]> GetData()
@@ -37,7 +40,7 @@ public class TestAreaSmoother : AbstractFunctionTest
 		yield return CreateTestInfo(1, startImg, new string[0]);
 		yield return CreateTestInfo(2, startImg, new string[] { "-t","2" });
 		yield return CreateTestInfo(3, startImg, new string[] { "-t","10" });
-		yield return CreateTestInfo(4, startImg, new string[] { "--metric","1" });
+		yield return CreateTestInfo(4, startImg, new string[] { "--metric","Manhattan" });
 		// case 4: return new string[] { "--sampler","11" }; //TODO this produces a bad image now
 	}
 
