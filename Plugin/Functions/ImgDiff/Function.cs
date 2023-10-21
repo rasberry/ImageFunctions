@@ -45,9 +45,8 @@ public class Function : IFunction
 			: srcImg;
 
 		InitMetric();
-		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 
-		var totalDist = ProcessDiff(frame, srcImg, compareImg, maxThreads);
+		var totalDist = ProcessDiff(frame, srcImg, compareImg);
 		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
 
 		if (O.MakeThirdLayer) {
@@ -60,7 +59,7 @@ public class Function : IFunction
 		return true;
 	}
 
-	double ProcessDiff(ICanvas frame, ICanvas srcImg, ICanvas compareImg, int maxThreads)
+	double ProcessDiff(ICanvas frame, ICanvas srcImg, ICanvas compareImg)
 	{
 		var minimum = Rectangle.Intersect(frame.Bounds(), compareImg.Bounds());
 		var colorWhite = PlugColors.White;
@@ -100,7 +99,7 @@ public class Function : IFunction
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		}, maxThreads, progress);
+		}, Core.MaxDegreeOfParallelism, progress);
 
 		return totalDist;
 	}

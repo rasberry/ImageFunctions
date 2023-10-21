@@ -18,17 +18,26 @@ namespace ImageFunctions.Plugin.Functions.MyFunction;
 
 public class Function : IFunction
 {
+	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	{
+		var f = new Function {
+			Register = register,
+			Core = core,
+			Layers = layers
+		};
+		return f;
+	}
 	public void Usage(StringBuilder sb)
 	{
 		Options.Usage(sb);
 	}
 
-	public bool Run(IRegister register, ILayers layers, string[] args)
+	public bool Run(string[] args)
 	{
-		if (layers == null) {
-			throw Core.Squeal.ArgumentNull(nameof(layers));
+		if (Layers == null) {
+			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, register)) {
+		if (!Options.ParseArgs(args, Register)) {
 			return false;
 		}
 
@@ -36,6 +45,11 @@ public class Function : IFunction
 
 		return true;
 	}
+
+	readonly Options Options = new();
+	IRegister Register;
+	ILayers Layers;
+	ICoreOptions Core;
 }
 ```
 

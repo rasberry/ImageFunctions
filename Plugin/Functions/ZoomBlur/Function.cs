@@ -36,7 +36,6 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 
 		var source = Layers.First();
 		using var progress = new ProgressBar();
@@ -63,7 +62,7 @@ public class Function : IFunction
 			int cx = x - bounds.Left;
 			//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 			canvas[cx,cy] = nc;
-		},maxThreads,progress);
+		},Core.MaxDegreeOfParallelism,progress);
 
 		source.CopyFrom(canvas, bounds);
 		return true;

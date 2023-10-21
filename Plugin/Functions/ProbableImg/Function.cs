@@ -40,9 +40,8 @@ public class Function : IFunction
 		var source = Layers.First();
 		var bounds = source.Bounds();
 
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		using var progress = new ProgressBar();
-		CreateProfile(progress,source,bounds, maxThreads);
+		CreateProfile(progress,source,bounds);
 
 		//foreach(var kvp in Profile) {
 		//	Log.Debug($"Key = {kvp.Key}");
@@ -58,7 +57,7 @@ public class Function : IFunction
 		return true;
 	}
 
-	void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect, int maxThreads)
+	void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect)
 	{
 		Profile = new ConcurrentDictionary<long,ColorProfile>();
 		CToIndex = new Dictionary<ColorRGBA, long>();
@@ -98,7 +97,7 @@ public class Function : IFunction
 				if (cs != null) { AddUpdateCount(cc.SColor,cs.Value); }
 				if (ce != null) { AddUpdateCount(cc.EColor,ce.Value); }
 			}
-		},maxThreads,pbar);
+		},Core.MaxDegreeOfParallelism,pbar);
 	}
 
 	void AddUpdateCount(IDictionary<long,long> dict, ColorRGBA color)

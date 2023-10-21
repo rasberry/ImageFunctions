@@ -52,11 +52,11 @@ public class Function : IFunction
 			string[] fargs = new[] { "-l","-on", o.ToString() };
 			ac.Run(fargs);
 
-			double dist = ImageComparer.CanvasDistance(keep, tempLayers.First());
-			if (dist < best) {
+			var dist = ImageComparer.CanvasDistance(keep, tempLayers.First());
+			if (dist.Total < best) {
 				lock(padlock) {
-					if (dist < best) {
-						best = dist; besto = o;
+					if (dist.Total < best) {
+						best = dist.Total; besto = o;
 					}
 				}
 				Log.Error($"new best={best} besto={besto} c={c}");

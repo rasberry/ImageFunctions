@@ -32,7 +32,6 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
@@ -42,7 +41,7 @@ public class Function : IFunction
 		PlugTools.FillWithColor(source,GetColor(PickColor.Back),bounds);
 
 		var srect = GetSpacedRectangle(bounds);
-		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds, maxThreads) : 1;
+		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds) : 1;
 		double factor = 1.0 / maxFactor;
 		var drawFunc = GetDrawFunc();
 		var (cx, cy) = GetCenterXY(srect);
@@ -109,7 +108,7 @@ public class Function : IFunction
 		else {
 			srect.ThreadPixels((x, y) => {
 				drawOne(x,y);
-			}, maxThreads, pb2);
+			}, Core.MaxDegreeOfParallelism, pb2);
 		}
 
 		return true;
@@ -125,7 +124,7 @@ public class Function : IFunction
 		drawFunc(frame, x, y, color, amount);
 	}
 
-	int FindMaxFactor(Rectangle srect, int maxThreads)
+	int FindMaxFactor(Rectangle srect)
 	{
 		//TODO surely there's a way to estimate the max factorcount so we don't have to actually find it
 		//TODO yes there is! (i think) the most composite number is always the next lowest power of 2
@@ -148,7 +147,7 @@ public class Function : IFunction
 					if (count > maxFactor) { maxFactor = count; }
 				}
 			}
-		}, maxThreads, pb1);
+		}, Core.MaxDegreeOfParallelism, pb1);
 
 		return maxFactor;
 	}

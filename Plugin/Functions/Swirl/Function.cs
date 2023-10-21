@@ -60,7 +60,6 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 
@@ -69,7 +68,7 @@ public class Function : IFunction
 			int cx = x - rect.Left;
 			ColorRGBA nc = SwirlPixel(source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
 			canvas[cx,cy] = nc;
-		},maxThreads,progress);
+		},Core.MaxDegreeOfParallelism,progress);
 
 		source.CopyFrom(canvas,rect);
 		return true;
