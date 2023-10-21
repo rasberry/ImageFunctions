@@ -33,16 +33,15 @@ public static class Tools
 		long done = 0;
 		long max = (long)rect.Width * rect.Height;
 
-		ParallelOptions po = null;
+		ParallelOptions po = new();
 		if (maxThreads.HasValue) {
-			po = new ParallelOptions {
-				MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value
-			};
+			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		}
+
 		Parallel.For(0, max, po, num => {
 			int y = (int)(num / rect.Width);
 			int x = (int)(num % rect.Width);
-			Interlocked.Add(ref done,1);
+			Interlocked.Increment(ref done);
 			progress?.Report((double)done / max);
 			callback(x + rect.Left,y + rect.Top);
 		});
