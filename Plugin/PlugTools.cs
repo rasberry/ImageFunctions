@@ -96,11 +96,12 @@ internal static class PlugTools
 	/// <param name="max">The total number of iterations</param>
 	/// <param name="callback">The callsback is called on each iteration</param>
 	/// <param name="progress">Optional progress object</param>
-	public static void ThreadRun(int max, Action<int> callback, int maxThreads = 1, IProgress<double> progress = null)
+	public static void ThreadRun(int max, Action<int> callback, int? maxThreads, IProgress<double> progress = null)
 	{
 		int done = 0;
-		var po = new ParallelOptions {
-			MaxDegreeOfParallelism = maxThreads < 1 ? 1 : maxThreads
+		ParallelOptions po = new();
+		if (maxThreads.HasValue) {
+			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		};
 		Parallel.For(0, max, po, num => {
 			Interlocked.Add(ref done, 1);

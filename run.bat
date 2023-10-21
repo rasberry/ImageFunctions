@@ -11,7 +11,7 @@ build\net7.0\publish\ImageFunctions.Core.exe %*
 goto :EOF
 
 :test
-dotnet test -l "console;verbosity=normal" %*
+dotnet test -l "console;verbosity=detailed" %*
 goto :EOF
 
 :ctest

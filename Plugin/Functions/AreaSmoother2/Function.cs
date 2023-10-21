@@ -36,29 +36,28 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		var origCanvas = Layers.First();
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers); //temporary canvas
 
 		if (!O.VOnly) {
-			PlugTools.ThreadRun(origCanvas.Height - 1, (int y) => {
+			PlugTools.ThreadRun(origCanvas.Height, (int y) => {
 				HashSet<int> visited = new HashSet<int>();
 				for(int x = 0; x < origCanvas.Width; x++) {
 					if (visited.Contains(x)) { continue; }
 					DrawGradientH(visited,origCanvas,canvas,x,y);
 				}
-			}, maxThreads, progress);
+			}, Core.MaxDegreeOfParallelism, progress);
 		}
 
 		if (!O.HOnly) {
-			PlugTools.ThreadRun(origCanvas.Width - 1, (int x) => {
+			PlugTools.ThreadRun(origCanvas.Width, (int x) => {
 				HashSet<int> visited = new HashSet<int>();
 				for(int y = 0; y < origCanvas.Height; y++ ) {
 					if (visited.Contains(y)) { continue; }
 					DrawGradientV(visited,origCanvas,canvas,x,y,!O.VOnly);
 				}
-			}, maxThreads, progress);
+			}, Core.MaxDegreeOfParallelism, progress);
 		}
 
 		origCanvas.CopyFrom(canvas);
@@ -80,7 +79,7 @@ public class Function : IFunction
 			rx++;
 		}
 
-		int len = rx - lx - 1;
+		int len = rx - lx;
 		if (len <= 2) {
 			// color span is to small so just use colors as-is
 			visited.Add(x);
@@ -91,7 +90,7 @@ public class Function : IFunction
 		var lColor = PlugTools.BetweenColor(origCanvas[lx,y],seed,0.5);
 		var rColor = PlugTools.BetweenColor(origCanvas[rx,y],seed,0.5);
 
-		for(int gi=0; gi<len; gi++)
+		for(int gi=0; gi<=len; gi++)
 		{
 			double ratio = (gi + 1) / (double)len;
 			ColorRGBA nc;
@@ -100,7 +99,7 @@ public class Function : IFunction
 			} else {
 				nc = PlugTools.BetweenColor(lColor,seed,ratio * 2.0);
 			}
-			int gx = lx + gi + 1;
+			int gx = lx + gi;
 			canvas[gx,y] = nc;
 			visited.Add(gx);
 		}
@@ -120,7 +119,7 @@ public class Function : IFunction
 			by++;
 		}
 
-		int len = by - ty - 1;
+		int len = by - ty;
 		if (len <= 2) {
 			// color span is to small so just use colors as-is
 			visited.Add(y);
@@ -132,7 +131,7 @@ public class Function : IFunction
 		var tColor = PlugTools.BetweenColor(frame[x,ty],seed,0.5);
 		var bColor = PlugTools.BetweenColor(frame[x,by],seed,0.5);
 
-		for(int gi=0; gi<len; gi++)
+		for(int gi=0; gi<=len; gi++)
 		{
 			double ratio = (gi + 1) / (double)len;
 			ColorRGBA nc;
@@ -141,7 +140,7 @@ public class Function : IFunction
 			} else {
 				nc = PlugTools.BetweenColor(tColor,seed,ratio * 2.0);
 			}
-			int gy = ty + gi + 1;
+			int gy = ty + gi;
 			var fc = blend ? PlugTools.BetweenColor(nc,canvas[x,gy],0.5) : nc;
 			canvas[x,gy] = fc;
 			visited.Add(gy);

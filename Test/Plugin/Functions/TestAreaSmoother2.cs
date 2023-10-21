@@ -3,9 +3,9 @@ using ImageFunctions.Core;
 namespace ImageFunctions.Test;
 
 [TestClass]
-public class TestAreaSmoother : AbstractFunctionTest
+public class TestAreaSmoother2 : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.AreaSmoother);
+	const string MyName = nameof(Plugin.Functions.AreaSmoother2);
 	public override string FunctionName { get { return MyName; }}
 
 	[TestMethod]
@@ -14,7 +14,7 @@ public class TestAreaSmoother : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		RunFunctionAndCompare(info, 80.0);
+		RunFunctionAndCompare(info, 50.0);
 	}
 
 	public static IEnumerable<object[]> GetData()
@@ -29,10 +29,8 @@ public class TestAreaSmoother : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
 		yield return CreateTestInfo(1, startImg, new string[0]);
-		yield return CreateTestInfo(2, startImg, new string[] { "-t","2" });
-		yield return CreateTestInfo(3, startImg, new string[] { "-t","10" });
-		yield return CreateTestInfo(4, startImg, new string[] { "--metric","Manhattan" });
-		// case 4: return new string[] { "--sampler","11" }; //TODO this produces a bad image now
+		yield return CreateTestInfo(2, startImg, new string[] { "-H" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-V" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -46,7 +44,7 @@ public class TestAreaSmoother : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "rock-p","scorpius-p" };
+		var list = new string[] { "shack-p","shell-p" };
 		return list;
 	}
 }
