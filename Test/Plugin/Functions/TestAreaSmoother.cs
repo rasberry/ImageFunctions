@@ -20,10 +20,12 @@ public class TestAreaSmoother : AbstractFunctionTest
 		Assert.AreEqual(0, info.ExitCode);
 
 		GetOrLoadResourceImage(info, info.OutName, "control");
-		double dist = CompareTopTwoLayers(info);
+
+		var dist = CompareTopTwoLayers(info);
+		Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
 		//TODO data seems to be off by a small but significant amount.. not sure why
-		Assert.IsTrue(dist < 80.0, $"Name = {info.OutName} Distance = {dist}");
+		Assert.IsTrue(dist.Total < 80.0, $"Name = {info.OutName} Distance = {dist}");
 	}
 
 	public static IEnumerable<object[]> GetData()
@@ -55,7 +57,6 @@ public class TestAreaSmoother : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		//var list = new string[] { "rock-p","scorpius-p","shack-p","shell-p","skull-p","spider-p","toes-p" };
 		var list = new string[] { "rock-p","scorpius-p" };
 		return list;
 	}

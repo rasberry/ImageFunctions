@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using static ImageFunctions.Plugin.ImageComparer;
 
 namespace ImageFunctions.Test;
 
@@ -51,7 +52,7 @@ public abstract class AbstractFunctionTest
 		info.Success = worked;
 	}
 
-	public double CompareTopTwoLayers(TestFunctionInfo info)
+	public ComponentDistance CompareTopTwoLayers(TestFunctionInfo info)
 	{
 		var layers = info.Layers;
 		if (layers.Count < 2) {
@@ -60,7 +61,8 @@ public abstract class AbstractFunctionTest
 
 		var one = layers[0];
 		var two = layers[1];
-		return Plugin.ImageComparer.CanvasDistance(one,two);
+
+		return CanvasDistance(one,two);
 	}
 
 	public bool AreTopLayersEqual(TestFunctionInfo info)

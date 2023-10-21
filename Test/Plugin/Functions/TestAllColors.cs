@@ -17,15 +17,17 @@ public class TestAllColors : AbstractFunctionTest
 		info.Layers = layers;
 
 		RunFunction(info);
+		//info.Options.Engine.Item.Value.SaveImage(layers,"test-" + info.OutName);
+
 		Assert.AreEqual(true, info.Success);
 		Assert.AreEqual(0, info.ExitCode);
 
 		GetOrLoadResourceImage(info, info.OutName, "control");
-		double dist = CompareTopTwoLayers(info);
-		//info.Options.Engine.Item.Value.SaveImage(layers,"test-"+info.OutName);
+		var dist = CompareTopTwoLayers(info);
+		Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
 		//TODO data seems to be off by a small but significant amount.. not sure why
-		Assert.IsTrue(dist < 0.002,$"Name = {info.OutName} Distance = {dist}");
+		Assert.IsTrue(dist.Total < 0.002,$"Name = {info.OutName} Distance = {dist}");
 	}
 
 	public static IEnumerable<object[]> GetData()
