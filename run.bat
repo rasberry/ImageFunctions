@@ -1,11 +1,17 @@
 @echo off
 setlocal
+if "%~1"=="test" goto test
 if "%~1"=="ctest" goto ctest
+
 
 dotnet publish
 if not %ERRORLEVEL%==0 goto :EOF
 ::call dotnet run --project src -- %*
 build\net7.0\publish\ImageFunctions.Core.exe %*
+goto :EOF
+
+:test
+dotnet test -l "console;verbosity=normal" %*
 goto :EOF
 
 :ctest
