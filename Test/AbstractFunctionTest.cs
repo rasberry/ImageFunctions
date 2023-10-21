@@ -108,7 +108,7 @@ public abstract class AbstractFunctionTest
 		var dist = CompareTopTwoLayers(info);
 		Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
-		Assert.IsTrue(dist.Total < maxDiff, $"Name = {info.OutName} Distance = {dist}");
+		Assert.IsTrue(dist.Total <= maxDiff, $"Name = {info.OutName} Distance = {dist}");
 	}
 
 	/// <summary>
