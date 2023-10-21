@@ -7,7 +7,7 @@ namespace ImageFunctions.Plugin.Functions.AllColors;
 
 public static class DrawOriginal
 {
-	internal static void Draw(ICanvas image, int maxThreads, Options O)
+	internal static void Draw(ICanvas image, int? maxThreads, Options O)
 	{
 		List<Color> colorList = null;
 		var bounds = image.Bounds();
@@ -19,15 +19,13 @@ public static class DrawOriginal
 			colorList = ConvertByPattern(bounds, O.SortBy, maxThreads, O);
 		}
 
-		int coff = -1;
 		var work = (int x, int y) => {
-			int cy = y - bounds.Top;
-			int cx = x - bounds.Left;
-			var nc = ++coff < colorList.Count
+			int coff = y * bounds.Width + x;
+			var nc = coff < colorList.Count
 				? colorList[coff]
 				: Color.Transparent;
 
-			image[cx,cy] = ColorRGBA.FromRGBA255(nc.R,nc.G,nc.B,nc.A);
+			image[x,y] = ColorRGBA.FromRGBA255(nc.R,nc.G,nc.B,nc.A);
 		};
 
 		using var progress = new ProgressBar();
@@ -35,7 +33,7 @@ public static class DrawOriginal
 		Tools.ThreadPixels(bounds, work, maxThreads, progress);
 	}
 
-	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int maxThreads,Options O)
+	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int? maxThreads,Options O)
 	{
 		Func<Color,double> converter = null;
 		switch(p)
@@ -54,7 +52,7 @@ public static class DrawOriginal
 		return ConvertAndSort(bounds, converter, ComparersLuminance(), null, maxThreads,O);
 	}
 
-	static List<Color> ConvertBySpace(Rectangle bounds, Space space, int[] order, int maxThreads, Options O)
+	static List<Color> ConvertBySpace(Rectangle bounds, Space space, int[] order, int? maxThreads, Options O)
 	{
 		switch(space)
 		{
@@ -132,7 +130,7 @@ public static class DrawOriginal
 	}
 
 	static List<Color> ConvertAndSort<T>(Rectangle bounds, Func<Color,T> conv, Func<T,T,int>[] compList,
-		int[] order, int maxThreads, Options O)
+		int[] order, int? maxThreads, Options O)
 	{
 		var colorList = PatternBitOrder(bounds, O).ToList();
 		var tempList = new List<(Color,T)>(colorList.Count);

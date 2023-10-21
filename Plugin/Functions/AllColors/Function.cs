@@ -40,12 +40,11 @@ public class Function : IFunction
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
 
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		if (O.UseOriginalCode) {
-			DrawOriginal.Draw(image, maxThreads, O);
+			DrawOriginal.Draw(image, Core.MaxDegreeOfParallelism, O);
 		}
 		else {
-			Draw(image, maxThreads);
+			Draw(image);
 		}
 
 		return true;
@@ -61,15 +60,15 @@ public class Function : IFunction
 	// at the maximum number of iterations
 	internal const double SortMax = 24 * NumberOfColors; //log2(n) * n
 
-	void Draw(ICanvas image, int maxThreads)
+	void Draw(ICanvas image)
 	{
 		List<ColorRGBA> colorList = null;
 
 		if (O.WhichSpace != Space.None) {
-			colorList = ConvertBySpace(image, O.WhichSpace, O.Order, maxThreads);
+			colorList = ConvertBySpace(image, O.WhichSpace, O.Order);
 		}
 		else {
-			colorList = ConvertByPattern(image, O.SortBy, maxThreads);
+			colorList = ConvertByPattern(image, O.SortBy);
 		}
 
 		//int coff = -1;
@@ -85,10 +84,10 @@ public class Function : IFunction
 
 		using var progress = new ProgressBar();
 		progress.Prefix = "Rendering...";
-		Tools.ThreadPixels(image, work, maxThreads, progress);
+		Tools.ThreadPixels(image, work, Core.MaxDegreeOfParallelism, progress);
 	}
 
-	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, int maxThreads)
+	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p)
 	{
 		Func<ColorRGBA,double> converter = null;
 		switch(p)
@@ -105,43 +104,43 @@ public class Function : IFunction
 		case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
 		}
 
-		return ConvertAndSort(image, converter, ComparersLuminance(), null, maxThreads);
+		return ConvertAndSort(image, converter, ComparersLuminance(), null);
 	}
 
-	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, int[] order, int maxThreads)
+	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, int[] order)
 	{
 		switch(space)
 		{
 		case Space.RGB:
-			return ConvertAndSort(image, c => c, CompareColorRGBA(),order,maxThreads);
+			return ConvertAndSort(image, c => c, CompareColorRGBA(),order);
 		//case Space.CieLab:
-		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order);
 		//case Space.CieLch:
-		//	return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect,order);
 		//case Space.CieLchuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect,order);
 		//case Space.CieLuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order);
 		//case Space.CieXyy:
-		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order);
 		case Space.CieXyz:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(),order);
 		case Space.Cmyk:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(),order);
 		case Space.HSI:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(),order);
 		case Space.HSL:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(),order);
 		case Space.HSV:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(),order);
 		//case Space.HunterLab:
-		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order);
 		//case Space.LinearRgb:
-		//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order);
 		//case Space.Lms:
-		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order,maxThreads);
+		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order);
 		case Space.YCbCr:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order,maxThreads);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order);
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
@@ -162,8 +161,7 @@ public class Function : IFunction
 		}
 	}
 
-	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList,
-		int[] order, int maxThreads)
+	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList, int[] order)
 	{
 		var colorList = PatternBitOrder(image).ToList();
 		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
@@ -210,7 +208,7 @@ public class Function : IFunction
 						return MultiSort(compList,a.Item2,b.Item2);
 					})
 				);
-				PlugTools.ParallelSort(tempList,comp,progress,maxThreads);
+				PlugTools.ParallelSort(tempList,comp,progress,Core.MaxDegreeOfParallelism);
 			}
 			else {
 				//seems to be a lot faster than Array.Sort(key,collection)
