@@ -1,15 +1,15 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.GraphNet;
+namespace ImageFunctions.Plugin.Functions.GraphNet;
 
 public sealed class Options : IOptions
 {
-	public int NodeCount = 32;
-	public int Connectivity = 3;
-	public int States = 2;
+	public int? NodeCount;
+	public int Connectivity;
+	public int States;
 	public int? RandomSeed = null;
-	public double PertubationRate = 0.0;
+	public double PerturbationRate;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
@@ -30,19 +30,19 @@ public sealed class Options : IOptions
 			return ExtraParsers.TryParseNumberPercent(s,out p);
 		});
 
-		if (p.Default("-b",out States,2).IsInvalid()) {
+		if (p.Default("-b",out States, 2).IsInvalid()) {
 			return false;
 		}
-		if (p.Default("-n",out NodeCount, 32).IsInvalid()) {
+		if (p.Default("-n",out NodeCount).IsInvalid()) {
 			return false;
 		}
 		if (p.Default("-c",out Connectivity, 3).IsInvalid()) {
 			return false;
 		}
-		if (p.Default("-rs",out RandomSeed, null).IsInvalid()) {
+		if (p.Default("-rs",out RandomSeed).IsInvalid()) {
 			return false;
 		}
-		if (p.Default("-p",out PertubationRate, 0.0, parser).IsInvalid()) {
+		if (p.Default("-p",out PerturbationRate, 0.0, parser).IsInvalid()) {
 			return false;
 		}
 

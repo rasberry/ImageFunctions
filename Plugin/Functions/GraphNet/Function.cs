@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.GraphNet;
+namespace ImageFunctions.Plugin.Functions.GraphNet;
 
 [InternalRegisterFunction(nameof(GraphNet))]
 public class Function : IFunction
@@ -34,21 +34,25 @@ public class Function : IFunction
 		var canvas = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(canvas);
 
-		if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
-			Tell.MustBeBetween("-n","1",canvas.ToString());
-			return false;
+		if (O.NodeCount.HasValue) {
+			if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
+				Tell.MustBeBetween("-n","1",$"{canvas.Width} (inclusive)");
+				return false;
+			}
 		}
+		int nodeCount = O.NodeCount.GetValueOrDefault(canvas.Width);
 
-		Node[] state = new Node[O.NodeCount];
-		InitState(state);
-		// PrintState(state);
+		Log.Debug($"nodecount = {nodeCount}");
+		Node[] state = new Node[nodeCount];
+		InitState(state, nodeCount);
+		//PrintState(state);
 
 		int maxy = canvas.Height;
 		int maxx = canvas.Width;
-		int maxn = O.NodeCount;
+		int maxn = nodeCount;
 		int nodew = maxx / maxn;
-		double nstates = (double)O.States;
-		double prate = O.PertubationRate;
+		double nstates = O.States;
+		double prate = O.PerturbationRate;
 
 		using var progress = new ProgressBar();
 		for(int y=0; y<maxy; y++) {
@@ -61,7 +65,7 @@ public class Function : IFunction
 					x++;
 				}
 			}
-			PermuteState(state,prate);
+			PermuteState(state,prate,nodeCount);
 			progress.Report(y / (double)maxy);
 		}
 
@@ -69,9 +73,9 @@ public class Function : IFunction
 	}
 
 	uint[] vtemp = null;
-	void PermuteState(Node[] state, double prate)
+	void PermuteState(Node[] state, double prate, int nodeCount)
 	{
-		for(int n=0; n<O.NodeCount; n++) {
+		for(int n=0; n<nodeCount; n++) {
 			uint sum = 0;
 			for(int c=0; c<O.Connectivity; c++) {
 				int i = state[n].Connection[c];  //get the index of the connection
@@ -86,20 +90,20 @@ public class Function : IFunction
 			vtemp[n] = sum % (uint)O.States; //don't want to modify state while getting the new values
 		}
 
-		for(int n=0; n<O.NodeCount; n++) {
+		for(int n=0; n<nodeCount; n++) {
 			state[n].Value = vtemp[n];
 		}
 	}
 
-	void InitState(Node[] state)
+	void InitState(Node[] state, int nodeCount)
 	{
 		Rnd = O.RandomSeed.HasValue
 			? new Random(O.RandomSeed.Value)
 			: new Random()
 		;
-		vtemp = new uint[O.NodeCount];
+		vtemp = new uint[nodeCount];
 
-		for(int n=0; n<O.NodeCount; n++) {
+		for(int n=0; n<nodeCount; n++) {
 			var node = new Node {
 				Value = (uint)Rnd.Next(O.States), //random initial state
 				Connection = new int[O.Connectivity],
@@ -108,7 +112,7 @@ public class Function : IFunction
 
 			for(int c=0; c<O.Connectivity; c++) {
 				//random connection to another node
-				node.Connection[c] = Rnd.Next(O.NodeCount);
+				node.Connection[c] = Rnd.Next(nodeCount);
 				node.Op[c] = (PickOp)Rnd.Next(PickOpCount);
 			}
 			state[n] = node;
