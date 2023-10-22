@@ -12,6 +12,14 @@ public abstract class AbstractFunctionTest
 	public abstract string FunctionName { get; }
 
 	/// <summary>
+	/// Option custom resource image loader to use when running tests
+	/// </summary>
+	/// <param name="info">An instance of the TestFunctionInfo object</param>
+	/// <param name="name">name of the image to use for comparison</param>
+	/// <param name="folder">the subfolder within Resources folder that contains the image</param>
+	public delegate void CustomImageLoader(TestFunctionInfo info, string name, string folder = null);
+
+	/// <summary>
 	/// Run a test with the provided TestFunctionInfo. Note info.Layers should be set before
 	///  calling this method.
 	///  <example><code>
@@ -21,7 +29,8 @@ public abstract class AbstractFunctionTest
 	///  </code></example>
 	/// </summary>
 	/// <param name="info">An instance of the TestFunctionInfo object</param>
-	public void RunFunction(TestFunctionInfo info)
+	/// <param name="loader">Optional custom image loader</param>
+	public void RunFunction(TestFunctionInfo info, CustomImageLoader loader = null)
 	{
 		if (info.Layers == null) {
 			throw Squeal.ArgumentNull("info.Layers - Layers should be managed from the test method");
@@ -55,8 +64,9 @@ public abstract class AbstractFunctionTest
 
 		//Load any specified images
 		if (info.ImageNames?.Any() == true) {
+			loader ??= GetOrLoadResourceImage;
 			foreach(var name in info.ImageNames) {
-				GetOrLoadResourceImage(info, name);
+				loader(info, name);
 			}
 		}
 
@@ -68,47 +78,33 @@ public abstract class AbstractFunctionTest
 
 	/// <summary>
 	/// Wrapper for running the RunFunction method and comapring the output to a reference image
+	///  Writes images to disk based on saveImage input
 	/// </summary>
 	/// <param name="info">An instance of the TestFunctionInfo object</param>
-	/// <param name="maxDiff">The maximum difference allowed between test and control images</param>
-	public void RunFunctionAndCompare(TestFunctionInfo info, double maxDiff, SaveImageMode saveImage = SaveImageMode.None)
+	/// <param name="loader">Optional custom image loader</param>
+	public void RunFunctionAndCompare(TestFunctionInfo info, CustomImageLoader loader = null)
 	{
 		try {
-			RunFunctionAndCompareInternal(info, maxDiff, saveImage);
+			RunFunction(info, loader);
+			Assert.AreEqual(true, info.Success);
+			Assert.AreEqual(0, info.ExitCode);
+
+			loader ??= GetOrLoadResourceImage;
+			loader(info, info.OutName, "control");
+			var dist = CompareTopTwoLayers(info);
+			Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
+
+			Assert.IsTrue(dist.Total <= info.MaxDiff, $"Name = {info.OutName} Distance = {dist}");
 		}
 		finally {
-			if (saveImage == SaveImageMode.SubjectOnly && info.Layers.Count > 1) {
+			if (info.SaveImage == SaveImageMode.SubjectOnly && info.Layers.Count > 1) {
 				info.Layers.DisposeAt(0);
 			}
-			if (saveImage != SaveImageMode.None && info.Layers.Count > 0) {
+			if (info.SaveImage != SaveImageMode.None && info.Layers.Count > 0) {
 				var path = Path.Combine(Setup.ProjectRootPath,"..",info.OutName);
 				info.Options.Engine.Item.Value.SaveImage(info.Layers, path);
 			}
 		}
-	}
-
-	public enum SaveImageMode
-	{
-		None = 0,
-		SubjectOnly = 1,
-		SubjectAndControl = 2
-	}
-
-	void RunFunctionAndCompareInternal(TestFunctionInfo info, double maxDiff, SaveImageMode saveImage)
-	{
-		if (info.Layers == null) {
-			throw Squeal.ArgumentNull("info.Layers - Layers should be managed from the test method");
-		}
-
-		RunFunction(info);
-		Assert.AreEqual(true, info.Success);
-		Assert.AreEqual(0, info.ExitCode);
-
-		GetOrLoadResourceImage(info, info.OutName, "control");
-		var dist = CompareTopTwoLayers(info);
-		Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
-
-		Assert.IsTrue(dist.Total <= maxDiff, $"Name = {info.OutName} Distance = {dist}");
 	}
 
 	/// <summary>
@@ -152,26 +148,30 @@ public abstract class AbstractFunctionTest
 	/// <param name="info">An instance of the TestFunctionInfo object</param>
 	/// <param name="name">the file name of the image</param>
 	/// <param name="folder">the subfolder within Resources folder that contains the image</param>
-	/// <returns></returns>
-	public ICanvas GetOrLoadResourceImage(TestFunctionInfo info, string name, string folder = "images")
+	public void GetOrLoadResourceImage(TestFunctionInfo info, string name, string folder = null)
 	{
+		folder ??= "images";
 		string nameWithExt = Path.ChangeExtension(name,".png");
 		string path = Path.Combine(Setup.ProjectRootPath,"../","Resources/",folder,nameWithExt);
 		path = Path.GetFullPath(path); //normalize path so it doesn't look janky
 		var layers = info.Layers;
 
 		int index = layers.IndexOf(nameWithExt);
-		if (index >= 0) {
-			return layers[index];
-		}
+		if (index >= 0) { return; }
 
 		if (!File.Exists(path)) {
 			throw TestSqueal.FileNotFound(path);
 		}
 
 		info.Options.Engine.Item.Value.LoadImage(layers,path,nameWithExt);
-		return layers.First();
 	}
+}
+
+public enum SaveImageMode
+{
+	None = 0,
+	SubjectOnly = 1,
+	SubjectAndControl = 2
 }
 
 /// <summary>
@@ -220,4 +220,14 @@ public class TestFunctionInfo
 	///  This should match the control image size
 	/// </summary>
 	public Size? Size { get; set; }
+
+	/// <summary>
+	/// The maximum difference allowed between test and control images
+	/// </summary>
+	public double MaxDiff { get; set; }
+
+	/// <summary>
+	/// Optional way to save images to disk. Usefull for debugging
+	/// </summary>
+	public SaveImageMode SaveImage { get; set; }
 }

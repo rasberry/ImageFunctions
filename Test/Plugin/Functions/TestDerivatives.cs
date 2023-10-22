@@ -14,7 +14,8 @@ public class TestDerivatives : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		RunFunctionAndCompare(info, 60.0);
+		info.MaxDiff = 60.0;
+		RunFunctionAndCompare(info);
 	}
 
 	public static IEnumerable<object[]> GetData()

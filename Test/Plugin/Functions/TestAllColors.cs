@@ -16,7 +16,8 @@ public class TestAllColors : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		RunFunctionAndCompare(info, 0.002);
+		info.MaxDiff = 0.002;
+		RunFunctionAndCompare(info);
 	}
 
 	public static IEnumerable<object[]> GetData()

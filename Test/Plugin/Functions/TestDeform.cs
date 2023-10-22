@@ -14,7 +14,8 @@ public class TestDeform : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		RunFunctionAndCompare(info, 0.0);
+		info.MaxDiff = 0.0;
+		RunFunctionAndCompare(info);
 	}
 
 	public static IEnumerable<object[]> GetData()

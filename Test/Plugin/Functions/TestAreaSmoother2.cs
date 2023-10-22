@@ -14,7 +14,8 @@ public class TestAreaSmoother2 : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		RunFunctionAndCompare(info, 50.0);
+		info.MaxDiff = 50.0;
+		RunFunctionAndCompare(info);
 	}
 
 	public static IEnumerable<object[]> GetData()
