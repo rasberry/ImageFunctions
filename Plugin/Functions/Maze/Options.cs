@@ -90,18 +90,23 @@ public sealed class Options : IOptions
 		var p = new ParseParams(args);
 
 		if (p.Default("-m",out Which,PickMaze.Prims).IsInvalid()) {
+			Tell.CouldNotParse("-m");
 			return false;
 		}
 		if (p.Default("-cc",out CellColor,PlugColors.Black).IsInvalid()) {
+			Tell.CouldNotParse("-cc");
 			return false;
 		}
 		if (p.Default("-wc",out WallColor,PlugColors.White).IsInvalid()) {
+			Tell.CouldNotParse("-wc");
 			return false;
 		}
 		if (p.Default("-rs",out RndSeed, null).IsInvalid()) {
+			Tell.CouldNotParse("-rs");
 			return false;
 		}
 		if (p.Default("-sq",out Sequence, DefaultSeq(), SeqParser).IsInvalid()) {
+			Tell.CouldNotParse("-sq");
 			return false;
 		}
 		if (p.Has("-sr").IsGood()) {

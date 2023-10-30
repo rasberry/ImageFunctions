@@ -43,16 +43,23 @@ public sealed class Options : IOptions
 			MakeThirdLayer = true;
 		}
 
-		if(p.Default("-o",out HilightOpacity, par: parser)
-			.BeGreaterThanZero("-o",HilightOpacity,true).IsInvalid()) {
+		if(p.Default("-o",out HilightOpacity, par: parser).IsInvalid()) {
+			Tell.CouldNotParse("-o");
 			return false;
 		}
 
 		if (p.Default("-c",out HilightColor, PlugColors.Magenta).IsInvalid()) {
+			Tell.CouldNotParse("-c");
 			return false;
 		}
 
 		if (p.Default("-m", out MetricName, "Euclidean").IsInvalid()) {
+			Tell.CouldNotParse("-m");
+			return false;
+		}
+
+		if (HilightOpacity.HasValue && HilightOpacity < 0.0) {
+			Tell.MustBeGreaterThanZero("-o",true);
 			return false;
 		}
 

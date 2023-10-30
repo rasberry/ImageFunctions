@@ -41,6 +41,7 @@ public sealed class Options : IOptions
 			parser, parser                  //custom parser
 		);
 		if (pcp.IsInvalid()) {
+			Tell.CouldNotParse("-cp");
 			return false;
 		}
 		else if(pcp.IsGood()) {
@@ -49,6 +50,7 @@ public sealed class Options : IOptions
 
 		var pcx = p.Default("-cx", out int cx, out int cy);
 		if (pcx.IsInvalid()) {
+			Tell.CouldNotParse("-cx");
 			return false;
 		}
 		else if (pcx.IsGood()) {
@@ -61,9 +63,11 @@ public sealed class Options : IOptions
 		}
 
 		if (p.Default("-e", out Power, 2.0).IsInvalid()) {
+			Tell.CouldNotParse("-e");
 			return false;
 		}
 		if (p.Default("-m", out WhichMode, Mode.Polynomial).IsInvalid()) {
+			Tell.CouldNotParse("-m");
 			return false;
 		}
 		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {

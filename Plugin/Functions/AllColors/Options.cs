@@ -75,9 +75,11 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			var p = new ParseParams(args);
 
 			if (p.Default("-p",out SortBy,Pattern.None).IsInvalid()) {
+				Tell.CouldNotParse("-p");
 				return false;
 			}
 			if (p.Default("-s",out WhichSpace,Space.None).IsInvalid()) {
+				Tell.CouldNotParse("-s");
 				return false;
 			}
 			if (p.Has("-ps").IsGood()) {
@@ -90,15 +92,19 @@ namespace ImageFunctions.Plugin.Functions.AllColors
 			var parser = new ParseParams.Parser<double?>((string n, out double? p) => {
 				return ExtraParsers.TryParseNumberPercent(n,out p);
 			});
+
 			if (p.Default("-o", out ColorOffsetPct, 0.0, parser).IsInvalid()) {
+				Tell.CouldNotParse("-o");
 				return false;
 			}
 			if (p.Default("-on", out ColorOffsetAbs, 0).IsInvalid()) {
+				Tell.CouldNotParse("-on");
 				return false;
 			}
 
 			var pso = p.Default("-so",out string pri);
 			if (pso.IsInvalid()) {
+				Tell.CouldNotParse("-so");
 				return false;
 			}
 			else if (pso.IsGood()) {

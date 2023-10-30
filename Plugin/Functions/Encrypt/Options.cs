@@ -39,13 +39,14 @@ public sealed class Options : IOptions
 		if (p.Has("-test").IsGood()) {
 			TestMode = true;
 		}
-		if (p.Default("-iv",out IVBytes,null,Encryptor.TryStringToBytes)
-			.BeSizeInBytes("-iv",IVBytes,Encryptor.IVLengthBytes).IsInvalid()) {
+		if (p.Default("-iv",out IVBytes,null,Encryptor.TryStringToBytes).IsInvalid()) {
+			Tell.CouldNotParse("-iv");
 			return false;
 		}
 
 		var ppass = p.Default("-p",out UserPassword);
 		if (ppass.IsInvalid()) {
+			Tell.CouldNotParse("-p");
 			return false;
 		}
 		else if (ppass.IsMissing() && p.Has("-pi").IsGood()) {
@@ -68,6 +69,10 @@ public sealed class Options : IOptions
 		if (!goodPass) {
 			Tell.InvalidPassword();
 			return false;
+		}
+
+		if (IVBytes != null && IVBytes.Length < Encryptor.IVLengthBytes) {
+			Tell.MustBeSizeInBytes("-iv",Encryptor.IVLengthBytes);
 		}
 
 		if (TestMode) {
@@ -116,18 +121,5 @@ public sealed class Options : IOptions
 		}
 		sb.Append("] L=" + data.Length);
 		return sb.ToString();
-	}
-}
-
-static class OptionExtensions
-{
-	public static ParseParams.Result BeSizeInBytes(this ParseParams.Result r, string name,
-		byte[] val, int sizeInBytes, bool isMin = false)
-	{
-		if (r.IsGood() && val != null && val.Length < sizeInBytes) {
-			Tell.MustBeSizeInBytes(name,sizeInBytes,isMin);
-			return ParseParams.Result.UnParsable;
-		}
-		return r;
 	}
 }

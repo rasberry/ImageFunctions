@@ -27,9 +27,11 @@ public sealed class Options : IOptions
 		});
 
 		if (p.Default("-p",out DiscardRatio, 0.0005, parser).IsInvalid()) {
+			Tell.CouldNotParse("-p");
 			return false;
 		}
 		if (p.Default("-b",out BucketCount, 256).IsInvalid()) {
+			Tell.CouldNotParse("-b");
 			return false;
 		}
 		if (p.Has("-a").IsGood()) {

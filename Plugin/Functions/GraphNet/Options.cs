@@ -31,18 +31,23 @@ public sealed class Options : IOptions
 		});
 
 		if (p.Default("-b",out States, 2).IsInvalid()) {
+			Tell.CouldNotParse("-b");
 			return false;
 		}
 		if (p.Default("-n",out NodeCount).IsInvalid()) {
+			Tell.CouldNotParse("-n");
 			return false;
 		}
 		if (p.Default("-c",out Connectivity, 3).IsInvalid()) {
+			Tell.CouldNotParse("-c");
 			return false;
 		}
 		if (p.Default("-rs",out RandomSeed).IsInvalid()) {
+			Tell.CouldNotParse("-rs");
 			return false;
 		}
 		if (p.Default("-p",out PerturbationRate, 0.0, parser).IsInvalid()) {
+			Tell.CouldNotParse("-p");
 			return false;
 		}
 

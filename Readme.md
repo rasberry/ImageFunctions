@@ -23,3 +23,6 @@ A collection of various image processing functions
 * pull/push from wiki
   * ```git subtree pull --prefix wiki wiki master```
   * ```git subtree push --prefix wiki wiki master```
+
+# TODO #
+https://www.youtube.com/watch?v=WGccIFf6MF8

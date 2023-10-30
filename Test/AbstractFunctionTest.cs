@@ -56,6 +56,9 @@ public abstract class AbstractFunctionTest
 
 		//reset the global options and parse test options
 		var options = new Options(Setup.Register);
+		if (System.Diagnostics.Debugger.IsAttached) {
+			options.MaxDegreeOfParallelism = 1;
+		}
 		info.Options = options;
 		var inst = new Program(Setup.Register, options, info.Layers);
 

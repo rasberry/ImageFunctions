@@ -24,6 +24,7 @@ internal static class PlugTools
 		ps.Sort();
 	}
 
+	/*
 	/// <summary>
 	/// Ensures the parameter is greater than zero.
 	/// </summary>
@@ -65,6 +66,7 @@ internal static class PlugTools
 			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
 		}
 	}
+	*/
 
 	//ratio 0.0 = 100% a
 	//ratio 1.0 = 100% b
