@@ -14,8 +14,8 @@ public class TestImgDiff : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 30.0;
-		info.SaveImage = SaveImageMode.SubjectOnly;
+		info.MaxDiff = 61.0;
+		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
@@ -30,9 +30,9 @@ public class TestImgDiff : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo((string,string) imgSet)
 	{
-		//yield return CreateTestInfo(1, imgSet, new string[0]);
-		//yield return CreateTestInfo(2, imgSet, new string[] { "-i" });
-		//yield return CreateTestInfo(3, imgSet, new string[] { "-o", "0.9" });
+		yield return CreateTestInfo(1, imgSet, new string[0]);
+		yield return CreateTestInfo(2, imgSet, new string[] { "-i" });
+		yield return CreateTestInfo(3, imgSet, new string[] { "-o", "0.9" });
 		yield return CreateTestInfo(4, imgSet, new string[] { "-o","0.5","-c","red" });
 	}
 

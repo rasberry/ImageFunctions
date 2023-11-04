@@ -34,53 +34,83 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		var parser = new ParseParams.Parser<double?>((string s, out double? p) => {
-			return ExtraParsers.TryParseNumberPercent(s,out p);
+		var parser = new ParseParams.Parser<double>((string s) => {
+			return ExtraParsers.ParseNumberPercent(s);
 		});
 
-		var pcx = p.Default("-cx",out int cx,out int cy);
-		if (pcx.IsInvalid()) {
+		if (p.Scan<int,int>("-cx")
+			.WhenGood(r => {
+				var (cx,cy) = r.Value;
+				CenterPx = new Point(cx,cy);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
-		}
-		else if (pcx.IsGood()) {
-			CenterPx = new Point(cx,cy);
 		}
 
-		var pcp = p.Default("-cp",out double? ppx,out double? ppy,
-			leftPar: parser, rightPar: parser
-		);
-		if (pcp.IsInvalid()) {
+		if (p.Scan<double,double>("-cp", leftPar: parser, rightPar: parser)
+			.WhenGood(r => {
+				var (ppx,ppy) = r.Value;
+				CenterPp = new PointF((float)ppx,(float)ppy);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		else if (pcp.IsGood()) {
-			CenterPp = new PointF((float)ppx,(float)ppy);
-		}
+
 		//-cx and -cp are either/or options so set a default if neither are specified
 		if (CenterPx == null && CenterPp == null) {
 			CenterPp = new PointF(0.5f,0.5f);
 		}
 
-		if (p.Default("-rx",out RadiusPx).IsInvalid()) {
+		if (p.Scan<int>("-rx")
+			.WhenGood(r => { RadiusPx = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-rp",out RadiusPp,par:parser).IsInvalid()) {
+
+		if (p.Scan<double>("-rp", par: parser)
+			.WhenGood(r => { RadiusPp = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
+
 		//-rx and -rp are either/or options so set a default if neither are specified
 		if (RadiusPx == null && RadiusPp == null) {
 			RadiusPp = 0.9;
 		}
 
-		if (p.Default("-s",out Rotations,0.9).IsInvalid()) {
+		if (p.Scan("-s", 0.9)
+			.WhenGoodOrMissing(r => { Rotations = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
+
 		if (p.Has("-ccw").IsGood()) {
 			CounterClockwise = true;
 		}
-		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
+
+		if (p.DefaultSampler(register)
+			.WhenGood(r => { Sampler = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultMetric(register, out Metric).IsInvalid()) {
+
+		if (p.DefaultMetric(register)
+			.WhenGood(r => { Metric = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

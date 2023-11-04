@@ -1,4 +1,5 @@
 using System.Drawing;
+using Rasberry.Cli;
 
 namespace ImageFunctions.Core;
 
@@ -139,6 +140,7 @@ public static class Tools
 		return canvas;
 	}
 
+	//TODO this might go away
 	public static void DrawLine(this IImageEngine engine, ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0)
 	{
 		if (!(engine is IDrawEngine artist)) {
@@ -148,7 +150,13 @@ public static class Tools
 		artist.DrawLine(canvas, color, start, end, width);
 	}
 
-	internal static string NumberToWord(int number)
+	/// <summary>
+	/// Turns a number between 0 and 9 into the word
+	/// </summary>
+	/// <param name="number">A number between 0 and 9 (inclusive)</param>
+	/// <returns>The word</returns>
+	/// <exception cref="ArgumentOutOfRangeException">When the number is not supported</exception>
+	public static string NumberToWord(int number)
 	{
 		switch(number) {
 			case 0: return "zero";
@@ -163,5 +171,19 @@ public static class Tools
 			case 9: return "nine";
 		}
 		throw Squeal.ArgumentOutOfRange(nameof(number));
+	}
+
+	/// <summary>
+	/// Shortcut for printing a message when a parameter can't be parsed
+	/// </summary>
+	/// <typeparam name="T">Argument Type</typeparam>
+	/// <param name="result">The result of an argument parse function</param>
+	/// <returns>The result</returns>
+	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result)
+	{
+		if (result.IsInvalid()) {
+			Tell.CouldNotParse(result.Name, result.Error);
+		}
+		return result;
 	}
 }

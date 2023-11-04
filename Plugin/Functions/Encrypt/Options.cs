@@ -39,11 +39,34 @@ public sealed class Options : IOptions
 		if (p.Has("-test").IsGood()) {
 			TestMode = true;
 		}
-		if (p.Default("-iv",out IVBytes,null,Encryptor.TryStringToBytes).IsInvalid()) {
-			Tell.CouldNotParse("-iv");
+
+		if (p.Scan<byte[]>("-iv", par: Encryptor.StringToBytes)
+			.WhenGood(r => { IVBytes = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
+		if (p.Scan<string>("-p")
+			.WhenGood(r => { UserPassword = r.Value; return r; })
+			.WhenMissing(r => {
+				if (p.Has("-pi").IsGood()) {
+					if (!TryPromptForPassword(out UserPassword)) {
+						Tell.InvalidPassword();
+						return r;
+					}
+					return r with { Result = ParseParams.Result.Good };
+				}
+				return r;
+			})
+			.WhenUnParsable(r => { Tell.CouldNotParse(r.Name, r.Error); return r; })
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		/*
 		var ppass = p.Default("-p",out UserPassword);
 		if (ppass.IsInvalid()) {
 			Tell.CouldNotParse("-p");
@@ -55,6 +78,7 @@ public sealed class Options : IOptions
 				return false;
 			}
 		}
+		*/
 
 		bool goodPass = false;
 		if (!String.IsNullOrEmpty(UserPassword)) {

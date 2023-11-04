@@ -24,8 +24,12 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		if (p.Default("-t",out TotalTries,7).IsInvalid()) {
-			Tell.CouldNotParse("-t");
+
+		if (p.Scan<int>("-t", 7)
+			.WhenGoodOrMissing(r => { TotalTries = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
@@ -33,10 +37,17 @@ public sealed class Options : IOptions
 			DrawRatio = true;
 		}
 
-		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
+		if (p.DefaultSampler(register)
+			.WhenGood(r => { Sampler = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultMetric(register, out Measurer).IsInvalid()) {
+
+		if (p.DefaultMetric(register)
+			.WhenGood(r => { Measurer = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

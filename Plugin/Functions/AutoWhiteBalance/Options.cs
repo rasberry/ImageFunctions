@@ -22,18 +22,26 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double>((string n, out double p) => {
-			return ExtraParsers.TryParseNumberPercent(n, out p);
+		var parser = new ParseParams.Parser<double>((string n) => {
+			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Default("-p",out DiscardRatio, 0.0005, parser).IsInvalid()) {
-			Tell.CouldNotParse("-p");
+		if (p.Scan("-p", 0.0005, parser)
+			.WhenGoodOrMissing(r => { DiscardRatio = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-b",out BucketCount, 256).IsInvalid()) {
-			Tell.CouldNotParse("-b");
+
+		if (p.Scan("-b", 256)
+			.WhenGoodOrMissing(r => { DiscardRatio = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
+
 		if (p.Has("-a").IsGood()) {
 			StretchAlpha = true;
 		}

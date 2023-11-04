@@ -86,48 +86,60 @@ internal class Options : ICoreOptions
 			Show |= PickShow.All;
 		}
 
-		var ons = p.Default(new[]{"-ln","--namespace"},out HelpNameSpace);
-		if (ons.IsInvalid()) {
-			Tell.MissingArgument("--namespace");
-			return false;
-		}
-		else if (ons.IsGood()) {
-			Show |= PickShow.Registered;
-		}
-
-		//engine selection needs to happen before other engine specific options
-		var oeng = p.Default(new[]{"-e","--engine"}, out EngineName);
-		if (oeng.IsInvalid()) {
-			Tell.MissingArgument("--engine");
+		if (p.Scan<string>(new[]{"--namespace","-ln"})
+			.WhenGood(r => {
+				HelpNameSpace = r.Value;
+				Show |= PickShow.Registered;
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
-		var omtr = p.Default(new[]{"-x","--max-threads"},out int mdop, 0);
-		if (omtr.IsInvalid()) {
-			return false;
-		}
-		else if(omtr.IsGood()) {
-			if (mdop < 1) {
-				Tell.MustBeGreaterThanZero("--max-threads");
-				return false;
-			}
-			MaxDegreeOfParallelism = mdop;
-		}
-
-		var ofmt = p.Default(new[]{"-f","--format"},out _imageFormat);
-		if (ofmt.IsInvalid()) {
+		if (p.Scan<string>(new[]{"--engine", "-e"})
+			.WhenGood(r => { EngineName = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
-		var oon = p.Default(new[]{"-o","--output"}, out _outputName);
-		if (oon.IsMissingArgument()) {
-			Tell.MissingArgument("--output");
+		if (p.Scan<int>(new[]{"--max-threads","-x"})
+			.WhenGood(r => { MaxDegreeOfParallelism = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
-		var osz = p.Default(new[] {"-#","--size"}, out _defaultWidth, out _defaultHeight);
-		if (osz.IsInvalid()) {
-			Tell.CouldNotParse("--size");
+		if (MaxDegreeOfParallelism < 1) {
+			Tell.MustBeGreaterThanZero("--max-threads");
+			return false;
+		}
+
+		if (p.Scan<string>(new[]{"--format","-f"})
+			.WhenGood(r => { _imageFormat = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Scan<string>(new[]{"--output","-o"})
+			.WhenGood(r => { _outputName = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Scan<int?,int?>(new[] {"--size","-#"})
+			.WhenGood(r => { (_defaultWidth,_defaultHeight) = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
@@ -146,7 +158,10 @@ internal class Options : ICoreOptions
 
 		//take the first remaining option as the script name
 		// all other options must be accounted for at this point
-		p.Default(out _functionName);
+		p.Value<string>()
+			.WhenGood(r => { _functionName = r.Value; return r; })
+		;
+
 		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(_functionName)) {
 			Show |= PickShow.Function;
 		}
@@ -299,13 +314,13 @@ internal class Options : ICoreOptions
 	{
 		bool found = true;
 		while(found) {
-			var oim = p.Default(new[]{"-i","--image"},out string name);
+			var oim = p.Scan<string>(new[]{"-i","--image"});
 			if (oim.IsMissingArgument()) {
 				Tell.MissingArgument("--image");
 				return false;
 			}
 			else if (oim.IsGood()) {
-				_imageFileNames.Add(name);
+				_imageFileNames.Add(oim.Value);
 			}
 			else {
 				found = false;

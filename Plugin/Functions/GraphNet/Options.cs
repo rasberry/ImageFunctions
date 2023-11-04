@@ -26,28 +26,43 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double>((string s, out double p) => {
-			return ExtraParsers.TryParseNumberPercent(s,out p);
+		var parser = new ParseParams.Parser<double>((string s) => {
+			return ExtraParsers.ParseNumberPercent(s);
 		});
 
-		if (p.Default("-b",out States, 2).IsInvalid()) {
-			Tell.CouldNotParse("-b");
+		if (p.Scan<int>("-b", 2)
+			.WhenGoodOrMissing(r => { States = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-n",out NodeCount).IsInvalid()) {
-			Tell.CouldNotParse("-n");
+		if (p.Scan<int?>("-n")
+			.WhenGood(r => { NodeCount = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-c",out Connectivity, 3).IsInvalid()) {
-			Tell.CouldNotParse("-c");
+		if (p.Scan<int>("-c", 3)
+			.WhenGoodOrMissing(r => { Connectivity = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-rs",out RandomSeed).IsInvalid()) {
-			Tell.CouldNotParse("-rs");
+		if (p.Scan<int>("-rs")
+			.WhenGood(r => { RandomSeed = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-p",out PerturbationRate, 0.0, parser).IsInvalid()) {
-			Tell.CouldNotParse("-p");
+		if (p.Scan<double>("-p", 0.0, parser)
+			.WhenGoodOrMissing(r => { PerturbationRate = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 

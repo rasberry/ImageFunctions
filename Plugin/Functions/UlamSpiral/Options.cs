@@ -72,6 +72,8 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var pointParser = new ParseParams.Parser<Point>(PlugTools.ParsePoint);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
 
 		if (p.Has("-f").IsGood()) {
 			ColorComposites = true;
@@ -83,40 +85,80 @@ public sealed class Options : IOptions
 			ColorPrimesForce = true;
 		}
 
-		var pre = p.Default("-c",out Point rect);
-		if (pre.IsInvalid()) {
+		if (p.Scan("-c", par: pointParser)
+			.WhenGood(r => {
+				CenterX = r.Value.X;
+				CenterY = r.Value.Y;
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
-		}
-		else if (pre.IsGood()) {
-			CenterX = rect.X;
-			CenterY = rect.Y;
 		}
 
-		if (p.Default("-m",out Mapping,PickMapping.Spiral).IsInvalid()) {
+		if (p.Scan("-m", PickMapping.Spiral)
+			.WhenGoodOrMissing(r => { Mapping = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-c1",out Color1).IsInvalid()) {
+
+		var colorParse = new ParseParams.Parser<Color>(ExtraParsers.ParseColor);
+
+		if (p.Scan("-c1", par: colorParser)
+			.WhenGood(r => { Color1 = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-c2",out Color2).IsInvalid()) {
+		if (p.Scan("-c2", par: colorParser)
+			.WhenGood(r => { Color2 = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-c3",out Color3).IsInvalid()) {
+		if (p.Scan("-c3", par: colorParser)
+			.WhenGood(r => { Color3 = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-c4",out Color4).IsInvalid()) {
+		if (p.Scan("-c4", par: colorParser)
+			.WhenGood(r => { Color4 = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-s",out Spacing,1)
-			.BeGreaterThanZero("-s",Spacing).IsInvalid()) {
+
+		if (p.Scan("-s", 1)
+			.WhenGoodOrMissing(r => { Spacing = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-ds",out DotSize,1.0)
-			.BeGreaterThanZero("-ds",DotSize).IsInvalid()) {
+		if (p.Scan("-ds", 1.0)
+			.WhenGoodOrMissing(r => { DotSize = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-dt",out WhichDot,PickDot.Circle).IsInvalid()) {
-			return false;
+
+		if (p.Scan("-dt", PickDot.Circle)
+			.WhenGoodOrMissing(r => { WhichDot = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return true;
 		}
 
 		//color defaults - seperated since these are slightly complicated

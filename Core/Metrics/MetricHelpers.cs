@@ -11,34 +11,29 @@ public static class MetricHelpers
 		sb.ND(1,"--metric (name)","Use a (registered) distance metric (defaults to euclidean)");
 	}
 
-	public static ParseParams.Result DefaultMetric(this ParseParams p, IRegister register, out Lazy<IMetric> metric)
+	public static ParseResult<Lazy<IMetric>> DefaultMetric(this ParseParams p, IRegister register)
 	{
 		var reg = new MetricRegister(register);
-		var r = p.Default("--metric", out string name);
+		Lazy<IMetric> metric = null;
+		ParseParams.Result result;
+
+		var r = p.Scan<string>("--metric");
+
 		if (r.IsMissing()) {
 			var entry = reg.Get("Euclidean");
 			metric = entry.Item;
+			result = ParseParams.Result.Good;
 		}
-		else if (!reg.Try(name,out var entry)) {
+		else if (!reg.Try(r.Value,out var entry)) {
 			metric = default;
-			Tell.NotRegistered(reg.Namespace,name);
-			return ParseParams.Result.UnParsable;
+			Tell.NotRegistered(reg.Namespace,r.Value);
+			result = ParseParams.Result.UnParsable;
 		}
 		else {
 			metric = entry.Item;
+			result = ParseParams.Result.Good;
 		}
-		return ParseParams.Result.Good;
 
-		//Func<IMetric,bool> hasTwo = (Metric mm) => mm == Metric.Minkowski;
-		//var r = p.Default("--metric",out Metric metric,out double pfactor,Metric.None,0.0,hasTwo);
-		//if (r.IsGood()) {
-		//	if (hasTwo(metric)) {
-		//		m = Registry.Map(metric,pfactor);
-		//	}
-		//	else {
-		//		m = Registry.Map(metric);
-		//	}
-		//}
-		//return r;
+		return new ParseResult<Lazy<IMetric>>(result, "--metric", metric);
 	}
 }

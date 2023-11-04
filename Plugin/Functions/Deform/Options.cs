@@ -30,31 +30,32 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double>((string n, out double p) => {
-			return ExtraParsers.TryParseNumberPercent(n, out p);
+		var parser = new ParseParams.Parser<double>((string n) => {
+			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		var pcp = p.Default("-cp",
-			out double ppx, out double ppy, //results
-			0.5, 0.5,                       //defaults
-			null,                           //condition
-			parser, parser                  //custom parser
-		);
-		if (pcp.IsInvalid()) {
-			Tell.CouldNotParse("-cp");
+		if (p.Scan<double,double>("-cp", leftPar: parser, rightPar: parser)
+			.WhenGood(r => {
+				var (ppx,ppy) = r.Value;
+				CenterPp = new PointF((float)ppx,(float)ppy);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
-		}
-		else if(pcp.IsGood()) {
-			CenterPp = new PointF((float)ppx,(float)ppy);
 		}
 
-		var pcx = p.Default("-cx", out int cx, out int cy);
-		if (pcx.IsInvalid()) {
-			Tell.CouldNotParse("-cx");
+		if (p.Scan<int,int>("-cx")
+			.WhenGood(r => {
+				var (cx,cy) = r.Value;
+				CenterPx = new Point(cx,cy);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
-		}
-		else if (pcx.IsGood()) {
-			CenterPx = new Point(cx,cy);
 		}
 
 		// -cp and -cx are either/or options so choose a default if neither were specified
@@ -62,15 +63,26 @@ public sealed class Options : IOptions
 			CenterPp = new PointF(0.5f,0.5f);
 		}
 
-		if (p.Default("-e", out Power, 2.0).IsInvalid()) {
-			Tell.CouldNotParse("-e");
+		if (p.Scan("-e", 2.0)
+			.WhenGoodOrMissing(r => { Power = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-m", out WhichMode, Mode.Polynomial).IsInvalid()) {
-			Tell.CouldNotParse("-m");
+
+		if (p.Scan("-m", Mode.Polynomial)
+			.WhenGoodOrMissing(r => { WhichMode = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
+
+		if (p.DefaultSampler(register)
+			.WhenGood(r => { Sampler = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

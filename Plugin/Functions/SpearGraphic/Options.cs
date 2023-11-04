@@ -1,3 +1,4 @@
+using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -27,14 +28,32 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		if (p.Default("-bg",out BackgroundColor,PlugColors.Transparent).IsInvalid()) {
+		if (p.Scan("-bg", Color.Transparent)
+			.WhenGoodOrMissing(r => {
+				var c = r.Value;
+				BackgroundColor = ColorRGBA.FromRGBA255(c.R,c.G,c.B,c.A);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-rs",out RandomSeed,null).IsInvalid()) {
+
+		if (p.Scan<int>("-rs")
+			.WhenGood(r => { RandomSeed = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Expect("-g",out Spear).IsBad()) {
-			Tell.MustProvideInput("-g");
+
+		if (p.Scan<Graphic>("-g")
+			.WhenGoodOrMissing(r => { Spear = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.WhenMissing(r => { Tell.MustProvideInput("-g"); return r; })
+			.IsBad() //option is required
+		) {
 			return false;
 		}
 

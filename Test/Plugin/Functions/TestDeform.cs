@@ -15,6 +15,7 @@ public class TestDeform : AbstractFunctionTest
 		using var layers = new Layers();
 		info.Layers = layers;
 		info.MaxDiff = 0.0;
+		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 

@@ -29,29 +29,41 @@ public class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double>((string n, out double p) => {
-			return ExtraParsers.TryParseNumberPercent(n, out p);
+		var parser = new ParseParams.Parser<double>((string n) => {
+			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Default("-z",out ZoomAmount,1.1)
-			.BeGreaterThanZero("-z",ZoomAmount,true).IsInvalid()) {
+		if (p.Scan("-z", 1.1)
+			.WhenGoodOrMissing(r => { ZoomAmount = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero(true)
+			.IsInvalid()
+		) {
 			return false;
 		}
-		var pcc = p.Default("-cc",out int cx, out int cy);
-		if (pcc.IsInvalid()) {
+
+		if (p.Scan<int,int>("-cc")
+			.WhenGood(r => {
+				var (cx,cy) = r.Value;
+				CenterPx = new Point(cx,cy);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		else if (pcc.IsGood()) {
-			CenterPx = new Point(cx,cy);
-		}
-		var pcp = p.Default("-cp",out double px, out double py,
-			leftPar: parser, rightPar: parser
-		);
-		if (pcp.IsInvalid()) {
+
+		if (p.Scan<double,double>("-cp",leftPar: parser, rightPar: parser)
+			.WhenGood(r => {
+				var (px,py) = r.Value;
+				CenterRt = new PointF((float)px,(float)py);
+				return r;
+			})
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
-		}
-		else if (pcp.IsGood()) {
-			CenterRt = new PointF((float)px,(float)py);
 		}
 
 		//-cc / -cp are either/or options. if neither are specified set the default
@@ -59,10 +71,16 @@ public class Options : IOptions
 			CenterRt = new PointF(0.5f,0.5f);
 		}
 
-		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
+		if (p.DefaultSampler(register)
+			.WhenGood(r => { Sampler = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultMetric(register, out Measurer).IsInvalid()) {
+		if (p.DefaultMetric(register)
+			.WhenGood(r => { Measurer = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

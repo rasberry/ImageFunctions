@@ -10,22 +10,29 @@ public static class SamplerHelpers
 		sb.ND(1,"--sampler (name)","Use given (registered) sampler (defaults to nearest pixel)");
 	}
 
-	public static ParseParams.Result DefaultSampler(this ParseParams p, IRegister register, out Lazy<ISampler> sampler)
+	public static ParseResult<Lazy<ISampler>> DefaultSampler(this ParseParams p, IRegister register)
 	{
 		var reg = new SamplerRegister(register);
-		var r = p.Default("--sampler",out string name);
+		ParseParams.Result result;
+		Lazy<ISampler> sampler = null;
+
+		var r = p.Scan<string>("--sampler");
+
 		if (r.IsMissing()) {
 			var entry = reg.Get("NearestNeighbor");
 			sampler = entry.Item;
+			result = ParseParams.Result.Good;
 		}
-		else if (!reg.Try(name,out var entry)) {
+		else if (!reg.Try(r.Value,out var entry)) {
 			sampler = default;
-			Tell.NotRegistered("Sampler",name);
-			return ParseParams.Result.UnParsable;
+			Tell.NotRegistered("Sampler",r.Value);
+			result = ParseParams.Result.UnParsable;
 		}
 		else {
 			sampler = entry.Item;
+			result = ParseParams.Result.Good;
 		}
-		return ParseParams.Result.Good;
+
+		return new ParseResult<Lazy<ISampler>>(result, "--sampler", sampler);
 	}
 }

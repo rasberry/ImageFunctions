@@ -14,4 +14,19 @@ public static class PlugSqueal
 			? new ArgumentOutOfRangeException(name)
 			: new ArgumentOutOfRangeException(name, message);
 	}
+	public static Exception CannotParsePatterNumber(string snum) {
+		return new ArgumentException($"Unable to parse pattern number '{snum}'");
+	}
+	public static Exception PatternNumberGtrZero() {
+		return new ArgumentOutOfRangeException("Pattern number must be greater than zero");
+	}
+	public static Exception SequenceMustContain(int num = 1) {
+		var snum = Core.Tools.NumberToWord(num);
+		return new ArgumentException($"Sequence must contain {snum} element{(num == 1 ? "" : "s")}");
+	}
+	public static Exception SequenceMustContainOr(int num1, int num2) {
+		var snum1 = Core.Tools.NumberToWord(num1);
+		var snum2 = Core.Tools.NumberToWord(num2);
+		return new ArgumentException($"Sequence must contain {snum1} or {num2} elements");
+	}
 }

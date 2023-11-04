@@ -43,19 +43,32 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		if (p.Default("-p",out Sequence, DefaultSeq(), ParsePattern).IsInvalid()) {
+		if (p.Scan("-p", DefaultSeq(), ParsePattern)
+			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		){
 			return false;
 		}
-		//if (p.Default("-img", out InImage).IsInvalid()) {
-		//	return false;
-		//}
-		if (p.Default("-e", out EdgeRule, PickEdgeRule.Wrap).IsInvalid()) {
+
+		if (p.Scan("-e", PickEdgeRule.Wrap)
+			.WhenGoodOrMissing(r => { EdgeRule = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-s", out Start, null).IsInvalid()) {
+
+		if (p.Scan<Point?>("-s")
+			.WhenGood(r => { Start = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-i", out Iterations, 1000ul).IsInvalid()) {
+
+		if (p.Scan("-i", 1000ul)
+			.WhenGoodOrMissing(r => { Iterations = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 
@@ -71,22 +84,18 @@ public sealed class Options : IOptions
 		return "";
 	}
 
-	static bool ParsePattern(string pattern, out IReadOnlyList<Rule> seq)
+	static IReadOnlyList<Rule> ParsePattern(string pattern)
 	{
 		var list = new List<Rule>();
 		int i=0, len = pattern.Length;
-		var parser = new ParseParams.Parser<PickOp>((string n, out PickOp p) => {
-			return ExtraParsers.TryParseEnumFirstLetter(n, out p, ignoreZero: true);
+		var parser = new ParseParams.Parser<PickOp>((string n) => {
+			return ExtraParsers.ParseEnumFirstLetter<PickOp>(n, ignoreZero: true);
 		});
 
 		while(i < len) {
 			//check for a letter operation
 			var letter = pattern[i].ToString();
-			if (!parser(letter,out PickOp op)) {
-				Tell.CouldNotParse(letter,"-p");
-				seq = default;
-				return false;
-			}
+			var op = parser(letter);
 			i++; //consume letter
 
 			//check for a number
@@ -98,14 +107,13 @@ public sealed class Options : IOptions
 				i++; // consume number
 			}
 			if (!String.IsNullOrWhiteSpace(snum)) {
-
 				if (!int.TryParse(snum, out int inum)) {
-					throw new ArgumentException($"Unable to parse pattern number '{snum}'");
+					throw PlugSqueal.CannotParsePatterNumber(snum);
 				}
 				num = inum;
 			}
 			if (num.HasValue && num < 1) {
-				throw new ArgumentOutOfRangeException("Pattern number must be greater than zero");
+				throw PlugSqueal.PatternNumberGtrZero();
 			}
 			else {
 				num = num.GetValueOrDefault(1);
@@ -117,14 +125,13 @@ public sealed class Options : IOptions
 			});
 		}
 
-		seq = list;
-		return true;
+		return list;
 	}
 
 	static IReadOnlyList<Rule> DefaultSeq()
 	{
 		return new List<Rule> {
-				new Rule { Operation = PickOp.L, Count = 1 }
+			 new Rule { Operation = PickOp.L, Count = 1 }
 			,new Rule { Operation = PickOp.R, Count = 1 }
 		};
 	}

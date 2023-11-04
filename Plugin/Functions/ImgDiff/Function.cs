@@ -120,6 +120,7 @@ public class Function : IFunction
 		DistanceMax = O.MetricInstance.Value.Measure(
 			new double[] { 0.0,0.0,0.0,0.0 },
 			new double[] { 1.0,1.0,1.0,1.0 }
+			//new double[] { 255.0,255.0,255.0,255.0 }
 		);
 	}
 

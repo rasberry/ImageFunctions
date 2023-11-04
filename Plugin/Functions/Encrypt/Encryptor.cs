@@ -5,17 +5,21 @@ namespace ImageFunctions.Plugin.Functions.Encrypt;
 // https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.aes?view=net-7.0
 public class Encryptor
 {
-	public static bool TryStringToBytes(string s,out byte[] bytes)
+	public static byte[] StringToBytes(string s)
+	{
+		string ue = System.Text.RegularExpressions.Regex.Unescape(s ?? "");
+		return Encoding.UTF8.GetBytes(ue);
+	}
+
+	public static bool TryStringToBytes(string s, out byte[] bytes)
 	{
 		bytes = null;
 		try {
-			string ue = System.Text.RegularExpressions.Regex.Unescape(s ?? "");
-			bytes = Encoding.UTF8.GetBytes(ue);
+			bytes = StringToBytes(s);
+			return true;
 		}
-		catch(ArgumentException) {
-			return false;
-		}
-		return bytes != null;
+		catch(ArgumentException) {}
+		return false;
 	}
 
 	public byte[] IVBytes { get; set; }

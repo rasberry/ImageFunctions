@@ -24,12 +24,22 @@ public sealed class Options : IOptions
 		if (p.Has("-p").IsGood()) {
 			UseProportionalSplit = true;
 		}
-		if (p.Default("-s",out ImageSplitFactor,2.0)
-			.BeGreaterThanZero("-s",ImageSplitFactor).IsInvalid()) {
+
+		if (p.Scan("-s", 2.0)
+			.WhenGoodOrMissing(r => { ImageSplitFactor = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if(p.Default("-r",out DescentFactor,0.5)
-			.BeGreaterThanZero("-r",DescentFactor).IsInvalid()) {
+
+		if (p.Scan("-r", 0.5)
+			.WhenGoodOrMissing(r => { DescentFactor = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
 

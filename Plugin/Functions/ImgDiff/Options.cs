@@ -1,3 +1,4 @@
+using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using Rasberry.Cli;
@@ -29,9 +30,11 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double?>((string s, out double? p) => {
-			return ExtraParsers.TryParseNumberPercent(s,out p);
+		var parser = new ParseParams.Parser<double>((string s) => {
+			return ExtraParsers.ParseNumberPercent(s);
 		});
+
+		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
 
 		if (p.Has("-i").IsGood()) {
 			MatchSamePixels = true;
@@ -43,23 +46,26 @@ public sealed class Options : IOptions
 			MakeThirdLayer = true;
 		}
 
-		if(p.Default("-o",out HilightOpacity, par: parser).IsInvalid()) {
-			Tell.CouldNotParse("-o");
+		if (p.Scan<double>("-o", par: parser)
+			.WhenGood(r => { HilightOpacity = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero(true)
+			.IsInvalid()
+		) {
 			return false;
 		}
-
-		if (p.Default("-c",out HilightColor, PlugColors.Magenta).IsInvalid()) {
-			Tell.CouldNotParse("-c");
+		if (p.Scan<ColorRGBA>("-c", PlugColors.Magenta, colorParser)
+			.WhenGoodOrMissing(r => { HilightColor = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-
-		if (p.Default("-m", out MetricName, "Euclidean").IsInvalid()) {
-			Tell.CouldNotParse("-m");
-			return false;
-		}
-
-		if (HilightOpacity.HasValue && HilightOpacity < 0.0) {
-			Tell.MustBeGreaterThanZero("-o",true);
+		if (p.Scan("-m", "Euclidean")
+			.WhenGoodOrMissing(r => { MetricName = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 

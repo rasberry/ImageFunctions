@@ -68,7 +68,9 @@ public abstract class AbstractFunctionTest
 		//Load any specified images
 		if (info.ImageNames?.Any() == true) {
 			loader ??= GetOrLoadResourceImage;
-			foreach(var name in info.ImageNames) {
+			//reverse here since we're using a stack and we want the order
+			// to 
+			foreach(var name in info.ImageNames.Reverse()) {
 				loader(info, name);
 			}
 		}

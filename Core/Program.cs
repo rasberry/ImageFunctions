@@ -106,7 +106,11 @@ internal class Program
 
 	bool LoadImages()
 	{
-		foreach(var i in Options.ImageFileNames) {
+		//we're reversing the images since we're using a stack
+		// and most people are right handed so the first
+		// image specified should stay on top
+		// and the last one on the bottom.
+		foreach(var i in Options.ImageFileNames.Reverse()) {
 			if (!File.Exists(i)) {
 				Tell.CannotFindFile(i);
 				return false;

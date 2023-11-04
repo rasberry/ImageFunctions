@@ -30,21 +30,43 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		if (p.Default("-n",out Passes,1)
-			.BeGreaterThanZero("-n",Passes).IsInvalid()) {
+		if (p.Scan("-n", 1)
+			.WhenGoodOrMissing(r => { Passes = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-m",out WhichMode,Mode.StairCaseDescend).IsInvalid()) {
+
+		if (p.Scan("-m", Mode.StairCaseDescend)
+			.WhenGoodOrMissing(r => { WhichMode = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-x",out MaxIters,100)
-			.BeGreaterThanZero("-x",MaxIters).IsInvalid()) {
+
+		if (p.Scan("-x", 100)
+			.WhenGoodOrMissing(r => { MaxIters = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.BeGreaterThanZero()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultSampler(register, out Sampler).IsInvalid()) {
+
+		if (p.DefaultSampler(register)
+			.WhenGood(r => { Sampler = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.DefaultMetric(register, out Metric).IsInvalid()) {
+
+		if (p.DefaultMetric(register)
+			.WhenGood(r => { Metric = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

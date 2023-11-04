@@ -22,37 +22,41 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		if (p.Default("-rs",out RandomSeed,null).IsInvalid()) {
-			return false;
-		}
-		if (p.Default("-n",out TotalNodes,null).IsInvalid()) {
+		if (p.Scan<int>("-rs")
+			.WhenGood(r => { RandomSeed = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
 
-		var parser = new ParseParams.Parser<double>((string s, out double p) => {
-			return ExtraParsers.TryParseNumberPercent(s, out p);
+		if (p.Scan<int>("-n")
+			.WhenGood(r => { TotalNodes = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		var parser = new ParseParams.Parser<double>((string s) => {
+			return ExtraParsers.ParseNumberPercent(s);
 		});
 
 		while(true) {
-			var pcp = p.Default("-pp",out double ppx, out double ppy,
-				leftPar:parser,
-				rightPar:parser
-			);
+			var pcp = p.Scan<double,double>("-pp",leftPar:parser,rightPar:parser);
 			if (pcp.IsMissing()) { break; }
-			if (pcp.IsInvalid()) {
-				return false;
-			}
-			else if(pcp.IsGood()) {
+			if (pcp.IsInvalid()) { return false; }
+			if (pcp.IsGood()) {
+				var (ppx,ppy) = pcp.Value;
 				StartLoc.Add(StartPoint.FromPro(ppx,ppy));
 			}
 		}
 		while(true) {
-			var pcx = p.Default("-xy",out int cx, out int cy);
+			var pcx = p.Scan<int,int>("-xy");
 			if (pcx.IsMissing()) { break; }
-			if (pcx.IsInvalid()) {
-				return false;
-			}
-			else if (pcx.IsGood()) {
+			if (pcx.IsInvalid()) { return false; }
+			if (pcx.IsGood()) {
+				var (cx,cy) = pcx.Value;
 				StartLoc.Add(StartPoint.FromLinear(cx,cy));
 			}
 		}

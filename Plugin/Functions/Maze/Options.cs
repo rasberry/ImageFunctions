@@ -76,39 +76,60 @@ public sealed class Options : IOptions
 		return new List<PickNext> { PickNext.Newest };
 	}
 
-	static bool SeqParser(string arg, out IReadOnlyList<PickNext> seq)
+	static IReadOnlyList<PickNext> SeqParser(string arg)
 	{
-		var parser = new ParseParams.Parser<PickNext>((string s, out PickNext p) => {
-			return ExtraParsers.TryParseEnumFirstLetter(s,out p);
+		var parser = new ParseParams.Parser<PickNext>((string s) => {
+			return ExtraParsers.ParseEnumFirstLetter<PickNext>(s);
 		});
 		//need to provide delimiters
-		return ExtraParsers.TryParseSequence(arg, new char[] {','}, out seq, parser);
+		return ExtraParsers.ParseSequence(arg, new char[] {','}, parser);
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
 
-		if (p.Default("-m",out Which,PickMaze.Prims).IsInvalid()) {
-			Tell.CouldNotParse("-m");
+		if (p.Scan("-m", PickMaze.Prims)
+			.WhenGoodOrMissing(r => { Which = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-cc",out CellColor,PlugColors.Black).IsInvalid()) {
-			Tell.CouldNotParse("-cc");
+
+		if (p.Scan("-cc", PlugColors.Black, colorParser)
+			.WhenGoodOrMissing(r => { CellColor = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-wc",out WallColor,PlugColors.White).IsInvalid()) {
-			Tell.CouldNotParse("-wc");
+
+		if (p.Scan("-wc", PlugColors.White, colorParser)
+			.WhenGoodOrMissing(r => { WallColor = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-rs",out RndSeed, null).IsInvalid()) {
-			Tell.CouldNotParse("-rs");
+
+		if (p.Scan<int>("-rs")
+			.WhenGood(r => { RndSeed = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
-		if (p.Default("-sq",out Sequence, DefaultSeq(), SeqParser).IsInvalid()) {
-			Tell.CouldNotParse("-sq");
+
+		if (p.Scan("-sq", DefaultSeq(), SeqParser)
+			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
 			return false;
 		}
+
 		if (p.Has("-sr").IsGood()) {
 			SequenceRandomPick = true;
 		}

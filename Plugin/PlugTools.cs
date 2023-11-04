@@ -24,17 +24,14 @@ internal static class PlugTools
 		ps.Sort();
 	}
 
-	/*
 	/// <summary>
 	/// Ensures the parameter is greater than zero.
 	/// </summary>
-	/// <typeparam name="T">The only supported types are double and int</typeparam>
+	/// <typeparam name="T">Type parameter must be an int, int?, double, or double?</typeparam>
 	/// <param name="r">The result of the parameter parsing</param>
-	/// <param name="name">name of the option</param>
-	/// <param name="val">value of the parameter</param>
 	/// <param name="includeZero">whether to include zero as a valid option or not</param>
-	/// <returns></returns>
-	public static ParseParams.Result BeGreaterThanZero<T>(this ParseParams.Result r, string name, T val, bool includeZero = false)
+	/// <returns>An updated result</returns>
+	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
 	{
 		if (r.IsBad()) { return r; }
 
@@ -43,30 +40,29 @@ internal static class PlugTools
 		if (nullType != null) { t = nullType; }
 		bool isInvalid = false;
 
-		if (val is double vd) {
+		if (r.Value is double vd) {
 			if ((!includeZero && vd >= double.Epsilon)
 				|| (includeZero && vd >= 0.0)) {
-				return ParseParams.Result.Good;
+				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
-		else if (val is int vi) {
+		else if (r.Value is int vi) {
 			if ((!includeZero && vi > 0)
 				|| (includeZero && vi >= 0)) {
-				return ParseParams.Result.Good;
+				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
 
 		if (isInvalid) {
-			Core.Tell.MustBeGreaterThanZero(name,includeZero);
-			return ParseParams.Result.UnParsable;
+			Tell.MustBeGreaterThanZero(r.Name,includeZero);
+			return r with { Result = ParseParams.Result.UnParsable };
 		}
 		else {
 			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
 		}
 	}
-	*/
 
 	//ratio 0.0 = 100% a
 	//ratio 1.0 = 100% b
@@ -367,7 +363,6 @@ internal static class PlugTools
 		}
 	}
 
-
 	/// <summary>
 	/// Shortcut for getting the bounds rectangle for a canvas
 	/// </summary>
@@ -393,5 +388,65 @@ internal static class PlugTools
 			options.DefaultWidth.GetValueOrDefault(defaultWidth),
 			options.DefaultHeight.GetValueOrDefault(defaultHeight)
 		);
+	}
+
+	static char[] RectPointDelims = new char[] { ' ',',','x' };
+
+	/// <summary>
+	/// Parse a sequence of numbers into a point object
+	/// Sequence may be seperated by space, comma or 'x'
+	/// </summary>
+	/// <param name="arg">argument value</param>
+	/// <returns>A Point</returns>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="OverflowException"></exception>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="FormatException"></exception>
+	public static Point ParsePoint(string arg)
+	{
+		var parser = new ParseParams.Parser<int>(int.Parse);
+		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
+		if (list.Count != 2) { //must be two elements x,y
+			throw PlugSqueal.SequenceMustContain(2);
+		}
+		return new Point(list[0],list[1]);
+	}
+
+	/// <summary>
+	/// Parse a sequence of numbers into a rectangle object
+	/// Sequence may be seperated by space, comma or 'x'
+	/// </summary>
+	/// <param name="arg">argument value</param>
+	/// <returns>A Rectangle</returns>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="OverflowException"></exception>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="FormatException"></exception>
+	public static Rectangle ParseRectangle(string arg)
+	{
+		var parser = new ParseParams.Parser<int>(int.Parse);
+		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
+		if (list.Count != 2 && list.Count != 4) { //must be two or four elements w,h / x,y,w,h
+			throw PlugSqueal.SequenceMustContainOr(2,4);
+		}
+		if (list.Count == 2) {
+			//assume width / height for 2 elements
+			return new Rectangle(0,0,list[0],list[1]);
+		}
+		else {
+			//x, y, w, h
+			return new Rectangle(list[0],list[1],list[2],list[3]);
+		}
+	}
+
+	/// <summary>
+	/// Attempts to parse a color from name for hex value. for example 'red' or '#FF0000'
+	/// </summary>
+	/// <param name="arg">input string</param>
+	/// <returns>ColorRGBA object</returns>
+	public static ColorRGBA ParseColor(string arg)
+	{
+		var sdc = ExtraParsers.ParseColor(arg);
+		return ColorRGBA.FromRGBA255(sdc.R,sdc.G,sdc.B,sdc.A);
 	}
 }
