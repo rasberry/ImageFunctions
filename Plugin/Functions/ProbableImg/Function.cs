@@ -52,18 +52,18 @@ public class Function : IFunction
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		CreateImage(progress,canvas);
 		source.CopyFrom(canvas);
-		//Source.BlitImage(canvas, resize:true);
 
 		return true;
 	}
 
 	void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect)
 	{
-		Profile = new ConcurrentDictionary<long,ColorProfile>();
+		Profile = new Dictionary<long,ColorProfile>();
 		CToIndex = new Dictionary<ColorRGBA, long>();
 		IToColor = new Dictionary<long, ColorRGBA>();
 
 		pbar.Prefix = "Creating Profile ";
+
 		rect.ThreadPixels((x,y) => {
 			int cy = y - rect.Top;
 			int cx = x - rect.Left;
@@ -74,7 +74,6 @@ public class Function : IFunction
 			long ix = CtoI(oc);
 			if (!Profile.ContainsKey(ix)) {
 				var ncp = new ColorProfile {
-					LockMe = new object(),
 					NColor = new Dictionary<long, long>(),
 					WColor = new Dictionary<long, long>(),
 					SColor = new Dictionary<long, long>(),
@@ -91,13 +90,13 @@ public class Function : IFunction
 			if (cx < maxx) { ce = frame[cx + 1, cy]; }
 
 			var cc = Profile[ix];
-			lock(cc.LockMe) {
-				if (cn != null) { AddUpdateCount(cc.NColor,cn.Value); }
-				if (cw != null) { AddUpdateCount(cc.WColor,cw.Value); }
-				if (cs != null) { AddUpdateCount(cc.SColor,cs.Value); }
-				if (ce != null) { AddUpdateCount(cc.EColor,ce.Value); }
-			}
-		},Core.MaxDegreeOfParallelism,pbar);
+			if (cn != null) { AddUpdateCount(cc.NColor,cn.Value); }
+			if (cw != null) { AddUpdateCount(cc.WColor,cw.Value); }
+			if (cs != null) { AddUpdateCount(cc.SColor,cs.Value); }
+			if (ce != null) { AddUpdateCount(cc.EColor,ce.Value); }
+
+		//The above code is not thread-safe so forcing max concurrency to one instead of  Core.MaxDegreeOfParallelism
+		},1,pbar);
 	}
 
 	void AddUpdateCount(IDictionary<long,long> dict, ColorRGBA color)
@@ -213,7 +212,6 @@ public class Function : IFunction
 
 	void PickAndVisit(ICanvas img, List<(int,int)> stack, Dictionary<long,long> dict, int x, int y)
 	{
-
 		if (IsVisited(x,y)) {
 			//Log.Debug($"already visited {x},{y}");
 			return;
@@ -240,7 +238,7 @@ public class Function : IFunction
 		stack.Add((x,y));
 	}
 
-	ConcurrentDictionary<long,ColorProfile> Profile;
+	Dictionary<long,ColorProfile> Profile;
 	//use an index to save on some memory (TODO how much does this actually save?)
 	Dictionary<ColorRGBA,long> CToIndex;
 	Dictionary<long,ColorRGBA> IToColor;
@@ -269,11 +267,11 @@ public class Function : IFunction
 
 	class ColorProfile
 	{
+		//dictionaries of index,count
 		public Dictionary<long,long> NColor;
 		public Dictionary<long,long> WColor;
 		public Dictionary<long,long> SColor;
 		public Dictionary<long,long> EColor;
-		public object LockMe;
 
 		public override string ToString()
 		{

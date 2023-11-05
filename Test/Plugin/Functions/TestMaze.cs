@@ -17,7 +17,7 @@ public class TestMaze : AbstractFunctionTest
 		using var layers = new Layers();
 		info.Layers = layers;
 		info.MaxDiff = 0.002;
-		info.SaveImage = SaveImageMode.SubjectOnly;
+		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
