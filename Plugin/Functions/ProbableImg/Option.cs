@@ -8,6 +8,7 @@ public sealed class Options : IOptions
 	public int? RandomSeed = null;
 	public int? TotalNodes = null;
 	public List<StartPoint> StartLoc = new List<StartPoint>();
+	public bool UseNonLookup = false;
 
 	public void Usage(StringBuilder sb)
 	{
@@ -16,6 +17,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-rs (seed)"                 ,"Options number seed for the random number generator");
 		sb.ND(1,"-xy (number) (number)"      ,"Add a start node (in pixels) - multiple allowed");
 		sb.ND(1,"-pp (number)[%] (number)[%]","Add a start node (by proportion) - multiple allowed");
+		sb.ND(1,"-alt"                       ,"Use alternate rendering uses slightly less memory");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -36,6 +38,10 @@ public sealed class Options : IOptions
 			.IsInvalid()
 		) {
 			return false;
+		}
+
+		if (p.Has("-alt").IsGood()) {
+			UseNonLookup = true;
 		}
 
 		var parser = new ParseParams.Parser<double>((string s) => {
