@@ -15,7 +15,7 @@ public class TestProbableImg : AbstractFunctionTest
 		using var layers = new Layers();
 		info.Layers = layers;
 		info.MaxDiff = 0.0;
-		info.SaveImage = SaveImageMode.SubjectOnly;
+		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
@@ -33,6 +33,7 @@ public class TestProbableImg : AbstractFunctionTest
 		yield return CreateTestInfo(1,startImg,new string[] { "-rs","321" });
 		yield return CreateTestInfo(2,startImg,new string[] { "-rs","321","-n","5" });
 		yield return CreateTestInfo(3,startImg,new string[] { "-rs","321","-pp","50%","50%" });
+		yield return CreateTestInfo(4,startImg,new string[] { "-rs","321","-pp","50%","50%","-alt" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)

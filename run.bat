@@ -3,7 +3,6 @@ setlocal
 if "%~1"=="test" goto test
 if "%~1"=="ctest" goto ctest
 
-
 dotnet publish
 if not %ERRORLEVEL%==0 goto :EOF
 ::call dotnet run --project src -- %*
@@ -14,6 +13,7 @@ goto :EOF
 dotnet test -l "console;verbosity=detailed" %*
 goto :EOF
 
+:: Test allcolors for backwards compatability offset
 :ctest
 set /a num=128*%~2
 
