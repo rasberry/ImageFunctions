@@ -17,7 +17,7 @@ public static class Fourth
 			,RotRate = 0.05
 			,MaxRevs = 200
 			,PenStart = Color.FromArgb(0,255,0,0)
-			,PenEnd = Color.FromArgb(127,255,0,0)
+			,PenEnd = Color.FromArgb(255,255,0,0)
 			,PenWMin = 1.0
 			,PenWMax = 10.0
 			,PenRateMin = 0.1
@@ -32,7 +32,7 @@ public static class Fourth
 			,RotRate = 0.05
 			,MaxRevs = 200
 			,PenStart = Color.FromArgb(0,127,192,0)
-			,PenEnd = Color.FromArgb(127,192,127,0)
+			,PenEnd = Color.FromArgb(255,192,127,0)
 			,PenWMin = 1.0
 			,PenWMax = 10.0
 			,PenRateMin = 0.1
@@ -47,7 +47,7 @@ public static class Fourth
 			,RotRate = 0.05
 			,MaxRevs = 200
 			,PenStart = Color.FromArgb(0,192,127,0)
-			,PenEnd = Color.FromArgb(127,192,127,0)
+			,PenEnd = Color.FromArgb(255,192,127,0)
 			,PenWMin = 1.0
 			,PenWMax = 10.0
 			,PenRateMin = 0.1
@@ -106,7 +106,6 @@ public static class Fourth
 			penw += penrate;
 
 			Color c = TweenColor(p.PenEnd,p.PenStart,maxrad,0,rad);
-
 			var nc = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
 
 			//Draw the line
