@@ -17,10 +17,12 @@ internal static class PlugTools
 	/// <param name="MaxDegreeOfParallelism">Maximum number of threads to allow</param>
 	public static void ParallelSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
 	{
-		var ps = new ParallelSort<T>(array,comp,progress);
-		if (MaxDegreeOfParallelism.HasValue && MaxDegreeOfParallelism.Value > 0) {
-			ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
-		}
+		//var ps = new QuickSort<T>(array,comp,progress);
+		//ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
+		//ps.Sort();
+
+		var ps = new BitonicSort<T>(array,comp,progress);
+		ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 		ps.Sort();
 	}
 

@@ -1,5 +1,6 @@
 using Rasberry.Cli;
 using ImageFunctions.Core;
+using ImageFunctions.Core.Docs;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 

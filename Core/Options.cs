@@ -1,4 +1,5 @@
 using System.Text;
+using ImageFunctions.Core.Docs;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Core;

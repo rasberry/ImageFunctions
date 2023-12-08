@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Docs;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using Rasberry.Cli;

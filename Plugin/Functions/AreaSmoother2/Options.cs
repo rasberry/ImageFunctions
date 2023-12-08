@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Docs;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
