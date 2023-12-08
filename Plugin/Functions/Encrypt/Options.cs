@@ -14,7 +14,7 @@ public sealed class Options : IOptions
 	public bool TestMode = false;
 	//public int PasswordIterations = Encryptor.DefaultIterations;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Encrypt or Decrypts the pixels of an image");
 		sb.ND(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");

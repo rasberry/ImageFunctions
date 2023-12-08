@@ -9,7 +9,7 @@ public sealed class Options : IOptions
 	public double ImageSplitFactor = 2.0;
 	public double DescentFactor = 0.5;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Creates areas of flat color by recursively splitting high detail chunks");
 		sb.ND(1,"-p"            ,"Use proportianally sized sections (default is square sized sections)");

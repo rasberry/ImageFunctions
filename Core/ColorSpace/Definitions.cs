@@ -1,6 +1,6 @@
 namespace ImageFunctions.Core.ColorSpace;
 
-public interface IColor3
+public interface IColor3 : IMapComponent
 {
 	double C1 { get; }
 	double C2 { get; }
@@ -44,6 +44,12 @@ public interface IColor4Space<T> : IColor4Space where T : IColor4
 {
 	new T ToSpace(in ColorRGBA o);
 	ColorRGBA ToNative(in T o);
+}
+
+public interface IMapComponent
+{
+	double GetComponent(string name);
+	IEnumerable<string> ComponentNames { get; }
 }
 
 //TODO look at https://easyrgb.com/en/convert.php

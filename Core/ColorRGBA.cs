@@ -24,4 +24,16 @@ public readonly record struct ColorRGBA : IColor3
 	{
 		return new ColorRGBA(r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 	}
+
+	public double GetComponent(string name)
+	{
+		return name.ToUpperInvariant() switch {
+			"R" => R, "G" => G, "B" => B, "A" => A,
+			_ => throw Squeal.InvalidArgument(nameof(name)),
+		};
+	}
+
+	public IEnumerable<string> ComponentNames { get {
+		return new[] { "R", "G", "B", "A" };
+	}}
 }

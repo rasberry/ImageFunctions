@@ -22,7 +22,7 @@ public sealed class Options : IOptions
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Creates an Ulam spiral graphic ");
 		sb.ND(1,"-p"                  ,"Color pixel if prime (true if -f not specified)");

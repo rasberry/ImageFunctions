@@ -22,7 +22,7 @@ public sealed class Options : IOptions
 		return true;
 	}
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Blends adjacent areas of flat color together by blending horizontal and vertical gradients");
 		sb.ND(1,"-H","Horizontal only");

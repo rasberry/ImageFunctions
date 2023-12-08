@@ -63,19 +63,25 @@ namespace ImageFunctions.Plugin.Functions.MyFunction;
 
 public sealed class Options : IOptions
 {
-	public static string SomeOption;
+	public string SomeOption;
 
-	public static void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb)
 	{
 		sb.ND(1,"Does something interesting");
 		sb.ND(1,"-myopt (number)","describe myopt here");
 	}
 
-	public static bool ParseArgs(string[] args, IRegister register)
+	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
+		var parser = new ParseParams.Parser<double>((string n) => {
+			return ExtraParsers.ParseNumberPercent(n);
+		});
 
-		if (p.Default("-myopt",out SomeOption).IsBad()) {
+		if (p.Scan<string>("-myopt", "default")
+			.WhenGoodOrMissing(r => { SomeOption = r.Value; return r; })
+			.IsInvalid()
+		) {
 			return false;
 		}
 

@@ -13,7 +13,7 @@ public sealed class Options : IOptions
 	public Lazy<ISampler> Sampler;
 	public Lazy<IMetric> Measurer;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Blends adjacent areas of flat color together by sampling the nearest two colors to the area");
 		sb.ND(1,"-t (number)","Number of times to run fit function (default 7)");

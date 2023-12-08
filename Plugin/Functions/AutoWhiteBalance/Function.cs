@@ -20,7 +20,7 @@ public class Function : IFunction
 
 	public void Usage(StringBuilder sb)
 	{
-		O.Usage(sb);
+		O.Usage(sb, Register);
 	}
 
 	// based on https://docs.gimp.org/2.8/en/gimp-layer-white-balance.html

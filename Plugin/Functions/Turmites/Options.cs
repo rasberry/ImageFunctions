@@ -13,7 +13,7 @@ public sealed class Options : IOptions
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
 		sb.ND(1,"-p (string)"   ,"LR pattern string. See below for full language (default 'LR')");

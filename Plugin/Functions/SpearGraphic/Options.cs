@@ -13,7 +13,7 @@ public sealed class Options : IOptions
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Creates a spear graphic");
 		sb.ND(1,"-g (name)"   ,"Choose which graphic to create");

@@ -13,7 +13,7 @@ public sealed class Options : IOptions
 	public Lazy<IMetric> Metric;
 	public Lazy<ISampler> Sampler;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Average a set of pixels by following a minimaztion function");
 		sb.ND(1,"-m (mode)"  ,"Which mode to use (default StairCaseDescend)");

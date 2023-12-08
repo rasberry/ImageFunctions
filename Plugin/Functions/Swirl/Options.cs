@@ -17,7 +17,7 @@ public sealed class Options : IOptions
 	public Lazy<ISampler> Sampler;
 	public Lazy<IMetric> Metric;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Smears pixels in a circle around a point");
 		sb.ND(1,"-cx (number) (number)"      ,"Swirl center X and Y coordinate in pixels");

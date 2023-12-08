@@ -37,7 +37,7 @@ internal class Options : ICoreOptions
 		Register = register;
 	}
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister _)
 	{
 		sb.ND(0,"Usage: "+nameof(ImageFunctions)+" [options] [function name] [-- function options]");
 		sb.WT();
@@ -176,7 +176,7 @@ internal class Options : ICoreOptions
 
 		//show normal options and function options
 		if (Show.HasFlag(PickShow.Usage)) {
-			Usage(sb);
+			Usage(sb, Register);
 		}
 
 		if (Show.HasFlag(PickShow.Function)) {

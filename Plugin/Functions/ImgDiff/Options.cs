@@ -15,7 +15,7 @@ public sealed class Options : IOptions
 	public string MetricName;
 	internal Lazy<IMetric> MetricInstance;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Highlights differences between two images.");
 		sb.ND(1,"By default differences are highlighted based on distance ranging from highlight color to white");

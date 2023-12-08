@@ -8,7 +8,7 @@ public sealed class Options : IOptions
 	public bool UseABS = false;
 	public bool DoGrayscale = false;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Computes the color change rate - similar to edge detection");
 		sb.ND(1,"-g","Grayscale output");

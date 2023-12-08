@@ -10,7 +10,7 @@ public sealed class Options : IOptions
 	public List<StartPoint> StartLoc = new List<StartPoint>();
 	public bool UseNonLookup = false;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Generate a new image using a probability profile based on the input image");
 		sb.ND(1,"-n (number)"                ,"Max Number of start nodes (defaults to 1 or number of -pp/-xy options)");

@@ -58,6 +58,18 @@ public class ColorSpaceCmyk : IColor4Space<ColorSpaceCmyk.CMYK>
 		double IColor3.C3 { get { return Y; }}
 		double IColor4.C4 { get { return K; }}
 		double IColor3.A  { get { return A; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"C" => C, "M" => M, "Y" => Y, "K" => K, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "C", "M", "Y", "K", "A" };
+		}}
 	}
 }
 
@@ -155,6 +167,17 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 		double IColor3.C3 { get { return L; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return L; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"H" => H, "S" => S, "L" => L, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "H", "S", "L", "A" };
+		}}
 	}
 }
 
@@ -207,6 +230,18 @@ public class ColorSpaceHsv : ColorSpaceHSBase, IColor3Space<ColorSpaceHsv.HSV>, 
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return V; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"H" => H, "S" => S, "V" => V, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "H", "S", "V", "A" };
+		}}
 	}
 }
 
@@ -259,6 +294,18 @@ public class ColorSpaceHsi : ColorSpaceHSBase, IColor3Space<ColorSpaceHsi.HSI>, 
 		double IColor3.C3 { get { return I; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return I; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"H" => H, "S" => S, "I" => I, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "H", "S", "I", "A" };
+		}}
 	}
 }
 
@@ -306,6 +353,18 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 		double IColor3.C3 { get { return Q; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "I" => I, "Q" => Q, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "I", "Q", "A" };
+		}}
 	}
 }
 
@@ -353,6 +412,18 @@ public class ColorSpaceYiqFcc : IColor3Space<ColorSpaceYiqFcc.YIQ>, ILumaColorSp
 		double IColor3.C3 { get { return Q; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "I" => I, "Q" => Q, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "I", "Q", "A" };
+		}}
 	}
 }
 
@@ -400,6 +471,18 @@ public class ColorSpaceYuvBT601 : IColor3Space<ColorSpaceYuvBT601.YUV>, ILumaCol
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "U" => U, "V" => V, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "U", "V", "A" };
+		}}
 	}
 }
 
@@ -447,6 +530,18 @@ public class ColorSpaceYuvBT709 : IColor3Space<ColorSpaceYuvBT709.YUV>, ILumaCol
 		double IColor3.C3 { get { return V; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "U" => U, "V" => V, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "U", "V", "A" };
+		}}
 	}
 }
 
@@ -494,6 +589,18 @@ public class ColorSpaceYDbDr : IColor3Space<ColorSpaceYDbDr.YBR>, ILumaColorSpac
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -577,6 +684,18 @@ public class ColorSpaceYCbCrBt601 : ColorSpaceYCbCrBase,
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -626,6 +745,18 @@ public class ColorSpaceYCbCrBt709 : ColorSpaceYCbCrBase,
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -675,6 +806,18 @@ public class ColorSpaceYCbCrBt202 : ColorSpaceYCbCrBase,
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -724,6 +867,18 @@ public class ColorSpaceYCbCrSmpte240m : ColorSpaceYCbCrBase,
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -771,6 +926,18 @@ public class ColorSpaceYCbCrJpeg : IColor3Space<ColorSpaceYCbCrJpeg.YBR>, ILumaC
 		double IColor3.C3 { get { return R; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"Y" => Y, "B" => B, "R" => R, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "Y", "B", "R", "A" };
+		}}
 	}
 }
 
@@ -819,6 +986,18 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 		double IColor3.C3 { get { return Z; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Z; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"X" => X, "Y" => Y, "Z" => Z, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "X", "Y", "Z", "A" };
+		}}
 	}
 }
 
@@ -882,5 +1061,17 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 		double IColor3.C3 { get { return W; }}
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return W; }}
+
+		public double GetComponent(string name)
+		{
+			return name.ToUpperInvariant() switch {
+				"U" => U, "V" => V, "W" => W, "A" => A,
+				_ => throw Squeal.InvalidArgument(nameof(name)),
+			};
+		}
+
+		public IEnumerable<string> ComponentNames { get {
+			return new[] { "U", "V", "W", "A" };
+		}}
 	}
 }

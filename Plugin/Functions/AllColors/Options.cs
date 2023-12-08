@@ -37,7 +37,7 @@ public enum Space {
 
 public sealed class Options : IOptions
 {
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Creates an image with every possible 24-bit color ordered by chosen pattern.");
 		sb.ND(1,"-p (pattern)"   ,"Sort by Pattern (default BitOrder)");

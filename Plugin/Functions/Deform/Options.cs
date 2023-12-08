@@ -13,7 +13,7 @@ public sealed class Options : IOptions
 	public double Power;
 	public Lazy<ISampler> Sampler;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Warps an image using a mapping function");
 		sb.ND(1,"-cx (number) (number)"      ,"Coordinates of center in pixels");

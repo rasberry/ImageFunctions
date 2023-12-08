@@ -9,7 +9,7 @@ public sealed class Options : IOptions
 	public int BucketCount;
 	public bool StretchAlpha;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Balances the image by stretching the color channels separately. The process"
 			+" 'trims' the color histogram removing sections of low color use at the top and bottom of the range"

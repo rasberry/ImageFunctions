@@ -6,5 +6,5 @@ namespace ImageFunctions.Core;
 public interface IOptions
 {
 	bool ParseArgs(string[] args, IRegister register);
-	void Usage(StringBuilder sb);
+	void Usage(StringBuilder sb, IRegister register);
 }

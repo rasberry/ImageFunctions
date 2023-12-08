@@ -14,7 +14,7 @@ public class Options : IOptions
 	public PointF? CenterRt;
 	public double ZoomAmount;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Blends rays of pixels to produce a 'zoom' effect");
 		sb.ND(1,"-z  (number)[%]"             ,"Zoom amount (default 1.1)");

@@ -15,7 +15,7 @@ public sealed class Options : IOptions
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Draws one of several mazes");
 		sb.ND(1,"-m  (maze)"     ,"Choose a maze (default prims)");

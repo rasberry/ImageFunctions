@@ -19,7 +19,7 @@ public class Function : IFunction
 
 	public void Usage(StringBuilder sb)
 	{
-		O.Usage(sb);
+		O.Usage(sb, Register);
 	}
 
 	// Inspired by

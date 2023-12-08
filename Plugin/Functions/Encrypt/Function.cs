@@ -18,7 +18,7 @@ public class Function : IFunction
 
 	public void Usage(StringBuilder sb)
 	{
-		O.Usage(sb);
+		O.Usage(sb, Register);
 	}
 
 	public bool Run(string[] args)
