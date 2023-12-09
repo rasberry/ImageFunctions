@@ -33,10 +33,6 @@ public readonly record struct ColorRGBA : IColor3, ILuma
 		};
 	}
 
-	public IEnumerable<string> ComponentNames { get {
-		return new[] { "R", "G", "B", "A" };
-	}}
-
 	// https://en.wikipedia.org/wiki/Grayscale
 	public double Luma { get {
 		return  0.299 * R + 0.587 * G + 0.114 * B;

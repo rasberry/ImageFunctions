@@ -26,11 +26,16 @@ public class ColorSpaceYuvBT601 : IColor3Space<ColorSpaceYuvBT601.YUV>, ILumaCol
 		return ToSpace(o);
 	}
 
-	public ILuma GetLuma(in ColorRGBA o)
-	{
-		var c = ToSpace(o);
-		return c;
+	public ILuma GetLuma(in ColorRGBA o) {
+		return ToSpace(o);
 	}
+
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Luma, U-axis, V-axis : BT. 601",
+			ComponentNames = new[] { "Y", "U", "V", "A" }
+		};
+	}}
 
 	public readonly struct YUV : IColor3, ILuma
 	{
@@ -52,9 +57,5 @@ public class ColorSpaceYuvBT601 : IColor3Space<ColorSpaceYuvBT601.YUV>, ILumaCol
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "Y", "U", "V", "A" };
-		}}
 	}
 }

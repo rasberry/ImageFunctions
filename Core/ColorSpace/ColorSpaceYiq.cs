@@ -26,11 +26,16 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 		return ToSpace(o);
 	}
 
-	public ILuma GetLuma(in ColorRGBA o)
-	{
-		var c = ToSpace(o);
-		return c;
+	public ILuma GetLuma(in ColorRGBA o) {
+		return ToSpace(o);
 	}
+
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Luma, In-phase, Quadrature : NTSC 1953",
+			ComponentNames = new[] { "Y", "I", "Q", "A" }
+		};
+	}}
 
 	public readonly struct YIQ : IColor3, ILuma
 	{
@@ -52,9 +57,5 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "Y", "I", "Q", "A" };
-		}}
 	}
 }

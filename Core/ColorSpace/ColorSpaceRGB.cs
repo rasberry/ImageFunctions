@@ -22,4 +22,11 @@ public class ColorSpaceRGB : IColor3Space<ColorRGBA>, ILumaColorSpace
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return o;
 	}
+
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Red, Green, Blue (passthrough)",
+			ComponentNames = new[] { "R", "G", "B", "A" }
+		};
+	}}
 }

@@ -31,11 +31,16 @@ public class ColorSpaceHsi : ColorSpaceHSBase, IColor3Space<ColorSpaceHsi.HSI>, 
 		return ToSpace(o);
 	}
 
-	public ILuma GetLuma(in ColorRGBA o)
-	{
-		var c = ToSpace(o);
-		return c;
+	public ILuma GetLuma(in ColorRGBA o) {
+		return ToSpace(o);
 	}
+
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Hue, Saturation, Intensity",
+			ComponentNames = new[] { "H", "S", "I", "A" }
+		};
+	}}
 
 	public readonly struct HSI : IColor3, ILuma
 	{
@@ -57,9 +62,5 @@ public class ColorSpaceHsi : ColorSpaceHSBase, IColor3Space<ColorSpaceHsi.HSI>, 
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "H", "S", "I", "A" };
-		}}
 	}
 }

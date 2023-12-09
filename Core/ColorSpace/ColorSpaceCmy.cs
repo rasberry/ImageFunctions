@@ -23,6 +23,13 @@ public class ColorSpaceCmy : IColor3Space<ColorSpaceCmy.CMY>, ILumaColorSpace
 		return ToSpace(o);
 	}
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Cyan, Magenta, Yellow",
+			ComponentNames = new[] { "C", "M", "Y", "A" }
+		};
+	}}
+
 	public readonly struct CMY : IColor3, ILuma
 	{
 		public CMY(double c, double m, double y, double a = 1.0) {
@@ -43,9 +50,5 @@ public class ColorSpaceCmy : IColor3Space<ColorSpaceCmy.CMY>, ILumaColorSpace
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "C", "M", "Y", "A" };
-		}}
 	}
 }

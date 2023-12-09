@@ -37,6 +37,13 @@ public class ColorSpaceHsv : ColorSpaceHSBase, IColor3Space<ColorSpaceHsv.HSV>, 
 		return c;
 	}
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Hue, Saturation, Value",
+			ComponentNames = new[] { "H", "S", "V", "A" }
+		};
+	}}
+
 	public readonly struct HSV : IColor3, ILuma
 	{
 		public HSV(double h, double s, double v, double a = 1.0) {
@@ -57,9 +64,5 @@ public class ColorSpaceHsv : ColorSpaceHSBase, IColor3Space<ColorSpaceHsv.HSV>, 
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "H", "S", "V", "A" };
-		}}
 	}
 }

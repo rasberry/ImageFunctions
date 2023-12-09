@@ -62,13 +62,29 @@ public abstract class ColorSpaceYCbCrBase
 
 	protected static void InitMatrixValues()
 	{
-		F11 = Kr;                     F21 = Kg;                     F31 = Kb;
-		F12 = -0.5 * Kr / (1.0 - Kb); F22 = -0.5 * Kg / (1.0 - Kb); F32 = 0.5;
-		F13 = 0.5;                    F23 = -0.5 * Kg / (1.0 - Kr); F33 = -0.5 * Kb / (1.0 - Kr);
+		F11 = Kr;
+		F21 = Kg;
+		F31 = Kb;
 
-		I11 = 1.0; I21 = 0.0;                        I31 = 2.0 - 2.0 * Kr;
-		I12 = 1.0; I22 = 2.0 * Kb / Kg * (Kb - 1.0); I32 = 2.0 * Kr / Kg * (Kr - 1.0);
-		I13 = 1.0; I23 = 2.0 - 2.0 * Kb;             I33 = 0.0;
+		F12 = -0.5 * Kr / (1.0 - Kb);
+		F22 = -0.5 * Kg / (1.0 - Kb);
+		F32 = 0.5;
+
+		F13 = 0.5;
+		F23 = -0.5 * Kg / (1.0 - Kr);
+		F33 = -0.5 * Kb / (1.0 - Kr);
+
+		I11 = 1.0;
+		I21 = 0.0;
+		I31 = 2.0 - 2.0 * Kr;
+
+		I12 = 1.0;
+		I22 = 2.0 * Kb / Kg * (Kb - 1.0);
+		I32 = 2.0 * Kr / Kg * (Kr - 1.0);
+		
+		I13 = 1.0;
+		I23 = 2.0 - 2.0 * Kb;
+		I33 = 0.0;
 	}
 
 	protected static (double,double,double) BaseToSpace(in ColorRGBA o)

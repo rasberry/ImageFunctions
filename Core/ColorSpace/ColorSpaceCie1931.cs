@@ -33,6 +33,13 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 		return c;
 	}
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "International Commission on Illumination 1931",
+			ComponentNames = new[] { "X", "Y", "Z", "A" }
+		};
+	}}
+
 	public readonly struct XYZ : IColor3, ILuma
 	{
 		public XYZ(double x, double y, double z, double a = 1.0) {
@@ -53,9 +60,5 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "X", "Y", "Z", "A" };
-		}}
 	}
 }

@@ -32,6 +32,13 @@ public class ColorSpsaceLinearRGB : IColor3Space<ColorSpsaceLinearRGB.RGB>, ILum
 		return ToSpace(o);
 	}
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "RGB with D65 gamma removed",
+			ComponentNames = new[] { "R", "G", "B", "A" }
+		};
+	}}
+
 	public readonly struct RGB : IColor3, ILuma
 	{
 		public RGB(double x, double y, double z, double a = 1.0) {
@@ -52,10 +59,6 @@ public class ColorSpsaceLinearRGB : IColor3Space<ColorSpsaceLinearRGB.RGB>, ILum
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "R", "G", "B", "A" };
-		}}
 
 		double ToGray() {
 			return 0.2126 * R + 0.7152 * G + 0.0722 * B;

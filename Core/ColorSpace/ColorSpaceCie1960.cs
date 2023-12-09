@@ -48,6 +48,13 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 
 	static ColorSpaceCie1931 XyzSpace = new ColorSpaceCie1931();
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "International Commission on Illumination 1960",
+			ComponentNames = new[] { "U", "V", "W", "A" }
+		};
+	}}
+
 	public readonly struct UVW : IColor3, ILuma
 	{
 		public UVW(double u, double v, double w, double a = 1.0) {
@@ -68,9 +75,5 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "U", "V", "W", "A" };
-		}}
 	}
 }

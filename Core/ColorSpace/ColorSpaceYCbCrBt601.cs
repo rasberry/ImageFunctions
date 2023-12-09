@@ -28,11 +28,16 @@ public class ColorSpaceYCbCrBt601 : ColorSpaceYCbCrBase,
 		return ToSpace(o);
 	}
 
-	public ILuma GetLuma(in ColorRGBA o)
-	{
-		var c = ToSpace(o);
-		return c;
+	public ILuma GetLuma(in ColorRGBA o) {
+		return ToSpace(o);
 	}
+
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Luma, Blue-Red difference chroma : BT. 601",
+			ComponentNames = new[] { "Y", "B", "R", "A" }
+		};
+	}}
 
 	public readonly struct YBR : IColor3, ILuma
 	{
@@ -54,9 +59,5 @@ public class ColorSpaceYCbCrBt601 : ColorSpaceYCbCrBase,
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "Y", "B", "R", "A" };
-		}}
 	}
 }

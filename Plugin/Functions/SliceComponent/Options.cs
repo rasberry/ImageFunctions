@@ -26,9 +26,12 @@ public sealed class Options : IOptions
 		var reg = new Color3SpaceRegister(register);
 		foreach(var name in reg.All()) {
 			var space = reg.Get(name);
-			var color = space.Item.ToSpace(PlugColors.Black);
-			var comps = color.ComponentNames.ToArray();
-			sb.ND(1,$"{space.Name}",$"[{String.Join(',',comps)}]");
+			var info = space.Item.Info;
+			var desc = info.Description;
+			if (!String.IsNullOrWhiteSpace(desc)) {
+				desc = $" - {desc}";
+			}
+			sb.ND(1,$"{space.Name}",$"[{String.Join(',',info.ComponentNames)}]{desc}");
 		}
 	}
 
@@ -56,39 +59,63 @@ public sealed class Options : IOptions
 		}
 
 		if (p.Scan<int>("-n", 16)
-			.WhenGoodOrMissing(r => { Slices = r.Value; return r; })
 			.WhenInvalidTellDefault()
+			.WhenGoodOrMissing(r => {
+				if (r.Value < 1) {
+					Log.Error(Note.MustBeGreaterThan(r.Name,1,true));
+					return r with { Result = ParseParams.Result.UnParsable };
+				}
+				Slices = r.Value; return r;
+			})
 			.IsInvalid()
 		) {
 			return false;
 		}
 
 		if (p.Scan<double>("-r", par: parser)
-			.WhenGood(r => { ResetValue = r.Value; return r; })
 			.WhenInvalidTellDefault()
+			.WhenGood(r => {
+				if (r.Value < 0.0 || r.Value > 1.0) {
+					Log.Error(Note.MustBeBetween(r.Name,"0.0, 0%","1.0, 100%"));
+					return r with { Result = ParseParams.Result.UnParsable };
+				}
+				ResetValue = r.Value; return r;
+			})
 			.IsInvalid()
 		) {
 			return false;
 		}
 
 		if (p.Scan<int>("-o")
-			.WhenGood(r => { WhichSlice = r.Value; return r; })
 			.WhenInvalidTellDefault()
+			.WhenGood(r => {
+				if (r.Value < 1 || r.Value > Slices) {
+					Log.Error(Note.MustBeBetween(r.Name,"1",Slices.ToString()));
+					return r with { Result = ParseParams.Result.UnParsable };
+				}
+				WhichSlice = r.Value; return r;
+			})
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if (Slices < 1) {
-			//Tell.must(
+		var reg = new Color3SpaceRegister(register);
+		if (!reg.Try(SpaceName,out var spaceItem)) {
+			Log.Error(Note.NotRegistered(reg.Namespace, SpaceName));
+			return false;
 		}
+		Space = spaceItem.Item;
+
+		Space.ToSpace(PlugColors.Black);
 
 		return true;
 	}
 
-	public string SpaceName;
+	string SpaceName;
 	public string ComponentName;
 	public int Slices;
 	public double? ResetValue;
 	public int? WhichSlice;
+	public IColor3Space Space;
 }

@@ -1,5 +1,10 @@
 namespace ImageFunctions.Core.ColorSpace;
 
+//TODO look at https://easyrgb.com/en/convert.php
+// and http://www.brucelindbloom.com/
+// and http://members.chello.at/~easyfilter/colorspace.c
+// https://imagej.net/plugins/color-space-converter.html
+
 public interface IColor3 : IMapComponent
 {
 	double C1 { get; }
@@ -27,12 +32,14 @@ public interface IColor3Space
 {
 	IColor3 ToSpace(in ColorRGBA o);
 	ColorRGBA ToNative(in IColor3 o);
+	ColorSpaceInfo Info { get; }
 }
 
 public interface IColor4Space
 {
 	IColor4 ToSpace(in ColorRGBA o);
 	ColorRGBA ToNative(in IColor4 o);
+	ColorSpaceInfo Info { get; }
 }
 
 public interface IColor3Space<T> : IColor3Space where T : IColor3
@@ -49,10 +56,10 @@ public interface IColor4Space<T> : IColor4Space where T : IColor4
 public interface IMapComponent
 {
 	double GetComponent(string name);
-	IEnumerable<string> ComponentNames { get; }
 }
 
-//TODO look at https://easyrgb.com/en/convert.php
-// and http://www.brucelindbloom.com/
-// and http://members.chello.at/~easyfilter/colorspace.c
-// https://imagej.net/plugins/color-space-converter.html
+public sealed class ColorSpaceInfo
+{
+	public required string Description { get; init; }
+	public required IEnumerable<string> ComponentNames { get; init; }
+}

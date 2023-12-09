@@ -50,9 +50,9 @@ public static class Note
 		string vals = (v1.HasValue && v2.HasValue) ? $" [{v1} : {v2}]" : "";
 		return $"{name}(s) must be equal{vals}";
 	}
-	public static string MustBeGreaterThan(string name, int number, bool includeZero = false) {
+	public static string MustBeGreaterThan(string name, int number, bool inclusive = false) {
 		string w = number >=0 && number <= 9 ? Tools.NumberToWord(number) : number.ToString();
-		return $"{name} must be greater than {(includeZero?"or equal to ":"")}{w}";
+		return $"{name} must be greater than {(inclusive?"or equal to ":"")}{w}";
 	}
 	public static string MustNotBeNullOrEmpty() {
 		return "must not be null or empty";

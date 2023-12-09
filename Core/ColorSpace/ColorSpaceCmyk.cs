@@ -37,6 +37,13 @@ public class ColorSpaceCmyk : IColor4Space<ColorSpaceCmyk.CMYK>
 		return ToSpace(o);
 	}
 
+	public ColorSpaceInfo Info { get {
+		return new ColorSpaceInfo {
+			Description = "Cyan, Magenta, Yellow, and Key (black)",
+			ComponentNames = new[] { "C", "M", "Y", "K", "A" }
+		};
+	}}
+
 	public readonly struct CMYK : IColor4
 	{
 		public CMYK(double c, double m, double y, double k, double a = 1.0) {
@@ -57,9 +64,5 @@ public class ColorSpaceCmyk : IColor4Space<ColorSpaceCmyk.CMYK>
 				_ => throw Squeal.InvalidArgument(nameof(name)),
 			};
 		}
-
-		public IEnumerable<string> ComponentNames { get {
-			return new[] { "C", "M", "Y", "K", "A" };
-		}}
 	}
 }
