@@ -54,7 +54,7 @@ internal class Program
 			Options.Engine.Item.Value.SaveImage(Layers, Options.OutputName, Options.ImageFormat);
 		}
 		else {
-			Tell.NoLayersToSave();
+			Log.Warning(Note.NoLayersToSave());
 		}
 
 		return ExitCode.Success;
@@ -87,7 +87,7 @@ internal class Program
 		// figure out the function to run
 		var fr = new FunctionRegister(Register);
 		if (!fr.Try(Options.FunctionName, out var funcItem)) {
-			Tell.NotRegistered(fr.Namespace,Options.FunctionName);
+			Log.Error(Note.NotRegistered(fr.Namespace,Options.FunctionName));
 			exitCode = ExitCode.StoppedFunctionNotRegistered;
 			return false;
 		}
@@ -112,7 +112,7 @@ internal class Program
 		// and the last one on the bottom.
 		foreach(var i in Options.ImageFileNames.Reverse()) {
 			if (!File.Exists(i)) {
-				Tell.CannotFindFile(i);
+				Log.Error(Note.CannotFindInputImage(i));
 				return false;
 			}
 			Options.Engine.Item.Value.LoadImage(Layers, i);

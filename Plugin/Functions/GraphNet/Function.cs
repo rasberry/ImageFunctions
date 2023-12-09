@@ -36,7 +36,7 @@ public class Function : IFunction
 
 		if (O.NodeCount.HasValue) {
 			if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
-				Tell.MustBeBetween("-n","1",$"{canvas.Width} (inclusive)");
+				Log.Error(Note.MustBeBetween("-n","1",$"{canvas.Width} (inclusive)"));
 				return false;
 			}
 		}

@@ -25,7 +25,7 @@ public static class SamplerHelpers
 		}
 		else if (!reg.Try(r.Value,out var entry)) {
 			sampler = default;
-			Tell.NotRegistered("Sampler",r.Value);
+			Log.Error(Note.NotRegistered(r.Name,r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {

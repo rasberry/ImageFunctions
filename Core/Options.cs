@@ -108,15 +108,16 @@ internal class Options : ICoreOptions
 		}
 
 		if (p.Scan<int>(new[]{"--max-threads","-x"})
-			.WhenGood(r => { MaxDegreeOfParallelism = r.Value; return r; })
 			.WhenInvalidTellDefault()
+			.WhenGood(r => {
+				if (r.Value < 1) {
+					Log.Error(Note.MustBeGreaterThan(r.Name,0));
+					return r with { Result = ParseParams.Result.UnParsable };
+				}
+				MaxDegreeOfParallelism = r.Value; return r;
+			})
 			.IsInvalid()
 		) {
-			return false;
-		}
-
-		if (MaxDegreeOfParallelism < 1) {
-			Tell.MustBeGreaterThanZero("--max-threads");
 			return false;
 		}
 
@@ -196,7 +197,7 @@ internal class Options : ICoreOptions
 		var er = new EngineRegister(Register);
 		if (!String.IsNullOrWhiteSpace(EngineName)) {
 			if (!er.Try(EngineName, out var engineEntry)) {
-				Tell.NotRegistered(engineEntry.NameSpace, engineEntry.Name);
+				Log.Error(Note.NotRegistered(engineEntry.NameSpace, engineEntry.Name));
 				return false;
 			}
 			Engine = engineEntry;
@@ -230,7 +231,7 @@ internal class Options : ICoreOptions
 		}
 
 		if (String.IsNullOrWhiteSpace(_functionName)) {
-			Tell.MustProvideInput("function name");
+			Log.Error(Note.MustProvideInput("function name"));
 			return false;
 		}
 
@@ -269,7 +270,7 @@ internal class Options : ICoreOptions
 		if (!String.IsNullOrWhiteSpace(name)) {
 			//show specific help for given function
 			if (!fn.Try(name,out _)) {
-				Tell.NotRegistered(fn.Namespace,name);
+				Log.Error(Note.NotRegistered(fn.Namespace,name));
 				return false;
 			}
 			list = new[] { name };
@@ -305,7 +306,8 @@ internal class Options : ICoreOptions
 		}
 
 		if (found == null) {
-			Tell.NoImageFormatFound(_imageFormat);
+			Log.Error(Note.NoImageFormatFound(_imageFormat));
+			return false;
 		}
 
 		return true;
@@ -317,7 +319,7 @@ internal class Options : ICoreOptions
 		while(found) {
 			var oim = p.Scan<string>(new[]{"-i","--image"});
 			if (oim.IsMissingArgument()) {
-				Tell.MissingArgument("--image");
+				Log.Error(Note.MissingArgument("--image"));
 				return false;
 			}
 			else if (oim.IsGood()) {

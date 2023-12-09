@@ -27,8 +27,14 @@ public sealed class Options : IOptions
 		var p = new ParseParams(args);
 
 		if (p.Scan<int>("-t", 7)
-			.WhenGoodOrMissing(r => { TotalTries = r.Value; return r; })
 			.WhenInvalidTellDefault()
+			.WhenGoodOrMissing(r => {
+				if (r.Value < 1) {
+					Log.Error(Note.MustBeGreaterThan(r.Name,0));
+					return r with { Result = ParseParams.Result.UnParsable };
+				}
+				TotalTries = r.Value; return r;
+			})
 			.IsInvalid()
 		) {
 			return false;
@@ -49,11 +55,6 @@ public sealed class Options : IOptions
 			.WhenGood(r => { Measurer = r.Value; return r; })
 			.IsInvalid()
 		) {
-			return false;
-		}
-
-		if (TotalTries < 1) {
-			Tell.MustBeGreaterThanZero("-t");
 			return false;
 		}
 

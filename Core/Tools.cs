@@ -182,7 +182,7 @@ public static class Tools
 	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result)
 	{
 		if (result.IsInvalid()) {
-			Tell.CouldNotParse(result.Name, result.Error);
+			Log.Error(Note.CouldNotParse(result.Name, result.Value), result.Error);
 		}
 		return result;
 	}

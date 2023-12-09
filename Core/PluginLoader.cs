@@ -30,7 +30,7 @@ internal static class PluginLoader
 				plugin = context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(f));
 			}
 			catch(Exception e) {
-				Tell.PluginFileWarnLoading(f,e);
+				Log.Warning(Note.PluginFileWarnLoading(f,e));
 				continue;
 			}
 
@@ -73,24 +73,24 @@ internal static class PluginLoader
 			//continue;
 
 			if (! IsIPlugin(t)) { continue; }
-			Tell.PluginFound(plugin.Location, t.FullName);
+			Log.Info(Note.PluginFound(plugin.Location, t.FullName));
 
 			IPlugin pluginInst = null;
 			try {
 				pluginInst = (IPlugin)Activator.CreateInstance(t);
 			}
 			catch (Exception e) {
-				Tell.PluginTypeWarnLoading(t,e);
+				Log.Warning(Note.PluginTypeWarnLoading(t,e));
 				continue;
 			}
 
-			Tell.InitingPlugin(t);
+			Log.Info(Note.InitializingPlugin(t));
 			//plugins register things themselves
 			try {
 				pluginInst.Init(register);
 			}
 			catch(Exception e) {
-				Tell.PluginInitFailed(t,e);
+				Log.Warning(Note.PluginInitFailed(t,e));
 			}
 		}
 	}

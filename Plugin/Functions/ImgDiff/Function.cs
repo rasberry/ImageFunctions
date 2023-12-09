@@ -31,7 +31,7 @@ public class Function : IFunction
 		}
 
 		if (Layers.Count < 2) {
-			Tell.LayerMustHaveAtLeast(2);
+			Log.Error(Note.LayerMustHaveAtLeast(2));
 			return false;
 		}
 

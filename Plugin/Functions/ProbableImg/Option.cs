@@ -68,7 +68,7 @@ public sealed class Options : IOptions
 		}
 
 		if (TotalNodes != null && TotalNodes < 1) {
-			Tell.MustBeGreaterThanZero("-n");
+			Log.Error(Note.MustBeGreaterThan("-n",0));
 			return false;
 		}
 

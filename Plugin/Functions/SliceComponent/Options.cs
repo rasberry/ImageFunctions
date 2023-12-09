@@ -11,12 +11,11 @@ public sealed class Options : IOptions
 	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Slices an image component into multiple layers.");
-		sb.ND(2,"number[%] values are normalized to the range 0.0-1.0 / 0% to 100%");
 		sb.ND(1,"-s (space)"     ,"Color space to use (default RGB)");
-		sb.ND(1,"-c (component)" ,"Component to slice");
+		sb.ND(1,"-c (component)" ,"Component to slice (default R)");
 		sb.ND(1,"-n (number)"    ,"Number of slices to use (default 16)");
-		sb.ND(1,"-r (number[%])" ,"Reset the component to given value instead of keeping original");
-		sb.ND(1,"-o (number[%])" ,"Keep only a specific slice");
+		sb.ND(1,"-r (number[%])" ,"Reset the component to given value (0.0-1.0 / 0%-100%)");
+		sb.ND(1,"-o (number)"    ,"Keep only a specific slice between 1 and -n");
 		sb.WT();
 		sb.ND(1,"Available Spaces","Components");
 		PrintSpaces(sb,register);
@@ -40,15 +39,56 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan<string>("-myopt", "default")
-			.WhenGoodOrMissing(r => { SomeOption = r.Value; return r; })
+		if (p.Scan<string>("-s", "Rgb")
+			.WhenGoodOrMissing(r => { SpaceName = r.Value; return r; })
+			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		//TODO parse any other options and maybe do checks
+		if (p.Scan<string>("-c", "R")
+			.WhenGoodOrMissing(r => { ComponentName = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Scan<int>("-n", 16)
+			.WhenGoodOrMissing(r => { Slices = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Scan<double>("-r", par: parser)
+			.WhenGood(r => { ResetValue = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Scan<int>("-o")
+			.WhenGood(r => { WhichSlice = r.Value; return r; })
+			.WhenInvalidTellDefault()
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (Slices < 1) {
+			//Tell.must(
+		}
 
 		return true;
 	}
+
+	public string SpaceName;
+	public string ComponentName;
+	public int Slices;
+	public double? ResetValue;
+	public int? WhichSlice;
 }

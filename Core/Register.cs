@@ -7,7 +7,7 @@ internal class Register : IRegister, IDisposable
 		if (item == null) {
 			throw Squeal.ArgumentNull(nameof(item));
 		}
-		Tell.Registering(@namespace,name);
+		Log.Info(Note.Registering(@namespace,name));
 		var full = new NameSpaceName {
 			NameSpace = @namespace,
 			Name = name

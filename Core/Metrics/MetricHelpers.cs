@@ -26,7 +26,7 @@ public static class MetricHelpers
 		}
 		else if (!reg.Try(r.Value,out var entry)) {
 			metric = default;
-			Tell.NotRegistered(reg.Namespace,r.Value);
+			Log.Error(Note.NotRegistered(reg.Namespace,r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {

@@ -19,9 +19,10 @@ public static class Log
 		WithColor($"W: {m}",ConsoleColor.Yellow, true);
 	}
 
-	public static void Error(string m)
+	public static void Error(string m, Exception e = null)
 	{
-		WithColor($"E: {m}",ConsoleColor.Red,true);
+		string se = e == null ? "" : $" : {e.Message}";
+		WithColor($"E: {m}{se}",ConsoleColor.Red,true);
 	}
 
 	public static void Debug(string m)

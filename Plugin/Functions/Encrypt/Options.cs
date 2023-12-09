@@ -53,32 +53,18 @@ public sealed class Options : IOptions
 			.WhenMissing(r => {
 				if (p.Has("-pi").IsGood()) {
 					if (!TryPromptForPassword(out UserPassword)) {
-						Tell.InvalidPassword();
+						Log.Error(Note.InvalidPassword());
 						return r;
 					}
 					return r with { Result = ParseParams.Result.Good };
 				}
 				return r;
 			})
-			.WhenUnParsable(r => { Tell.CouldNotParse(r.Name, r.Error); return r; })
+			.WhenUnParsable(r => { Log.Error(Note.CouldNotParse(r.Name, r.Value), r.Error); return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
-
-		/*
-		var ppass = p.Default("-p",out UserPassword);
-		if (ppass.IsInvalid()) {
-			Tell.CouldNotParse("-p");
-			return false;
-		}
-		else if (ppass.IsMissing() && p.Has("-pi").IsGood()) {
-			if (!TryPromptForPassword(out UserPassword)) {
-				Tell.InvalidPassword();
-				return false;
-			}
-		}
-		*/
 
 		bool goodPass = false;
 		if (!String.IsNullOrEmpty(UserPassword)) {
@@ -91,12 +77,12 @@ public sealed class Options : IOptions
 			}
 		}
 		if (!goodPass) {
-			Tell.InvalidPassword();
+			Log.Error(Note.InvalidPassword());
 			return false;
 		}
 
 		if (IVBytes != null && IVBytes.Length < Encryptor.IVLengthBytes) {
-			Tell.MustBeSizeInBytes("-iv",Encryptor.IVLengthBytes);
+			Log.Error(Note.MustBeSizeInBytes("-iv",Encryptor.IVLengthBytes));
 		}
 
 		if (TestMode) {

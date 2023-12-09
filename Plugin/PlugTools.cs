@@ -58,7 +58,7 @@ internal static class PlugTools
 		}
 
 		if (isInvalid) {
-			Tell.MustBeGreaterThanZero(r.Name,includeZero);
+			Log.Error(Note.MustBeGreaterThan(r.Name,0,includeZero));
 			return r with { Result = ParseParams.Result.UnParsable };
 		}
 		else {

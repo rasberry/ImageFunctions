@@ -51,7 +51,7 @@ public sealed class Options : IOptions
 		if (p.Scan<Graphic>("-g")
 			.WhenGoodOrMissing(r => { Spear = r.Value; return r; })
 			.WhenInvalidTellDefault()
-			.WhenMissing(r => { Tell.MustProvideInput("-g"); return r; })
+			.WhenMissing(r => { Log.Error(Note.MustProvideInput(r.Name)); return r; })
 			.IsBad() //option is required
 		) {
 			return false;

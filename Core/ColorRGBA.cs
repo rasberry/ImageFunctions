@@ -5,7 +5,7 @@ namespace ImageFunctions.Core;
 /// <summary>
 /// Color with Components R,G,B,A
 /// </summary>
-public readonly record struct ColorRGBA : IColor3
+public readonly record struct ColorRGBA : IColor3, ILuma
 {
 	public ColorRGBA(double r, double g, double b, double a)
 	{
@@ -35,5 +35,10 @@ public readonly record struct ColorRGBA : IColor3
 
 	public IEnumerable<string> ComponentNames { get {
 		return new[] { "R", "G", "B", "A" };
+	}}
+
+	// https://en.wikipedia.org/wiki/Grayscale
+	public double Luma { get {
+		return  0.299 * R + 0.587 * G + 0.114 * B;
 	}}
 }

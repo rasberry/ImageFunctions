@@ -1,19 +1,18 @@
-using System.Reflection.Metadata;
-
 namespace ImageFunctions.Core;
 
+/*
 // Put user facing messages here
 public static class Tell
 {
 	public static void CannotFindFile(string path, Exception e = null) {
-		WithException(Log.Error,$"cannot find input image '{path}'", e);
+		WithException(Log.Error,Note.CannotFindInputImage(path), e);
 	}
 	public static void CouldNotParse(string name, Exception e = null) {
 		CouldNotParse(name, null, e);
 	}
 	public static void CouldNotParse(string name, object val, Exception e = null) {
 		string sval = val == null ? "" : $" '{val}'";
-		WithException(Log.Error,$"invalid value{sval} for '{name}'",e);
+		WithException(Log.Error,Note.InvalidValue(sval,name),e);
 	}
 	public static void InitingPlugin(Type t) {
 		Log.Info($"Initializing plugin {t.FullName}");
@@ -82,10 +81,5 @@ public static class Tell
 	public static void Registering(string @namespace, string name) {
 		Log.Info($"Registering {@namespace}.{name}");
 	}
-
-	static void WithException(Action<string> Func, string m, Exception e = null)
-	{
-		string se = e == null ? "" : $" : {e.Message}";
-		Func($"{m}{se}");
-	}
 }
+*/
