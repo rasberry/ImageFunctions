@@ -14,7 +14,8 @@ public enum Pattern {
 	Luminance709,
 	Luminance601,
 	Luminance2020,
-	Spiral16Order
+	Spiral16Order,
+	Spiral4kOrder
 }
 
 public enum Space {

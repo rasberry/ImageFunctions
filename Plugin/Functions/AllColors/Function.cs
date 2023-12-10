@@ -5,6 +5,10 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 
+// Inspired by
+// https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+// To count colors use Gimp -> Colors -> Info -> Color cube analysis
+
 [InternalRegisterFunction(nameof(AllColors))]
 public class Function : IFunction
 {
@@ -22,9 +26,6 @@ public class Function : IFunction
 	{
 		O.Usage(sb, Register);
 	}
-
-	// Inspired by
-	// https://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
 
 	public bool Run(string[] args)
 	{
@@ -93,6 +94,7 @@ public class Function : IFunction
 		default:
 		case Pattern.BitOrder:      return PatternBitOrder(image, progress).ToList();
 		case Pattern.Spiral16Order: return Spiral16Order(image, progress).ToList();
+		case Pattern.Spiral4kOrder: return Spiral4kOrder(image, progress).ToList();
 		case Pattern.AERT:          converter = ConvertAERT; break;
 		case Pattern.HSP:           converter = ConvertHSP; break;
 		case Pattern.WCAG2:         converter = ConvertWCAG2; break;
@@ -169,6 +171,7 @@ public class Function : IFunction
 		}
 	}
 
+	// https://en.wikipedia.org/wiki/Wikipedia:Featured_picture_candidates/All_24-bit_RGB_colors
 	IEnumerable<ColorRGBA> Spiral16Order(ICanvas image, ProgressBar progress)
 	{
 		const int componentCount = 3;
@@ -196,6 +199,42 @@ public class Function : IFunction
 				yield return new ColorRGBA(r, g, b, 1.0);
 			}
 			progress?.Report((double)c / total);
+		}
+	}
+
+	IEnumerable<ColorRGBA> Spiral4kOrder(ICanvas image, ProgressBar progress)
+	{
+		const int componentCount = 3;
+		int total = Math.Min(image.Width * image.Height, NumberOfColors);
+		int cx = 2047;
+		int cy = 2048;
+
+		uint[] bucket = new uint[256];
+
+		for(int i = 0; i < total; i++) {
+			int ic = (i + O.ColorOffset) % int.MaxValue;
+
+			int sx = ic % 4096;
+			int sy = ic / 4096;
+			long pos = PlugTools.XYToSpiralSquare(sx,sy,cx,cy);
+
+			int index = (int)(pos / 65536);
+			uint count = bucket[index];
+			double r = count % 256 / 255.0;
+			double g = count / 256 / 255.0;
+			double b = (255 - pos / 65536) / 255.0;
+			bucket[index]++;
+
+			if (O.Order != null) {
+				var order = O.GetFixedOrder(componentCount);
+				var items = new[] { r, g, b };
+				Array.Sort(order, items);
+				yield return new ColorRGBA(items[0], items[1], items[2], 1.0);
+			}
+			else {
+				yield return new ColorRGBA(r, g, b, 1.0);
+			}
+			progress?.Report((double)i / total);
 		}
 	}
 
