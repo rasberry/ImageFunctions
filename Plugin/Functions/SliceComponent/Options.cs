@@ -107,7 +107,17 @@ public sealed class Options : IOptions
 		}
 		Space = spaceItem.Item;
 
-		Space.ToSpace(PlugColors.Black);
+		var nameUc = ComponentName.ToUpperInvariant();
+		bool found = false;
+		foreach(var cn in Space.Info.ComponentNames) {
+			if (nameUc == cn) {
+				found = true; break;
+			}
+		}
+		if (!found) {
+			Log.Error(Note.ComponentNotFound(ComponentName));
+			return false;
+		}
 
 		return true;
 	}

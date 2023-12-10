@@ -21,7 +21,7 @@ public class ColorSpsaceLinearRGB : IColor3Space<ColorSpsaceLinearRGB.RGB>, ILum
 	}
 
 	public ColorRGBA ToNative(in IColor3 o) {
-		return ToNative((RGB)o);
+		return o is RGB n ? ToNative(n) : ToNative(new RGB(o.C1,o.C2,o.C3,o.A));
 	}
 
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
@@ -50,18 +50,17 @@ public class ColorSpsaceLinearRGB : IColor3Space<ColorSpsaceLinearRGB.RGB>, ILum
 		double IColor3.C2 { get { return G; }}
 		double IColor3.C3 { get { return B; }}
 		double IColor3.A  { get { return A; }}
-		public double Luma { get { return ToGray(); }}
+		public double Luma { get { return 0.2126 * R + 0.7152 * G + 0.0722 * B; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"R" => R, "G" => G, "B" => B, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"R" => ComponentOrdinal.C1,
+				"G" => ComponentOrdinal.C2,
+				"B" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
-		}
-
-		double ToGray() {
-			return 0.2126 * R + 0.7152 * G + 0.0722 * B;
 		}
 	}
 }

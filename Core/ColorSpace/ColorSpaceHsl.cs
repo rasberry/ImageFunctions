@@ -25,7 +25,7 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((HSL)o);
+		return o is HSL n ? ToNative(n) : ToNative(new HSL(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -55,11 +55,14 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return L; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"H" => H, "S" => S, "L" => L, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"H" => ComponentOrdinal.C1,
+				"S" => ComponentOrdinal.C2,
+				"L" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

@@ -12,7 +12,7 @@ public class ColorSpaceCmy : IColor3Space<ColorSpaceCmy.CMY>, ILumaColorSpace
 	}
 
 	public ColorRGBA ToNative(in IColor3 o) {
-		return ToNative(o);
+		return o is CMY n ? ToNative(n) : ToNative(new CMY(o.C1,o.C2,o.C3,o.A));
 	}
 
 	public CMY ToSpace(in ColorRGBA o) {
@@ -43,11 +43,14 @@ public class ColorSpaceCmy : IColor3Space<ColorSpaceCmy.CMY>, ILumaColorSpace
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"C" => C, "M" => M, "Y" => Y, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"C" => ComponentOrdinal.C1,
+				"M" => ComponentOrdinal.C2,
+				"Y" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

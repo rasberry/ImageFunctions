@@ -11,6 +11,9 @@ public static class Note
 	public static string CMYKNotSupported() {
 		return "CMYK is not supported";
 	}
+	public static string ComponentNotFound(string name) {
+		return $"Component '{name}' was not found";
+	}
 	public static string CouldNotLoadFile(string extra) {
 		return $"Could not load file ({extra})";
 	}

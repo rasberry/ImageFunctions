@@ -22,7 +22,7 @@ public class ColorSpaceYCbCrSmpte240m : ColorSpaceYCbCrBase,
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((YBR)o);
+		return o is YBR n ? ToNative(n) : ToNative(new YBR(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -52,11 +52,14 @@ public class ColorSpaceYCbCrSmpte240m : ColorSpaceYCbCrBase,
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"Y" => Y, "B" => B, "R" => R, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"Y" => ComponentOrdinal.C1,
+				"B" => ComponentOrdinal.C2,
+				"R" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

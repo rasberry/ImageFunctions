@@ -13,14 +13,14 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 
 	public ColorRGBA ToNative(in YIQ o)
 	{
-		double r = o.Y *  1.0 + o.Q *  0.9690 + o.Q *  0.6190;
-		double g = o.Y *  1.0 + o.Q * -0.2720 + o.Q * -0.6470;
-		double b = o.Y *  1.0 + o.Q * -1.1060 + o.Q *  1.7030;
+		double r = o.Y *  1.0 + o.I *  0.9690 + o.Q *  0.6190;
+		double g = o.Y *  1.0 + o.I * -0.2720 + o.Q * -0.6470;
+		double b = o.Y *  1.0 + o.I * -1.1060 + o.Q *  1.7030;
 		return new ColorRGBA(r,g,b,o.A);
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((YIQ)o);
+		return o is YIQ n ? ToNative(n) : ToNative(new YIQ(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -50,11 +50,14 @@ public class ColorSpaceYiq : IColor3Space<ColorSpaceYiq.YIQ>, ILumaColorSpace
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"Y" => Y, "I" => I, "Q" => Q, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"Y" => ComponentOrdinal.C1,
+				"I" => ComponentOrdinal.C2,
+				"Q" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

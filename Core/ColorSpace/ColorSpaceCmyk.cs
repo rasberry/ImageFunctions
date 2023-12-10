@@ -31,7 +31,7 @@ public class ColorSpaceCmyk : IColor4Space<ColorSpaceCmyk.CMYK>
 	}
 
 	ColorRGBA IColor4Space.ToNative(in IColor4 o) {
-		return ToNative((CMYK)o);
+		return o is CMYK n ? ToNative(n) : ToNative(new CMYK(o.C1,o.C2,o.C3,o.C4,o.A));
 	}
 	IColor4 IColor4Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -57,11 +57,15 @@ public class ColorSpaceCmyk : IColor4Space<ColorSpaceCmyk.CMYK>
 		double IColor4.C4 { get { return K; }}
 		double IColor3.A  { get { return A; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"C" => C, "M" => M, "Y" => Y, "K" => K, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"C" => ComponentOrdinal.C1,
+				"M" => ComponentOrdinal.C2,
+				"Y" => ComponentOrdinal.C3,
+				"K" => ComponentOrdinal.C4,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

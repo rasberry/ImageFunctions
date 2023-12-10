@@ -12,7 +12,7 @@ public class ColorSpaceRGB : IColor3Space<ColorRGBA>, ILumaColorSpace
 	}
 
 	public ColorRGBA ToNative(in IColor3 o) {
-		return (ColorRGBA)o;
+		return o is ColorRGBA n ? ToNative(n) : ToNative(new ColorRGBA(o.C1,o.C2,o.C3,o.A));
 	}
 
 	public ColorRGBA ToSpace(in ColorRGBA o) {

@@ -14,14 +14,14 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 	public ColorRGBA ToNative(in XYZ o)
 	{
 		//Note: manually calculated from ToSpace matrix
-		double r = o.X *  0.4184657124218946000 + o.X * -0.158660784803799100 + o.Z * -0.08283492761809548;
-		double g = o.X * -0.0911689639090227500 + o.X *  0.252431442139465200 + o.Z *  0.01570752176955761;
-		double b = o.X *  0.0009208986253436641 + o.X * -0.002549812546863284 + o.Z *  0.17859891392151960;
+		double r = o.X *  0.4184657124218946000 + o.Y * -0.158660784803799100 + o.Z * -0.08283492761809548;
+		double g = o.X * -0.0911689639090227500 + o.Y *  0.252431442139465200 + o.Z *  0.01570752176955761;
+		double b = o.X *  0.0009208986253436641 + o.Y * -0.002549812546863284 + o.Z *  0.17859891392151960;
 		return new ColorRGBA(r,g,b,o.A);
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((XYZ)o);
+		return o is XYZ n ? ToNative(n) : ToNative(new XYZ(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -53,11 +53,14 @@ public class ColorSpaceCie1931 : IColor3Space<ColorSpaceCie1931.XYZ>, ILumaColor
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Z; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"X" => X, "Y" => Y, "Z" => Z, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"X" => ComponentOrdinal.C1,
+				"Y" => ComponentOrdinal.C2,
+				"Z" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

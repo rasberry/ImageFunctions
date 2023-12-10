@@ -20,7 +20,7 @@ public class ColorSpaceYuvBT709 : IColor3Space<ColorSpaceYuvBT709.YUV>, ILumaCol
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((YUV)o);
+		return o is YUV n ? ToNative(n) : ToNative(new YUV(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -50,11 +50,14 @@ public class ColorSpaceYuvBT709 : IColor3Space<ColorSpaceYuvBT709.YUV>, ILumaCol
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return Y; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"Y" => Y, "U" => U, "V" => V, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"Y" => ComponentOrdinal.C1,
+				"U" => ComponentOrdinal.C2,
+				"V" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}

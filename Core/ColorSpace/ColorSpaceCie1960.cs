@@ -34,7 +34,7 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 	}
 
 	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return ToNative((UVW)o);
+		return o is UVW n ? ToNative(n) : ToNative(new UVW(o.C1,o.C2,o.C3,o.A));
 	}
 	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
 		return ToSpace(o);
@@ -68,11 +68,14 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 		double IColor3.A  { get { return A; }}
 		public double Luma { get { return W; }}
 
-		public double GetComponent(string name)
+		public ComponentOrdinal GetOrdinal(string name)
 		{
 			return name.ToUpperInvariant() switch {
-				"U" => U, "V" => V, "W" => W, "A" => A,
-				_ => throw Squeal.InvalidArgument(nameof(name)),
+				"U" => ComponentOrdinal.C1,
+				"V" => ComponentOrdinal.C2,
+				"W" => ComponentOrdinal.C3,
+				"A" => ComponentOrdinal.A,
+				_ => throw Squeal.InvalidArgument(nameof(name))
 			};
 		}
 	}
