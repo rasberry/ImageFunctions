@@ -14,6 +14,7 @@ public enum Pattern {
 	Luminance709,
 	Luminance601,
 	Luminance2020,
+	Spiral16Order
 }
 
 public enum Space {
@@ -166,4 +167,20 @@ public sealed class Options : IOptions
 			return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
 		}
 	}}
+
+	int[] FixedOrder = null;
+	internal int[] GetFixedOrder(int length)
+	{
+		if (Order == null) { return null; }
+		if (FixedOrder == null || FixedOrder.Length < length) {
+			int[] fullOrder = new int[length];
+			Order.CopyTo(fullOrder,0);
+			for(int i = Order.Length; i < length; i++) {
+				fullOrder[i] = int.MaxValue;
+			}
+			FixedOrder = fullOrder;
+		}
+		//must be cloned because Array.Sort modifies the keys each time
+		return (int[])FixedOrder.Clone();
+	}
 }

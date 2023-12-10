@@ -1,3 +1,4 @@
+using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
@@ -63,38 +64,35 @@ public class Function : IFunction
 	void Draw(ICanvas image)
 	{
 		List<ColorRGBA> colorList = null;
+		using var progress = new ProgressBar();
+		progress.Prefix = "Converting... ";
 
 		if (O.WhichSpace != Space.None) {
-			colorList = ConvertBySpace(image, O.WhichSpace, O.Order);
+			colorList = ConvertBySpace(image, O.WhichSpace, progress);
 		}
 		else {
-			colorList = ConvertByPattern(image, O.SortBy);
+			colorList = ConvertByPattern(image, O.SortBy, progress);
 		}
 
-		//int coff = -1;
-		var work = (int x, int y) => {
-			//coff++;
+		void copyColors(int x, int y) {
 			int coff = y * image.Height + x;
 			var nc = coff < colorList.Count
 				? colorList[coff]
 				: PlugColors.Transparent;
+			image[x, y] = nc;
+		}
 
-			image[x,y] = nc;
-		};
-
-		using var progress = new ProgressBar();
-		progress.Prefix = "Rendering...";
-		Tools.ThreadPixels(image, work, Core.MaxDegreeOfParallelism, progress);
+		progress.Prefix = "Rendering... ";
+		Tools.ThreadPixels(image, copyColors, Core.MaxDegreeOfParallelism, progress);
 	}
 
-	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p)
+	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, ProgressBar progress)
 	{
 		Func<ColorRGBA,double> converter = null;
-		switch(p)
-		{
+		switch(p) {
 		default:
-		case Pattern.BitOrder:      return PatternBitOrder(image).ToList();
-		//case Pattern.BitOrder:      converter = ConvertRGBA; break;
+		case Pattern.BitOrder:      return PatternBitOrder(image, progress).ToList();
+		case Pattern.Spiral16Order: return Spiral16Order(image, progress).ToList();
 		case Pattern.AERT:          converter = ConvertAERT; break;
 		case Pattern.HSP:           converter = ConvertHSP; break;
 		case Pattern.WCAG2:         converter = ConvertWCAG2; break;
@@ -104,117 +102,141 @@ public class Function : IFunction
 		case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
 		}
 
-		return ConvertAndSort(image, converter, ComparersLuminance(), null);
+		return ConvertAndSort(image, converter, ComparersLuminance(), progress);
 	}
 
-	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, int[] order)
+	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, ProgressBar progress)
 	{
 		switch(space)
 		{
 		case Space.RGB:
-			return ConvertAndSort(image, c => c, CompareColorRGBA(),order);
+			return ConvertAndSort(image, c => c, CompareColorRGBA(), progress);
 		//case Space.CieLab:
-		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect);
 		//case Space.CieLch:
-		//	return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect);
 		//case Space.CieLchuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect);
 		//case Space.CieLuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect);
 		//case Space.CieXyy:
-		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect);
 		case Space.CieXyz:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(), progress);
 		case Space.Cmyk:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(), progress);
 		case Space.HSI:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(), progress);
 		case Space.HSL:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(), progress);
 		case Space.HSV:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(), progress);
 		//case Space.HunterLab:
-		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect);
 		//case Space.LinearRgb:
-		//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect);
 		//case Space.Lms:
-		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order);
+		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect);
 		case Space.YCbCr:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(),order);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(), progress);
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
 	}
 
 	//return every color in numeric order
-	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image)
+	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image, ProgressBar progress)
 	{
+		const int componentCount = 3;
 		int total = Math.Min(image.Width * image.Height, NumberOfColors);
-
 		for(int i = 0; i < total; i++) {
 			int ic = (i + O.ColorOffset) % int.MaxValue;
 			double r = ((ic >> 00) & 255) / 255.0;
 			double g = ((ic >> 08) & 255) / 255.0;
 			double b = ((ic >> 16) & 255) / 255.0;
 			//Log.Debug($"i={i} r={r} g={g} b={b}");
-			yield return new ColorRGBA(r, g, b, 1.0);
+
+			if (O.Order != null) {
+				var order = O.GetFixedOrder(componentCount);
+				var items = new[] { r, g, b };
+				Array.Sort(order, items);
+				yield return new ColorRGBA(items[0], items[1], items[2], 1.0);
+			}
+			else {
+				yield return new ColorRGBA(r, g, b, 1.0);
+			}
+			progress?.Report((double)i / total);
 		}
 	}
 
-	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList, int[] order)
+	IEnumerable<ColorRGBA> Spiral16Order(ICanvas image, ProgressBar progress)
 	{
-		var colorList = PatternBitOrder(image).ToList();
-		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
-		if (order != null) {
-			//make sure order is at least as long as the colorList
-			if (order.Length < compList.Length) {
-				int[] fullOrder = new int[compList.Length];
-				order.CopyTo(fullOrder,0);
-				for(int i = order.Length - 1; i < compList.Length; i++) {
-					fullOrder[i] = int.MaxValue;
-				}
-				order = fullOrder;
-			}
-			//sort compList using order as the guide
-			Array.Sort(order,compList);
-		}
+		const int componentCount = 3;
+		int total = Math.Min(image.Width * image.Height, NumberOfColors);
+		for(int c = 0; c < total; c++) {
+			int ic = (c + O.ColorOffset) % int.MaxValue;
+			int ig = ic / 65536;
+			int ir = ic % 4096 / 16;
 
-		using (var progress = new ProgressBar())
-		{
-			progress.Prefix = "Converting...";
-			for(int t=0; t<colorList.Count; t++) {
-				var c = colorList[t];
-				T next = conv(c);
-				tempList.Add((c,next));
-				progress.Report((double)t / colorList.Count);
-			}
-		}
+			int x = ic % image.Width;
+			int y = ic / image.Width;
 
-		using (var progress = new ProgressBar())
-		{
-			progress.Prefix = "Sorting...";
+			int sx = x % 16 + x / 16;
+			int sy = y % 16 + y / 16;
+			long ib = 255 - PlugTools.XYToSpiralSquare(sx, sy, x / 16 + 7, y / 16 + 8);
+			double r = ir / 255.0, g = ig / 255.0, b = ib / 255.0;
 
-			int count = 0;
-			var progressSorter = new Comparison<(ColorRGBA,T)>((a,b) => {
-				count++;
-				progress.Report(count / SortMax);
-				return MultiSort(compList,a.Item2,b.Item2);
-			});
-
-			if (O.ParallelSort) {
-				//parallel version seems to works best on 4+ cores
-				var comp = Comparer<(ColorRGBA,T)>.Create(
-					new Comparison<(ColorRGBA,T)>((a,b) => {
-						return MultiSort(compList,a.Item2,b.Item2);
-					})
-				);
-				PlugTools.ParallelSort(tempList,comp,progress,Core.MaxDegreeOfParallelism);
+			if (O.Order != null) {
+				var order = O.GetFixedOrder(componentCount);
+				var items = new[] { r, g, b };
+				Array.Sort(order, items);
+				yield return new ColorRGBA(items[0], items[1], items[2], 1.0);
 			}
 			else {
-				//seems to be a lot faster than Array.Sort(key,collection)
-				//single threaded version for machines with a low number of cores
-				tempList.Sort(progressSorter);
+				yield return new ColorRGBA(r, g, b, 1.0);
 			}
+			progress?.Report((double)c / total);
+		}
+	}
+
+	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList, ProgressBar progress)
+	{
+		var colorList = PatternBitOrder(image, progress).ToList();
+		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
+		if (O.Order != null) {
+			var fixedOrder = O.GetFixedOrder(compList.Length);
+			//sort compList using order as the guide
+			Array.Sort(fixedOrder,compList);
+		}
+
+		for(int t=0; t<colorList.Count; t++) {
+			var c = colorList[t];
+			T next = conv(c);
+			tempList.Add((c,next));
+			progress.Report((double)t / colorList.Count);
+		}
+
+		progress.Prefix = "Sorting... ";
+		int count = 0;
+		var progressSorter = new Comparison<(ColorRGBA,T)>((a,b) => {
+			count++;
+			progress.Report(count / SortMax);
+			return MultiSort(compList,a.Item2,b.Item2);
+		});
+
+		if (O.ParallelSort) {
+			//parallel version seems to works best on 4+ cores
+			var comp = Comparer<(ColorRGBA,T)>.Create(
+				new Comparison<(ColorRGBA,T)>((a,b) => {
+					return MultiSort(compList,a.Item2,b.Item2);
+				})
+			);
+			PlugTools.ParallelSort(tempList,comp,progress,Core.MaxDegreeOfParallelism);
+		}
+		else {
+			//seems to be a lot faster than Array.Sort(key,collection)
+			//single threaded version for machines with a low number of cores
+			tempList.Sort(progressSorter);
 		}
 
 		for(int t=0; t<colorList.Count; t++) {
