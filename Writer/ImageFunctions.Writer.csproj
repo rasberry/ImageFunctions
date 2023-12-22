@@ -7,4 +7,9 @@
     <!-- <Nullable>enable</Nullable> -->
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="RazorEngineCore" Version="2023.11.2" />
+  </ItemGroup>
+
+
 </Project>
