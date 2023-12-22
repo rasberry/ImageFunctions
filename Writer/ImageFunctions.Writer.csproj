@@ -9,6 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="RazorEngineCore" Version="2023.11.2" />
+    <ProjectReference Include="..\Core\ImageFunctions.Core.csproj" />
+    <ProjectReference Include="..\Plugin\ImageFunctions.Plugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Test\ImageFunctions.Test.csproj" />
   </ItemGroup>
 
 

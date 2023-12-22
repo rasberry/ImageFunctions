@@ -1,4 +1,6 @@
-﻿using RazorEngineCore;
+﻿using System.Text;
+using ImageFunctions.Core;
+using RazorEngineCore;
 
 namespace ImageFunctions.Writer;
 
@@ -6,11 +8,32 @@ class Program
 {
 	static void Main(string[] args)
 	{
-		//new RazorWriter().Test();
-		DrawAll();
+		Setup();
+		EnsureOutputFolderExists();
+		//DrawRazor();
+		DrawFunctions();
 	}
 
-	static void DrawAll()
+	static void Setup()
+	{
+		var cp = System.Diagnostics.Process.GetCurrentProcess();
+		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
+
+		Register = new Register();
+		PluginLoader.RegisterPlugin(typeof(Core.Adapter).Assembly, Register);
+		PluginLoader.RegisterPlugin(typeof(Plugin.Adapter).Assembly, Register);
+	}
+
+	static void Cleanup()
+	{
+		if (Register != null) {
+			Register.Dispose();
+			Register = null;
+		}
+	}
+	internal static Register Register;
+
+	static void DrawRazor()
 	{
 		RazorEngine engine = new();
 		var path = Path.Combine(ProjectRoot,ProjectFolder,ViewFolder);
@@ -22,6 +45,29 @@ class Program
 			var outPath = GetOutputPath(f);
 			Console.WriteLine(outPath);
 			File.WriteAllText(outPath,txt);
+		}
+	}
+
+	static void DrawFunctions()
+	{
+		var funReg = new FunctionRegister(Register);
+		StringBuilder sb = new();
+
+		foreach(string name in funReg.All()) {
+			var reg = funReg.Get(name);
+			var fun = reg.Item.Invoke(Register, null, null);
+
+			fun.Usage(sb);
+			Console.WriteLine(sb.ToString());
+			sb.Clear();
+		}
+	}
+
+	static void EnsureOutputFolderExists()
+	{
+		var outFolder = Path.Combine(ProjectFolder,OutFolder);
+		if (!Directory.Exists(outFolder)) {
+			Directory.CreateDirectory(outFolder);
 		}
 	}
 

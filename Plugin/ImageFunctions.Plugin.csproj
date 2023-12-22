@@ -3,6 +3,7 @@
   <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
+    <InternalsVisibleTo Include="ImageFunctions.Writer" />
 
     <!-- references to anything referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
