@@ -32,10 +32,25 @@ public static class Helpers
 		}
 		return hash;
 	}
+
+	public static IEnumerable<TestFunctionInfo> GetTestsForFunction(string name)
+	{
+		if (TestInfo == null) {
+			var testInfoType = typeof(TestFunctionInfo);
+			var abstractTestType = typeof(AbstractFunctionTest);
+			TestInfo = new Dictionary<string, List<TestFunctionInfo>>();
+
+			var all = testInfoType.Assembly.GetTypes();
+			foreach(var t in all) {
+				if (!t.IsSubclassOf(abstractTestType)) { continue; }
+				var inst = (AbstractFunctionTest)Activator.CreateInstance(t);
+				var funName = inst.FunctionName;
+				var infoList = inst.GetTestInfo().ToList();
+				TestInfo.Add(funName, infoList);
+			}
+		}
+		return TestInfo.TryGetValue(name, out var list) ? list : Enumerable.Empty<TestFunctionInfo>();
+	}
+
+	static Dictionary<string, List<TestFunctionInfo>> TestInfo;
 }
-/*
-hashAddress = 5381;
-for (counter = 0; word[counter]!='\0'; counter++){
-    hashAddress = ((hashAddress << 5) + hashAddress) + word[counter];
-}
-*/

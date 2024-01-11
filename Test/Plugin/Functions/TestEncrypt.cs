@@ -39,13 +39,30 @@ public class TestEncrypt : AbstractFunctionTest
 		GetOrLoadResourceImage(info,name,folder);
 	}
 
-	public static IEnumerable<object[]> GetData()
+	void FixUpImageTestInfo()
+	{
+
+	}
+
+	static IEnumerable<TestFunctionInfo> GetTestInfoInternal()
 	{
 		foreach(var imgName in GetImageNames()) {
 			foreach(var info in GetFunctionInfo(imgName)) {
-				yield return new object[] { info };
+				yield return info;
 			}
 		}
+	}
+
+	public static IEnumerable<object[]> GetData()
+	{
+		foreach(var info in GetTestInfoInternal()) {
+			yield return new object[] { info };
+		}
+	}
+
+	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
+	{
+		return GetTestInfoInternal();
 	}
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)

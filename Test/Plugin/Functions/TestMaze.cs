@@ -28,6 +28,13 @@ public class TestMaze : AbstractFunctionTest
 		}
 	}
 
+	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
+	{
+		foreach(var info in GetFunctionInfo()) {
+			yield return info;
+		}
+	}
+
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
 		yield return CreateTestInfo( 1,new string[] { "-m", "1","-rs","5003" });

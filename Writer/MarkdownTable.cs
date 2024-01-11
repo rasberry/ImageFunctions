@@ -6,10 +6,12 @@ namespace ImageFunctions.Writer;
 
 public class MarkdownTable
 {
-	public void AddRow(IEnumerable<string> cells)
+	public void AddRow(IEnumerable<string> cells = null)
 	{
 		var row = new List<string>();
-		row.AddRange(cells);
+		if (cells != null) {
+			row.AddRange(cells);
+		}
 		Table.Add(row);
 	}
 
@@ -21,15 +23,22 @@ public class MarkdownTable
 
 	public void SetCell(int rowIx, int colIx, string s)
 	{
-		if (rowIx >= Table.Count) {
-			throw new ArgumentOutOfRangeException("row must be less than length of table");
+		//Console.WriteLine($"rowIx = {rowIx} TC = {Table.Count}");
+		while (rowIx >= Table.Count) {
+			AddRow();
+			//Console.WriteLine("AddRow");
 		}
 		var row = Table[rowIx];
-		if (colIx >= row.Count) {
-			throw new ArgumentOutOfRangeException("col must be less than length of column");
+		//Console.WriteLine($"colIx = {colIx} RC = {row.Count}");
+		while (colIx >= row.Count) {
+			Table[rowIx].Add("");
 		}
 		row[colIx] = s;
 	}
+
+	public int RowCount { get {
+		return Table.Count;
+	}}
 
 	public override string ToString()
 	{

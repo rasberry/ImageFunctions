@@ -28,6 +28,15 @@ public class TestZoomBlur : AbstractFunctionTest
 		}
 	}
 
+	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
+	{
+		foreach(var imgName in GetImageNames()) {
+			foreach(var info in GetFunctionInfo(imgName)) {
+				yield return info;
+			}
+		}
+	}
+
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
 		yield return CreateTestInfo(1, startImg, new string[0]);

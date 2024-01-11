@@ -27,6 +27,11 @@ public class TestAllColors : AbstractFunctionTest
 		}
 	}
 
+	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
+	{
+		return GetFunctionInfo();
+	}
+
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
 		yield return CreateTestInfo(0,new string[0]);

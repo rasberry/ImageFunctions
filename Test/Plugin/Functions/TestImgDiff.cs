@@ -28,6 +28,15 @@ public class TestImgDiff : AbstractFunctionTest
 		}
 	}
 
+	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
+	{
+		foreach(var imgName in GetImageNames()) {
+			foreach(var info in GetFunctionInfo(imgName)) {
+				yield return info;
+			}
+		}
+	}
+
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo((string,string) imgSet)
 	{
 		yield return CreateTestInfo(1, imgSet, new string[0]);

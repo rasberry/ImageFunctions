@@ -20,6 +20,11 @@ public abstract class AbstractFunctionTest
 	public delegate void CustomImageLoader(TestFunctionInfo info, string name, string folder = null);
 
 	/// <summary>
+	/// Used to specify tests that will be used as examples
+	/// </summary>
+	internal abstract IEnumerable<TestFunctionInfo> GetTestInfo();
+
+	/// <summary>
 	/// Run a test with the provided TestFunctionInfo. Note info.Layers should be set before
 	///  calling this method.
 	///  <example><code>
@@ -69,7 +74,7 @@ public abstract class AbstractFunctionTest
 		if (info.ImageNames?.Any() == true) {
 			loader ??= GetOrLoadResourceImage;
 			//reverse here since we're using a stack and we want the order
-			// to 
+			// to
 			foreach(var name in info.ImageNames.Reverse()) {
 				loader(info, name);
 			}
