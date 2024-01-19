@@ -12,18 +12,9 @@ A collection of various image processing functions
 * test project
   * ```dotnet test```
 * build wiki
-  * Only do this if all tests pass.
-  * Building the wiki may take a long time.
-  * To regenerate test images include the parameter "--images"
-  ```
-  dotnet run --project test -- --images
-  ```
+  * ```dotnet run --project Writer```
 
 ## Notes ##
-* pull/push from wiki
-  * ```git subtree pull --prefix wiki wiki master```
-  * ```git subtree push --prefix wiki wiki master```
-
 * find out which images tests are using
   * ```grep -iIr -A 2 "public static IEnumerable<string> GetImageNames" . | grep -iPo "new string\[\].*" > a.txt```
 
