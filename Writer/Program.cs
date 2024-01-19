@@ -45,6 +45,7 @@ class Program
 		allFun.Sort();
 
 		foreach(var path in fileList) {
+			if (path.Contains("function.md.razor")) { continue; }
 			var text = File.ReadAllText(path);
 			var template = Engine.Compile(text);
 			var model = new WikiModel {

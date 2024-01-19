@@ -35,7 +35,7 @@ public sealed class Options : IOptions
 		}
 
 		if (p.Scan("-b", 256)
-			.WhenGoodOrMissing(r => { DiscardRatio = r.Value; return r; })
+			.WhenGoodOrMissing(r => { BucketCount = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

@@ -24,5 +24,8 @@ A collection of various image processing functions
   * ```git subtree pull --prefix wiki wiki master```
   * ```git subtree push --prefix wiki wiki master```
 
+* find out which images tests are using
+  * ```grep -iIr -A 2 "public static IEnumerable<string> GetImageNames" . | grep -iPo "new string\[\].*" > a.txt```
+
 # TODO #
 https://www.youtube.com/watch?v=WGccIFf6MF8

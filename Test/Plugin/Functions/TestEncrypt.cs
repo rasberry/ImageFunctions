@@ -39,11 +39,6 @@ public class TestEncrypt : AbstractFunctionTest
 		GetOrLoadResourceImage(info,name,folder);
 	}
 
-	void FixUpImageTestInfo()
-	{
-
-	}
-
 	static IEnumerable<TestFunctionInfo> GetTestInfoInternal()
 	{
 		foreach(var imgName in GetImageNames()) {
