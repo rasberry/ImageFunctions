@@ -20,3 +20,12 @@ A collection of various image processing functions
 
 # TODO #
 https://www.youtube.com/watch?v=WGccIFf6MF8
+= move imagemagick to it's own plugin (to expose more imagemagick stuff)
+= opencv (emgucv) plugin ?
+= create a UI plugin
+= create a gimp plugin
+= add more tests
+= create nuget packages
+= add coverage report
+= change canvas to another color space (edit in another color space)
+=
