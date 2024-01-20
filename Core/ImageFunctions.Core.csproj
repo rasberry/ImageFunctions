@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputPath>../build</OutputPath>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <!-- <ImplicitUsings>enable</ImplicitUsings> -->
@@ -10,8 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="ImageFunctions.Test" />
-
     <!-- if referencing this project, references in *your* project to these packages
       must be included with <Private>false</Private>
     -->
@@ -31,7 +29,8 @@
   </ItemGroup>
 
 <ItemGroup>
-  <InternalsVisibleTo Include="ImageFunctions.Tests" />
+  <InternalsVisibleTo Include="ImageFunctions.Gui" />
+  <InternalsVisibleTo Include="ImageFunctions.Test" />
   <InternalsVisibleTo Include="ImageFunctions.Writer" />
 </ItemGroup>
 

@@ -9,10 +9,15 @@ class Program
 {
 	static void Main(string[] args)
 	{
-		Setup();
-		EnsureOutputFolderExists();
-		DrawRazor();
-		DrawFunctions();
+		try {
+			Setup();
+			EnsureOutputFolderExists();
+			DrawRazor();
+			DrawFunctions();
+		}
+		finally {
+			Cleanup();
+		}
 	}
 
 	static void Setup()
@@ -166,6 +171,7 @@ class Program
 		}
 	}
 
+	//TODO change this to what the Test project does
 	static string ProjectRoot {
 		get {
 			if (RootFolder == null) {

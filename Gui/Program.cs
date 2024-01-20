@@ -1,21 +1,50 @@
 ﻿using Avalonia;
 using System;
+using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui;
 
 class Program
 {
-    // Initialization code. Don't use any Avalonia, third-party APIs or any
-    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
-    // yet and stuff might break.
-    [STAThread]
-    public static void Main(string[] args) => BuildAvaloniaApp()
-        .StartWithClassicDesktopLifetime(args);
+	// Initialization code. Don't use any Avalonia, third-party APIs or any
+	// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+	// yet and stuff might break.
+	[STAThread]
+	static void Main(string[] args)
+	{
+		try {
+			PluginSetup();
+			BuildAvaloniaApp()
+				.StartWithClassicDesktopLifetime(args);
+		}
+		finally {
+			Cleanup();
+		}
+	}
 
-    // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>()
-            .UsePlatformDetect()
-            .WithInterFont()
-            .LogToTrace();
+	// Avalonia configuration, don't remove; also used by visual designer.
+	static AppBuilder BuildAvaloniaApp()
+	{
+		return AppBuilder
+			.Configure<App>()
+			.UsePlatformDetect()
+			.WithInterFont()
+			.LogToTrace();
+	}
+
+	static void PluginSetup()
+	{
+		Register = new Register();
+		PluginLoader.LoadAllPlugins(Register);
+	}
+
+	public static void Cleanup()
+	{
+		if (Register != null) {
+			Register.Dispose();
+			Register = null;
+		}
+	}
+
+	static Register Register;
 }
