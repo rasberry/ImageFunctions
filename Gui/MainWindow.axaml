@@ -1,10 +1,60 @@
-<Window xmlns="https://github.com/avaloniaui"
+<Window
+	xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+	xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 	x:Class="ImageFunctions.Gui.MainWindow"
 	Title="ImageFunctions.Gui"
 >
-	Welcome to Avalonia!
+<Grid RowDefinitions="*,Auto">
+	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
+		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
+			<DockPanel Grid.Row="0">
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
+					<Button>A</Button>
+					<Button>B</Button>
+					<Button>C</Button>
+					<Button>D</Button>
+				</StackPanel>
+				<Image Name="Preview" />
+			</DockPanel>
+			<GridSplitter Grid.Row="1" Background="Black" ResizeDirection="Rows"/>
+			<ScrollViewer>
+				<StackPanel Grid.Row="2" Name="LayersBox">
+					<Image />
+				</StackPanel>
+			</ScrollViewer>
+		</Grid>
+		<GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
+		<StackPanel Grid.Column="2">
+			<TreeView BorderThickness="1" Name="FunctionChooser" />
+		</StackPanel>
+		<GridSplitter Grid.Column="3" Background="Black" ResizeDirection="Columns"/>
+		<Grid Grid.Column="4" RowDefinitions="*,*">
+			<DockPanel Grid.Row="0">
+				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfadf</TextBox>
+			</DockPanel>
+			<DockPanel Grid.Row="1">
+				<TextBlock DockPanel.Dock="Top">Command</TextBlock>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfasdfasdf</TextBox>
+			</DockPanel>
+		</Grid>
+	</Grid>
+	<Grid Grid.Row="1" ColumnDefinitions="*,*">
+		<StackPanel Grid.Column="0" Orientation="Horizontal">
+			<Button>Test1</Button>
+			<Button>Test2</Button>
+			<Button>Test3</Button>
+		</StackPanel>
+		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+			<Button>Test6</Button>
+			<Button>Test7</Button>
+			<Button>Test8</Button>
+		</StackPanel>
+	</Grid>
+</Grid>
 </Window>

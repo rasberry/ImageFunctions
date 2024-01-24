@@ -32,7 +32,6 @@ internal class Program
 
 	int Run(string[] args)
 	{
-
 		//setup stage
 		if (!TrySetup(args, out int exitCode)) {
 			return exitCode;

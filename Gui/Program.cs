@@ -13,7 +13,7 @@ class Program
 	static void Main(string[] args)
 	{
 		try {
-			PluginSetup();
+			//PluginSetup();
 			BuildAvaloniaApp()
 				.StartWithClassicDesktopLifetime(args);
 		}
