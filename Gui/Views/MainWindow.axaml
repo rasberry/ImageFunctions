@@ -1,14 +1,26 @@
-<Window
-	xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
-	xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-	x:Class="ImageFunctions.Gui.MainWindow"
+	x:Class="ImageFunctions.Gui.Views.MainWindow"
+	x:DataType="vm:MainWindowViewModel"
+	Icon="/Assets/avalonia-logo.ico"
 	Title="ImageFunctions.Gui"
 >
+
+<Design.DataContext>
+	<!-- This only sets the DataContext for the previewer in an IDE,
+			to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+	<vm:MainWindowViewModel/>
+</Design.DataContext>
+
+<Window.Styles>
+	<Style Selector="#CommandColumn TextBox">
+		<Setter Property="VerticalContentAlignment" Value="Top"/>
+	</Style>
+</Window.Styles>
 <Grid RowDefinitions="*,Auto">
 	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
 		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
@@ -22,8 +34,8 @@
 				<Image Name="Preview" />
 			</DockPanel>
 			<GridSplitter Grid.Row="1" Background="Black" ResizeDirection="Rows"/>
-			<ScrollViewer>
-				<StackPanel Grid.Row="2" Name="LayersBox">
+			<ScrollViewer Grid.Row="2">
+				<StackPanel Name="LayersBox">
 					<Image />
 				</StackPanel>
 			</ScrollViewer>
@@ -33,7 +45,7 @@
 			<TreeView BorderThickness="1" Name="FunctionChooser" />
 		</StackPanel>
 		<GridSplitter Grid.Column="3" Background="Black" ResizeDirection="Columns"/>
-		<Grid Grid.Column="4" RowDefinitions="*,*">
+		<Grid Grid.Column="4" RowDefinitions="*,*" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfadf</TextBox>
@@ -53,8 +65,11 @@
 		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Button>Test6</Button>
 			<Button>Test7</Button>
-			<Button>Test8</Button>
+			<Button Command="{Binding ToggleThemeClick}">
+				<PathIcon Width="16" Height="16" Data="{DynamicResource ThemeToggleIcon}"/>
+			</Button>
 		</StackPanel>
 	</Grid>
 </Grid>
+
 </Window>
