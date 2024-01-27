@@ -52,6 +52,7 @@ sealed class Program
 
 	static void PluginSetup()
 	{
+		Trace.WriteLine("PluginSetup");
 		Register = new Register();
 		PluginLoader.LoadAllPlugins(Register);
 	}

@@ -27,6 +27,11 @@
 	<Style Selector="#CommandColumn TextBlock">
 		<Setter Property="Margin" Value="8,8,8,8"/>
 	</Style>
+
+	<Style Selector="#Root GridSplitter">
+		<Setter Property="ShowsPreview" Value="True"/>
+	</Style>
+
 </Window.Styles>
 
 <Grid Name="Root" RowDefinitions="*,Auto">
@@ -34,10 +39,6 @@
 		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
 			<DockPanel Grid.Row="0">
 				<StackPanel Orientation="Vertical" DockPanel.Dock="Right">
-					<!--<Button GotFocus="{x:EventHandler UpdateStatusTextOnFocus}">-->
-					<!--<Button GotFocus="UpdateStatusTextOnFocus">-->
-					<!-- <Button PointerEntered="{Binding UpdateStatusOnEnter2}"> -->
-					<!-- <Button PointerEntered="UpdateStatusOnEnter" Tag="Zoom In"> -->
 					<Button Tag="Zoom In">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconPlusThick}"/>
 					</Button>
@@ -50,34 +51,34 @@
 				</StackPanel>
 				<Image Name="Preview" />
 			</DockPanel>
-			<GridSplitter Grid.Row="1" Background="Black" ResizeDirection="Rows"/>
+			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
 			<ScrollViewer Grid.Row="2">
 				<StackPanel Name="LayersBox">
 					<Image />
 				</StackPanel>
 			</ScrollViewer>
 		</Grid>
-		<GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
+		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 		<Grid Grid.Column="2" RowDefinitions="*,*" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfadf</TextBox>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding UsageText}"></TextBox>
 			</DockPanel>
 			<DockPanel Grid.Row="1">
 				<TextBlock DockPanel.Dock="Top">Command</TextBlock>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfasdfasdf</TextBox>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}"></TextBox>
 			</DockPanel>
 		</Grid>
-		<GridSplitter Grid.Column="3" Background="Black" ResizeDirection="Columns"/>
+		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
 		<StackPanel Grid.Column="4">
 			<TreeView BorderThickness="1" Name="FunctionChooser" />
 		</StackPanel>
 	</Grid>
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
 		<StackPanel Grid.Column="0" Orientation="Horizontal">
-			<Button>Test1</Button>
-			<Button>Test2</Button>
-			<Button>Test3</Button>
+			<Button>Open Layer</Button>
+			<Button>Save Top</Button>
+			<Button>Save Stack</Button>
 		</StackPanel>
 		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
 			<TextBlock Text="{Binding StatusText}"></TextBlock>
