@@ -11,25 +11,42 @@
 >
 
 <Design.DataContext>
-	<!-- This only sets the DataContext for the previewer in an IDE,
-			to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
 	<vm:MainWindowViewModel/>
 </Design.DataContext>
 
 <Window.Styles>
+	<Style Selector="#LowerPannel TextBlock">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Opacity" Value="0.8"/>
+	</Style>
 	<Style Selector="#CommandColumn TextBox">
 		<Setter Property="VerticalContentAlignment" Value="Top"/>
+		<Setter Property="Padding" Value="8,8,8,8"/>
+	</Style>
+	<Style Selector="#CommandColumn TextBlock">
+		<Setter Property="Margin" Value="8,8,8,8"/>
 	</Style>
 </Window.Styles>
-<Grid RowDefinitions="*,Auto">
+
+<Grid Name="Root" RowDefinitions="*,Auto">
 	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
 		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
 			<DockPanel Grid.Row="0">
-				<StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom">
-					<Button>A</Button>
-					<Button>B</Button>
-					<Button>C</Button>
-					<Button>D</Button>
+				<StackPanel Orientation="Vertical" DockPanel.Dock="Right">
+					<!--<Button GotFocus="{x:EventHandler UpdateStatusTextOnFocus}">-->
+					<!--<Button GotFocus="UpdateStatusTextOnFocus">-->
+					<!-- <Button PointerEntered="{Binding UpdateStatusOnEnter2}"> -->
+					<!-- <Button PointerEntered="UpdateStatusOnEnter" Tag="Zoom In"> -->
+					<Button Tag="Zoom In">
+						<PathIcon Width="16" Height="16" Data="{StaticResource IconPlusThick}"/>
+					</Button>
+					<Button Tag="Reset Zoom">
+						<PathIcon Width="16" Height="16" Data="{StaticResource IconMagnifyScan}"/>
+					</Button>
+					<Button Tag="Zoom Out">
+						<PathIcon Width="16" Height="16" Data="{StaticResource IconMinusThick}"/>
+					</Button>
 				</StackPanel>
 				<Image Name="Preview" />
 			</DockPanel>
@@ -41,11 +58,7 @@
 			</ScrollViewer>
 		</Grid>
 		<GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
-		<StackPanel Grid.Column="2">
-			<TreeView BorderThickness="1" Name="FunctionChooser" />
-		</StackPanel>
-		<GridSplitter Grid.Column="3" Background="Black" ResizeDirection="Columns"/>
-		<Grid Grid.Column="4" RowDefinitions="*,*" Name="CommandColumn">
+		<Grid Grid.Column="2" RowDefinitions="*,*" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfadf</TextBox>
@@ -55,6 +68,10 @@
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True">asdfasdfasdf</TextBox>
 			</DockPanel>
 		</Grid>
+		<GridSplitter Grid.Column="3" Background="Black" ResizeDirection="Columns"/>
+		<StackPanel Grid.Column="4">
+			<TreeView BorderThickness="1" Name="FunctionChooser" />
+		</StackPanel>
 	</Grid>
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
 		<StackPanel Grid.Column="0" Orientation="Horizontal">
@@ -62,11 +79,10 @@
 			<Button>Test2</Button>
 			<Button>Test3</Button>
 		</StackPanel>
-		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-			<Button>Test6</Button>
-			<Button>Test7</Button>
-			<Button Command="{Binding ToggleThemeClick}">
-				<PathIcon Width="16" Height="16" Data="{DynamicResource ThemeToggleIcon}"/>
+		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
+			<TextBlock Text="{Binding StatusText}"></TextBlock>
+			<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
+				<PathIcon Width="16" Height="16" Data="{DynamicResource IconThemeToggle}"/>
 			</Button>
 		</StackPanel>
 	</Grid>

@@ -1,4 +1,6 @@
-﻿using Avalonia;
+﻿using System.Diagnostics;
+using Avalonia;
+using Avalonia.Logging;
 using Avalonia.ReactiveUI;
 using ImageFunctions.Core;
 
@@ -12,6 +14,10 @@ sealed class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
+		#if DEBUG
+		Trace.Listeners.Add(new ConsoleTraceListener());
+		#endif
+
 		try {
 			//PluginSetup();
 			BuildAvaloniaApp()
@@ -20,19 +26,29 @@ sealed class Program
 		finally {
 			Cleanup();
 		}
+
+		#if DEBUG
+		Trace.Flush();
+		#endif
 	}
 
 	// Avalonia configuration, don't remove; also used by visual designer.
 	static AppBuilder BuildAvaloniaApp()
 	{
-		return AppBuilder
+		var builder = AppBuilder
 			.Configure<App>()
 			.UsePlatformDetect()
 			.WithInterFont()
-			.LogToTrace()
 			.UseReactiveUI();
-	}
 
+		#if DEBUG
+		builder.LogToTrace(LogEventLevel.Debug, LogArea.Platform);
+		#else
+		builder.LogToTrace();
+		#endif
+
+		return builder;
+	}
 
 	static void PluginSetup()
 	{
