@@ -5,7 +5,7 @@ using Avalonia.ReactiveUI;
 using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui;
-/*
+
 sealed class Program
 {
 	// Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -14,12 +14,24 @@ sealed class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
-		#if DEBUG
+		//#if DEBUG
 		Trace.Listeners.Add(new ConsoleTraceListener());
-		#endif
+		//#endif
+
+		//??? TODO why is this needed suddenly -- apparently <Private>false</Private> ???
+		/*System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (s,e) => {
+			var path = typeof(Program).Assembly.Location;
+			string dllName = $"{e.Name}.dll";
+			string full = Path.Combine(Path.GetDirectoryName(path),dllName);
+			Trace.WriteLine($"{full}");
+			if (File.Exists(full)) {
+				return s.LoadFromAssemblyPath(full);
+			}
+			return null;
+		};*/
 
 		try {
-			//PluginSetup();
+			PluginSetup();
 			BuildAvaloniaApp()
 				.StartWithClassicDesktopLifetime(args);
 		}
@@ -27,9 +39,9 @@ sealed class Program
 			Cleanup();
 		}
 
-		#if DEBUG
+		//#if DEBUG
 		Trace.Flush();
-		#endif
+		//#endif
 	}
 
 	// Avalonia configuration, don't remove; also used by visual designer.
@@ -67,4 +79,3 @@ sealed class Program
 
 	static Register Register;
 }
-*/

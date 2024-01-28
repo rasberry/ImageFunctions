@@ -6,7 +6,7 @@ using Avalonia.ReactiveUI;
 using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui;
-
+/*
 class Adapter : IPlugin
 {
 	public void Dispose()
@@ -66,3 +66,4 @@ class GuiFunction : IFunction
 		return builder;
 	}
 }
+*/
