@@ -6,7 +6,7 @@ using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui;
 
-sealed class Program
+internal sealed class Program
 {
 	// Initialization code. Don't use any Avalonia, third-party APIs or any
 	// SynchronizationContext-reliant code before AppMain is called: things aren't initialized
@@ -14,21 +14,9 @@ sealed class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
-		//#if DEBUG
+		#if DEBUG
 		Trace.Listeners.Add(new ConsoleTraceListener());
-		//#endif
-
-		//??? TODO why is this needed suddenly -- apparently <Private>false</Private> ???
-		/*System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (s,e) => {
-			var path = typeof(Program).Assembly.Location;
-			string dllName = $"{e.Name}.dll";
-			string full = Path.Combine(Path.GetDirectoryName(path),dllName);
-			Trace.WriteLine($"{full}");
-			if (File.Exists(full)) {
-				return s.LoadFromAssemblyPath(full);
-			}
-			return null;
-		};*/
+		#endif
 
 		try {
 			PluginSetup();
@@ -39,9 +27,9 @@ sealed class Program
 			Cleanup();
 		}
 
-		//#if DEBUG
+		#if DEBUG
 		Trace.Flush();
-		//#endif
+		#endif
 	}
 
 	// Avalonia configuration, don't remove; also used by visual designer.
@@ -69,7 +57,7 @@ sealed class Program
 		PluginLoader.LoadAllPlugins(Register);
 	}
 
-	public static void Cleanup()
+	static void Cleanup()
 	{
 		if (Register != null) {
 			Register.Dispose();
@@ -77,5 +65,5 @@ sealed class Program
 		}
 	}
 
-	static Register Register;
+	public static Register Register { get; private set; }
 }

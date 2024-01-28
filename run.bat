@@ -35,7 +35,8 @@ goto cloop
 
 :gui
 ::we need all of the plugins in one folder so do a publish
-dotnet publish
-if not %ERRORLEVEL%==0 goto :EOF
-build\net8.0\publish\ImageFunctions.Gui.exe %*
+::dotnet publish
+::if not %ERRORLEVEL%==0 goto :EOF
+::build\net8.0\publish\ImageFunctions.Gui.exe %*
+dotnet run --project Gui %*
 goto :EOF

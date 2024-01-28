@@ -27,9 +27,11 @@
 	<Style Selector="#CommandColumn TextBlock">
 		<Setter Property="Margin" Value="8,8,8,8"/>
 	</Style>
-
 	<Style Selector="#Root GridSplitter">
 		<Setter Property="ShowsPreview" Value="True"/>
+	</Style>
+	<Style Selector="#FunctionChooser PathIcon">
+		<Setter Property="Margin" Value="0,0,8,0"/>
 	</Style>
 
 </Window.Styles>
@@ -62,17 +64,29 @@
 		<Grid Grid.Column="2" RowDefinitions="*,*" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding UsageText}"></TextBox>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding UsageText}" />
 			</DockPanel>
 			<DockPanel Grid.Row="1">
 				<TextBlock DockPanel.Dock="Top">Command</TextBlock>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}"></TextBox>
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" />
 			</DockPanel>
 		</Grid>
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-		<StackPanel Grid.Column="4">
-			<TreeView BorderThickness="1" Name="FunctionChooser" />
-		</StackPanel>
+		<ScrollViewer Grid.Column="4">
+			<TreeView ItemsSource="{Binding RegistrationItems}" Name="FunctionChooser">
+				<TreeView.DataTemplates>
+					<TreeDataTemplate DataType="{x:Type vm:ColorTreeNode}" ItemsSource="{Binding Items}">
+						<StackPanel Orientation="Horizontal">
+							<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
+							<TextBlock Text="{Binding Name}" />
+						</StackPanel>
+					</TreeDataTemplate>
+					<TreeDataTemplate DataType="{x:Type vm:TreeNode}" ItemsSource="{Binding Items}">
+						<TextBlock Text="{Binding Name}" />
+					</TreeDataTemplate>
+				</TreeView.DataTemplates>
+			</TreeView>
+		</ScrollViewer>
 	</Grid>
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
 		<StackPanel Grid.Column="0" Orientation="Horizontal">
@@ -81,7 +95,7 @@
 			<Button>Save Stack</Button>
 		</StackPanel>
 		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
-			<TextBlock Text="{Binding StatusText}"></TextBlock>
+			<TextBlock Text="{Binding StatusText}" />
 			<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
 				<PathIcon Width="16" Height="16" Data="{DynamicResource IconThemeToggle}"/>
 			</Button>
