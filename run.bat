@@ -1,12 +1,13 @@
 @echo off
 setlocal
-if not "%~1"=="" call :%~1 && goto :EOF
-if not %ERRORLEVEL%==0 goto :EOF
+findstr /i /r /c:"^[ ]*:%~1\>" "%~f0" >nul 2>nul
+if %ERRORLEVEL%==0 call :%~1 && goto :EOF
 
 ::we need all of the plugins in one folder so do a publish
-dotnet publish
-if not %ERRORLEVEL%==0 goto :EOF
-build\net8.0\publish\ImageFunctions.Core.exe %*
+::dotnet publish
+::if not %ERRORLEVEL%==0 goto :EOF
+::build\net8.0\publish\ImageFunctions.Core.exe %*
+dotnet run --project Core -- %*
 goto :EOF
 
 :wiki
@@ -31,9 +32,9 @@ build\net8.0\publish\ImageFunctions.Core.exe imgdiff -i "test.png" -i "D:\Projec
 set /a num=%num%+256*10
 goto cloop
 
-:gui
-::we need all of the plugins in one folder so do a publish
-dotnet publish
-if not %ERRORLEVEL%==0 goto :EOF
-build\net8.0\publish\ImageFunctions.Gui.exe %*
-goto :EOF
+:: :gui
+:: ::we need all of the plugins in one folder so do a publish
+:: dotnet publish
+:: if not %ERRORLEVEL%==0 goto :EOF
+:: build\net8.0\publish\ImageFunctions.Gui.exe %*
+:: goto :EOF

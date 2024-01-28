@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType Condition="'$(Configuration)' == 'Debug'">Exe</OutputType>
-    <OutputType Condition="'$(Configuration)' != 'Debug'">WinExe</OutputType>
+    <!--<OutputType Condition="'$(Configuration)' == 'Debug'">Exe</OutputType>
+    <OutputType Condition="'$(Configuration)' != 'Debug'">WinExe</OutputType>-->
+    <TargetType>library</TargetType>
     <TargetFramework>net8.0</TargetFramework>
-    <!-- <Nullable>enable</Nullable> -->
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
@@ -19,19 +19,36 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.7" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.7" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.7" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.7" />
-    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.7" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.7" />
-    <PackageReference Include="Semi.Avalonia" Version="11.0.1" />
+    <PackageReference Include="Avalonia" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <!-- Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.7">
+      <Private>false</Private>
+    </PackageReference>
+    <PackageReference Include="Semi.Avalonia" Version="11.0.1">
+      <Private>false</Private>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\ImageFunctions.Core.csproj"
-    />
-    <ProjectReference Include="..\Plugin\ImageFunctions.Plugin.csproj" />
+    <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Plugin\ImageFunctions.Plugin.csproj">
+      <Private>false</Private>
+    </ProjectReference>
   </ItemGroup>
 </Project>

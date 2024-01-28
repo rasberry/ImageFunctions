@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace ImageFunctions.Core;
@@ -7,14 +9,10 @@ internal static class PluginLoader
 {
 	public static void LoadAllPlugins(IRegister register)
 	{
-		var pluginsPath = GetPluginsFolder();
-		Log.Info($"Plugin Path is {pluginsPath}");
-		var rawList = Directory.EnumerateFiles(pluginsPath);
+		var list = GetFilesWithPlugins();
 
-		foreach(string f in rawList) {
-			//TODO does '.dll' work on linux ?
-			if (!f.EndsWithIC(".dll")) { continue; }
-
+		foreach(string f in list) {
+			Log.Debug($"Loading pluginfile {f}");
 			//we don't want to re-load the core dll as a plugin
 			var selfAssembly = typeof(IPlugin).Assembly;
 			if (Path.GetFullPath(f) == selfAssembly.Location) {
@@ -24,6 +22,7 @@ internal static class PluginLoader
 
 			Assembly plugin = null;
 			try {
+				Log.Info($"Looking for plugins in assembly '{f}'");
 				var context = new PluginLoadContext(f);
 				plugin = context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(f));
 			}
@@ -33,7 +32,10 @@ internal static class PluginLoader
 			}
 
 			if (plugin != null) {
-				RegisterPlugin(plugin, register);
+				bool found = RegisterPlugin(plugin, register);
+				if (!found) {
+					Log.Error("Something is very wrong..");
+				}
 			}
 		}
 	}
@@ -47,31 +49,16 @@ internal static class PluginLoader
 		//return root;
 	}
 
-	public static void RegisterPlugin(Assembly plugin, IRegister register)
+	// returns true if any plugin types were found in the assembly
+	public static bool RegisterPlugin(Assembly plugin, IRegister register)
 	{
 		var plugTypes = plugin.GetTypes();
-		//var iPluginType = typeof(IPlugin);
-
-		/*
-		var l1 = AppDomain.CurrentDomain.GetAssemblies();
-		var l2 = plugin.GetReferencedAssemblies();
-		foreach(var a in l1) {
-			Log.Debug(a.CodeBase);
-		}
-		foreach(var a in l2) {
-			Log.Debug(a.CodeBase);
-		}
-		return;
-		*/
+		bool pluginFound = false;
 
 		foreach(Type t in plugTypes) {
-			//var ints = string.Join<Type>(" ",t.GetInterfaces());
-			//Log.Debug($"{t.Module.FullyQualifiedName} {t.FullName} {String.Join<Type>(",",t.GetInterfaces())}");
-			//Log.Debug($"{t.FullName} IsPlugin={IsIPlugin(t)} IAF={iPluginType.IsAssignableFrom(t)}");
-			//continue;
-
 			if (! IsIPlugin(t)) { continue; }
 			Log.Info(Note.PluginFound(plugin.Location, t.FullName));
+			pluginFound = true;
 
 			IPlugin pluginInst = null;
 			try {
@@ -91,20 +78,89 @@ internal static class PluginLoader
 				Log.Warning(Note.PluginInitFailed(t,e));
 			}
 		}
+		return pluginFound;
 	}
 
-	static bool IsIPlugin(Type t)
+	static IEnumerable<string> GetFilesWithPlugins()
 	{
-		Type iPluginType = typeof(IPlugin);
+		var pluginsPath = GetPluginsFolder();
+		Log.Info($"Plugin Path is {pluginsPath}");
+		var plugList = Directory.EnumerateFiles(pluginsPath, "*.dll");
+		var coreList = Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
+		var dllList = coreList.Concat(plugList);
 
+		// Log.Debug(String.Join('\n',dllList));
+		var resolver = new PathAssemblyResolver(dllList);
+		using var metadataContext = new MetadataLoadContext(resolver);
+
+		foreach(string dllFile in plugList) {
+			Log.Info($"Looking for plugins in assembly '{dllFile}'");
+			Assembly assembly = null;
+			try {
+				assembly = metadataContext.LoadFromAssemblyPath(dllFile);
+			}
+			catch(BadImageFormatException e) {
+				Log.Debug($"Skipping {dllFile} E:{e.Message}");
+			}
+
+			if (assembly == null) { continue; }
+			foreach (var type in assembly.GetTypes()) {
+				var isPlugin = IsIPlugin(type);
+				//Log.Debug($"Checking type {type.FullName} [{(isPlugin?"Y":"n")}]");
+				if (IsIPlugin(type)) {
+					//Log.Debug($"Found plugin {type.FullName}");
+					yield return dllFile;
+				}
+			}
+		}
+	}
+
+	static readonly Dictionary<string,bool> PluginTypeCache = new(StringComparer.CurrentCultureIgnoreCase);
+	static readonly Type iPluginType = typeof(IPlugin);
+	static bool IsIPlugin(Type subj)
+	{
+		//check memoized value first
+		if (PluginTypeCache.TryGetValue(subj.FullName, out var memoized)) {
+			return memoized;
+		}
+
+		bool isPlugin = CheckIsIPlugin(subj);
+		PluginTypeCache[subj.FullName] = isPlugin;
+		return isPlugin;
+	}
+
+	static bool CheckIsIPlugin(Type subj)
+	{
 		// we don't want to instantiate the IPlugin interface itself
-		if (t == iPluginType) {
+		if (subj == iPluginType) {
+			return false;
+		}
+		var comparer = StringComparison.InvariantCultureIgnoreCase;
+		if (string.Equals(subj.FullName,iPluginType.FullName,comparer)) {
 			return false;
 		}
 
-		// Note: this is the only mechanism that works since
-		//  the plugin must be loaded with the same instance of Core
-		if (iPluginType.IsAssignableFrom(t)) {
+		//Do recursive name check because we can't rely on Type.Equals since we're
+		// loading types in different contexts
+		var stack = new List<Type>();
+		stack.AddRange(subj.GetInterfaces()); //push
+
+		while(stack.Count > 0) {
+			var curr = stack[stack.Count - 1];
+			stack.RemoveAt(stack.Count - 1); //pop
+
+			//Log.Debug($"Comp {curr.FullName} {stack.Count}");
+			if (string.Equals(curr.FullName,iPluginType.FullName,comparer)) {
+				return true;
+			}
+			var faces = curr.GetInterfaces();
+			if (faces.Length > 0) {
+				stack.AddRange(faces); //push
+			}
+		}
+
+		//fallback to the normal check
+		if (iPluginType.IsAssignableFrom(subj)) {
 			return true;
 		}
 
@@ -116,17 +172,22 @@ internal static class PluginLoader
 class PluginLoadContext : AssemblyLoadContext
 {
 	readonly AssemblyDependencyResolver _resolver;
+	readonly string OriginalPath;
 
 	public PluginLoadContext(string pluginPath)
 	{
+		OriginalPath = pluginPath;
 		_resolver = new AssemblyDependencyResolver(pluginPath);
 	}
 
 	protected override Assembly Load(AssemblyName assemblyName)
 	{
+		//Log.Message($"PluginLoadContext [{OriginalPath}] Trying to load {assemblyName}");
+		//Trace.WriteLine($"PluginLoadContext Trying to load {assemblyName}");
 		string assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-		if (assemblyPath != null)
-		{
+		if (assemblyPath != null) {
+			//Log.Message($"PluginLoadContext [{OriginalPath}] Loading {assemblyPath}");
+			//Trace.WriteLine($"PluginLoadContext Loading {assemblyPath}");
 			return LoadFromAssemblyPath(assemblyPath);
 		}
 
@@ -136,8 +197,7 @@ class PluginLoadContext : AssemblyLoadContext
 	protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
 	{
 		string libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-		if (libraryPath != null)
-		{
+		if (libraryPath != null) {
 			return LoadUnmanagedDllFromPath(libraryPath);
 		}
 

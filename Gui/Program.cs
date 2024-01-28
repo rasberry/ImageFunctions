@@ -5,7 +5,7 @@ using Avalonia.ReactiveUI;
 using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui;
-
+/*
 sealed class Program
 {
 	// Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -67,3 +67,4 @@ sealed class Program
 
 	static Register Register;
 }
+*/

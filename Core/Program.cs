@@ -1,10 +1,16 @@
-﻿namespace ImageFunctions.Core;
+﻿using System.Diagnostics;
+
+namespace ImageFunctions.Core;
 
 //this is internal for testing purposes
 internal class Program
 {
 	static int Main(string[] args)
 	{
+		#if DEBUG
+		Trace.Listeners.Add(new ConsoleTraceListener());
+		#endif
+
 		try {
 			using var register = new Register();
 			var options = new Options(register);
@@ -13,11 +19,11 @@ internal class Program
 			return main.Run(args);
 		}
 		catch(Exception e) {
-			#if DEBUG
+			//#if DEBUG
 			Log.Error(e.ToString());
-			#else
-			Log.Error(e.Message);
-			#endif
+			//#else
+			//Log.Error(e.Message);
+			//#endif
 
 			return e.GetHashCode();
 		}

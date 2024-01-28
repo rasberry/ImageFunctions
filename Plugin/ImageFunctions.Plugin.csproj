@@ -1,5 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- <Nullable>enable</Nullable> -->
+    <OutputPath>../build</OutputPath>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  
   <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
@@ -20,14 +27,6 @@
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <!-- <Nullable>enable</Nullable> -->
-    <OutputPath>../build</OutputPath>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-  </PropertyGroup>
 
   <ItemGroup>
     <Using Include="System" />
