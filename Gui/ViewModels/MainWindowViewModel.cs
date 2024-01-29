@@ -18,38 +18,46 @@ public class MainWindowViewModel : ViewModelBase
 
 	void LoadData()
 	{
-		RegistrationItems = new();
-
 		var functionReg = new FunctionRegister(Program.Register);
-		AddTreeNodeFromRegistered(functionReg, "Functions", (reg, name) => {
-			return new TreeNode { Name = name };
-		});
+		RegFunctionItems.Add(
+			AddTreeNodeFromRegistered(functionReg, "Functions", (reg, name) => {
+				return new TreeNode { Name = name };
+			})
+		);
 
 		var colorReg = new ColorRegister(Program.Register);
-		AddTreeNodeFromRegistered(colorReg, "Colors", (reg, name) => {
-			return new ColorTreeNode {
-				Name = name,
-				Color = ConvertColor(name,colorReg)
-			};
-		});
+		RegColorItems.Add(
+			AddTreeNodeFromRegistered(colorReg, "Colors", (reg, name) => {
+				return new ColorTreeNode {
+					Name = name,
+					Color = ConvertColor(name,colorReg)
+				};
+			})
+		);
 
 		var engineReg = new EngineRegister(Program.Register);
-		AddTreeNodeFromRegistered(engineReg, "Engines", (reg, name) => {
-			return new TreeNode { Name = name };
-		});
+		RegEngineItems.Add(
+			AddTreeNodeFromRegistered(engineReg, "Engines", (reg, name) => {
+				return new TreeNode { Name = name };
+			})
+		);
 
 		var metricReg = new MetricRegister(Program.Register);
-		AddTreeNodeFromRegistered(metricReg,"Metrics", (reg, name) => {
-			return new TreeNode { Name = name };
-		});
+		RegMetricItems.Add(
+			AddTreeNodeFromRegistered(metricReg,"Metrics", (reg, name) => {
+				return new TreeNode { Name = name };
+			})
+		);
 
 		var samplerReg = new SamplerRegister(Program.Register);
-		AddTreeNodeFromRegistered(samplerReg,"Samplers", (reg, name) => {
-			return new TreeNode { Name = name };
-		});
+		RegSamplerItems.Add(
+			AddTreeNodeFromRegistered(samplerReg,"Samplers", (reg, name) => {
+				return new TreeNode { Name = name };
+			})
+		);
 	}
 
-	void AddTreeNodeFromRegistered<T>(AbstractRegistrant<T> reg, string title, Func<AbstractRegistrant<T>,string,TreeNode> filler)
+	TreeNode AddTreeNodeFromRegistered<T>(AbstractRegistrant<T> reg, string title, Func<AbstractRegistrant<T>,string,TreeNode> filler)
 	{
 		var node = new TreeNode {
 			Name = title,
@@ -59,8 +67,14 @@ public class MainWindowViewModel : ViewModelBase
 			var item = filler(reg,c);
 			node.Items.Add(item);
 		}
-		RegistrationItems.Add(node);
+		return node;
 	}
+
+	public ObservableCollection<TreeNode> RegColorItems     { get; private set; } = new();
+	public ObservableCollection<TreeNode> RegEngineItems    { get; private set; } = new();
+	public ObservableCollection<TreeNode> RegFunctionItems  { get; private set; } = new();
+	public ObservableCollection<TreeNode> RegMetricItems    { get; private set; } = new();
+	public ObservableCollection<TreeNode> RegSamplerItems   { get; private set; } = new();
 
 	static Avalonia.Media.Brush ConvertColor(string key, ColorRegister reg)
 	{
@@ -128,8 +142,6 @@ public class MainWindowViewModel : ViewModelBase
 			StatusTextTimer.Stop();
 		}
 	}
-
-	public ObservableCollection<TreeNode> RegistrationItems { get; private set; }
 }
 
 public class TreeNode

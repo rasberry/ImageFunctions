@@ -30,17 +30,30 @@
 	<Style Selector="#Root GridSplitter">
 		<Setter Property="ShowsPreview" Value="True"/>
 	</Style>
-	<Style Selector="#FunctionChooser PathIcon">
+	<Style Selector="#Chooser PathIcon">
 		<Setter Property="Margin" Value="0,0,8,0"/>
 	</Style>
 
 </Window.Styles>
 
+<!-- Note: templates are checked in order, so put the most specific first -->
+<Window.DataTemplates>
+	<TreeDataTemplate DataType="{x:Type vm:ColorTreeNode}" ItemsSource="{Binding Items}">
+		<StackPanel Orientation="Horizontal">
+			<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
+			<TextBlock Text="{Binding Name}" />
+		</StackPanel>
+	</TreeDataTemplate>
+	<TreeDataTemplate DataType="{x:Type vm:TreeNode}" ItemsSource="{Binding Items}">
+		<TextBlock Text="{Binding Name}" />
+	</TreeDataTemplate>
+</Window.DataTemplates>
+
 <Grid Name="Root" RowDefinitions="*,Auto">
 	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
 		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
 			<DockPanel Grid.Row="0">
-				<StackPanel Orientation="Vertical" DockPanel.Dock="Right">
+				<StackPanel DockPanel.Dock="Right">
 					<Button Tag="Zoom In">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconPlusThick}"/>
 					</Button>
@@ -72,20 +85,14 @@
 			</DockPanel>
 		</Grid>
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-		<ScrollViewer Grid.Column="4">
-			<TreeView ItemsSource="{Binding RegistrationItems}" Name="FunctionChooser">
-				<TreeView.DataTemplates>
-					<TreeDataTemplate DataType="{x:Type vm:ColorTreeNode}" ItemsSource="{Binding Items}">
-						<StackPanel Orientation="Horizontal">
-							<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
-							<TextBlock Text="{Binding Name}" />
-						</StackPanel>
-					</TreeDataTemplate>
-					<TreeDataTemplate DataType="{x:Type vm:TreeNode}" ItemsSource="{Binding Items}">
-						<TextBlock Text="{Binding Name}" />
-					</TreeDataTemplate>
-				</TreeView.DataTemplates>
-			</TreeView>
+		<ScrollViewer Grid.Column="4" Name="Chooser">
+			<StackPanel>
+				<TreeView ItemsSource="{Binding RegFunctionItems}" />
+				<TreeView ItemsSource="{Binding RegColorItems}" />
+				<TreeView ItemsSource="{Binding RegEngineItems}" />
+				<TreeView ItemsSource="{Binding RegMetricItems}" />
+				<TreeView ItemsSource="{Binding RegSamplerItems}" />
+			</StackPanel>
 		</ScrollViewer>
 	</Grid>
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
@@ -102,5 +109,4 @@
 		</StackPanel>
 	</Grid>
 </Grid>
-
 </Window>
