@@ -4,6 +4,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using ReactiveUI;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
 
@@ -19,62 +20,54 @@ public class MainWindowViewModel : ViewModelBase
 	void LoadData()
 	{
 		var functionReg = new FunctionRegister(Program.Register);
-		RegFunctionItems.Add(
-			AddTreeNodeFromRegistered(functionReg, "Functions", (reg, name) => {
-				return new TreeNode { Name = name };
-			})
-		);
+		RegFunctionItems = AddTreeNodeFromRegistered("Functions", functionReg, (reg, name) => {
+			return new SelectionItem { Name = name };
+		});
 
 		var colorReg = new ColorRegister(Program.Register);
-		RegColorItems.Add(
-			AddTreeNodeFromRegistered(colorReg, "Colors", (reg, name) => {
-				return new ColorTreeNode {
-					Name = name,
-					Color = ConvertColor(name,colorReg)
-				};
-			})
-		);
+		RegColorItems = AddTreeNodeFromRegistered("Colors", colorReg, (reg, name) => {
+			return new SelectionItemColor {
+				Name = name,
+				Color = ConvertColor(name,colorReg)
+			};
+		});
 
 		var engineReg = new EngineRegister(Program.Register);
-		RegEngineItems.Add(
-			AddTreeNodeFromRegistered(engineReg, "Engines", (reg, name) => {
-				return new TreeNode { Name = name };
-			})
-		);
+		RegEngineItems = AddTreeNodeFromRegistered("Engines", engineReg, (reg, name) => {
+			return new SelectionItem { Name = name };
+		});
 
 		var metricReg = new MetricRegister(Program.Register);
-		RegMetricItems.Add(
-			AddTreeNodeFromRegistered(metricReg,"Metrics", (reg, name) => {
-				return new TreeNode { Name = name };
-			})
-		);
+		RegMetricItems = AddTreeNodeFromRegistered("Metrics", metricReg, (reg, name) => {
+			return new SelectionItem { Name = name };
+		});
 
 		var samplerReg = new SamplerRegister(Program.Register);
-		RegSamplerItems.Add(
-			AddTreeNodeFromRegistered(samplerReg,"Samplers", (reg, name) => {
-				return new TreeNode { Name = name };
-			})
-		);
+		RegSamplerItems = AddTreeNodeFromRegistered("Samplers", samplerReg, (reg, name) => {
+			return new SelectionItem { Name = name };
+		});
 	}
 
-	TreeNode AddTreeNodeFromRegistered<T>(AbstractRegistrant<T> reg, string title, Func<AbstractRegistrant<T>,string,TreeNode> filler)
+	RegisteredSelection AddTreeNodeFromRegistered<T>(string Name, AbstractRegistrant<T> reg, Func<AbstractRegistrant<T>,string,SelectionItem> filler)
 	{
-		var node = new TreeNode {
-			Name = title,
-			Items = new()
-		};
+		var items = new ObservableCollection<SelectionItem>();
 		foreach(var c in reg.All().OrderBy(n => n)) {
 			var item = filler(reg,c);
-			node.Items.Add(item);
+			items.Add(item);
 		}
-		return node;
+		var sel = new RegisteredSelection {
+			Name = Name,
+			Items = items
+		};
+
+		return sel;
 	}
 
-	public ObservableCollection<TreeNode> RegColorItems     { get; private set; } = new();
-	public ObservableCollection<TreeNode> RegEngineItems    { get; private set; } = new();
-	public ObservableCollection<TreeNode> RegFunctionItems  { get; private set; } = new();
-	public ObservableCollection<TreeNode> RegMetricItems    { get; private set; } = new();
-	public ObservableCollection<TreeNode> RegSamplerItems   { get; private set; } = new();
+	public RegisteredSelection RegColorItems     { get; private set; }
+	public RegisteredSelection RegEngineItems    { get; private set; }
+	public RegisteredSelection RegFunctionItems  { get; private set; }
+	public RegisteredSelection RegMetricItems    { get; private set; }
+	public RegisteredSelection RegSamplerItems   { get; private set; }
 
 	static Avalonia.Media.Brush ConvertColor(string key, ColorRegister reg)
 	{
@@ -144,13 +137,18 @@ public class MainWindowViewModel : ViewModelBase
 	}
 }
 
-public class TreeNode
+public class RegisteredSelection
 {
-	public ObservableCollection<TreeNode> Items { get; init; }
+	public string Name { get; init; }
+	public ObservableCollection<SelectionItem> Items { get; init; } = new();
+}
+
+public class SelectionItem
+{
 	public string Name { get; init; }
 }
 
-public class ColorTreeNode : TreeNode
+public class SelectionItemColor : SelectionItem
 {
 	public Avalonia.Media.Brush Color { get; init; }
 }

@@ -9,7 +9,6 @@
 	Icon="/Assets/avalonia-logo.ico"
 	Title="ImageFunctions.Gui"
 >
-
 <Design.DataContext>
 	<vm:MainWindowViewModel/>
 </Design.DataContext>
@@ -33,20 +32,24 @@
 	<Style Selector="#Chooser PathIcon">
 		<Setter Property="Margin" Value="0,0,8,0"/>
 	</Style>
-
 </Window.Styles>
 
 <!-- Note: templates are checked in order, so put the most specific first -->
 <Window.DataTemplates>
-	<TreeDataTemplate DataType="{x:Type vm:ColorTreeNode}" ItemsSource="{Binding Items}">
+	<DataTemplate DataType="{x:Type vm:SelectionItemColor}">
 		<StackPanel Orientation="Horizontal">
 			<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
 			<TextBlock Text="{Binding Name}" />
 		</StackPanel>
-	</TreeDataTemplate>
-	<TreeDataTemplate DataType="{x:Type vm:TreeNode}" ItemsSource="{Binding Items}">
+	</DataTemplate>
+	<DataTemplate DataType="{x:Type vm:SelectionItem}">
 		<TextBlock Text="{Binding Name}" />
-	</TreeDataTemplate>
+	</DataTemplate>
+	<DataTemplate DataType="{x:Type vm:RegisteredSelection}">
+		<Expander Header="{Binding Name}">
+			<ListBox ItemsSource="{Binding Items}" />
+		</Expander>
+	</DataTemplate>
 </Window.DataTemplates>
 
 <Grid Name="Root" RowDefinitions="*,Auto">
@@ -87,11 +90,11 @@
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
 		<ScrollViewer Grid.Column="4" Name="Chooser">
 			<StackPanel>
-				<TreeView ItemsSource="{Binding RegFunctionItems}" />
-				<TreeView ItemsSource="{Binding RegColorItems}" />
-				<TreeView ItemsSource="{Binding RegEngineItems}" />
-				<TreeView ItemsSource="{Binding RegMetricItems}" />
-				<TreeView ItemsSource="{Binding RegSamplerItems}" />
+				<ContentControl Content="{Binding RegFunctionItems}" />
+				<ContentControl Content="{Binding RegColorItems}" />
+				<ContentControl Content="{Binding RegEngineItems}" />
+				<ContentControl Content="{Binding RegMetricItems}" />
+				<ContentControl Content="{Binding RegSamplerItems}" />
 			</StackPanel>
 		</ScrollViewer>
 	</Grid>
