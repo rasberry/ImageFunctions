@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using ImageFunctions.Gui.ViewModels;
@@ -9,14 +10,14 @@ public class ViewLocator : IDataTemplate
 {
 	public Control Build(object data)
 	{
-		if (data is null)
-			return null;
+		Trace.WriteLine($"ViewLocator.Build data={data?.ToString()}");
+		if (data is null) { return null; }
 
 		var name = data.GetType().FullName.Replace("ViewModel", "View", StringComparison.Ordinal);
 		var type = Type.GetType(name);
+		Trace.WriteLine($"ViewLocator.Build Locating {name}");
 
-		if (type != null)
-		{
+		if (type != null) {
 			var control = (Control)Activator.CreateInstance(type);
 			control.DataContext = data;
 			return control;

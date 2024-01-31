@@ -1,8 +1,9 @@
 <Window xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+	xmlns:views="using:ImageFunctions.Gui.Views"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 	x:Class="ImageFunctions.Gui.Views.MainWindow"
 	x:DataType="vm:MainWindowViewModel"
@@ -12,6 +13,9 @@
 <Design.DataContext>
 	<vm:MainWindowViewModel/>
 </Design.DataContext>
+
+<!-- avalonia doesn't seem to support binding to event handlers
+see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 <Window.Styles>
 	<Style Selector="#LowerPannel TextBlock">
@@ -34,25 +38,7 @@
 	</Style>
 </Window.Styles>
 
-<!-- Note: templates are checked in order, so put the most specific first -->
-<Window.DataTemplates>
-	<DataTemplate DataType="{x:Type vm:SelectionItemColor}">
-		<StackPanel Orientation="Horizontal">
-			<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
-			<TextBlock Text="{Binding Name}" />
-		</StackPanel>
-	</DataTemplate>
-	<DataTemplate DataType="{x:Type vm:SelectionItem}">
-		<TextBlock Text="{Binding Name}" />
-	</DataTemplate>
-	<DataTemplate DataType="{x:Type vm:RegisteredSelection}">
-		<Expander Header="{Binding Name}">
-			<ListBox ItemsSource="{Binding Items}" />
-		</Expander>
-	</DataTemplate>
-</Window.DataTemplates>
-
-<Grid Name="Root" RowDefinitions="*,Auto">
+<Grid RowDefinitions="*,Auto">
 	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
 		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
 			<DockPanel Grid.Row="0">
@@ -90,11 +76,11 @@
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
 		<ScrollViewer Grid.Column="4" Name="Chooser">
 			<StackPanel>
-				<ContentControl Content="{Binding RegFunctionItems}" />
-				<ContentControl Content="{Binding RegColorItems}" />
-				<ContentControl Content="{Binding RegEngineItems}" />
-				<ContentControl Content="{Binding RegMetricItems}" />
-				<ContentControl Content="{Binding RegSamplerItems}" />
+				<views:RegisteredControl DataContext="{Binding RegFunctionItems}" />
+				<views:RegisteredControl DataContext="{Binding RegColorItems}" />
+				<views:RegisteredControl DataContext="{Binding RegEngineItems}" />
+				<views:RegisteredControl DataContext="{Binding RegMetricItems}" />
+				<views:RegisteredControl DataContext="{Binding RegSamplerItems}" />
 			</StackPanel>
 		</ScrollViewer>
 	</Grid>

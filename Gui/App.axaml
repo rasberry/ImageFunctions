@@ -2,11 +2,23 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	x:Class="ImageFunctions.Gui.App"
 	xmlns:local="using:ImageFunctions.Gui"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	RequestedThemeVariant="Default"
 >
 <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
+		<DataTemplate DataType="{x:Type vm:SelectionItemColor}">
+			<StackPanel Orientation="Horizontal">
+				<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
+				<TextBlock Text="{Binding Name}" />
+			</StackPanel>
+		</DataTemplate>
+		<DataTemplate DataType="{x:Type vm:SelectionItem}">
+			<TextBlock Text="{Binding Name}" />
+		</DataTemplate>
+
 		<local:ViewLocator/>
 	</Application.DataTemplates>
 

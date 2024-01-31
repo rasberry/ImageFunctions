@@ -1,10 +1,10 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Styling;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using ReactiveUI;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
 
@@ -20,12 +20,12 @@ public class MainWindowViewModel : ViewModelBase
 	void LoadData()
 	{
 		var functionReg = new FunctionRegister(Program.Register);
-		RegFunctionItems = AddTreeNodeFromRegistered("Functions", functionReg, (reg, name) => {
+		RegFunctionItems = AddTreeNodeFromRegistered(SelectionKind.Functions, functionReg, (reg, name) => {
 			return new SelectionItem { Name = name };
 		});
 
 		var colorReg = new ColorRegister(Program.Register);
-		RegColorItems = AddTreeNodeFromRegistered("Colors", colorReg, (reg, name) => {
+		RegColorItems = AddTreeNodeFromRegistered(SelectionKind.Colors, colorReg, (reg, name) => {
 			return new SelectionItemColor {
 				Name = name,
 				Color = ConvertColor(name,colorReg)
@@ -33,41 +33,42 @@ public class MainWindowViewModel : ViewModelBase
 		});
 
 		var engineReg = new EngineRegister(Program.Register);
-		RegEngineItems = AddTreeNodeFromRegistered("Engines", engineReg, (reg, name) => {
+		RegEngineItems = AddTreeNodeFromRegistered(SelectionKind.Engines, engineReg, (reg, name) => {
 			return new SelectionItem { Name = name };
 		});
 
 		var metricReg = new MetricRegister(Program.Register);
-		RegMetricItems = AddTreeNodeFromRegistered("Metrics", metricReg, (reg, name) => {
+		RegMetricItems = AddTreeNodeFromRegistered(SelectionKind.Metrics, metricReg, (reg, name) => {
 			return new SelectionItem { Name = name };
 		});
 
 		var samplerReg = new SamplerRegister(Program.Register);
-		RegSamplerItems = AddTreeNodeFromRegistered("Samplers", samplerReg, (reg, name) => {
+		RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
 			return new SelectionItem { Name = name };
 		});
 	}
 
-	RegisteredSelection AddTreeNodeFromRegistered<T>(string Name, AbstractRegistrant<T> reg, Func<AbstractRegistrant<T>,string,SelectionItem> filler)
+	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind, AbstractRegistrant<T> reg, Func<AbstractRegistrant<T>,string,SelectionItem> filler)
 	{
 		var items = new ObservableCollection<SelectionItem>();
 		foreach(var c in reg.All().OrderBy(n => n)) {
 			var item = filler(reg,c);
 			items.Add(item);
 		}
-		var sel = new RegisteredSelection {
-			Name = Name,
+		var sel = new SelectionViewModel {
+			Kind = Kind,
 			Items = items
 		};
 
 		return sel;
 	}
 
-	public RegisteredSelection RegColorItems     { get; private set; }
-	public RegisteredSelection RegEngineItems    { get; private set; }
-	public RegisteredSelection RegFunctionItems  { get; private set; }
-	public RegisteredSelection RegMetricItems    { get; private set; }
-	public RegisteredSelection RegSamplerItems   { get; private set; }
+	//TODO switch to ObservableCollection<SelectionItem> maybe?
+	public SelectionViewModel RegColorItems     { get; private set; }
+	public SelectionViewModel RegEngineItems    { get; private set; }
+	public SelectionViewModel RegFunctionItems  { get; private set; }
+	public SelectionViewModel RegMetricItems    { get; private set; }
+	public SelectionViewModel RegSamplerItems   { get; private set; }
 
 	static Avalonia.Media.Brush ConvertColor(string key, ColorRegister reg)
 	{
@@ -112,8 +113,8 @@ public class MainWindowViewModel : ViewModelBase
 	System.Timers.Timer StatusTextTimer = null;
 	const int StatusTextLifetimeMs = 2000;
 
-	// The behavior is to show the text as long as the control is still under the pointer
-	// but wait some time before hiding the text after the pointer leaves
+	// The behavior shows the text as long as the control is still under the pointer
+	// but wait before hiding the text after the pointer leaves
 	public void UpdateStatusText(string text = "", bool startTimer = false)
 	{
 		//Trace.WriteLine($"UpdateStatusText T:'{text}' E:{(expired?"Y":"N")}");
@@ -135,20 +136,4 @@ public class MainWindowViewModel : ViewModelBase
 			StatusTextTimer.Stop();
 		}
 	}
-}
-
-public class RegisteredSelection
-{
-	public string Name { get; init; }
-	public ObservableCollection<SelectionItem> Items { get; init; } = new();
-}
-
-public class SelectionItem
-{
-	public string Name { get; init; }
-}
-
-public class SelectionItemColor : SelectionItem
-{
-	public Avalonia.Media.Brush Color { get; init; }
 }

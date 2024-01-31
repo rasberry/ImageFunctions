@@ -14,9 +14,9 @@ internal sealed class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
-		#if DEBUG
+		//#if DEBUG
 		Trace.Listeners.Add(new ConsoleTraceListener());
-		#endif
+		//#endif
 
 		try {
 			PluginSetup();
@@ -27,9 +27,9 @@ internal sealed class Program
 			Cleanup();
 		}
 
-		#if DEBUG
+		//#if DEBUG
 		Trace.Flush();
-		#endif
+		//#endif
 	}
 
 	// Avalonia configuration, don't remove; also used by visual designer.
