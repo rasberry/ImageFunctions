@@ -1,12 +1,16 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Styling;
+using DynamicData.Binding;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -22,7 +26,7 @@ public class MainWindowViewModel : ViewModelBase
 		var functionReg = new FunctionRegister(Program.Register);
 		RegFunctionItems = AddTreeNodeFromRegistered(SelectionKind.Functions, functionReg, (reg, name) => {
 			return new SelectionItem { Name = name };
-		});
+		}, OnFunctionSelected);
 
 		var colorReg = new ColorRegister(Program.Register);
 		RegColorItems = AddTreeNodeFromRegistered(SelectionKind.Colors, colorReg, (reg, name) => {
@@ -30,26 +34,30 @@ public class MainWindowViewModel : ViewModelBase
 				Name = name,
 				Color = ConvertColor(name,colorReg)
 			};
-		});
+		}, OnSomethingSelected);
 
 		var engineReg = new EngineRegister(Program.Register);
 		RegEngineItems = AddTreeNodeFromRegistered(SelectionKind.Engines, engineReg, (reg, name) => {
 			return new SelectionItem { Name = name };
-		});
+		}, OnSomethingSelected);
 
 		var metricReg = new MetricRegister(Program.Register);
 		RegMetricItems = AddTreeNodeFromRegistered(SelectionKind.Metrics, metricReg, (reg, name) => {
 			return new SelectionItem { Name = name };
-		});
+		}, OnSomethingSelected);
 
 		var samplerReg = new SamplerRegister(Program.Register);
 		RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
 			return new SelectionItem { Name = name };
-		});
+		}, OnSomethingSelected);
 	}
 
-	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind, AbstractRegistrant<T> reg, Func<AbstractRegistrant<T>,string,SelectionItem> filler)
-	{
+	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind,
+		AbstractRegistrant<T> reg,
+		Func<AbstractRegistrant<T>,string,SelectionItem> filler,
+		Action<SelectionItem> selectionHandler
+
+	) {
 		var items = new ObservableCollection<SelectionItem>();
 		foreach(var c in reg.All().OrderBy(n => n)) {
 			var item = filler(reg,c);
@@ -60,6 +68,9 @@ public class MainWindowViewModel : ViewModelBase
 			Items = items
 		};
 
+		sel.WhenAnyValue(p => p.Selected)
+			.Subscribe(selectionHandler);
+
 		return sel;
 	}
 
@@ -69,6 +80,25 @@ public class MainWindowViewModel : ViewModelBase
 	public SelectionViewModel RegFunctionItems  { get; private set; }
 	public SelectionViewModel RegMetricItems    { get; private set; }
 	public SelectionViewModel RegSamplerItems   { get; private set; }
+
+	void OnFunctionSelected(SelectionItem item)
+	{
+		if (item == null) { return; }
+		var reg = new FunctionRegister(Program.Register);
+		if (!reg.Try(item.Name, out var regItem)) {
+			Trace.WriteLine($"Function {item.Name} should have been found but wasn't !!");
+			return;
+		}
+
+		//new Core.Options
+		//regItem.Item.Invoke();
+	}
+
+	void OnSomethingSelected(SelectionItem item)
+	{
+		if (item == null) { return; }
+		Trace.WriteLine($"OnSomethingSelected {item.Name}");
+	}
 
 	static Avalonia.Media.Brush ConvertColor(string key, ColorRegister reg)
 	{
