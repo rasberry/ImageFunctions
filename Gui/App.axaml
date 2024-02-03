@@ -5,9 +5,7 @@
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	RequestedThemeVariant="Default"
 >
-<!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
-
-<!-- Note: templates are checked in order, so put the most specific first -->
+	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
 		<DataTemplate DataType="{x:Type vm:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">

@@ -95,10 +95,18 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 					info.Description,
 					info.SupportsReading,
 					info.SupportsWriting,
-					info.SupportsMultipleFrames
+					info.SupportsMultipleFrames,
+					GetExtension(mf),
+					info.MimeType ?? ""
 				);
 			}
 		}
+	}
+
+	static string GetExtension(MagickFormat mf)
+	{
+		string ext = mf.ToString()?.ToLowerInvariant();
+		return string.IsNullOrWhiteSpace(ext) ? "" : "." + ext;
 	}
 
 	/*

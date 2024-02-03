@@ -16,7 +16,9 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 				f.ToString(),
 				GetFormatDesc(f),
 				true, true,
-				false //as far as i can tell SkiaSharp does not support writing multi-layer images
+				false, //as far as i can tell SkiaSharp does not support writing multi-layer images
+				GetExtension(f),
+				GetMimeType(f)
 			);
 		}
 	}
@@ -38,7 +40,6 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			case SKEncodedImageFormat.Wbmp: return "Wireless Application Protocol Bitmap Format (1 bit per pixel)";
 			case SKEncodedImageFormat.Webp: return "Google WebP format";
 		}
-
 		return null;
 	}
 
@@ -58,7 +59,25 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			case SKEncodedImageFormat.Wbmp: return ".wbmp";
 			case SKEncodedImageFormat.Webp: return ".webp";
 		}
+		return null;
+	}
 
+	static string GetMimeType(SKEncodedImageFormat format)
+	{
+		switch(format) {
+			case SKEncodedImageFormat.Astc: return "";
+			case SKEncodedImageFormat.Bmp:  return "image/bmp";
+			case SKEncodedImageFormat.Dng:  return "image/x-adobe-dng";
+			case SKEncodedImageFormat.Gif:  return "image/gif";
+			case SKEncodedImageFormat.Heif: return "image/heif";
+			case SKEncodedImageFormat.Ico:  return "image/vnd.microsoft.icon";
+			case SKEncodedImageFormat.Jpeg: return "image/jpeg";
+			case SKEncodedImageFormat.Ktx:  return "image/ktx";
+			case SKEncodedImageFormat.Pkm:  return "";
+			case SKEncodedImageFormat.Png:  return "image/png";
+			case SKEncodedImageFormat.Wbmp: return "image/vnd.wap.wbmp";
+			case SKEncodedImageFormat.Webp: return "image/webp";
+		}
 		return null;
 	}
 
@@ -218,7 +237,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 
 		public void Dispose()
 		{
-			Bitmap.Dispose();
+			Bitmap?.Dispose();
 			Bitmap = null;
 		}
 

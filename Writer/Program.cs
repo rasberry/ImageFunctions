@@ -53,9 +53,7 @@ class Program
 			if (path.Contains("function.md.razor")) { continue; }
 			var text = File.ReadAllText(path);
 			var template = Engine.Compile(text);
-			var model = new WikiModel {
-				FunctionList = allFun
-			};
+			var model = new WikiModel { FunctionList = allFun };
 			string renText = template.Run(model);
 			var funName = Path.GetFileNameWithoutExtension(path);
 			var outPath = Path.Combine(WikiFolder,funName);

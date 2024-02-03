@@ -5,13 +5,18 @@ namespace ImageFunctions.Core;
 /// </summary>
 public readonly struct ImageFormat
 {
-	public ImageFormat(string name, string desc, bool canread, bool canwrite, bool frames)
-	{
-		CanRead = canread;
-		CanWrite = canwrite;
+	public ImageFormat(
+		string name, string desc, bool canRead,
+		bool canWrite, bool frames, string extension,
+		string mimetype
+	) {
+		CanRead = canRead;
+		CanWrite = canWrite;
 		Name = name;
 		Description = desc;
 		MultiFrame = frames;
+		BestExtension = extension;
+		MimeType = mimetype;
 	}
 
 	/// <summary>
@@ -38,4 +43,14 @@ public readonly struct ImageFormat
 	/// Description of the format
 	/// </summary>
 	public readonly string Description;
+
+	/// <summary>
+	/// File format extension (prefixed with a dot)
+	/// </summary>
+	public readonly string BestExtension;
+
+	/// <summary>
+	/// Mime type of the format
+	/// </summary>
+	public readonly string MimeType;
 }

@@ -153,7 +153,9 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				$"{f.DefaultMimeType} [{String.Join(",",f.FileExtensions)}]",
 				enc != null,
 				dec != null,
-				FormatSupportsFrames(f)
+				FormatSupportsFrames(f),
+				GetBestExtension(f),
+				GetMimeType(f)
 			);
 		}
 	}
@@ -185,6 +187,22 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat   => ".tga",
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => ".tif",
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => ".webp",
+			_ => throw Squeal.FormatIsNotSupported(format.Name)
+		};
+		return ext;
+	}
+
+	string GetMimeType(IImageFormat format)
+	{
+		string ext = format switch {
+			SixLabors.ImageSharp.Formats.Bmp.BmpFormat   => "image/bmp",
+			SixLabors.ImageSharp.Formats.Gif.GifFormat   => "image/gif",
+			SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => "image/jpeg",
+			SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => "image/x-portable-bitmap",
+			SixLabors.ImageSharp.Formats.Png.PngFormat   => "image/png",
+			SixLabors.ImageSharp.Formats.Tga.TgaFormat   => "image/x-targa",
+			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => "image/tiff",
+			SixLabors.ImageSharp.Formats.Webp.WebpFormat => "image/webp",
 			_ => throw Squeal.FormatIsNotSupported(format.Name)
 		};
 		return ext;

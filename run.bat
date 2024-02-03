@@ -1,9 +1,11 @@
 @echo off
 setlocal
+if "%~1"=="" goto core
 ::findstr /i /r /c:"^[ ]*:%~1\>" "%~f0"
 findstr /i /r /c:"^[ ]*:%~1\>" "%~f0" >nul 2>nul
 if %ERRORLEVEL%==0 echo "running %~1" && call :%~1 & goto :EOF
 
+:core
 ::we need all of the plugins in one folder so do a publish
 dotnet publish
 if not %ERRORLEVEL%==0 goto :EOF

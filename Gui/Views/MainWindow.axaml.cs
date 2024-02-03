@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
 using ReactiveUI;
 
@@ -14,6 +15,7 @@ public partial class MainWindow : Window
 	public MainWindow()
 	{
 		InitializeComponent();
+		OpenLayers.Click += OpenFileDialog;
 	}
 
 	//Note: always check for null before using this e.g. Model?.
@@ -44,5 +46,28 @@ public partial class MainWindow : Window
 		if (text != null) {
 			Model?.UpdateStatusText(text, isLeaving);
 		}
+	}
+
+	IStorageProvider GetStorageProvider()
+	{
+		var topLevel = GetTopLevel(this);
+		return topLevel?.StorageProvider;
+	}
+
+	async void OpenFileDialog(object sender, RoutedEventArgs args)
+	{
+		IStorageProvider sp = GetStorageProvider();
+		if (sp is null) { return; }
+		var filter = new List<FilePickerFileType>();
+		if (Model?.SupportedReadTypes != null) {
+			filter.Add(Model?.SupportedReadTypes);
+		}
+		filter.Add(FilePickerFileTypes.All);
+
+		var result = await sp.OpenFilePickerAsync(new FilePickerOpenOptions() {
+			Title = "Open Images",
+			FileTypeFilter = filter,
+			AllowMultiple = true
+		});
 	}
 }

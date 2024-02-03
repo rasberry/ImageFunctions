@@ -296,7 +296,7 @@ internal class Options : ICoreOptions
 		var eng = Engine.Item.Value;
 		bool formatGiven = !String.IsNullOrWhiteSpace(_imageFormat);
 		ImageFormat? found = null;
-		foreach(var f in  eng.Formats()) {
+		foreach(var f in eng.Formats()) {
 			if (formatGiven && f.Name.EqualsIC(_imageFormat)) {
 				found = f;
 			}

@@ -86,9 +86,9 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 	</Grid>
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
 		<StackPanel Grid.Column="0" Orientation="Horizontal">
-			<Button>Open Layer</Button>
-			<Button>Save Top</Button>
-			<Button>Save Stack</Button>
+			<Button Name="OpenLayers">Load Images</Button>
+			<Button Name="SavePreview">Save Preview</Button>
+			<Button Name="SaveStack">Save Stack</Button>
 		</StackPanel>
 		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
 			<TextBlock Text="{Binding StatusText}" />
