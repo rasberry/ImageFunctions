@@ -2,7 +2,7 @@ using System.Diagnostics;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
 
-namespace ImageFunctions.Gui;
+namespace ImageFunctions.Gui.Models;
 
 public static class SingleTasks
 {

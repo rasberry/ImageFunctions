@@ -38,7 +38,7 @@ internal sealed class Program
 		var builder = AppBuilder
 			.Configure<App>()
 			.UsePlatformDetect()
-			.WithInterFont()
+			//.WithInterFont()
 			.UseReactiveUI();
 
 		#if DEBUG

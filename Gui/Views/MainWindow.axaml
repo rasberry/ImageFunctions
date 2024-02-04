@@ -53,7 +53,9 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconMinusThick}"/>
 					</Button>
 				</StackPanel>
-				<Image Name="Preview" />
+				<Panel Name="PreviewPanel">
+					<Image Source="{Binding PrimaryImageSource}" Stretch="None"/>
+				</Panel>
 			</DockPanel>
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
 			<ScrollViewer Grid.Row="2">

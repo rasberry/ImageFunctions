@@ -14,7 +14,7 @@ public interface IImageEngine
 	void SaveImage(ILayers layers, string path, string format = null);
 
 	/// <summary>
-	/// Loads a file as one or more layers
+	/// Loads a file as one or more layers. Pushes the image(s) on top of the stack.
 	/// </summary>
 	/// <param name="layers">ILayers object in which to add one or more ICanvas layers</param>
 	/// <param name="path">name of the file to load</param>

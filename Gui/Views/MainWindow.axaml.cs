@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -6,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
+using ImageFunctions.Plugin.Functions.PixelRules;
 using ReactiveUI;
 
 namespace ImageFunctions.Gui.Views;
@@ -16,6 +18,15 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 		OpenLayers.Click += OpenFileDialog;
+		PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
+	}
+
+	void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
+	{
+		if (Model != null) {
+			var current = Model.PreviewRectangle;
+			Model.PreviewRectangle = new Rect(current.TopLeft, args.NewSize);
+		}
 	}
 
 	//Note: always check for null before using this e.g. Model?.
@@ -69,5 +80,11 @@ public partial class MainWindow : Window
 			FileTypeFilter = filter,
 			AllowMultiple = true
 		});
+
+		IStorageFile item = result.FirstOrDefault();
+		if (item != null) {
+			var path = item.Path.LocalPath ?? item.Path.ToString();
+			Model?.LoadImageAsPrimary(path);
+		}
 	}
 }
