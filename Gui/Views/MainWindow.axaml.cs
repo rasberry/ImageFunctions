@@ -14,7 +14,7 @@ namespace ImageFunctions.Gui.Views;
 
 public partial class MainWindow : Window
 {
-	public MainWindow()
+	public MainWindow() : base()
 	{
 		InitializeComponent();
 		OpenLayers.Click += OpenFileDialog;

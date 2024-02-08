@@ -30,7 +30,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 	<Style Selector="#CommandColumn TextBlock">
 		<Setter Property="Margin" Value="8,8,8,8"/>
 	</Style>
-	<Style Selector="#Root GridSplitter">
+	<Style Selector="GridSplitter">
 		<Setter Property="ShowsPreview" Value="True"/>
 	</Style>
 	<Style Selector="#Chooser PathIcon">
@@ -59,9 +59,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</DockPanel>
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
 			<ScrollViewer Grid.Row="2">
-				<StackPanel Name="LayersBox">
-					<Image />
-				</StackPanel>
+				<ItemsControl Name="LayersBox" ItemsSource="" />
 			</ScrollViewer>
 		</Grid>
 		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
@@ -78,11 +76,11 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
 		<ScrollViewer Grid.Column="4" Name="Chooser">
 			<StackPanel>
-				<views:RegisteredControl DataContext="{Binding RegFunctionItems}" />
-				<views:RegisteredControl DataContext="{Binding RegColorItems}" />
-				<views:RegisteredControl DataContext="{Binding RegEngineItems}" />
-				<views:RegisteredControl DataContext="{Binding RegMetricItems}" />
-				<views:RegisteredControl DataContext="{Binding RegSamplerItems}" />
+				<views:RegisteredControl Name="RegFunctionCtrl" DataContext="{Binding RegFunctionItems}" />
+				<views:RegisteredControl Name="RegColorCtrl"    DataContext="{Binding RegColorItems}" />
+				<views:RegisteredControl Name="RegEngineCtrl"   DataContext="{Binding RegEngineItems}" SelectItemName="SixLabors"/>
+				<views:RegisteredControl Name="RegMetricCtrl"   DataContext="{Binding RegMetricItems}" />
+				<views:RegisteredControl Name="RegSamplerCtrl"  DataContext="{Binding RegSamplerItems}" />
 			</StackPanel>
 		</ScrollViewer>
 	</Grid>

@@ -19,7 +19,7 @@ namespace ImageFunctions.Gui.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-	internal MainWindowViewModel()
+	public MainWindowViewModel()
 	{
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 	}
@@ -55,6 +55,9 @@ public class MainWindowViewModel : ViewModelBase
 		}, OnSomethingSelected);
 
 		Layers.CollectionChanged += OnLayersCollectionChange;
+
+		//Trace.WriteLine("Trying to Select SixLabors");
+		//OnEngineSelected(new SelectionItem { Name = "SixLabors" });
 	}
 
 	public Models.ReactiveLayers Layers { get; init; } = new();

@@ -29,7 +29,7 @@
 			<TextBlock Name="ChoosenText" Text="{Binding SelectedText}" />
 		</StackPanel>
 	</Expander.Header>
-	<ListBox ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />
+	<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />
 </Expander>
 
 </UserControl>
