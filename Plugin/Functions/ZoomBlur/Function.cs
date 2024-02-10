@@ -37,7 +37,7 @@ public class Function : IFunction
 
 		var engine = Core.Engine.Item.Value;
 
-		var source = Layers.First();
+		var source = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		var bounds = canvas.Bounds();

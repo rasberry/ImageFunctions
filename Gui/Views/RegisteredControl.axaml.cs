@@ -1,10 +1,6 @@
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
-using Avalonia.VisualTree;
+using ImageFunctions.Gui.Models;
 using ImageFunctions.Gui.ViewModels;
 
 namespace ImageFunctions.Gui.Views;
@@ -21,7 +17,8 @@ public partial class RegisteredControl : UserControl
 		};
 	}
 
-	//TODO This feels extremely manual. seems like there should be a better way
+	//TODO selecting the engine this way feels extremely manual.
+	// seems like there should be a better way
 	void SelectItem(string name)
 	{
 		var expander = this.FindLogicalDescendantOfType<Expander>();
@@ -36,7 +33,6 @@ public partial class RegisteredControl : UserControl
 
 		listBox.Initialized += (s,e) => {
 			var lb = (ListBox)s;
-
 			int i = 0;
 			foreach(SelectionItem item in lb.Items) {
 				if (item.Name == name) {
@@ -61,9 +57,4 @@ public partial class RegisteredControl : UserControl
 	{
 		Model?.ItemSelected(sender,args);
 	}
-
-	//public void SelectItem(SelectionItem item)
-	//{
-	//	Model?.SelectItem(item);
-	//}
 }

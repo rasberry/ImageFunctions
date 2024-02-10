@@ -3,37 +3,18 @@ using Avalonia.Controls;
 using System.Collections;
 using ReactiveUI;
 using System.Reactive.Concurrency;
+using ImageFunctions.Gui.Models;
 
 namespace ImageFunctions.Gui.ViewModels;
 
-public class SelectionItem
-{
-	public string Name { get; init; }
-}
-
-public class SelectionItemColor : SelectionItem
-{
-	public Avalonia.Media.Brush Color { get; init; }
-}
-
 public partial class SelectionViewModel : ViewModelBase
 {
-	public SelectionViewModel()
-	{
-		//RxApp.MainThreadScheduler.Schedule(Initialize);
-	}
-
-	//void Initialize()
-	//{
-	//	//SelectItem(new SelectionItem{ Name = "SixLabors" });
-	//}
-
 	public SelectionKind Kind { get; set; }
 	public ObservableCollection<SelectionItem> Items { get; set; }
 
 	string _selectedText;
 	public string SelectedText {
-		get => String.IsNullOrWhiteSpace(_selectedText) ? "" : $"- {_selectedText}"; //TODO can formatting go in xaml?
+		get => String.IsNullOrWhiteSpace(_selectedText) ? "" : $"- {_selectedText}";
 		set => this.RaiseAndSetIfChanged(ref _selectedText, value);
 	}
 
@@ -53,14 +34,6 @@ public partial class SelectionViewModel : ViewModelBase
 			Selected = added;
 		}
 	}
-
-	//public void SelectItem(SelectionItem item)
-	//{
-	//	if (item != null) {
-	//		SelectedText = item.Name;
-	//		Selected = item;
-	//	}
-	//}
 
 	//no (direct) linq way of doing this ..?
 	static object GetFirst(IList list)

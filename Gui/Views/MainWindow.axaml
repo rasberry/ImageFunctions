@@ -59,7 +59,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</DockPanel>
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
 			<ScrollViewer Grid.Row="2">
-				<ItemsControl Name="LayersBox" ItemsSource="" />
+				<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
 			</ScrollViewer>
 		</Grid>
 		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>

@@ -41,7 +41,7 @@ public class Function : IFunction
 		int numSlices = Options.WhichSlice.HasValue ? 1 : Options.Slices;
 
 		//pull out the original which we'll replace with slices
-		var original = Layers.PopAt(0, out _);
+		var original = Layers.PopAt(0).Canvas;
 		var slices = new ICanvas[numSlices];
 		for(int s=0; s < numSlices; s++) {
 			slices[s] = engine.NewCanvas(original.Width, original.Height);

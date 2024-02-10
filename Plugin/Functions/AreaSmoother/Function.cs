@@ -36,7 +36,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var frame = Layers.First();
+		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = Core.Engine.Item.Value.NewCanvasFromLayers(Layers);
 		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);

@@ -38,8 +38,8 @@ public class Function : IFunction
 		const int topIx = 0;
 		const int nextIx = 1;
 
-		var srcImg = Layers[topIx];
-		var compareImg = Layers[nextIx];
+		var srcImg = Layers[topIx].Canvas;
+		var compareImg = Layers[nextIx].Canvas;
 		ICanvas frame = O.MakeThirdLayer
 			? Core.Engine.Item.Value.NewCanvasFromLayers(Layers)
 			: srcImg;

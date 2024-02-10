@@ -5,14 +5,14 @@ namespace ImageFunctions.Core;
 /// <summary>
 /// Represents a stack of image layers
 /// </summary>
-public interface ILayers : IEnumerable<ICanvas>
+public interface ILayers : IEnumerable<SingleLayerItem>
 {
 	/// <summary>
 	/// Get or Set an individual layer
 	/// </summary>
 	/// <param name="index">The index of the layer</param>
-	/// <returns>A ICanvas image object</returns>
-	ICanvas this[int index] { get; set; }
+	/// <returns>A SingleLayerItem object</returns>
+	SingleLayerItem this[int index] { get; set; }
 
 	/// <summary>
 	/// Insert a layer at a specific index and shifts other layers
@@ -20,14 +20,15 @@ public interface ILayers : IEnumerable<ICanvas>
 	/// <param name="index">The index to use for the insert</param>
 	/// <param name="layer">The ICanvas image object to insert</param>
 	/// <param name="name">The name of the layer</param>
-	void PushAt(int index, ICanvas layer, string name = null);
+	/// <returns>The added object</returns>
+	SingleLayerItem PushAt(int index, ICanvas layer, string name = null);
 
 	/// <summary>
 	/// Removes the layer at the given index and returns it as a ICanvas
 	/// </summary>
 	/// <param name="index">The index of the layer to remove</param>
-	/// <returns>A ICanvas image object</returns>
-	ICanvas PopAt(int index, out string name);
+	/// <returns>A SingleLayerItem object</returns>
+	SingleLayerItem PopAt(int index);
 
 	/// <summary>
 	/// Destroys the layer at the given index. Use this to permanently delete the layer
@@ -44,6 +45,14 @@ public interface ILayers : IEnumerable<ICanvas>
 	int IndexOf(string name, int startIndex = 0);
 
 	/// <summary>
+	/// Finds a layer with the unique id.
+	/// </summary>
+	/// <param name="id">The id of the layer to search for</param>
+	/// <param name="startIndex">The index to start searching</param>
+	/// <returns>A positive index number if found or -1 if not found</returns>
+	int IndexOf(uint id, int startIndex = 0);
+
+	/// <summary>
 	/// The number of layers in the stack
 	/// </summary>
 	int Count { get; }
@@ -53,7 +62,8 @@ public interface ILayers : IEnumerable<ICanvas>
 	/// </summary>
 	/// <param name="layer">The Icanvas object to add</param>
 	/// <param name="name">The name of the layer to add</param>
-	void Push(ICanvas layer, string name = null);
+	/// <returns>The added object</returns>
+	SingleLayerItem Push(ICanvas layer, string name = null);
 
 	/// <summary>
 	/// Moves a layer from the one index to another
@@ -68,35 +78,35 @@ public class Layers : ILayers, IDisposable
 	//construction should be managed by the core project
 	//internal Layers() {}
 
-	public ICanvas this[int index] {
+	public SingleLayerItem this[int index] {
 		get {
 			int ix = StackIxToListIx(index);
 			EnsureInRange(index,nameof(ix));
-			return List[ix].Canvas;
+			return List[ix];
 		}
 		set {
 			int ix = StackIxToListIx(index);
 			Evict(ix);
-			List[ix] = new CanvasWithName(value, GetDefaultName());
+			List[ix] = new SingleLayerItem(value.Canvas, value.Name ?? GetDefaultName());
 		}
 	}
 
-	public void PushAt(int index, ICanvas layer, string name = null)
+	public SingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 	{
 		int ix = StackIxToListIx(index - 1);
 		EnsureInRange(ix, nameof(index), true);
-		var cwn = new CanvasWithName(layer, name ?? GetDefaultName());
+		var cwn = new SingleLayerItem(layer, name ?? GetDefaultName());
 		List.Insert(ix,cwn);
+		return cwn;
 	}
 
-	public ICanvas PopAt(int index, out string name)
+	public SingleLayerItem PopAt(int index)
 	{
 		int ix = StackIxToListIx(index);
 		EnsureInRange(ix, nameof(index));
 		var img = List[index];
 		List.RemoveAt(ix);
-		name = img.Name;
-		return img.Canvas;
+		return img;
 	}
 
 	public void DisposeAt(int index)
@@ -124,10 +134,28 @@ public class Layers : ILayers, IDisposable
 		return -1;
 	}
 
-	public void Push(ICanvas layer, string name = null)
+	public int IndexOf(uint id, int startIndex = 0)
 	{
-		var cwn = new CanvasWithName(layer, name ?? GetDefaultName());
+		//if there's nothing in the list no match possible
+		if (List.Count < 1) { return -1; }
+
+		int six = StackIxToListIx(startIndex);
+		EnsureInRange(six, nameof(startIndex));
+
+		//enumerations are backwards (stack ordering)
+		for(int c = List.Count - six - 1; c >= 0; c--) {
+			if (List[c].Id == id) {
+				return c;
+			}
+		}
+		return -1;
+	}
+
+	public SingleLayerItem Push(ICanvas layer, string name = null)
+	{
+		var cwn = new SingleLayerItem(layer, name ?? GetDefaultName());
 		List.Add(cwn);
+		return cwn;
 	}
 
 	public void Move(int fromIndex, int toIndex)
@@ -161,12 +189,12 @@ public class Layers : ILayers, IDisposable
 		}
 	}
 
-	public IEnumerator<ICanvas> GetEnumerator()
+	public IEnumerator<SingleLayerItem> GetEnumerator()
 	{
 		//enumerations are backwards (stack ordering)
 		int count = List.Count;
 		for(int i = count - 1; i >= 0; i--) {
-			yield return List[i].Canvas;
+			yield return List[i];
 		}
 	}
 
@@ -204,17 +232,32 @@ public class Layers : ILayers, IDisposable
 		return List.Count - index - 1;
 	}
 
-	List<CanvasWithName> List = new();
+	readonly List<SingleLayerItem> List = new();
 }
 
-readonly struct CanvasWithName
+/// <summary>
+/// SingleLayerItem layer helper object
+/// </summary>
+public class SingleLayerItem
 {
-	public CanvasWithName(ICanvas canvas, string name)
+	/// <summary>
+	/// SingleLayerItem constructor
+	/// </summary>
+	/// <param name="canvas">The canvas to store</param>
+	/// <param name="name">The name attached to this layer</param>
+	public SingleLayerItem(ICanvas canvas, string name)
 	{
 		Canvas = canvas;
 		Name = name;
+		Id = Interlocked.Increment(ref Counter);
 	}
 
+	/// <summary>The stored canvas</summary>
 	public readonly ICanvas Canvas;
+	/// <summary>The associated name</summary>
 	public readonly string Name;
+	/// <summary>The unique Id for this layer</summary>
+	public readonly uint Id;
+
+	static uint Counter = 0;
 }

@@ -36,7 +36,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var source = Layers.First();
+		var source = Layers.First().Canvas;
 		var bounds = source.Bounds();
 
 		using var progress = new ProgressBar();

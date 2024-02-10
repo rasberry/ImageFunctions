@@ -33,7 +33,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var frame = Layers.First();
+		var frame = Layers.First().Canvas;
 
 		if (frame.Width < 2 || frame.Height < 2) {
 			return true; //nothing to do

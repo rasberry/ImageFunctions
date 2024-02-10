@@ -129,8 +129,8 @@ public abstract class AbstractFunctionTest
 			throw Squeal.LayerMustHaveAtLeast(2);
 		}
 
-		var one = layers[0];
-		var two = layers[1];
+		var one = layers[0].Canvas;
+		var two = layers[1].Canvas;
 
 		return CanvasDistance(one,two);
 	}
@@ -147,8 +147,8 @@ public abstract class AbstractFunctionTest
 			throw Squeal.LayerMustHaveAtLeast(2);
 		}
 
-		var one = layers[0];
-		var two = layers[1];
+		var one = layers[0].Canvas;
+		var two = layers[1].Canvas;
 		return AreCanvasEqual(one,two);
 	}
 

@@ -1,48 +1,48 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Diagnostics;
-using Avalonia.Platform.Storage;
 using ImageFunctions.Core;
 
 namespace ImageFunctions.Gui.Models;
 
-public class ReactiveLayers : ILayers, INotifyCollectionChanged, INotifyPropertyChanged
+public class ReactiveLayers : ILayers, INotifyCollectionChanged
 {
-	public ReactiveLayers()
+	public ReactiveLayers(Helpers.ICollectionSymbiote<SingleLayerItem> symbiote)
 	{
 		Storage = new();
 		Tracker = new();
+		Symbiote = symbiote;
 		Tracker.CollectionChanged += OnCollectionChanged;
-		//Tracker.PropertyChanged += PropertyChanged;
 	}
 
 	void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
 	{
-		Trace.WriteLine($"{nameof(OnCollectionChanged)}");
+		Trace.WriteLine($"{nameof(ReactiveLayers)} {nameof(OnCollectionChanged)} {args.Action}");
 		CollectionChanged?.Invoke(sender, args);
 	}
 
-	public ICanvas this[int index] {
+	public SingleLayerItem this[int index] {
 		get {
-			Trace.WriteLine($"this get I:{index}");
+			Trace.WriteLine($"{nameof(ReactiveLayers)} this get I:{index}");
 			var s = Storage[index];
 			var t = Tracker[StackIxToListIx(index)];
-			EnsureSame(s,t);
+			EnsureSame(s.Canvas,t);
 			return s;
 		}
 		set {
-			Trace.WriteLine($"this set I:{index}");
+			Trace.WriteLine($"{nameof(ReactiveLayers)} this set I:{index}");
+			int ixIndex = StackIxToListIx(index);
 			Storage[index] = value;
-			Tracker[StackIxToListIx(index)] = value;
+			Tracker[ixIndex] = value.Canvas;
+			Symbiote.Set(ixIndex, value);
 		}
 	}
 
 	public int Count { get {
 		var s = Storage.Count;
 		var t = Tracker.Count;
-		Trace.WriteLine($"Layers Count C:{s}");
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Count C:{s}");
 		EnsureSame(s,t);
 		return s;
 	}}
@@ -51,68 +51,89 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged, INotifyProperty
 
 	public void DisposeAt(int index)
 	{
-		Trace.WriteLine($"Layers DisposeAt I:{index}");
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers DisposeAt I:{index}");
 		Storage.DisposeAt(index);
-		Tracker.RemoveAt(StackIxToListIx(index));
+		int ixIndex = StackIxToListIx(index);
+		Tracker.RemoveAt(ixIndex);
+		Symbiote.RemoveAt(ixIndex);
 	}
 
-	public IEnumerator<ICanvas> GetEnumerator()
+	public IEnumerator<SingleLayerItem> GetEnumerator()
 	{
 		var s = Storage.GetEnumerator();
 		var t = Enumerable.Reverse(Tracker).GetEnumerator();
 		while(true) {
-			Trace.WriteLine($"Layers Enumerate");
+			Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Enumerate");
 
 			bool sm = s.MoveNext();
 			bool tm = t.MoveNext();
+			if (!sm && !tm) {
+				yield break;
+			}
 			if (sm != tm) {
 				throw new InvalidOperationException("Collections do not have the same number of items");
 			}
 
 			var si = s.Current;
 			var ti = t.Current;
-			EnsureSame(si,ti);
+			EnsureSame(si.Canvas,ti);
 			yield return si;
 		}
 	}
 
 	public int IndexOf(string name, int startIndex = 0)
 	{
-		// This is the only method that doesn't have a direct equivalent in Tracker
+		// This method that doesn't have a direct equivalent in Tracker
 		//  I don't think it would fire any notifications since it's not modifying anything
 		return Storage.IndexOf(name,startIndex);
 	}
 
-	public void Move(int fromIndex, int toIndex)
+	public int IndexOf(uint id, int startIndex = 0)
 	{
-		Trace.WriteLine($"Layers Move {fromIndex} {toIndex}");
-		Storage.Move(fromIndex,toIndex);
-		Tracker.Move(StackIxToListIx(fromIndex),StackIxToListIx(toIndex));
-		EnsureSame(Storage[toIndex],Tracker[StackIxToListIx(toIndex)]);
+		// This method that doesn't have a direct equivalent in Tracker
+		//  I don't think it would fire any notifications since it's not modifying anything
+		return Storage.IndexOf(id,startIndex);
 	}
 
-	public ICanvas PopAt(int index, out string name)
+	public void Move(int fromIndex, int toIndex)
 	{
-		Trace.WriteLine($"Layers PopAt {index}");
-		var s = Storage.PopAt(index,out name);
-		var t = Tracker[StackIxToListIx(index)];
-		Tracker.RemoveAt(StackIxToListIx(index));
-		EnsureSame(s,t);
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Move {fromIndex} {toIndex}");
+		Storage.Move(fromIndex,toIndex);
+		int ixFrom = StackIxToListIx(fromIndex), ixTo = StackIxToListIx(toIndex);
+		Tracker.Move(ixFrom,ixTo);
+		Symbiote.Move(ixFrom,ixTo);
+		EnsureSame(Storage[toIndex].Canvas,Tracker[StackIxToListIx(toIndex)]);
+	}
+
+	public SingleLayerItem PopAt(int index)
+	{
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers PopAt {index}");
+		var s = Storage.PopAt(index);
+		int ixIndex = StackIxToListIx(index);
+		var t = Tracker[ixIndex];
+		Tracker.RemoveAt(ixIndex);
+		Symbiote.RemoveAt(ixIndex);
+		EnsureSame(s.Canvas,t);
 		return s;
 	}
 
-	public void Push(ICanvas layer, string name = null)
+	public SingleLayerItem Push(ICanvas layer, string name = null)
 	{
-		Trace.WriteLine($"Layers Push");
-		Storage.Push(layer, name);
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Push");
+		var item = Storage.Push(layer, name);
 		Tracker.Add(layer);
+		Symbiote.Add(item);
+		return item;
 	}
 
-	public void PushAt(int index, ICanvas layer, string name = null)
+	public SingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 	{
-		Trace.WriteLine($"Layers PushAt {index}");
-		Storage.PushAt(index, layer, name);
-		Tracker.Insert(StackIxToListIx(index), layer);
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers PushAt {index}");
+		var item = Storage.PushAt(index, layer, name);
+		int ixIndex = StackIxToListIx(index);
+		Tracker.Insert(ixIndex, layer);
+		Symbiote.Insert(ixIndex, item);
+		return item;
 	}
 
 	IEnumerator IEnumerable.GetEnumerator()
@@ -123,12 +144,12 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged, INotifyProperty
 	void EnsureSame<T>(T one, T two)
 	{
 		if (!EqualityComparer<T>.Default.Equals(one, two)) {
-			Trace.WriteLine($"{one} {two}");
+			Trace.WriteLine($"{nameof(ReactiveLayers)} {one} {two}");
 			foreach(var i in Storage) {
-				Trace.WriteLine($"S: {i.Height} {i.Width}");
+				Trace.WriteLine($"{nameof(ReactiveLayers)} S: {i.Canvas.Height} {i.Canvas.Width}");
 			}
 			foreach(var i in Tracker) {
-				Trace.WriteLine($"T: {i.Height} {i.Width}");
+				Trace.WriteLine($"{nameof(ReactiveLayers)} T: {i.Height} {i.Width}");
 			}
 			throw new InvalidOperationException("Instances are not equal");
 		}
@@ -144,7 +165,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged, INotifyProperty
 	// having two pointers per item I think is worth not re-implementing a bunch of code
 	readonly Layers Storage;
 	readonly ObservableCollection<ICanvas> Tracker;
+	readonly Helpers.ICollectionSymbiote<SingleLayerItem> Symbiote;
 
 	public event NotifyCollectionChangedEventHandler CollectionChanged;
-	public event PropertyChangedEventHandler PropertyChanged;
 }

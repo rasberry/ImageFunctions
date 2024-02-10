@@ -36,7 +36,7 @@ public class Function : IFunction
 
 		var engine = Core.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers); //temporary canvas
-		var frame = Layers.First();
+		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 
 		double ccx,ccy;

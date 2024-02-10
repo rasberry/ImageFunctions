@@ -94,7 +94,7 @@ public static class Tools
 			more = engine.NewCanvas(width, height);
 		}
 		else {
-			var proto = layers.First();
+			var proto = layers.First().Canvas;
 			more = engine.NewCanvas(proto.Width, proto.Height);
 		}
 
@@ -119,7 +119,7 @@ public static class Tools
 			return false;
 		}
 
-		var proto = layers.First();
+		var proto = layers.First().Canvas;
 		canvas = engine.NewCanvas(proto.Width, proto.Height);
 
 		return true;

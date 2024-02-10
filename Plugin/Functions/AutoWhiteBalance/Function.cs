@@ -37,7 +37,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var source = Layers.First();
+		var source = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		var hist = CalcHistorgram(progress, source, O.BucketCount);
 		var factors = CalcStretchFactors(hist, source.Width, source.Height, O.DiscardRatio);

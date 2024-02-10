@@ -36,7 +36,7 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var origCanvas = Layers.First();
+		var origCanvas = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers); //temporary canvas
 

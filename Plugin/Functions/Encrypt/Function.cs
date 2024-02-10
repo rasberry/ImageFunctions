@@ -36,7 +36,7 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var frame = Layers.First();
+		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		Encryptor processor = new Encryptor() { IVBytes = O.IVBytes };

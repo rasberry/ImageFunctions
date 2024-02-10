@@ -37,7 +37,7 @@ public class Function : IFunction
 
 		var engine = Core.Engine.Item.Value;
 		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		var source = Layers.First();
+		var source = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		var rect = source.Bounds();

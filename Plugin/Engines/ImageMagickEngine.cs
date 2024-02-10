@@ -69,7 +69,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 	static IEnumerable<IMagickImage<QType>> UnWrapLayers(ILayers layers)
 	{
 		foreach(var lay in layers) {
-			var wrap = (IMCanvas)lay;
+			var wrap = (IMCanvas)lay.Canvas;
 			yield return wrap.NativeImage;
 		}
 	}

@@ -88,7 +88,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 
 			int count = 1;
 			foreach(var lay in layers) {
-				var native = (SLCanvas)lay;
+				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
 				string name = Path.ChangeExtension(path,$"{count}{ext}");
 
@@ -98,11 +98,11 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		}
 		else {
 			//copy all frames into a single image
-			var first = (SLCanvas)layers.First();
+			var first = (SLCanvas)layers.First().Canvas;
 			using var final = new Image<RgbaD>(first.Width, first.Height);
 
 			foreach(var lay in layers) {
-				var native = (SLCanvas)lay;
+				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
 
 				//each layer should only have a single frame

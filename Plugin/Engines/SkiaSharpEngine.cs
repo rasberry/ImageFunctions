@@ -152,7 +152,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		path = Path.ChangeExtension(path,GetExtension(skFormat));
 
 		if (layers.Count == 1) {
-			var canvas = (InSkiaCanvas)layers.First();
+			var canvas = (InSkiaCanvas)layers.First().Canvas;
 			WriteImage(canvas.Bitmap, path, skFormat);
 		}
 		else {
@@ -160,7 +160,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 
 			int count = 1;
 			foreach(var lay in layers) {
-				var canvas = (InSkiaCanvas)lay;
+				var canvas = (InSkiaCanvas)lay.Canvas;
 				string name = Path.ChangeExtension(path,$"{count}{ext}");
 				WriteImage(canvas.Bitmap, name, skFormat);
 			}

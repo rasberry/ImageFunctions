@@ -38,7 +38,7 @@ public class Function : IFunction
 		// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/dataflow-task-parallel-library
 		// https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/how-to-implement-a-producer-consumer-dataflow-pattern
 
-		var image = Layers.First();
+		var image = Layers.First().Canvas;
 		SplitAndAverage(image, image.Bounds());
 
 		return true;

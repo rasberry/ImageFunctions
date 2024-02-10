@@ -84,7 +84,7 @@ public partial class MainWindow : Window
 		IStorageFile item = result.FirstOrDefault();
 		if (item != null) {
 			var path = item.Path.LocalPath ?? item.Path.ToString();
-			Model?.LoadImageAsPrimary(path);
+			Model?.LoadAndShowImage(path);
 		}
 	}
 }

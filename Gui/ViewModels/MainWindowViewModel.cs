@@ -7,13 +7,14 @@ using Avalonia.Threading;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
+using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using ImageFunctions.Gui.Helpers;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -22,6 +23,8 @@ public class MainWindowViewModel : ViewModelBase
 	public MainWindowViewModel()
 	{
 		RxApp.MainThreadScheduler.Schedule(LoadData);
+		LayersImageList = new LayersStorage(ConvertCanvasToRgba8888);
+		Layers = new ReactiveLayers(LayersImageList);
 	}
 
 	void LoadData()
@@ -54,13 +57,13 @@ public class MainWindowViewModel : ViewModelBase
 			return new SelectionItem { Name = name };
 		}, OnSomethingSelected);
 
-		Layers.CollectionChanged += OnLayersCollectionChange;
-
+		//Layers.CollectionChanged += OnLayersCollectionChange;
 		//Trace.WriteLine("Trying to Select SixLabors");
 		//OnEngineSelected(new SelectionItem { Name = "SixLabors" });
 	}
 
-	public Models.ReactiveLayers Layers { get; init; } = new();
+	public ReactiveLayers Layers { get; init; }
+	public LayersStorage LayersImageList { get; init; }
 
 	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind,
 		AbstractRegistrant<T> reg,
@@ -95,7 +98,7 @@ public class MainWindowViewModel : ViewModelBase
 		if (item == null) { return; }
 		var reg = new FunctionRegister(Program.Register);
 		if (!reg.Try(item.Name, out RegFunction)) {
-			Trace.WriteLine(Note.RegisteredItemWasNotFound(item.Name));
+			Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
 
@@ -122,11 +125,11 @@ public class MainWindowViewModel : ViewModelBase
 		if (item == null) { return; }
 		var reg = new EngineRegister(Program.Register);
 		if (!reg.Try(item.Name, out RegEngine)) {
-			Trace.WriteLine(Note.RegisteredItemWasNotFound(item.Name));
+			Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
 
-		var task = Models.SingleTasks.GetOrMake(nameof(OnEngineSelected),job);
+		var task = SingleTasks.GetOrMake(nameof(OnEngineSelected),job);
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token) {
@@ -241,13 +244,8 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
-	{
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} C:{Layers.Count}");
-		if (Layers.Count > 0) {
-			SetPrimaryImageFromCanvas(Layers[0]);
-		}
-	}
+	static readonly Vector StandardDpi = new(96.0,96.0); //TODO is there a way to get this from the system ?
+	readonly int BytesPerPixel = PixelFormat.Rgba8888.BitsPerPixel / 8;
 
 	Bitmap _primaryImageSource;
 	public Bitmap PrimaryImageSource {
@@ -256,50 +254,118 @@ public class MainWindowViewModel : ViewModelBase
 	}
 	public Rect PreviewRectangle { get; set; }
 
-	static readonly Vector StandardDpi = new(96.0,96.0); //TODO is there a way to get this from the system ?
-	readonly int BytesPerPixel = PixelFormat.Rgba8888.BitsPerPixel / 8;
-
-	void SetPrimaryImageFromCanvas(ICanvas canvas)
+	/*
+	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
 	{
-		var task = Models.SingleTasks.GetOrMake("SetPrimaryImage",job);
-		Trace.WriteLine(nameof(SetPrimaryImageFromCanvas));
+		var task = SingleTasks.GetOrMake(nameof(OnLayersCollectionChange),job);
+		Trace.WriteLine(nameof(OnLayersCollectionChange));
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token) {
-			Trace.WriteLine($"Converting an image W:{canvas.Width} H:{canvas.Height}");
-			token.ThrowIfCancellationRequested();
-			Trace.WriteLine($"Converting2");
-			var bitmap = ConvertCanvasToRgba8888(canvas, PreviewRectangle, StandardDpi);
-			Trace.WriteLine($"bitmap created W:{bitmap.Size.Width} H:{bitmap.Size.Height}");
-
-			var oldImageSource = PrimaryImageSource;
-			PrimaryImageSource = bitmap;
-			oldImageSource?.Dispose();
+			if (args.Action == NotifyCollectionChangedAction.Add) {
+				foreach(SingleLayerItem item in args.NewItems) {
+					token.ThrowIfCancellationRequested();
+					AppendImage(item);
+				}
+			}
+			else if (args.Action == NotifyCollectionChangedAction.Remove) {
+				foreach(SingleLayerItem item in args.OldItems) {
+					token.ThrowIfCancellationRequested();
+					RemoveImage(item);
+				}
+			}
+			else {
+				ResyncLayerImages();
+			}
 		}
 	}
 
-	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
+	void AppendImage(SingleLayerItem item)
 	{
-
+		var bitmap = ConvertCanvasToRgba8888(item.Canvas, PreviewRectangle, StandardDpi);
+		var data = new LayersImageData {
+			Image = bitmap,
+			Name = item.Name,
+			Id = item.Id
+		};
+		LayersImageList.Add(data);
 	}
 
-	public void LoadImageAsPrimary(string fileName)
+	void RemoveImage(SingleLayerItem item)
+	{
+		int count = LayersImageList.Count;
+		for(int i = 0; i < count; i++) {
+			var curr = LayersImageList[i];
+			if (curr.Id == item.Id) {
+				LayersImageList.RemoveAt(i);
+				break;
+			}
+		}
+	}
+
+	void SetLayerImages(ILayers layers)
+	{
+		var task = SingleTasks.GetOrMake("SetLayerImages",job);
+		Trace.WriteLine(nameof(SetLayerImages));
+		_ = task?.Run(); //fire and forget
+
+		void job(CancellationToken token) {
+			token.ThrowIfCancellationRequested();
+			var oldLayersImageList = LayersImageList;
+			var oldImageSource = PrimaryImageSource;
+			LayersImageList = new();
+
+			try {
+				bool isFirst = true;
+				foreach(var entry in layers) {
+					token.ThrowIfCancellationRequested();
+					var bitmap = ConvertCanvasToRgba8888(entry.Canvas, PreviewRectangle, StandardDpi);
+					Trace.WriteLine($"bitmap created W:{bitmap.Size.Width} H:{bitmap.Size.Height}");
+
+					if (isFirst) {
+						isFirst = false;
+						PrimaryImageSource = bitmap;
+					}
+					else {
+						var data = new LayersImageData {
+							Image = bitmap,
+							Name = entry.Name
+						};
+						LayersImageList.Add(data);
+					}
+				}
+			}
+			finally {
+				oldImageSource?.Dispose();
+				foreach(var item in oldLayersImageList) {
+					item.Image?.Dispose();
+				}
+			}
+		}
+	}
+	*/
+
+	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
+	{
+		//TODO scroll / zoom updates
+	}
+
+	public void LoadAndShowImage(string fileName)
 	{
 		var eng = RegEngine?.Item.Value;
 		if (eng == null) {
 			var timeout = TimeSpan.FromSeconds(10.0);
-			//Trace.WriteLine($"{nameof(LoadImageAsPrimary)} T:{timeout.TotalMilliseconds}");
 			UpdateStatusText("⚠️ An engine must be selected",true,timeout);
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(LoadImageAsPrimary)} {fileName}");
+		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		eng.LoadImage(Layers,fileName);
 	}
 
-	Bitmap ConvertCanvasToRgba8888(ICanvas canvas, Rect previewSizeBounds, Vector dpi)
+	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{
-		var previewBounds = RectSizeToPixels(previewSizeBounds, dpi);
+		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi);
 		var imgBounds = new Rect(0,0,canvas.Width,canvas.Height);
 		var workBounds = imgBounds.Intersect(previewBounds);
 
@@ -332,7 +398,7 @@ public class MainWindowViewModel : ViewModelBase
 
 		var bitmap = new WriteableBitmap(
 			new PixelSize(wWidth, wHeight),
-			dpi,
+			StandardDpi,
 			PixelFormat.Rgba8888,
 			AlphaFormat.Unpremul
 		);

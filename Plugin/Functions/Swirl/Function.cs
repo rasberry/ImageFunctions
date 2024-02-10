@@ -33,7 +33,7 @@ public class Function : IFunction
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
-		var source = Layers.First();
+		var source = Layers.First().Canvas;
 
 		double swirlRadius;
 		double swirlTwists = O.Rotations;
