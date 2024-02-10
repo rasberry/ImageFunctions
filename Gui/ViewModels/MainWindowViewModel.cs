@@ -15,6 +15,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using ImageFunctions.Gui.Helpers;
+using System.Collections.Specialized;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -22,9 +23,10 @@ public class MainWindowViewModel : ViewModelBase
 {
 	public MainWindowViewModel()
 	{
-		RxApp.MainThreadScheduler.Schedule(LoadData);
 		LayersImageList = new LayersStorage(ConvertCanvasToRgba8888);
 		Layers = new ReactiveLayers(LayersImageList);
+		RxApp.MainThreadScheduler.Schedule(LoadData);
+		Layers.CollectionChanged += OnLayersCollectionChange;
 	}
 
 	void LoadData()
@@ -57,7 +59,7 @@ public class MainWindowViewModel : ViewModelBase
 			return new SelectionItem { Name = name };
 		}, OnSomethingSelected);
 
-		//Layers.CollectionChanged += OnLayersCollectionChange;
+		//this.WhenAnyValue(p => p.LayersImageList).Subscribe(
 		//Trace.WriteLine("Trying to Select SixLabors");
 		//OnEngineSelected(new SelectionItem { Name = "SixLabors" });
 	}
@@ -254,96 +256,26 @@ public class MainWindowViewModel : ViewModelBase
 	}
 	public Rect PreviewRectangle { get; set; }
 
-	/*
 	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
 	{
-		var task = SingleTasks.GetOrMake(nameof(OnLayersCollectionChange),job);
-		Trace.WriteLine(nameof(OnLayersCollectionChange));
-		_ = task?.Run(); //fire and forget
+		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} {args.Action} {args.NewStartingIndex} {args.OldStartingIndex}");
+		//we only care if the first image was changed
+		bool isNotable = args.Action == NotifyCollectionChangedAction.Add
+			&& args.NewStartingIndex == 0
+			|| args.OldStartingIndex == 0;
+		if (!isNotable) { return; }
 
-		void job(CancellationToken token) {
-			if (args.Action == NotifyCollectionChangedAction.Add) {
-				foreach(SingleLayerItem item in args.NewItems) {
-					token.ThrowIfCancellationRequested();
-					AppendImage(item);
-				}
-			}
-			else if (args.Action == NotifyCollectionChangedAction.Remove) {
-				foreach(SingleLayerItem item in args.OldItems) {
-					token.ThrowIfCancellationRequested();
-					RemoveImage(item);
-				}
-			}
-			else {
-				ResyncLayerImages();
-			}
-		}
-	}
-
-	void AppendImage(SingleLayerItem item)
-	{
-		var bitmap = ConvertCanvasToRgba8888(item.Canvas, PreviewRectangle, StandardDpi);
-		var data = new LayersImageData {
-			Image = bitmap,
-			Name = item.Name,
-			Id = item.Id
-		};
-		LayersImageList.Add(data);
-	}
-
-	void RemoveImage(SingleLayerItem item)
-	{
-		int count = LayersImageList.Count;
-		for(int i = 0; i < count; i++) {
-			var curr = LayersImageList[i];
-			if (curr.Id == item.Id) {
-				LayersImageList.RemoveAt(i);
-				break;
-			}
-		}
-	}
-
-	void SetLayerImages(ILayers layers)
-	{
-		var task = SingleTasks.GetOrMake("SetLayerImages",job);
-		Trace.WriteLine(nameof(SetLayerImages));
-		_ = task?.Run(); //fire and forget
+		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} isNotable");
+		var task = SingleTasks.GetOrMake(nameof(PrimaryImageSource),job);
+		_ = task.Run();
 
 		void job(CancellationToken token) {
 			token.ThrowIfCancellationRequested();
-			var oldLayersImageList = LayersImageList;
-			var oldImageSource = PrimaryImageSource;
-			LayersImageList = new();
-
-			try {
-				bool isFirst = true;
-				foreach(var entry in layers) {
-					token.ThrowIfCancellationRequested();
-					var bitmap = ConvertCanvasToRgba8888(entry.Canvas, PreviewRectangle, StandardDpi);
-					Trace.WriteLine($"bitmap created W:{bitmap.Size.Width} H:{bitmap.Size.Height}");
-
-					if (isFirst) {
-						isFirst = false;
-						PrimaryImageSource = bitmap;
-					}
-					else {
-						var data = new LayersImageData {
-							Image = bitmap,
-							Name = entry.Name
-						};
-						LayersImageList.Add(data);
-					}
-				}
-			}
-			finally {
-				oldImageSource?.Dispose();
-				foreach(var item in oldLayersImageList) {
-					item.Image?.Dispose();
-				}
-			}
+			if (Layers.Count < 1) { return; }
+			var item = Layers[0];
+			PrimaryImageSource = ConvertCanvasToRgba8888(item.Canvas);
 		}
 	}
-	*/
 
 	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
 	{

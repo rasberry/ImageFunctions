@@ -39,31 +39,35 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 </Window.Styles>
 
 <Grid RowDefinitions="*,Auto">
-	<Grid Grid.Row="0" ColumnDefinitions="*,Auto,*,Auto,*">
-		<Grid Grid.Column="0" RowDefinitions="*,Auto,*">
-			<DockPanel Grid.Row="0">
-				<StackPanel DockPanel.Dock="Right">
-					<Button Tag="Zoom In">
-						<PathIcon Width="16" Height="16" Data="{StaticResource IconPlusThick}"/>
-					</Button>
-					<Button Tag="Reset Zoom">
-						<PathIcon Width="16" Height="16" Data="{StaticResource IconMagnifyScan}"/>
-					</Button>
-					<Button Tag="Zoom Out">
-						<PathIcon Width="16" Height="16" Data="{StaticResource IconMinusThick}"/>
-					</Button>
-				</StackPanel>
-				<Panel Name="PreviewPanel">
-					<Image Source="{Binding PrimaryImageSource}" Stretch="None"/>
-				</Panel>
-			</DockPanel>
-			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
-			<ScrollViewer Grid.Row="2">
-				<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
-			</ScrollViewer>
-		</Grid>
+	<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto">
+		<ScrollViewer Grid.Column="0">
+			<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Orientation="Vertical"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+			</ItemsControl>
+		</ScrollViewer>
 		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-		<Grid Grid.Column="2" RowDefinitions="*,*" Name="CommandColumn">
+		<DockPanel Grid.Column="2">
+			<StackPanel DockPanel.Dock="Right">
+				<Button Tag="Zoom In">
+					<PathIcon Width="16" Height="16" Data="{StaticResource IconPlusThick}"/>
+				</Button>
+				<Button Tag="Reset Zoom">
+					<PathIcon Width="16" Height="16" Data="{StaticResource IconMagnifyScan}"/>
+				</Button>
+				<Button Tag="Zoom Out">
+					<PathIcon Width="16" Height="16" Data="{StaticResource IconMinusThick}"/>
+				</Button>
+			</StackPanel>
+			<Panel Name="PreviewPanel">
+				<Image Source="{Binding PrimaryImageSource}" Stretch="None"/>
+			</Panel>
+		</DockPanel>
+		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
+		<Grid Grid.Column="4" RowDefinitions="*,*" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding UsageText}" />
@@ -73,8 +77,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" />
 			</DockPanel>
 		</Grid>
-		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-		<ScrollViewer Grid.Column="4" Name="Chooser">
+		<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
+		<ScrollViewer Grid.Column="6" Name="Chooser">
 			<StackPanel>
 				<views:RegisteredControl Name="RegFunctionCtrl" DataContext="{Binding RegFunctionItems}" />
 				<views:RegisteredControl Name="RegColorCtrl"    DataContext="{Binding RegColorItems}" />

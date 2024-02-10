@@ -42,11 +42,13 @@ public class SingleTonTask : IDisposable
 	public bool IsRunning { get; private set; }
 	readonly CancellationTokenSource TokenSource = new();
 
-	public async Task Run()
+	/// <summary>Try to start the task</summary>
+	/// <returns>true if the task was started</returns>
+	public async Task<bool> Run()
 	{
-		while (IsRunning) {
+		if (IsRunning) {
 			TokenSource.Cancel();
-			Thread.Sleep(100);
+			return false;
 		}
 
 		IsRunning = true;
@@ -65,6 +67,7 @@ public class SingleTonTask : IDisposable
 			IsRunning = false;
 			TokenSource.TryReset();
 		}
+		return true;
 	}
 
 	public void Dispose()

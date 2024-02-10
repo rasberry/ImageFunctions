@@ -9,19 +9,19 @@
 	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
 		<DataTemplate DataType="{x:Type mo:LayersImageData}">
-			<DockPanel Grid.Row="0">
-				<StackPanel DockPanel.Dock="Right">
+			<DockPanel>
+				<StackPanel DockPanel.Dock="Left">
 					<Button Tag="Move Up">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriUp}"/>
 					</Button>
 					<Button Tag="Move Down">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriDown}"/>
 					</Button>
-					<TextBlock Text="{Binding Name}"/>
 				</StackPanel>
-				<Panel Name="LayerImagePanel">
-					<Image Source="{Binding Image}" Stretch="None"/>
-				</Panel>
+				<StackPanel Name="LayerImagePanel">
+					<TextBlock Text="{Binding Name}"/>
+					<Image Source="{Binding Image}" Stretch="Uniform" MaxHeight="100"/>
+				</StackPanel>
 			</DockPanel>
 		</DataTemplate>
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
@@ -38,6 +38,7 @@
 	</Application.DataTemplates>
 
 	<Application.Styles>
+		<!--<FluentTheme />-->
 		<StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
 	</Application.Styles>
 
