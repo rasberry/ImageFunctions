@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 
 namespace ImageFunctions.Core;
 
@@ -122,11 +123,8 @@ public class Layers : ILayers, IDisposable
 		//if there's nothing in the list no match possible
 		if (List.Count < 1) { return -1; }
 
-		int six = StackIxToListIx(startIndex);
-		EnsureInRange(six, nameof(startIndex));
-
 		//enumerations are backwards (stack ordering)
-		for(int c = List.Count - six - 1; c >= 0; c--) {
+		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
 			if (List[c].Name == name) {
 				return c;
 			}
@@ -139,11 +137,8 @@ public class Layers : ILayers, IDisposable
 		//if there's nothing in the list no match possible
 		if (List.Count < 1) { return -1; }
 
-		int six = StackIxToListIx(startIndex);
-		EnsureInRange(six, nameof(startIndex));
-
 		//enumerations are backwards (stack ordering)
-		for(int c = List.Count - six - 1; c >= 0; c--) {
+		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
 			if (List[c].Id == id) {
 				return c;
 			}

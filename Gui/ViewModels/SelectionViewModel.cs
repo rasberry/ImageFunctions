@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using Avalonia.Controls;
 using System.Collections;
 using ReactiveUI;
-using System.Reactive.Concurrency;
 using ImageFunctions.Gui.Models;
 
 namespace ImageFunctions.Gui.ViewModels;

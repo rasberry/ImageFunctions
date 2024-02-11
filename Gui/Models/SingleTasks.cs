@@ -31,6 +31,14 @@ public static class SingleTasks
 		return task;
 	}
 
+	public static SingleTonTask Get(string name)
+	{
+		if (Tasks.TryGetValue(name, out var task)) {
+			return task;
+		}
+		return null;
+	}
+
 	const int DefaultTimeoutSeconds = 30;
 	static Dictionary<string,SingleTonTask> Tasks = new();
 }
@@ -41,6 +49,7 @@ public class SingleTonTask : IDisposable
 	public TimeSpan Timeout { get; set; }
 	public bool IsRunning { get; private set; }
 	readonly CancellationTokenSource TokenSource = new();
+	Task RunningTask;
 
 	/// <summary>Try to start the task</summary>
 	/// <returns>true if the task was started</returns>
@@ -54,10 +63,10 @@ public class SingleTonTask : IDisposable
 		IsRunning = true;
 
 		try {
-			var task = Task.Run(() => Job(TokenSource.Token), TokenSource.Token)
+			RunningTask = Task.Run(() => Job(TokenSource.Token), TokenSource.Token)
 				.TimeoutAfterAsync(Timeout);
 
-			await task.ContinueWith(t => {
+			await RunningTask.ContinueWith(t => {
 				IsRunning = false;
 				TokenSource.TryReset();
 			});
@@ -68,6 +77,13 @@ public class SingleTonTask : IDisposable
 			TokenSource.TryReset();
 		}
 		return true;
+	}
+
+	public void Cancel()
+	{
+		if (IsRunning) {
+			TokenSource.Cancel();
+		}
 	}
 
 	public void Dispose()

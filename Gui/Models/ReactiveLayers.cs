@@ -97,7 +97,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 
 	public void Move(int fromIndex, int toIndex)
 	{
-		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Move {fromIndex} {toIndex}");
+		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Move F:{fromIndex} T:{toIndex}");
 		Storage.Move(fromIndex,toIndex);
 		int ixFrom = StackIxToListIx(fromIndex), ixTo = StackIxToListIx(toIndex);
 		Tracker.Move(ixFrom,ixTo);

@@ -8,13 +8,13 @@
 >
 	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
-		<DataTemplate DataType="{x:Type mo:LayersImageData}">
+		<DataTemplate DataType="{x:Type vm:LayersImageData}">
 			<DockPanel>
 				<StackPanel DockPanel.Dock="Left">
-					<Button Tag="Move Up">
+					<Button Tag="Move Up" Command="{Binding LayerMoveUp}">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriUp}"/>
 					</Button>
-					<Button Tag="Move Down">
+					<Button Tag="Move Down" Command="{Binding LayerMoveDown}">
 						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriDown}"/>
 					</Button>
 				</StackPanel>
@@ -60,6 +60,8 @@
 			<StreamGeometry x:Key="IconSquare">M0 0H10V10H0</StreamGeometry>
 			<StreamGeometry x:Key="IconTriUp">M7,15L12,10L17,15H7Z</StreamGeometry>
 			<StreamGeometry x:Key="IconTriDown">M7,10L12,15L17,10H7Z</StreamGeometry>
+			<StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
+			<StreamGeometry x:Key="IconStop">M18,18H6V6H18V18</StreamGeometry>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

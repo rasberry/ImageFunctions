@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.Helpers;
+using ImageFunctions.Gui.ViewModels;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -12,6 +13,7 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 		Converter = converter;
 	}
 	readonly Func<ICanvas,Bitmap> Converter;
+	public ILayers Parent { get; set; }
 
 	public void Add(SingleLayerItem item)
 	{
@@ -26,8 +28,10 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 	public bool Remove(SingleLayerItem item)
 	{
 		for(int i = 0; i < this.Count; i++) {
-			if (this[i].Id == item.Id) {
+			var entry = this[i];
+			if (entry.Id == item.Id) {
 				this.RemoveItem(i);
+				entry.Image?.Dispose();
 				return true;
 			}
 		}
@@ -36,7 +40,9 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 
 	public void Set(int index, SingleLayerItem item)
 	{
+		var entry = this[index];
 		this[index] = Make(item);
+		entry.Image?.Dispose();
 	}
 
 	LayersImageData Make(SingleLayerItem item)
@@ -44,7 +50,8 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 		var data = new LayersImageData {
 			Image = Converter(item.Canvas),
 			Name = item.Name,
-			Id = item.Id
+			Id = item.Id,
+			Layers = Parent
 		};
 		return data;
 	}

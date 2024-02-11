@@ -25,9 +25,17 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		LayersImageList = new LayersStorage(ConvertCanvasToRgba8888);
 		Layers = new ReactiveLayers(LayersImageList);
+		LayersImageList.Parent = Layers;
+
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 		Layers.CollectionChanged += OnLayersCollectionChange;
 	}
+
+	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
+	static readonly TimeSpan CommandTimeout = TimeSpan.FromHours(24);
+	static readonly TimeSpan StatusTextLifetime = TimeSpan.FromSeconds(2);
+	static readonly Vector StandardDpi = new(96.0,96.0); //TODO is there a way to get this from the system ?
+	static readonly int BytesPerPixel = PixelFormat.Rgba8888.BitsPerPixel / 8;
 
 	void LoadData()
 	{
@@ -58,10 +66,6 @@ public class MainWindowViewModel : ViewModelBase
 		RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
 			return new SelectionItem { Name = name };
 		}, OnSomethingSelected);
-
-		//this.WhenAnyValue(p => p.LayersImageList).Subscribe(
-		//Trace.WriteLine("Trying to Select SixLabors");
-		//OnEngineSelected(new SelectionItem { Name = "SixLabors" });
 	}
 
 	public ReactiveLayers Layers { get; init; }
@@ -215,8 +219,6 @@ public class MainWindowViewModel : ViewModelBase
 		return true;
 	}
 
-	System.Timers.Timer StatusTextTimer = null;
-	const int StatusTextLifetimeMs = 2000;
 
 	// The behavior shows the text as long as the control is still under the pointer
 	// but wait before hiding the text after the pointer leaves
@@ -226,7 +228,7 @@ public class MainWindowViewModel : ViewModelBase
 		if (StatusTextTimer == null) {
 			StatusTextTimer = new() {
 				AutoReset = false,
-				Interval = StatusTextLifetimeMs
+				Interval = StatusTextLifetime.TotalMilliseconds
 			};
 			//this clears the status after some time
 			StatusTextTimer.Elapsed += (s,e) => UpdateStatusText("",false);
@@ -243,11 +245,10 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		else {
 			StatusTextTimer.Stop();
+			StatusTextTimer.Interval = StatusTextLifetime.TotalMilliseconds;
 		}
 	}
-
-	static readonly Vector StandardDpi = new(96.0,96.0); //TODO is there a way to get this from the system ?
-	readonly int BytesPerPixel = PixelFormat.Rgba8888.BitsPerPixel / 8;
+	System.Timers.Timer StatusTextTimer = null;
 
 	Bitmap _primaryImageSource;
 	public Bitmap PrimaryImageSource {
@@ -265,14 +266,18 @@ public class MainWindowViewModel : ViewModelBase
 			|| args.OldStartingIndex == 0;
 		if (!isNotable) { return; }
 
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} isNotable");
+		var roTask = SingleTasks.Get(nameof(PrimaryImageSource));
+		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} R:{roTask?.IsRunning}");
+
 		var task = SingleTasks.GetOrMake(nameof(PrimaryImageSource),job);
 		_ = task.Run();
 
 		void job(CancellationToken token) {
+			Trace.WriteLine($"{nameof(OnLayersCollectionChange)} started job");
 			token.ThrowIfCancellationRequested();
 			if (Layers.Count < 1) { return; }
 			var item = Layers[0];
+			Trace.WriteLine($"Updating Primary image {item.Canvas.Width}x{item.Canvas.Height}");
 			PrimaryImageSource = ConvertCanvasToRgba8888(item.Canvas);
 		}
 	}
@@ -286,8 +291,8 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		var eng = RegEngine?.Item.Value;
 		if (eng == null) {
-			var timeout = TimeSpan.FromSeconds(10.0);
-			UpdateStatusText("⚠️ An engine must be selected",true,timeout);
+			var txt = GuiNote.WarningMustBeSelected("engine");
+			UpdateStatusText(txt,true,WarningTimeout);
 			return;
 		}
 
@@ -349,5 +354,42 @@ public class MainWindowViewModel : ViewModelBase
 		var pone = PixelSize.FromSize(one, dpi);
 		var ptwo = PixelSize.FromSize(two, dpi);
 		return new Rect(pone.Width, pone.Height, ptwo.Width, ptwo.Height);
+	}
+
+	public void RunCommand()
+	{
+		Trace.WriteLine(nameof(RunCommand));
+		if (RegFunction == null) {
+			var txt = GuiNote.WarningMustBeSelected("function");
+			UpdateStatusText(txt,true,WarningTimeout);
+			return;
+		}
+		if (RegEngine == null) {
+			var txt = GuiNote.WarningMustBeSelected("engine");
+			UpdateStatusText(txt,true,WarningTimeout);
+			return;
+		}
+
+		Trace.WriteLine($"{nameof(RunCommand)} 2");
+		var task = SingleTasks.GetOrMake(nameof(RunCommand),job,CommandTimeout);
+		_ = task.Run();
+
+		void job(CancellationToken token) {
+			token.ThrowIfCancellationRequested();
+			var reg = new FunctionRegister(Program.Register);
+			var options = new Core.Options(Program.Register) {
+				Engine = RegEngine
+			};
+
+			var func = RegFunction?.Item.Invoke(Program.Register, Layers, options);
+			func.Run(new string[0]); //TODO fix args
+		}
+
+	}
+
+	public void CancelCommand()
+	{
+		var task = SingleTasks.Get(nameof(RunCommand));
+		task?.Cancel();
 	}
 }

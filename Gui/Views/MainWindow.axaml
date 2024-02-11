@@ -39,7 +39,10 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 </Window.Styles>
 
 <Grid RowDefinitions="*,Auto">
-	<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto">
+	<!-- Top section-->
+	<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
+
+		<!-- Top level Column layer thumbnails -->
 		<ScrollViewer Grid.Column="0">
 			<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}">
 				<ItemsControl.ItemsPanel>
@@ -49,6 +52,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				</ItemsControl.ItemsPanel>
 			</ItemsControl>
 		</ScrollViewer>
+
+		<!-- Top level Column primary image -->
 		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 		<DockPanel Grid.Column="2">
 			<StackPanel DockPanel.Dock="Right">
@@ -66,17 +71,29 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<Image Source="{Binding PrimaryImageSource}" Stretch="None"/>
 			</Panel>
 		</DockPanel>
+
+		<!-- Top level Column command -->
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-		<Grid Grid.Column="4" RowDefinitions="*,*" Name="CommandColumn">
+		<Grid Grid.Column="4" RowDefinitions="*,Auto,150" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding UsageText}" />
+				<TextBox TextWrapping="NoWrap" AcceptsReturn="True" Text="{Binding UsageText}" />
 			</DockPanel>
-			<DockPanel Grid.Row="1">
-				<TextBlock DockPanel.Dock="Top">Command</TextBlock>
+			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
+			<DockPanel Grid.Row="2">
+				<Grid DockPanel.Dock="Top" ColumnDefinitions="*,*">
+					<TextBlock Grid.Column="0">Command</TextBlock>
+					<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+						<Button Tag="Run Command" Command="{Binding RunCommand}">
+							<PathIcon Width="16" Height="16" Data="{StaticResource IconPlay}"/>
+						</Button>
+					</StackPanel>
+				</Grid>
 				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" />
 			</DockPanel>
 		</Grid>
+
+		<!-- Top level Column selectors -->
 		<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
 		<ScrollViewer Grid.Column="6" Name="Chooser">
 			<StackPanel>
@@ -88,6 +105,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</StackPanel>
 		</ScrollViewer>
 	</Grid>
+
+	<!-- Bottom section-->
 	<Grid Grid.Row="1" ColumnDefinitions="*,*">
 		<StackPanel Grid.Column="0" Orientation="Horizontal">
 			<Button Name="OpenLayers">Load Images</Button>
