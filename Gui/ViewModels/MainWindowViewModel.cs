@@ -33,7 +33,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
 	static readonly TimeSpan CommandTimeout = TimeSpan.FromHours(24);
-	static readonly TimeSpan StatusTextLifetime = TimeSpan.FromSeconds(2);
+	static readonly TimeSpan StatusTextTimeout = TimeSpan.FromSeconds(2);
 	static readonly Vector StandardDpi = new(96.0,96.0); //TODO is there a way to get this from the system ?
 	static readonly int BytesPerPixel = PixelFormat.Rgba8888.BitsPerPixel / 8;
 
@@ -228,7 +228,7 @@ public class MainWindowViewModel : ViewModelBase
 		if (StatusTextTimer == null) {
 			StatusTextTimer = new() {
 				AutoReset = false,
-				Interval = StatusTextLifetime.TotalMilliseconds
+				Interval = StatusTextTimeout.TotalMilliseconds
 			};
 			//this clears the status after some time
 			StatusTextTimer.Elapsed += (s,e) => UpdateStatusText("",false);
@@ -245,7 +245,7 @@ public class MainWindowViewModel : ViewModelBase
 		}
 		else {
 			StatusTextTimer.Stop();
-			StatusTextTimer.Interval = StatusTextLifetime.TotalMilliseconds;
+			StatusTextTimer.Interval = StatusTextTimeout.TotalMilliseconds;
 		}
 	}
 	System.Timers.Timer StatusTextTimer = null;
@@ -260,10 +260,9 @@ public class MainWindowViewModel : ViewModelBase
 	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
 	{
 		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} {args.Action} {args.NewStartingIndex} {args.OldStartingIndex}");
+
 		//we only care if the first image was changed
-		bool isNotable = args.Action == NotifyCollectionChangedAction.Add
-			&& args.NewStartingIndex == 0
-			|| args.OldStartingIndex == 0;
+		bool isNotable = args.OldStartingIndex == 0 || args.NewStartingIndex == 0;
 		if (!isNotable) { return; }
 
 		var roTask = SingleTasks.Get(nameof(PrimaryImageSource));
@@ -273,12 +272,15 @@ public class MainWindowViewModel : ViewModelBase
 		_ = task.Run();
 
 		void job(CancellationToken token) {
-			Trace.WriteLine($"{nameof(OnLayersCollectionChange)} started job");
-			token.ThrowIfCancellationRequested();
+			//Trace.WriteLine($"{nameof(OnLayersCollectionChange)} started job");
 			if (Layers.Count < 1) { return; }
-			var item = Layers[0];
+			token.ThrowIfCancellationRequested();
+			var item = Layers[Layers.Count - 1]; //the 'Top' of the stack is the last image
+
 			Trace.WriteLine($"Updating Primary image {item.Canvas.Width}x{item.Canvas.Height}");
+			var orig = PrimaryImageSource;
 			PrimaryImageSource = ConvertCanvasToRgba8888(item.Canvas);
+			orig?.Dispose();
 		}
 	}
 

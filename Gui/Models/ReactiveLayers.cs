@@ -99,10 +99,11 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 	{
 		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Move F:{fromIndex} T:{toIndex}");
 		Storage.Move(fromIndex,toIndex);
-		int ixFrom = StackIxToListIx(fromIndex), ixTo = StackIxToListIx(toIndex);
+		int ixFrom = StackIxToListIx(fromIndex);
+		int ixTo = StackIxToListIx(toIndex);
 		Tracker.Move(ixFrom,ixTo);
 		Symbiote.Move(ixFrom,ixTo);
-		EnsureSame(Storage[toIndex].Canvas,Tracker[StackIxToListIx(toIndex)]);
+		EnsureSame(Storage[toIndex].Canvas,Tracker[ixTo]);
 	}
 
 	public SingleLayerItem PopAt(int index)

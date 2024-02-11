@@ -88,7 +88,7 @@ public class Layers : ILayers, IDisposable
 		set {
 			int ix = StackIxToListIx(index);
 			Evict(ix);
-			List[ix] = new SingleLayerItem(value.Canvas, value.Name ?? GetDefaultName());
+			List[ix] = new SingleLayerItem(value.Canvas, value.Name);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class Layers : ILayers, IDisposable
 	{
 		int ix = StackIxToListIx(index - 1);
 		EnsureInRange(ix, nameof(index), true);
-		var cwn = new SingleLayerItem(layer, name ?? GetDefaultName());
+		var cwn = new SingleLayerItem(layer, name);
 		List.Insert(ix,cwn);
 		return cwn;
 	}
@@ -126,7 +126,7 @@ public class Layers : ILayers, IDisposable
 		//enumerations are backwards (stack ordering)
 		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
 			if (List[c].Name == name) {
-				return c;
+				return StackIxToListIx(c);
 			}
 		}
 		return -1;
@@ -140,7 +140,7 @@ public class Layers : ILayers, IDisposable
 		//enumerations are backwards (stack ordering)
 		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
 			if (List[c].Id == id) {
-				return c;
+				return StackIxToListIx(c);
 			}
 		}
 		return -1;
@@ -148,7 +148,7 @@ public class Layers : ILayers, IDisposable
 
 	public SingleLayerItem Push(ICanvas layer, string name = null)
 	{
-		var cwn = new SingleLayerItem(layer, name ?? GetDefaultName());
+		var cwn = new SingleLayerItem(layer, name);
 		List.Add(cwn);
 		return cwn;
 	}
@@ -217,11 +217,6 @@ public class Layers : ILayers, IDisposable
 		}
 	}
 
-	string GetDefaultName()
-	{
-		return $"Layer-({List.Count + 1})";
-	}
-
 	int StackIxToListIx(int index)
 	{
 		return List.Count - index - 1;
@@ -240,11 +235,11 @@ public class SingleLayerItem
 	/// </summary>
 	/// <param name="canvas">The canvas to store</param>
 	/// <param name="name">The name attached to this layer</param>
-	public SingleLayerItem(ICanvas canvas, string name)
+	public SingleLayerItem(ICanvas canvas, string name = null)
 	{
-		Canvas = canvas;
-		Name = name;
 		Id = Interlocked.Increment(ref Counter);
+		Canvas = canvas;
+		Name = name ?? $"Layer-{Id}";
 	}
 
 	/// <summary>The stored canvas</summary>
