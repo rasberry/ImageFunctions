@@ -1,3 +1,4 @@
+#if false
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using Avalonia.Media.Imaging;
@@ -61,3 +62,4 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 		return data;
 	}
 }
+#endif

@@ -58,7 +58,7 @@ public interface IStackList<T> : IEnumerable<T>
 /// An Implementation of the IStackList<T> interface
 /// </summary>
 /// <typeparam name="T">Type to store</typeparam>
-public class StackList<T> : IStackList<T>, IList<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
 	public virtual T this[int index] {
 		get {
@@ -69,15 +69,6 @@ public class StackList<T> : IStackList<T>, IList<T>, IReadOnlyCollection<T>, IRe
 			int ix = StackIxToListIx(index);
 			Storage[ix] = value;
 		}
-	}
-
-	public virtual int Count { get {
-		return Storage.Count;
-	}}
-
-	public virtual void AddRange(IEnumerable<T> items)
-	{
-		Storage.AddRange(items);
 	}
 
 	public virtual void Move(int fromIndex, int toIndex)
@@ -100,11 +91,6 @@ public class StackList<T> : IStackList<T>, IList<T>, IReadOnlyCollection<T>, IRe
 		return img;
 	}
 
-	public virtual void Push(T item)
-	{
-		Storage.Add(item);
-	}
-
 	public virtual void PushAt(int index, T item)
 	{
 		int ix = StackIxToListIx(index - 1);
@@ -120,14 +106,18 @@ public class StackList<T> : IStackList<T>, IList<T>, IReadOnlyCollection<T>, IRe
 		}
 	}
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
+	public virtual int Count => Storage.Count;
+	public virtual void AddRange(IEnumerable<T> items) => Storage.AddRange(items);
+	public virtual void Push(T item) => Storage.Add(item);
 
-	/* Here's the rest of the IList implementation; hidden so we can expose these
-	 * via the interface only definitions instead of publicly
-	 */
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+	int StackIxToListIx(int index) => Storage.Count - index - 1;
+
+	readonly List<T> Storage = new();
+
+	#region IList<T> Implementation ============================================
+	// Here's the rest of the IList<T> implementation; hidden so we can expose these
+	// via the interface only definitions instead of publicly
 
 	protected virtual int IndexOf(T item)
 	{
@@ -135,47 +125,97 @@ public class StackList<T> : IStackList<T>, IList<T>, IReadOnlyCollection<T>, IRe
 		return ix != -1 ? StackIxToListIx(ix) : -1;
 	}
 
-	protected virtual void CopyTo(T[] array, int startIndex)
+	protected virtual void Clear() => Storage.Clear();
+	protected virtual bool Contains(T item) => Storage.Contains(item);
+	protected virtual bool Remove(T item) => Storage.Remove(item);
+	protected virtual bool IsReadOnly => false;
+
+	void ICollection<T>.CopyTo(T[] array, int startIndex) => CopyTo(array,startIndex);
+	int IList<T>.IndexOf(T item)            => IndexOf(item);
+	void IList<T>.Insert(int index, T item) => PushAt(index,item);
+	void IList<T>.RemoveAt(int index)       => PopAt(index);
+	void ICollection<T>.Add(T item)         => Push(item);
+	void ICollection<T>.Clear()             => Clear();
+	bool ICollection<T>.Contains(T item)    => Contains(item);
+	bool ICollection<T>.Remove(T item)      => Remove(item);
+	bool ICollection<T>.IsReadOnly          => IsReadOnly;
+	#endregion IList<T> Implementation =========================================
+
+	#region IList Implementation ===============================================
+	//It seems that Avalonia really wants to use the IList (non generic)
+	// interface but doesn't complain when not implemented !? 🤷
+
+	protected virtual void CopyTo(Array array, int startIndex)
 	{
 		int count = Storage.Count;
+		var mimic = (object[])array;
+
 		for(int a = 0, i = count - 1 - startIndex; i >= 0; a++, i--) {
-			array[a] = Storage[i];
+			mimic[a] = Storage[i];
 		}
 	}
 
-	protected virtual void Clear()
+	int IList.Add(object item)
 	{
-		Storage.Clear();
+		EnsureIsValid(item);
+		int ix = Count;
+		Push((T)item);
+		return ix;
 	}
 
-	protected virtual bool Contains(T item)
-	{
-		return Storage.Contains(item);
+	bool IList.IsFixedSize { get {
+		if (Storage is IList list) {
+			return list.IsFixedSize;
+		}
+		return IsReadOnly;
+	}}
+
+	object IList.this[int index] {
+		get => this[index];
+		set => this[index] = EnsureIsValid(value);
 	}
 
-	protected virtual bool Remove(T item)
-	{
-		return Storage.Remove(item);
-	}
-
-	protected virtual bool IsReadOnly { get {
+	bool ICollection.IsSynchronized { get {
+		if (Storage is ICollection col) {
+			return col.IsSynchronized;
+		}
 		return false;
 	}}
 
-	void ICollection<T>.CopyTo(T[] array, int startIndex) => CopyTo(array,startIndex);
-	int IList<T>.IndexOf(T item) => IndexOf(item);
-	void IList<T>.Insert(int index, T item) => PushAt(index,item);
-	void IList<T>.RemoveAt(int index) => PopAt(index);
-	void ICollection<T>.Add(T item) => Push(item);
-	void ICollection<T>.Clear() => Clear();
-	bool ICollection<T>.Contains(T item) => Contains(item);
-	bool ICollection<T>.Remove(T item) => Remove(item);
-	bool ICollection<T>.IsReadOnly => IsReadOnly;
+	object ICollection.SyncRoot { get {
+		if (Storage is ICollection col) {
+			return col.SyncRoot;
+		}
+		return this;
+	}}
 
-	int StackIxToListIx(int index)
+	void ICollection.CopyTo(Array array, int index) => CopyTo(array, index);
+	void IList.Clear()                        => Clear();
+	bool IList.Contains(object item)          => Contains(EnsureIsValid(item));
+	int IList.IndexOf(object item)            => IndexOf(EnsureIsValid(item));
+	void IList.Insert(int index, object item) => PushAt(index,EnsureIsValid(item));
+	void IList.Remove(object item)            => Remove(EnsureIsValid(item));
+	void IList.RemoveAt(int index)            => PopAt(index);
+	bool IList.IsReadOnly                     => IsReadOnly;
+
+	static T EnsureIsValid(object value)
 	{
-		return Storage.Count - index - 1;
+		if (!IsValidType(value)) {
+			throw new ArrayTypeMismatchException($"Incompatible type {value?.GetType().FullName}");
+		}
+		return (T)value;
 	}
 
-	readonly List<T> Storage = new();
+	static bool IsValidType(object value)
+	{
+		if (value is not T) {
+			if (value == null) {
+				return default(T) == null;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	#endregion IList Implementation ============================================
 }

@@ -9,8 +9,14 @@ public class LayersImageData : ViewModelBase
 {
 	Bitmap _image;
 	public Bitmap Image {
-		get => _image;
-		set => this.RaiseAndSetIfChanged(ref _image, value);
+		get {
+			Trace.WriteLine($"{nameof(LayersImageData)} get_{nameof(Image)}");
+			return _image;
+		}
+		set {
+			Trace.WriteLine($"{nameof(LayersImageData)} set_{nameof(Image)}");
+			this.RaiseAndSetIfChanged(ref _image, value);
+		}
 	}
 
 	string _name;

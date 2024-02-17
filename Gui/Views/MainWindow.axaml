@@ -68,7 +68,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				</Button>
 			</StackPanel>
 			<Panel Name="PreviewPanel">
-				<Image Source="{Binding PrimaryImageSource}" Stretch="None"/>
+				<Image Source="{Binding LayersImageList[0]}" Stretch="None"/>
 			</Panel>
 		</DockPanel>
 

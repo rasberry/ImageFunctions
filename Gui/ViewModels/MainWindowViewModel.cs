@@ -15,7 +15,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using ImageFunctions.Gui.Helpers;
-using System.Collections.Specialized;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -23,12 +22,12 @@ public class MainWindowViewModel : ViewModelBase
 {
 	public MainWindowViewModel()
 	{
-		LayersImageList = new LayersStorage(ConvertCanvasToRgba8888);
-		Layers = new ReactiveLayers(LayersImageList);
-		LayersImageList.Parent = Layers;
+		var imageStorage = new ImageStorage(ConvertCanvasToRgba8888);
+		LayersImageList = imageStorage.Bitmaps;
+		Layers = imageStorage.Layers;
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
-		Layers.CollectionChanged += OnLayersCollectionChange;
+		//LayersImageList.CollectionChanged += OnLayersCollectionChange;
 	}
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
@@ -68,8 +67,8 @@ public class MainWindowViewModel : ViewModelBase
 		}, OnSomethingSelected);
 	}
 
-	public ReactiveLayers Layers { get; init; }
-	public LayersStorage LayersImageList { get; init; }
+	public ILayers Layers { get; init; }
+	public IList<LayersImageData> LayersImageList { get; init; }
 
 	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind,
 		AbstractRegistrant<T> reg,
@@ -251,6 +250,8 @@ public class MainWindowViewModel : ViewModelBase
 	}
 	System.Timers.Timer StatusTextTimer = null;
 
+	public Rect PreviewRectangle { get; set; }
+	/*
 	Bitmap _primaryImageSource;
 	public Bitmap PrimaryImageSource {
 		get => _primaryImageSource;
@@ -284,6 +285,7 @@ public class MainWindowViewModel : ViewModelBase
 			orig?.Dispose();
 		}
 	}
+	*/
 
 	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
 	{
@@ -304,11 +306,11 @@ public class MainWindowViewModel : ViewModelBase
 
 	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{
-		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi);
+		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
 		var imgBounds = new Rect(0,0,canvas.Width,canvas.Height);
 		var workBounds = imgBounds.Intersect(previewBounds);
 
-		//Trace.WriteLine($"Rgba8888 here2 PS:{previewSizeBounds} P:{previewBounds} I:{imgBounds} W:{workBounds}");
+		Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
 		if (workBounds.Width < 1 || workBounds.Height < 1) {
 			return null;
 		}
@@ -387,7 +389,7 @@ public class MainWindowViewModel : ViewModelBase
 			func.Run(new string[0]); //TODO fix args
 
 			Dispatcher.UIThread.Post(() => {
-				Layers.TriggerRefresh(); //TODO this still doesn't seem to work..
+				((ImageStorage.LayersInside)Layers).RefreshAll(); //TODO this still doesn't seem to work..
 			});
 		}
 	}

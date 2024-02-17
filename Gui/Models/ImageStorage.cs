@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
@@ -10,21 +10,24 @@ public class ImageStorage
 {
 	public ILayers Layers { get; }
 	public ObservableStackList<LayersImageData> Bitmaps { get; }
+	//public System.Collections.ObjectModel.ObservableCollection<LayersImageData> Bitmaps { get; }
+	//public MyObservableCollection<LayersImageData> Bitmaps { get; }
 
 	public ImageStorage(Func<ICanvas,Bitmap> converter)
 	{
-		Storage = new();
+		var storage = new StackList<Poco>();
 		var layers = new LayersInside();
-		Bitmaps = new ObservableStackList<LayersImageData>();
+		Bitmaps = new();
+
 		layers.Maps = Bitmaps;
-		layers.Stack = Storage;
+		layers.Stack = storage;
 		layers.Converter = converter;
 		Layers = layers;
 	}
 
-	class LayersInside : ILayers
+	internal class LayersInside : ILayers
 	{
-		public ObservableStackList<LayersImageData> Maps;
+		public IList<LayersImageData> Maps;
 		public StackList<Poco> Stack;
 		public Func<ICanvas,Bitmap> Converter;
 
@@ -61,7 +64,8 @@ public class ImageStorage
 		public void DisposeAt(int index)
 		{
 			var item = Stack.PopAt(index);
-			var map = Maps.PopAt(index);
+			var map = Maps[index];
+			Maps.RemoveAt(index);
 
 			item.Canvas?.Dispose();
 			map.Image?.Dispose();
@@ -97,13 +101,14 @@ public class ImageStorage
 		public void Move(int fromIndex, int toIndex)
 		{
 			Stack.Move(fromIndex,toIndex);
-			Maps.Move(fromIndex,toIndex);
+			//Maps.Move(fromIndex,toIndex);
 		}
 
 		public ISingleLayerItem PopAt(int index)
 		{
 			var item = Stack.PopAt(index);
-			var map = Maps.PopAt(index);
+			var map = Maps[index];
+			Maps.RemoveAt(index);
 			map.Image?.Dispose();
 			//not disposing of item since we're returning it
 			return item;
@@ -111,9 +116,11 @@ public class ImageStorage
 
 		public ISingleLayerItem Push(ICanvas layer, string name = null)
 		{
+			Trace.WriteLine($"{nameof(LayersInside)} {nameof(Push)}");
 			var poco = Make(layer,name);
 			Stack.Push(poco);
-			Maps.Push(Make(poco,this));
+			var loco = Make(poco,this);
+			Maps.Add(loco);
 			return poco;
 		}
 
@@ -121,7 +128,7 @@ public class ImageStorage
 		{
 			var poco = Make(layer,name);
 			Stack.PushAt(index, poco);
-			Maps.PushAt(index,Make(poco,this));
+			Maps.Insert(index,Make(poco,this));
 			return poco;
 		}
 
@@ -137,7 +144,7 @@ public class ImageStorage
 			var mapFlip = multi.Select(m => m.Loco);
 
 			Stack.AddRange(stackFlip);
-			Maps.AddRange(mapFlip);
+			//Maps.AddRange(mapFlip);
 		}
 
 		public void RefreshAll()
@@ -164,14 +171,16 @@ public class ImageStorage
 		{
 			var poco = Make(item);
 			Stack.PushAt(index,poco);
-			Maps.PushAt(index,Make(poco,this));
+			//Maps.PushAt(index,Make(poco,this));
+			Maps.Insert(index,Make(poco,this));
 		}
 
 		void IStackList<ISingleLayerItem>.Push(ISingleLayerItem item)
 		{
 			var poco = Make(item);
 			Stack.Push(poco);
-			Maps.Push(Make(poco,this));
+			//Maps.Push(Make(poco,this));
+			Maps.Add(Make(poco,this));
 		}
 
 		Poco Make(ICanvas canvas, string name = null, uint? id = null, Bitmap preview = null)
@@ -213,10 +222,7 @@ public class ImageStorage
 		public uint Id => throw new NotImplementedException();
 	}
 
-	readonly StackList<Poco> Storage;
-	readonly Func<ICanvas,Bitmap> Converter;
-
-	class Poco : ISingleLayerItem
+	internal class Poco : ISingleLayerItem
 	{
 		public Poco(ICanvas canvas, string name = null, uint? id = null, Bitmap preview = null)
 		{
