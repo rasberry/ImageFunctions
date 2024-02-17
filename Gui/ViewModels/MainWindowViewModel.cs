@@ -125,21 +125,23 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	IRegisteredItem<Lazy<IImageEngine>> RegEngine;
+	//IRegisteredItem<Lazy<IImageEngine>> RegEngine;
+	EngineWrapper RegEngine;
 	void OnEngineSelected(SelectionItem item)
 	{
 		if (item == null) { return; }
 		var reg = new EngineRegister(Program.Register);
-		if (!reg.Try(item.Name, out RegEngine)) {
+		if (!reg.Try(item.Name, out var engItem)) {
 			Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
+		RegEngine = new EngineWrapper(engItem);
 
 		var task = SingleTasks.GetOrMake(nameof(OnEngineSelected),job);
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token) {
-			var eng = RegEngine?.Item.Value;
+			var eng = RegEngine;
 			if (eng == null) { return; }
 
 			var list = eng.Formats();
@@ -209,14 +211,13 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _usageText, value);
 	}
 
-	public bool ToggleThemeClick()
+	public void ToggleThemeClick()
 	{
 		var app = Application.Current;
 		if (app is not null) {
 			var theme = app.ActualThemeVariant;
 			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
 		}
-		return true;
 	}
 
 
@@ -291,15 +292,14 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void LoadAndShowImage(string fileName)
 	{
-		var eng = RegEngine?.Item.Value;
-		if (eng == null) {
+		if (RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
 			UpdateStatusText(txt,true,WarningTimeout);
 			return;
 		}
 
 		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
-		eng.LoadImage(Layers,fileName);
+		RegEngine.LoadImage(Layers,fileName);
 	}
 
 	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
@@ -380,14 +380,19 @@ public class MainWindowViewModel : ViewModelBase
 			token.ThrowIfCancellationRequested();
 			var reg = new FunctionRegister(Program.Register);
 			var options = new Core.Options(Program.Register) {
-				Engine = RegEngine
+				Engine = RegEngine.AsRegisteredItem
 			};
 
 			var func = RegFunction?.Item.Invoke(Program.Register, Layers, options);
 			func.Run(new string[0]); //TODO fix args
-		}
 
+			Dispatcher.UIThread.Post(() => {
+				Layers.TriggerRefresh(); //TODO this still doesn't seem to work..
+			});
+		}
 	}
+	//public delegate void ImagesUpdatedHandler(object sender, EventArgs args);
+	//public event ImagesUpdatedHandler ImagesUpdated;
 
 	public void CancelCommand()
 	{

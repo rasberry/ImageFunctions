@@ -1,14 +1,31 @@
 using System.Diagnostics;
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
+using ReactiveUI;
 
 namespace ImageFunctions.Gui.ViewModels;
 
 public class LayersImageData : ViewModelBase
 {
-	public Bitmap Image { get; set; }
-	public string Name { get; set; }
-	public uint Id { get; set; }
+	Bitmap _image;
+	public Bitmap Image {
+		get => _image;
+		set => this.RaiseAndSetIfChanged(ref _image, value);
+	}
+
+	string _name;
+	public string Name {
+		get => _name;
+		set => this.RaiseAndSetIfChanged(ref _name, value);
+	}
+
+	uint _id;
+	public uint Id {
+		get => _id;
+		set => this.RaiseAndSetIfChanged(ref _id, value);
+	}
+
+	//this shouldn't change after the initial set
 	public ILayers Layers { get; set; }
 
 	public void LayerMoveUp()

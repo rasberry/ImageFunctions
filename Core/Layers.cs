@@ -6,15 +6,8 @@ namespace ImageFunctions.Core;
 /// <summary>
 /// Represents a stack of image layers
 /// </summary>
-public interface ILayers : IEnumerable<SingleLayerItem>
+public interface ILayers : IStackList<ISingleLayerItem>
 {
-	/// <summary>
-	/// Get or Set an individual layer
-	/// </summary>
-	/// <param name="index">The index of the layer</param>
-	/// <returns>A SingleLayerItem object</returns>
-	SingleLayerItem this[int index] { get; set; }
-
 	/// <summary>
 	/// Insert a layer at a specific index and shifts other layers
 	/// </summary>
@@ -22,14 +15,7 @@ public interface ILayers : IEnumerable<SingleLayerItem>
 	/// <param name="layer">The ICanvas image object to insert</param>
 	/// <param name="name">The name of the layer</param>
 	/// <returns>The added object</returns>
-	SingleLayerItem PushAt(int index, ICanvas layer, string name = null);
-
-	/// <summary>
-	/// Removes the layer at the given index and returns it as a ICanvas
-	/// </summary>
-	/// <param name="index">The index of the layer to remove</param>
-	/// <returns>A SingleLayerItem object</returns>
-	SingleLayerItem PopAt(int index);
+	ISingleLayerItem PushAt(int index, ICanvas layer, string name = null);
 
 	/// <summary>
 	/// Destroys the layer at the given index. Use this to permanently delete the layer
@@ -54,24 +40,25 @@ public interface ILayers : IEnumerable<SingleLayerItem>
 	int IndexOf(uint id, int startIndex = 0);
 
 	/// <summary>
-	/// The number of layers in the stack
-	/// </summary>
-	int Count { get; }
-
-	/// <summary>
 	/// Pushes a new layer on top of the stack
 	/// </summary>
 	/// <param name="layer">The Icanvas object to add</param>
 	/// <param name="name">The name of the layer to add</param>
 	/// <returns>The added object</returns>
-	SingleLayerItem Push(ICanvas layer, string name = null);
+	ISingleLayerItem Push(ICanvas layer, string name = null);
+}
 
-	/// <summary>
-	/// Moves a layer from the one index to another
-	/// </summary>
-	/// <param name="fromIndex">The index of the image to be moved</param>
-	/// <param name="toIndex">The destination index</param>
-	void Move(int fromIndex, int toIndex);
+/// <summary>
+/// Represents a single layer
+/// </summary>
+public interface ISingleLayerItem
+{
+	/// <summary>The stored canvas</summary>
+	ICanvas Canvas { get; }
+	/// <summary>The associated name</summary>
+	string Name { get; }
+	/// <summary>The unique Id for this layer</summary>
+	uint Id { get; }
 }
 
 public class Layers : ILayers, IDisposable
@@ -79,54 +66,70 @@ public class Layers : ILayers, IDisposable
 	//construction should be managed by the core project
 	//internal Layers() {}
 
-	public SingleLayerItem this[int index] {
+	public ISingleLayerItem this[int index] {
 		get {
-			int ix = StackIxToListIx(index);
-			EnsureInRange(index,nameof(ix));
-			return List[ix];
+			return Stack[index];
 		}
 		set {
-			int ix = StackIxToListIx(index);
-			Evict(ix);
-			List[ix] = new SingleLayerItem(value.Canvas, value.Name);
+			var item = Stack[index];
+			Stack[index] = new SingleLayerItem(value.Canvas, value.Name);
+			if (item.Canvas is IDisposable dis) {
+				dis.Dispose();
+			}
 		}
 	}
 
-	public SingleLayerItem PushAt(int index, ICanvas layer, string name = null)
+	public ISingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 	{
-		int ix = StackIxToListIx(index - 1);
-		EnsureInRange(ix, nameof(index), true);
 		var cwn = new SingleLayerItem(layer, name);
-		List.Insert(ix,cwn);
+		Stack.PushAt(index, cwn);
 		return cwn;
 	}
 
-	public SingleLayerItem PopAt(int index)
+	void IStackList<ISingleLayerItem>.PushAt(int index, ISingleLayerItem item)
 	{
-		int ix = StackIxToListIx(index);
-		EnsureInRange(ix, nameof(index));
-		var img = List[index];
-		List.RemoveAt(ix);
-		return img;
+		Stack.PushAt(index, item);
+	}
+
+	public ISingleLayerItem PopAt(int index)
+	{
+		return Stack.PopAt(index);
+	}
+
+	public ISingleLayerItem Push(ICanvas layer, string name = null)
+	{
+		var cwn = new SingleLayerItem(layer, name);
+		Stack.Push(cwn);
+		return cwn;
+	}
+
+	void IStackList<ISingleLayerItem>.Push(ISingleLayerItem item)
+	{
+		Stack.Push(item);
+	}
+
+	void IStackList<ISingleLayerItem>.AddRange(IEnumerable<ISingleLayerItem> items)
+	{
+		Stack.AddRange(items);
 	}
 
 	public void DisposeAt(int index)
 	{
-		int ix = StackIxToListIx(index);
-		EnsureInRange(ix, nameof(index));
-		Evict(ix);
-		List.RemoveAt(ix);
+		var item = Stack.PopAt(index);
+		if (item.Canvas is IDisposable dis) {
+			dis.Dispose();
+		}
 	}
 
 	public int IndexOf(string name, int startIndex = 0)
 	{
 		//if there's nothing in the list no match possible
-		if (List.Count < 1) { return -1; }
+		if (Stack.Count < 1) { return -1; }
 
 		//enumerations are backwards (stack ordering)
-		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
-			if (List[c].Name == name) {
-				return StackIxToListIx(c);
+		for(int c = startIndex; c < Stack.Count; c++) {
+			if (Stack[c].Name == name) {
+				return c;
 			}
 		}
 		return -1;
@@ -135,96 +138,76 @@ public class Layers : ILayers, IDisposable
 	public int IndexOf(uint id, int startIndex = 0)
 	{
 		//if there's nothing in the list no match possible
-		if (List.Count < 1) { return -1; }
+		if (Stack.Count < 1) { return -1; }
 
-		//enumerations are backwards (stack ordering)
-		for(int c = List.Count - startIndex - 1; c >= 0; c--) {
-			if (List[c].Id == id) {
-				return StackIxToListIx(c);
+		for(int c = startIndex; c < Stack.Count; c++) {
+			if (Stack[c].Id == id) {
+				return c;
 			}
 		}
-		return -1;
-	}
 
-	public SingleLayerItem Push(ICanvas layer, string name = null)
-	{
-		var cwn = new SingleLayerItem(layer, name);
-		List.Add(cwn);
-		return cwn;
+		return -1;
 	}
 
 	public void Move(int fromIndex, int toIndex)
 	{
-		if (fromIndex == toIndex) { return; }
-
-		int fix = StackIxToListIx(fromIndex);
-		int tix = StackIxToListIx(toIndex);
-		EnsureInRange(fix, nameof(fromIndex));
-		EnsureInRange(tix, nameof(toIndex));
-
-		var item = List[fix];
-		List.RemoveAt(fix); //we're not evicting just moving
-		List.Insert(tix,item);
+		Stack.Move(fromIndex, toIndex);
 	}
 
 	public int Count {
 		get {
-			return List.Count;
+			return Stack.Count;
 		}
 	}
 
 	public void Dispose()
 	{
-		//remove items from the end to start so we don't have to
-		// shift everything each time.
-		int count = List.Count;
-		for(int i = count - 1; i >= 0; i--) {
-			Evict(i); //Evict handles IDisposable for each layer
-			List.RemoveAt(i);
+		int count = Stack.Count;
+		//Note: this only works because StackList is really a list
+		// and the iteration is reversed.
+		for(int i = 0; i < count; i++) {
+			var item = Stack.PopAt(i);
+			if (item.Canvas is IDisposable dis) {
+				dis.Dispose();
+			}
 		}
+		GC.SuppressFinalize(this);
 	}
 
-	public IEnumerator<SingleLayerItem> GetEnumerator()
+	public IEnumerator<ISingleLayerItem> GetEnumerator()
 	{
-		//enumerations are backwards (stack ordering)
-		int count = List.Count;
-		for(int i = count - 1; i >= 0; i--) {
-			yield return List[i];
-		}
+		return Stack.GetEnumerator();
 	}
 
 	IEnumerator IEnumerable.GetEnumerator()
 	{
-		return List.GetEnumerator();
+		return Stack.GetEnumerator();
 	}
 
-	void Evict(int index)
+	//readonly List<SingleLayerItem> List = new();
+	readonly StackList<ISingleLayerItem> Stack = new();
+
+	class SingleLayerItem : ISingleLayerItem
 	{
-		var layer = List[index];
-		if (layer.Canvas is IDisposable dis) {
-			dis.Dispose();
+		public SingleLayerItem(ICanvas canvas, string name = null)
+		{
+			Id = Interlocked.Increment(ref Counter);
+			Canvas = canvas;
+			Name = name ?? $"Layer-{Id}";
 		}
-	}
 
-	void EnsureInRange(int index, string name, bool allowOnePast = false)
-	{
-		bool isGood = index >= 0 && (
-			allowOnePast && index <= List.Count ||
-			!allowOnePast && index < List.Count
-		);
-		if (!isGood) {
-			Squeal.IndexOutOfRange(name);
-		}
-	}
+		/// <summary>The stored canvas</summary>
+		public ICanvas Canvas { get; init; }
+		/// <summary>The associated name</summary>
+		public string Name { get; init; }
+		/// <summary>The unique Id for this layer</summary>
+		public uint Id { get; init; }
 
-	int StackIxToListIx(int index)
-	{
-		return List.Count - index - 1;
+		static uint Counter = 0;
 	}
-
-	readonly List<SingleLayerItem> List = new();
 }
 
+/*
 /// <summary>
 /// SingleLayerItem layer helper object
 /// </summary>
@@ -251,3 +234,4 @@ public class SingleLayerItem
 
 	static uint Counter = 0;
 }
+*/

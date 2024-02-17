@@ -8,7 +8,7 @@ namespace ImageFunctions.Gui.Models;
 
 public class ReactiveLayers : ILayers, INotifyCollectionChanged
 {
-	public ReactiveLayers(Helpers.ICollectionSymbiote<SingleLayerItem> symbiote)
+	public ReactiveLayers(Helpers.ICollectionSymbiote<ISingleLayerItem> symbiote)
 	{
 		Storage = new();
 		Tracker = new();
@@ -22,21 +22,31 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		CollectionChanged?.Invoke(sender, args);
 	}
 
-	public SingleLayerItem this[int index] {
-		get {
-			Trace.WriteLine($"{nameof(ReactiveLayers)} this get I:{index}");
-			var s = Storage[index];
-			var t = Tracker[StackIxToListIx(index)];
-			EnsureSame(s.Canvas,t);
-			return s;
+	public ISingleLayerItem this[int index] {
+		get { return IndexGet(index); }
+		set { IndexSet(index, value); }
+	}
+
+	ISingleLayerItem IndexGet(int index)
+	{
+		Trace.WriteLine($"{nameof(ReactiveLayers)} this get I:{index}");
+		var s = Storage[index];
+		var t = Tracker[StackIxToListIx(index)];
+		EnsureSame(s.Canvas,t);
+		CanvasWrapper w = (CanvasWrapper)s.Canvas;
+		if (w.IsDirty) {
+
 		}
-		set {
-			Trace.WriteLine($"{nameof(ReactiveLayers)} this set I:{index}");
-			int ixIndex = StackIxToListIx(index);
-			Storage[index] = value;
-			Tracker[ixIndex] = value.Canvas;
-			Symbiote.Set(ixIndex, value);
-		}
+		return s;
+	}
+
+	void IndexSet(int index, ISingleLayerItem val)
+	{
+		Trace.WriteLine($"{nameof(ReactiveLayers)} this set I:{index}");
+		int ixIndex = StackIxToListIx(index);
+		Storage[index] = val;
+		Tracker[ixIndex] = val.Canvas;
+		Symbiote.Set(ixIndex, val);
 	}
 
 	public int Count { get {
@@ -58,7 +68,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		Symbiote.RemoveAt(ixIndex);
 	}
 
-	public IEnumerator<SingleLayerItem> GetEnumerator()
+	public IEnumerator<ISingleLayerItem> GetEnumerator()
 	{
 		var s = Storage.GetEnumerator();
 		var t = Enumerable.Reverse(Tracker).GetEnumerator();
@@ -106,7 +116,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		EnsureSame(Storage[toIndex].Canvas,Tracker[ixTo]);
 	}
 
-	public SingleLayerItem PopAt(int index)
+	public ISingleLayerItem PopAt(int index)
 	{
 		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers PopAt {index}");
 		var s = Storage.PopAt(index);
@@ -118,7 +128,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		return s;
 	}
 
-	public SingleLayerItem Push(ICanvas layer, string name = null)
+	public ISingleLayerItem Push(ICanvas layer, string name = null)
 	{
 		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers Push");
 		var item = Storage.Push(layer, name);
@@ -127,7 +137,7 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		return item;
 	}
 
-	public SingleLayerItem PushAt(int index, ICanvas layer, string name = null)
+	public ISingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 	{
 		Trace.WriteLine($"{nameof(ReactiveLayers)} Layers PushAt {index}");
 		var item = Storage.PushAt(index, layer, name);
@@ -161,12 +171,39 @@ public class ReactiveLayers : ILayers, INotifyCollectionChanged
 		return Tracker.Count - index - 1;
 	}
 
-	// decided to to store the ICanvas instances in both collections so I don't have to
-	// re-implement either. Using EnsureSame to make sure I get the correct behavior
-	// having two pointers per item I think is worth not re-implementing a bunch of code
-	readonly Layers Storage;
+	public void TriggerRefresh()
+	{
+		int count = Count;
+		for(int i = 0; i < count; i++) {
+			var e = new NotifyCollectionChangedEventArgs(
+				NotifyCollectionChangedAction.Replace,
+				Tracker[i], Tracker[i], i
+			);
+			CollectionChanged.Invoke(this,e);
+		}
+	}
+
+    public void PushAt(int index, ISingleLayerItem item)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Push(ISingleLayerItem item)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddRange(IEnumerable<ISingleLayerItem> items)
+    {
+        throw new NotImplementedException();
+    }
+
+    // decided to to store the ICanvas instances in both collections so I don't have to
+    // re-implement either. Using EnsureSame to make sure I get the correct behavior
+    // having two pointers per item I think is worth not re-implementing a bunch of code
+    readonly Layers Storage;
 	readonly ObservableCollection<ICanvas> Tracker;
-	readonly Helpers.ICollectionSymbiote<SingleLayerItem> Symbiote;
+	readonly Helpers.ICollectionSymbiote<ISingleLayerItem> Symbiote;
 
 	public event NotifyCollectionChangedEventHandler CollectionChanged;
 }

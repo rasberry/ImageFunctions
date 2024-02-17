@@ -7,8 +7,6 @@ using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
-using ImageFunctions.Plugin.Functions.PixelRules;
-using ReactiveUI;
 
 namespace ImageFunctions.Gui.Views;
 
@@ -19,6 +17,7 @@ public partial class MainWindow : Window
 		InitializeComponent();
 		OpenLayers.Click += OpenFileDialog;
 		PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
+		//DataContextChanged += OnDataContextChanged;
 	}
 
 	void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
@@ -28,6 +27,11 @@ public partial class MainWindow : Window
 			Model.PreviewRectangle = new Rect(current.TopLeft, args.NewSize);
 		}
 	}
+
+	//void OnDataContextChanged(object sender, EventArgs args)
+	//{
+	//	Model.ImagesUpdated += RedrawImage;
+	//}
 
 	//Note: always check for null before using this e.g. Model?.
 	MainWindowViewModel Model {
@@ -87,4 +91,20 @@ public partial class MainWindow : Window
 			Model?.LoadAndShowImage(path);
 		}
 	}
+
+	/*
+	public void RedrawImage(object sender, EventArgs args)
+	{
+		Trace.WriteLine($"{nameof(RedrawImage)}");
+		var prim = PreviewPanel.FindLogicalDescendantOfType<Image>();
+		prim.UpdateLayout();
+
+		var list = LayersBox.GetLogicalDescendants();
+		foreach(var node in list) {
+			if (node is Image image) {
+				image.UpdateLayout();
+			}
+		}
+	}
+	*/
 }
