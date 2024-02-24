@@ -15,6 +15,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using ImageFunctions.Gui.Helpers;
+using System.Collections.Specialized;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -27,7 +28,7 @@ public class MainWindowViewModel : ViewModelBase
 		Layers = imageStorage.Layers;
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
-		//LayersImageList.CollectionChanged += OnLayersCollectionChange;
+		LayersImageList.CollectionChanged += OnLayersCollectionChange;
 	}
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
@@ -68,7 +69,7 @@ public class MainWindowViewModel : ViewModelBase
 	}
 
 	public ILayers Layers { get; init; }
-	public IList<LayersImageData> LayersImageList { get; init; }
+	public ObservableStackList<LayersImageData> LayersImageList { get; init; }
 
 	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind,
 		AbstractRegistrant<T> reg,
@@ -251,6 +252,31 @@ public class MainWindowViewModel : ViewModelBase
 	System.Timers.Timer StatusTextTimer = null;
 
 	public Rect PreviewRectangle { get; set; }
+
+	void UpdateLayerImageButtons(int newIx, int oldIx)
+	{
+		Trace.WriteLine($"{nameof(UpdateLayerImageButtons)} {newIx} {oldIx}");
+		UpdateLayerImageButtonsAddIndex(newIx);
+		UpdateLayerImageButtonsAddIndex(oldIx);
+	}
+
+	void UpdateLayerImageButtonsAddIndex(int ix)
+	{
+		if (ix < 0) { return; }
+		LayersImageList[ix].CheckUpDownEnabled();
+		if (ix - 1 >=0) {
+			LayersImageList[ix - 1].CheckUpDownEnabled();
+		}
+		if (ix + 1 < Layers.Count) {
+			LayersImageList[ix + 1].CheckUpDownEnabled();
+		}
+	}
+
+	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
+	{
+		UpdateLayerImageButtons(args.NewStartingIndex, args.OldStartingIndex);
+	}
+
 	/*
 	Bitmap _primaryImageSource;
 	public Bitmap PrimaryImageSource {

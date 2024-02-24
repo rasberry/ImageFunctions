@@ -15,11 +15,24 @@ public interface IStackList<T> : IEnumerable<T>
 	T this[int index] { get; set; }
 
 	/// <summary>
+	/// Pushes a new item on top of the stack
+	/// </summary>
+	/// <param name="item">The item to add</param>
+	/// <param name="name">The name of the layer to add</param>
+	void Push(T item);
+
+	/// <summary>
 	/// Insert an item at a specific index and shifts other items
 	/// </summary>
 	/// <param name="index">The index to use for the insert</param>
 	/// <param name="item">The item to insert</param>
 	void PushAt(int index, T item);
+
+	/// <summary>
+	/// Removes the top layer and returns it
+	/// </summary>
+	/// <returns>The removed item</returns>
+	T Pop();
 
 	/// <summary>
 	/// Removes the layer at the given index and returns it
@@ -32,13 +45,6 @@ public interface IStackList<T> : IEnumerable<T>
 	/// The number of items in the stack
 	/// </summary>
 	int Count { get; }
-
-	/// <summary>
-	/// Pushes a new item on top of the stack
-	/// </summary>
-	/// <param name="item">The item to add</param>
-	/// <param name="name">The name of the layer to add</param>
-	void Push(T item);
 
 	/// <summary>
 	/// Moves an item from the one index to another
@@ -86,7 +92,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	public virtual T PopAt(int index)
 	{
 		int ix = StackIxToListIx(index);
-		var img = Storage[index];
+		var img = Storage[ix];
 		Storage.RemoveAt(ix);
 		return img;
 	}
@@ -106,9 +112,18 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		}
 	}
 
+	/// <summary>
+	/// Add several items in stack order
+	/// </summary>
+	/// <param name="items">IEnumerable of items to add</param>
+	public virtual void AddRange(IEnumerable<T> items)
+	{
+		foreach(var i in items) { Push(i); }
+	}
+
+	public T Pop() => PopAt(0);
+	public void Push(T item) => PushAt(0,item);
 	public virtual int Count => Storage.Count;
-	public virtual void AddRange(IEnumerable<T> items) => Storage.AddRange(items);
-	public virtual void Push(T item) => Storage.Add(item);
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	int StackIxToListIx(int index) => Storage.Count - index - 1;

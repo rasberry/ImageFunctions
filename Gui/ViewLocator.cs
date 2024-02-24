@@ -3,6 +3,7 @@ using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using ImageFunctions.Gui.ViewModels;
+using ImageFunctions.Gui.Views;
 
 namespace ImageFunctions.Gui;
 
@@ -13,7 +14,11 @@ public class ViewLocator : IDataTemplate
 		Trace.WriteLine($"ViewLocator.Build data={data?.ToString()}");
 		if (data is null) { return null; }
 
-		var name = data.GetType().FullName.Replace("ViewModel", "View", StringComparison.Ordinal);
+		if (data is LayersImageData) {
+			return new LayersImageControl() { DataContext = data };
+		}
+
+		var name = data.GetType().FullName.Replace("ViewModel", "Views", StringComparison.Ordinal);
 		var type = Type.GetType(name);
 		Trace.WriteLine($"ViewLocator.Build Locating {name}");
 

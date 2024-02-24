@@ -61,7 +61,7 @@ public interface ISingleLayerItem
 	uint Id { get; }
 }
 
-public class Layers : ILayers, IDisposable
+public sealed class Layers : ILayers, IDisposable
 {
 	//construction should be managed by the core project
 	//internal Layers() {}
@@ -86,11 +86,6 @@ public class Layers : ILayers, IDisposable
 		return cwn;
 	}
 
-	void IStackList<ISingleLayerItem>.PushAt(int index, ISingleLayerItem item)
-	{
-		Stack.PushAt(index, item);
-	}
-
 	public ISingleLayerItem PopAt(int index)
 	{
 		return Stack.PopAt(index);
@@ -101,16 +96,6 @@ public class Layers : ILayers, IDisposable
 		var cwn = new SingleLayerItem(layer, name);
 		Stack.Push(cwn);
 		return cwn;
-	}
-
-	void IStackList<ISingleLayerItem>.Push(ISingleLayerItem item)
-	{
-		Stack.Push(item);
-	}
-
-	void IStackList<ISingleLayerItem>.AddRange(IEnumerable<ISingleLayerItem> items)
-	{
-		Stack.AddRange(items);
 	}
 
 	public void DisposeAt(int index)
@@ -149,16 +134,8 @@ public class Layers : ILayers, IDisposable
 		return -1;
 	}
 
-	public void Move(int fromIndex, int toIndex)
-	{
-		Stack.Move(fromIndex, toIndex);
-	}
-
-	public int Count {
-		get {
-			return Stack.Count;
-		}
-	}
+	public void Move(int fromIndex, int toIndex) => Stack.Move(fromIndex, toIndex);
+	public int Count => Stack.Count;
 
 	public void Dispose()
 	{
@@ -174,15 +151,13 @@ public class Layers : ILayers, IDisposable
 		GC.SuppressFinalize(this);
 	}
 
-	public IEnumerator<ISingleLayerItem> GetEnumerator()
-	{
-		return Stack.GetEnumerator();
-	}
+	public IEnumerator<ISingleLayerItem> GetEnumerator() => Stack.GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return Stack.GetEnumerator();
-	}
+	void IStackList<ISingleLayerItem>.Push(ISingleLayerItem item) => Stack.Push(item);
+	void IStackList<ISingleLayerItem>.AddRange(IEnumerable<ISingleLayerItem> items) => Stack.AddRange(items);
+	ISingleLayerItem IStackList<ISingleLayerItem>.Pop() => Stack.Pop();
+	void IStackList<ISingleLayerItem>.PushAt(int index, ISingleLayerItem item) => Stack.PushAt(index,item);
 
 	//readonly List<SingleLayerItem> List = new();
 	readonly StackList<ISingleLayerItem> Stack = new();
@@ -206,32 +181,3 @@ public class Layers : ILayers, IDisposable
 		static uint Counter = 0;
 	}
 }
-
-/*
-/// <summary>
-/// SingleLayerItem layer helper object
-/// </summary>
-public class SingleLayerItem
-{
-	/// <summary>
-	/// SingleLayerItem constructor
-	/// </summary>
-	/// <param name="canvas">The canvas to store</param>
-	/// <param name="name">The name attached to this layer</param>
-	public SingleLayerItem(ICanvas canvas, string name = null)
-	{
-		Id = Interlocked.Increment(ref Counter);
-		Canvas = canvas;
-		Name = name ?? $"Layer-{Id}";
-	}
-
-	/// <summary>The stored canvas</summary>
-	public readonly ICanvas Canvas;
-	/// <summary>The associated name</summary>
-	public readonly string Name;
-	/// <summary>The unique Id for this layer</summary>
-	public readonly uint Id;
-
-	static uint Counter = 0;
-}
-*/

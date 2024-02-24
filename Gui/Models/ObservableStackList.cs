@@ -11,7 +11,6 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 {
 	public override T this[int index] {
 		get {
-			//var s = new StackTrace();
 			Trace.WriteLine($"{nameof(ObservableStackList<T>)} get[{index}]");
 			return base[index];
 		}
@@ -32,16 +31,6 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
 		OnCollectionRange(NCCAction.Remove, copy, 0);
-	}
-
-	public override void Push(T item)
-	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Push)}");
-		int startIx = base.Count;
-		base.Push(item);
-		OnCountPropertyChanged();
-		OnIndexerPropertyChanged();
-		OnCollectionSingle(NCCAction.Add, item, startIx);
 	}
 
 	public override void PushAt(int index, T item)

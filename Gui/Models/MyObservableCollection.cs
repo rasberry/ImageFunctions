@@ -1,3 +1,4 @@
+#if false
 // System.ObjectModel, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a
 // System.Collections.ObjectModel.ObservableCollection<T>
 using System;
@@ -588,3 +589,4 @@ public class MyObservableCollection<T> : MyCollection<T>, INotifyCollectionChang
 	internal static readonly NotifyCollectionChangedEventArgs ResetCollectionChanged = new(NotifyCollectionChangedAction.Reset);
 
 }
+#endif

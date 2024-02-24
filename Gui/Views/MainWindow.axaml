@@ -44,13 +44,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 		<!-- Top level Column layer thumbnails -->
 		<ScrollViewer Grid.Column="0">
-			<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}">
-				<ItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<StackPanel Orientation="Vertical"/>
-					</ItemsPanelTemplate>
-				</ItemsControl.ItemsPanel>
-			</ItemsControl>
+			<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
 		</ScrollViewer>
 
 		<!-- Top level Column primary image -->
