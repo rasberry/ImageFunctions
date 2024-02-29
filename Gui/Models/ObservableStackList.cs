@@ -11,11 +11,11 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 {
 	public override T this[int index] {
 		get {
-			Trace.WriteLine($"{nameof(ObservableStackList<T>)} get[{index}]");
+			//Trace.WriteLine($"{nameof(ObservableStackList<T>)} get[{index}]");
 			return base[index];
 		}
 		set {
-			Trace.WriteLine($"{nameof(ObservableStackList<T>)} set[{index}]");
+			//Trace.WriteLine($"{nameof(ObservableStackList<T>)} set[{index}]");
 			T orig = base[index];
 			base[index] = value;
 			OnIndexerPropertyChanged();
@@ -25,7 +25,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	protected override void Clear()
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Clear)}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Clear)}");
 		var copy = this.ToList();
 		base.Clear();
 		OnCountPropertyChanged();
@@ -35,7 +35,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	public override void PushAt(int index, T item)
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(PushAt)} I:{index}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(PushAt)} I:{index}");
 		base.PushAt(index, item);
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
@@ -44,7 +44,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	public override void Move(int fromIndex, int toIndex)
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Move)} F:{fromIndex} T:{toIndex}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Move)} F:{fromIndex} T:{toIndex}");
 		T item = base[fromIndex];
 		base.Move(fromIndex, toIndex);
 		OnIndexerPropertyChanged();
@@ -53,7 +53,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	public override void AddRange(IEnumerable<T> items)
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(AddRange)}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(AddRange)}");
 		var copy = items.ToList();
 		if (copy.Count < 1) { return; }
 
@@ -66,7 +66,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	public override T PopAt(int index)
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(PopAt)} {index}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(PopAt)} {index}");
 		T item = base.PopAt(index);
 		OnCountPropertyChanged();
 		OnIndexerPropertyChanged();
@@ -76,7 +76,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	protected override bool Remove(T item)
 	{
-		Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Remove)}");
+		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Remove)}");
 		int ix = IndexOf(item);
 		if (ix < 0) { return false; }
 		PopAt(ix);
@@ -108,7 +108,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	void OnCollectionMove(T item, int fromIndex, int toIndex)
 	{
-		var n = new NCCArgs(NCCAction.Move,item,fromIndex,toIndex);
+		var n = new NCCArgs(NCCAction.Move,item,toIndex,fromIndex);
 		CollectionChanged?.Invoke(this,n);
 	}
 

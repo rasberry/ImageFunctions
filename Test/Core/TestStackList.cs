@@ -56,6 +56,11 @@ public class TestStackList
 
 		var test2 = new char[] { 'D','A','B','C' };
 		Assert.IsTrue(test2.SequenceEqual(stack));
+
+		stack.Move(0,2);
+
+		var test3 = new char[] { 'A','B','D','C' };
+		Assert.IsTrue(test3.SequenceEqual(stack));
 	}
 
 	[TestMethod]

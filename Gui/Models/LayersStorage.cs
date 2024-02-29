@@ -19,19 +19,19 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 
 	public void Add(ISingleLayerItem item)
 	{
-		Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Add)} oid:{item?.Id}");
+		//Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Add)} oid:{item?.Id}");
 		this.Add(Make(item));
 	}
 
 	public void Insert(int index, ISingleLayerItem item)
 	{
-		Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Insert)} i:{index} oid:{item?.Id}");
+		//Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Insert)} i:{index} oid:{item?.Id}");
 		this.InsertItem(index, Make(item));
 	}
 
 	public bool Remove(ISingleLayerItem item)
 	{
-		Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Remove)} oid:{item?.Id}");
+		//Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Remove)} oid:{item?.Id}");
 		for(int i = 0; i < this.Count; i++) {
 			var entry = this[i];
 			if (entry.Id == item.Id) {
@@ -45,7 +45,7 @@ public class LayersStorage : ObservableCollection<LayersImageData>, ICollectionS
 
 	public void Set(int index, ISingleLayerItem item)
 	{
-		Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Set)} i:{index} oid:{item?.Id}");
+		//Trace.WriteLine($"{nameof(LayersStorage)} {nameof(Set)} i:{index} oid:{item?.Id}");
 		var entry = this[index];
 		this[index] = Make(item);
 		entry.Image?.Dispose();

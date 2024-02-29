@@ -29,6 +29,7 @@
 		<Button Tag="Move Down" Command="{Binding LayerMoveDown}" IsEnabled="{Binding DownEnabled}">
 			<PathIcon Width="16" Height="16" Data="{StaticResource IconTriDown}"/>
 		</Button>
+		<Button Tag="Test" Click="TestClick" Command="{Binding Test}">T</Button>
 	</StackPanel>
 	<StackPanel>
 		<TextBlock Text="{Binding Name}"/>

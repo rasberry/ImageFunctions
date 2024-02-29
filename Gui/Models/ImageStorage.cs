@@ -51,7 +51,7 @@ public class ImageStorage
 			var poco = Make(item);
 
 			Stack[index] = poco;
-			origMap.Image = poco.Preview; //only need to update, not replace
+			Maps[index] = Make(poco, this);
 
 			orig.Canvas?.Dispose();
 			origMap.Image?.Dispose();
@@ -102,8 +102,8 @@ public class ImageStorage
 			Stack.Move(fromIndex,toIndex);
 			Maps.Move(fromIndex,toIndex);
 
-			Trace.WriteLine($"Stack: {string.Join(",",Stack.Select(s => s.Id))} {string.Join(",",Stack.Select(s => s.Preview.GetHashCode()))}");
-			Trace.WriteLine($"Maps : {string.Join(",", Maps.Select(s => s.Id))}");
+			//Trace.WriteLine($"Stack: {string.Join(",",Stack.Select(s => s.Id))} {string.Join(",",Stack.Select(s => s.Preview.GetHashCode()))}");
+			//Trace.WriteLine($"Maps : {string.Join(",", Maps.Select(s => s.Id))} {string.Join(",",Maps.Select(s => s.Image.GetHashCode()))}");
 		}
 
 		public ISingleLayerItem Pop() => PopAt(0);
@@ -142,6 +142,7 @@ public class ImageStorage
 
 		public void RefreshAll()
 		{
+			return;
 			int count = Stack.Count;
 			for(int i = 0; i < count; i++) {
 				var item = Stack[i];

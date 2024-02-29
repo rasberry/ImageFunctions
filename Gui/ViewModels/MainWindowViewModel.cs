@@ -104,7 +104,7 @@ public class MainWindowViewModel : ViewModelBase
 		if (item == null) { return; }
 		var reg = new FunctionRegister(Program.Register);
 		if (!reg.Try(item.Name, out RegFunction)) {
-			Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
+			//Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
 
@@ -125,14 +125,13 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	//IRegisteredItem<Lazy<IImageEngine>> RegEngine;
 	EngineWrapper RegEngine;
 	void OnEngineSelected(SelectionItem item)
 	{
 		if (item == null) { return; }
 		var reg = new EngineRegister(Program.Register);
 		if (!reg.Try(item.Name, out var engItem)) {
-			Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
+			//Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
 		RegEngine = new EngineWrapper(engItem);
@@ -239,7 +238,7 @@ public class MainWindowViewModel : ViewModelBase
 
 		if (startTimer) {
 			if (timeout != null) {
-				Trace.WriteLine($"{nameof(UpdateStatusText)} timeout set {timeout.Value.TotalMilliseconds}");
+				//Trace.WriteLine($"{nameof(UpdateStatusText)} timeout set {timeout.Value.TotalMilliseconds}");
 				StatusTextTimer.Interval = timeout.Value.TotalMilliseconds;
 			}
 			StatusTextTimer.Start();
@@ -255,14 +254,14 @@ public class MainWindowViewModel : ViewModelBase
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)
 	{
-		Trace.WriteLine($"{nameof(UpdateLayerImageButtons)} {newIx} {oldIx}");
+		//Trace.WriteLine($"{nameof(UpdateLayerImageButtons)} {newIx} {oldIx} {Layers.Count}");
 		UpdateLayerImageButtonsAddIndex(newIx);
 		UpdateLayerImageButtonsAddIndex(oldIx);
 	}
 
 	void UpdateLayerImageButtonsAddIndex(int ix)
 	{
-		if (ix < 0) { return; }
+		if (ix < 0 || ix >= Layers.Count) { return; }
 		LayersImageList[ix].CheckUpDownEnabled();
 		if (ix - 1 >=0) {
 			LayersImageList[ix - 1].CheckUpDownEnabled();
@@ -326,7 +325,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		RegEngine.LoadImage(Layers,fileName);
 	}
 
@@ -336,7 +335,7 @@ public class MainWindowViewModel : ViewModelBase
 		var imgBounds = new Rect(0,0,canvas.Width,canvas.Height);
 		var workBounds = imgBounds.Intersect(previewBounds);
 
-		Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
+		//Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
 		if (workBounds.Width < 1 || workBounds.Height < 1) {
 			return null;
 		}

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
 using ImageFunctions.Gui.Models;
@@ -20,5 +21,10 @@ public partial class LayersImageControl : UserControl
 		get {
 			return DataContext as LayersImageData;
 		}
+	}
+
+	public void TestClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+	{
+		Trace.WriteLine($"TestClick: {sender.GetHashCode()} {sender.GetType().FullName} {args.RoutedEvent.Name}");
 	}
 }
