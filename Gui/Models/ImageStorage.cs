@@ -142,11 +142,12 @@ public class ImageStorage
 
 		public void RefreshAll()
 		{
-			return;
+			Trace.WriteLine($"{nameof(RefreshAll)}");
 			int count = Stack.Count;
 			for(int i = 0; i < count; i++) {
 				var item = Stack[i];
 				if (item.Canvas is CanvasWrapper wrap && wrap.IsDirty) {
+					Trace.WriteLine($"{nameof(RefreshAll)} Dirty:{i}");
 					var m = Maps[i];
 					var orig = m.Image;
 					m.Image = item.Preview = Converter(item.Canvas);

@@ -31,21 +31,20 @@ public class EngineWrapper : IImageEngine
 		Engine.Value.SaveImage(layers, path, format);
 	}
 
+	public IRegisteredItem<Lazy<IImageEngine>> AsRegisteredItem { get; init; }
+	public Lazy<IImageEngine> Engine { get; init; }
+
 	class RegisterWrapper : IRegisteredItem<Lazy<IImageEngine>>
 	{
 		public RegisterWrapper(EngineWrapper parent, IRegisteredItem<Lazy<IImageEngine>> original)
 		{
 			Name = original.Name;
 			NameSpace = original.NameSpace;
-			Parent = parent;
+			Item = new Lazy<IImageEngine>(parent);
 		}
-		readonly EngineWrapper Parent;
 
-		public Lazy<IImageEngine> Item { get { return Parent.Engine; }}
+		public Lazy<IImageEngine> Item { get; init; }
 		public string Name { get; init; }
 		public string NameSpace { get; init; }
 	}
-
-	public IRegisteredItem<Lazy<IImageEngine>> AsRegisteredItem { get; init; }
-	public Lazy<IImageEngine> Engine { get; init; }
 }

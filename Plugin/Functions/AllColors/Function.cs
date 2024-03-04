@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.ColorSpace;
@@ -29,18 +30,21 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
+		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
 		if (Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
 		if (!O.ParseArgs(args, Register)) {
 			return false;
 		}
+		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
 		var engine = Core.Engine.Item.Value;
 		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.FourKWidth,Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
+		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if (O.UseOriginalCode) {
 			DrawOriginal.Draw(image, Core.MaxDegreeOfParallelism, O);
@@ -49,6 +53,7 @@ public class Function : IFunction
 			Draw(image);
 		}
 
+		//Trace.WriteLine($"{nameof(AllColors)} Run 4");
 		return true;
 	}
 
@@ -64,6 +69,7 @@ public class Function : IFunction
 
 	void Draw(ICanvas image)
 	{
+		//Trace.WriteLine($"{nameof(AllColors)} Draw 1");
 		List<ColorRGBA> colorList = null;
 		using var progress = new ProgressBar();
 		progress.Prefix = "Converting... ";
@@ -80,11 +86,14 @@ public class Function : IFunction
 			var nc = coff < colorList.Count
 				? colorList[coff]
 				: PlugColors.Transparent;
+			//Trace.WriteLine($"{nameof(AllColors)} copyColors {x},{y}");
 			image[x, y] = nc;
 		}
 
+		//Trace.WriteLine($"{nameof(AllColors)} Draw 2");
 		progress.Prefix = "Rendering... ";
 		Tools.ThreadPixels(image, copyColors, Core.MaxDegreeOfParallelism, progress);
+		//Trace.WriteLine($"{nameof(AllColors)} Draw 3");
 	}
 
 	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, ProgressBar progress)

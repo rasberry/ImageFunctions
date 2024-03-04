@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Drawing;
 using Rasberry.Cli;
 
@@ -39,13 +40,16 @@ public static class Tools
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		}
 
+		//Trace.WriteLine($"{nameof(ThreadPixels)} 1");
 		Parallel.For(0, max, po, num => {
+			//Trace.WriteLine($"{nameof(ThreadPixels)} Loop {num} {done}/{max}");
 			int y = (int)(num / rect.Width);
 			int x = (int)(num % rect.Width);
 			Interlocked.Increment(ref done);
 			progress?.Report((double)done / max);
 			callback(x + rect.Left,y + rect.Top);
 		});
+		//Trace.WriteLine($"{nameof(ThreadPixels)} 2");
 	}
 
 	//https://en.wikipedia.org/wiki/Sinc_function
