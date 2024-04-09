@@ -404,21 +404,21 @@ public class MainWindowViewModel : ViewModelBase
 		_ = task.Run();
 
 		void job(CancellationToken token) {
-			Trace.WriteLine($"{nameof(RunCommand)} 3");
+			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
 			var reg = new FunctionRegister(Program.Register);
 			var options = new Core.Options(Program.Register) {
 				Engine = RegEngine.AsRegisteredItem
 			};
 
-			Trace.WriteLine($"{nameof(RunCommand)} 4");
+			//Trace.WriteLine($"{nameof(RunCommand)} 4");
 			var func = RegFunction?.Item.Invoke(Program.Register, Layers, options);
-			Trace.WriteLine($"{nameof(RunCommand)} 4.5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 4.5");
 			func.Run(new string[0]); //TODO fix args
-			Trace.WriteLine($"{nameof(RunCommand)} 5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
-				Trace.WriteLine($"{nameof(RunCommand)} 6");
+				//Trace.WriteLine($"{nameof(RunCommand)} 6");
 				((ImageStorage.LayersInside)Layers).RefreshAll(); //TODO this still doesn't seem to work..
 			});
 		}

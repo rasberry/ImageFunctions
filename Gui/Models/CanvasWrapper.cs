@@ -21,20 +21,12 @@ public class CanvasWrapper : ICanvas, INotifyPropertyChanged
 			return Canvas[x,y];
 		}
 		set {
+			//not firing notifications in here because it seems to cause deadlocks
 			if (!_isDirty) {
-				Trace.WriteLine($"{nameof(CanvasWrapper)} Set {this.GetHashCode()}");
+				//Trace.WriteLine($"{nameof(CanvasWrapper)} Set {this.GetHashCode()}");
 				_isDirty = true;
 			}
-			//if (!IsDirty) {
-			//	Trace.WriteLine($"{nameof(CanvasWrapper)} Set {this.GetHashCode()}");
-			//	IsDirty = true;
-			//}
 			Canvas[x,y] = value;
-			// https://stackoverflow.com/questions/657675/propertychanged-for-indexer-property
-			//Dispatcher.UIThread.Post(() => {
-			//	var e = new PropertyChangedEventArgs("Item[]");
-			//	PropertyChanged.Invoke(this, e);
-			//});
 		}
 	}
 
@@ -62,7 +54,8 @@ public class CanvasWrapper : ICanvas, INotifyPropertyChanged
 	}
 
 	public void DeclareClean() {
-		Trace.WriteLine($"{nameof(CanvasWrapper)} {nameof(DeclareClean)} {this.GetHashCode()}");
+		//Trace.WriteLine($"{nameof(CanvasWrapper)} {nameof(DeclareClean)} {this.GetHashCode()}");
+		//fire notifications since this function should only be run after the IFunction Run command is finished
 		IsDirty = false;
 	}
 
