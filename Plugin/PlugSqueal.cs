@@ -4,10 +4,10 @@ namespace ImageFunctions.Plugin;
 public static class PlugSqueal
 {
 	public static Exception NotImplementedSpace(Functions.AllColors.Space space) {
-		throw new NotImplementedException($"Space {space} is not implemented");
+		throw new NotImplementedException(PlugNote.NotImplementedSpace(space));
 	}
 	public static Exception NotSupportedTypeByFunc(Type t, string funcName) {
-		throw new NotSupportedException($"Type {t?.Name} is not supported by {funcName}");
+		throw new NotSupportedException(PlugNote.NotSupportedTypeByFunc(t,funcName));
 	}
 	public static Exception OutOfRange(string name, string message = null) {
 		return String.IsNullOrWhiteSpace(message)
@@ -15,18 +15,18 @@ public static class PlugSqueal
 			: new ArgumentOutOfRangeException(name, message);
 	}
 	public static Exception CannotParsePatterNumber(string snum) {
-		return new ArgumentException($"Unable to parse pattern number '{snum}'");
+		return new ArgumentException(PlugNote.CannotParsePatterNumber(snum));
 	}
 	public static Exception PatternNumberGtrZero() {
-		return new ArgumentOutOfRangeException("Pattern number must be greater than zero");
+		return new ArgumentOutOfRangeException(PlugNote.PatternNumberGtrZero());
 	}
 	public static Exception SequenceMustContain(int num = 1) {
-		var snum = Core.Tools.NumberToWord(num);
-		return new ArgumentException($"Sequence must contain {snum} element{(num == 1 ? "" : "s")}");
+		return new ArgumentException(PlugNote.SequenceMustContain(num));
 	}
 	public static Exception SequenceMustContainOr(int num1, int num2) {
-		var snum1 = Core.Tools.NumberToWord(num1);
-		var snum2 = Core.Tools.NumberToWord(num2);
-		return new ArgumentException($"Sequence must contain {snum1} or {num2} elements");
+		return new ArgumentException(PlugNote.SequenceMustContainOr(num1,num2));
+	}
+	public static Exception MustProvideAtLeast(string item, int num) {
+		return new ArgumentException(PlugNote.MustProvideAtLeast(item,num));
 	}
 }

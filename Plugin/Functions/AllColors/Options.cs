@@ -124,13 +124,13 @@ public sealed class Options : IOptions
 			.WhenGood(r => {
 				string[] items = (r.Value??"").Split(',');
 				if (items.Length < 1) {
-					PlugTell.MustHaveOnePriority();
+					Log.Error(PlugNote.MustHaveOnePriority());
 					return r with { Result = ParseParams.Result.UnParsable };
 				}
 				int[] priorities = new int[items.Length];
 				for(int i=0; i<items.Length; i++) {
 					if (!int.TryParse(items[i],out var num)) {
-						PlugTell.PriorityMustBeNumber();
+						Log.Error(PlugNote.PriorityMustBeNumber());
 						return r with { Result = ParseParams.Result.UnParsable };
 					}
 					priorities[i] = num;

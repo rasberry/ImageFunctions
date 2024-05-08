@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Security.Principal;
 using ImageFunctions.Core;
+using ImageFunctions.Core.Metrics;
 
 namespace ImageFunctions.Plugin;
 
@@ -34,7 +35,8 @@ public static class ImageComparer
 		return same;
 	}
 
-	public static ComponentDistance CanvasDistance(ICanvas one, ICanvas two)
+	public static ComponentDistance CanvasDistance(ICanvas one, ICanvas two,
+		IMetric metric = null, bool excludeAlpha = false)
 	{
 		var black = new ColorRGBA(0.0, 0.0, 0.0, 1.0);
 		int mw = Math.Max(one.Width,two.Width);
@@ -47,7 +49,7 @@ public static class ImageComparer
 				var pOne = one.Width > x && one.Height > y ? one[x,y] : black;
 				var pTwo = two.Width > x && two.Height > y ? two[x,y] : black;
 
-				var dist = ColorDistance(pOne,pTwo);
+				var dist = ColorDistance(pOne,pTwo,metric,excludeAlpha);
 				dR += dist.R;
 				dG += dist.G;
 				dB += dist.B;
@@ -61,13 +63,32 @@ public static class ImageComparer
 		};
 	}
 
-	public static ComponentDistance ColorDistance(ColorRGBA one, ColorRGBA two)
+	public static ComponentDistance ColorDistance(ColorRGBA one, ColorRGBA two,
+		IMetric metric = null, bool excludeAlpha = false)
 	{
 		double dr = one.R - two.R;
 		double dg = one.G - two.G;
 		double db = one.B - two.B;
 		double da = one.A - two.A;
-		double total = Math.Sqrt(dr*dr + dg*dg + db*db + da*da);
+		double total;
+
+		if (metric != null) {
+			var oneList = excludeAlpha
+				? new [] { one.R, one.G, one.B }
+				: new [] { one.R, one.G, one.B, one.A }
+			;
+			var twoList = excludeAlpha
+				? new [] { two.R, two.G, two.B }
+				: new [] { two.R, two.G, two.B, two.A }
+			;
+			total = metric.Measure(oneList,twoList);
+		}
+		else {
+			total = excludeAlpha
+				? Math.Sqrt(dr*dr + dg*dg + db*db)
+				: Math.Sqrt(dr*dr + dg*dg + db*db + da*da)
+			;
+		}
 
 		return new ComponentDistance {
 			R = dr, G = dg, B = db, A = da, Total = total
@@ -81,5 +102,17 @@ public static class ImageComparer
 		public double B { get; init; }
 		public double A { get; init; }
 		public double Total { get; init; }
+	}
+
+	public static double Max(this IMetric metric, bool excludeAlpha = false)
+	{
+		if (metric == null) {
+			return excludeAlpha ? Math.Sqrt(3.0) : 2.0;
+		}
+
+		var one = excludeAlpha ? new[] { 0.0,0.0,0.0 } : new[] { 0.0,0.0,0.0,0.0 };
+		var two = excludeAlpha ? new[] { 1.0,1.0,1.0 } : new[] { 1.0,1.0,1.0,1.0 };
+		var max = metric.Measure(one,two);
+		return max;
 	}
 }

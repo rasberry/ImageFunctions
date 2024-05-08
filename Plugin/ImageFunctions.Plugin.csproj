@@ -17,15 +17,15 @@
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
-    <PackageReference Include="Rasberry.Cli" Version="2.2.1">
+    <PackageReference Include="Rasberry.Cli" Version="2.2.3">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.4.0" />
-    <PackageReference Include="skiasharp" Version="2.88.6" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.7.0" />
+    <PackageReference Include="skiasharp" Version="2.88.8" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.8" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
 
   <ItemGroup>

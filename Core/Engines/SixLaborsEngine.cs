@@ -168,6 +168,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => false,
 			SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => false,
 			SixLabors.ImageSharp.Formats.Png.PngFormat   => false,
+			SixLabors.ImageSharp.Formats.Qoi.QoiFormat   => false,
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat   => false,
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => true,
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => false,
@@ -184,6 +185,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => ".jpg",
 			SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => ".pbm",
 			SixLabors.ImageSharp.Formats.Png.PngFormat   => ".png",
+			SixLabors.ImageSharp.Formats.Qoi.QoiFormat   => ".qoi",
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat   => ".tga",
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => ".tif",
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => ".webp",
@@ -200,6 +202,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Jpeg.JpegFormat => "image/jpeg",
 			SixLabors.ImageSharp.Formats.Pbm.PbmFormat   => "image/x-portable-bitmap",
 			SixLabors.ImageSharp.Formats.Png.PngFormat   => "image/png",
+			SixLabors.ImageSharp.Formats.Qoi.QoiFormat   => "image/qoi", // https://gitlab.freedesktop.org/xdg/shared-mime-info/-/blob/master/data/freedesktop.org.xml.in
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat   => "image/x-targa",
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => "image/tiff",
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => "image/webp",

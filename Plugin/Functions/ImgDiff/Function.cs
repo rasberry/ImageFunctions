@@ -106,22 +106,15 @@ public class Function : IFunction
 
 	double ColorDistanceRatio(ColorRGBA one, ColorRGBA two)
 	{
-		var vo = new double[] { one.R, one.B, one.G, one.A };
-		var vt = new double[] { two.R, two.B, two.G, two.A };
-		//TODO consider other metrics ?
-		double dist = O.MetricInstance.Value.Measure(vo,vt);
-		return dist / DistanceMax;
+		var dist = ImageComparer.ColorDistance(one,two,O.MetricInstance.Value);
+		return dist.Total / DistanceMax;
 	}
 
 	//max distance for rgba color
 	double DistanceMax;
 	void InitMetric()
 	{
-		DistanceMax = O.MetricInstance.Value.Measure(
-			new double[] { 0.0,0.0,0.0,0.0 },
-			new double[] { 1.0,1.0,1.0,1.0 }
-			//new double[] { 255.0,255.0,255.0,255.0 }
-		);
+		DistanceMax = ImageComparer.Max(O.MetricInstance.Value);
 	}
 
 	readonly Options O = new();

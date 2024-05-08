@@ -276,7 +276,7 @@ internal static class PlugTools
 	/// <param name="y">The y coordinate</param>
 	/// <param name="cx">Optional x center offset</param>
 	/// <param name="cy">Optional y center offset</param>
-	/// <returns></returns>
+	/// <returns>the position</returns>
 	public static long XYToDiagonal(int x, int y, int cx = 0, int cy = 0)
 	{
 		//solve([x = p - (t * (t - 1)) / 2, y = ((t - 1)*(t / 2 + 1)) - p],[p,t]);
