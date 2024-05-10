@@ -140,10 +140,9 @@ public sealed class Layers : ILayers, IDisposable
 	public void Dispose()
 	{
 		int count = Stack.Count;
-		//Note: this only works because StackList is really a list
-		// and the iteration is reversed.
+		//Note: this only works because StackList is really a list and the iteration is reversed.
 		for(int i = 0; i < count; i++) {
-			var item = Stack.PopAt(i);
+			var item = Stack.PopAt(0); //we always pop at zero since that's the same as removing the last item
 			if (item.Canvas is IDisposable dis) {
 				dis.Dispose();
 			}
