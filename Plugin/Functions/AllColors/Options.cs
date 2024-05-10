@@ -46,7 +46,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-s (space)"     ,"Sort by color space components (instead of pattern)");
 		sb.ND(1,"-so (n,...)"    ,"Change priority order of components (default 1,2,3,4)");
 		sb.ND(1,"-ps"            ,"Use multi-threaded sort function instead of regular sort");
-		sb.ND(1,"-o (number)[%]" ,"Color Offset to use (should be between 0% nad 100%");
+		sb.ND(1,"-o (number)[%]" ,"Color Offset to use (should be between 0% and 100%");
 		sb.ND(1,"-on (number)"   ,$"Absolute Color Offset to use (should be between {int.MinValue} and {int.MaxValue}");
 		sb.ND(1,"-l / --legacy"  ,"Use original (legacy) algorithm");
 		sb.WT();
@@ -104,7 +104,7 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan<double?>("-o", 0.0, parser)
+		if (p.Scan<double?>("-o", null, parser)
 			.WhenGoodOrMissing(r => { ColorOffsetPct = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -112,7 +112,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int?>("-on", 0)
+		if (p.Scan<int?>("-on", null)
 			.WhenGoodOrMissing(r => { ColorOffsetAbs = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -161,14 +161,17 @@ public sealed class Options : IOptions
 	public const int FourKHeight = 4096;
 
 	internal int ColorOffset { get {
-		if (ColorOffsetAbs.HasValue) {
-			return ColorOffsetAbs.Value;
+		if (ColorOffsetPct.HasValue) {
+			return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
 		}
 		else {
-			return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
+			return ColorOffsetAbs.GetValueOrDefault(0);
 		}
 	}}
 
+	//This fills in the entries if Order is smaller than needed
+	//example: user gives 1,2 but length is 3 this will return
+	// [1,2,max]
 	int[] FixedOrder = null;
 	internal int[] GetFixedOrder(int length)
 	{

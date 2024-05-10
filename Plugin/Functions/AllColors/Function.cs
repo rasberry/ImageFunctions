@@ -158,7 +158,6 @@ public class Function : IFunction
 	//return every color in numeric order
 	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image, ProgressBar progress)
 	{
-		const int componentCount = 3;
 		int total = Math.Min(image.Width * image.Height, NumberOfColors);
 		for(int i = 0; i < total; i++) {
 			int ic = (i + O.ColorOffset) % int.MaxValue;
@@ -166,16 +165,7 @@ public class Function : IFunction
 			double g = ((ic >> 08) & 255) / 255.0;
 			double b = ((ic >> 16) & 255) / 255.0;
 			//Log.Debug($"i={i} r={r} g={g} b={b}");
-
-			if (O.Order != null) {
-				var order = O.GetFixedOrder(componentCount);
-				var items = new[] { r, g, b };
-				Array.Sort(order, items);
-				yield return new ColorRGBA(items[0], items[1], items[2], 1.0);
-			}
-			else {
-				yield return new ColorRGBA(r, g, b, 1.0);
-			}
+			yield return new ColorRGBA(r, g, b, 1.0);
 			progress?.Report((double)i / total);
 		}
 	}
@@ -251,6 +241,7 @@ public class Function : IFunction
 	{
 		var colorList = PatternBitOrder(image, progress).ToList();
 		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
+
 		if (O.Order != null) {
 			var fixedOrder = O.GetFixedOrder(compList.Length);
 			//sort compList using order as the guide

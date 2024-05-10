@@ -36,7 +36,7 @@ public class TestAllColors : AbstractFunctionTest
 	{
 		yield return CreateTestInfo(0,new string[0]);
 		yield return CreateTestInfo(1,new string[] { "-l" });
-		yield return CreateTestInfo(2,new string[] { "-s","RGB"  ,"-so","1,2,3", "-on", "427296640"});
+		yield return CreateTestInfo(2,new string[] { "-s","RGB"  ,"-so","1,2,3", "-o", "20%"});
 		yield return CreateTestInfo(3,new string[] { "-s","RGB"  ,"-so","1,2,3", "-l"});
 		yield return CreateTestInfo(4,new string[] { "-s","Cmyk" ,"-so","1,2,3" });
 		yield return CreateTestInfo(5,new string[] { "-s","HSV"  ,"-so","2,1,3" });
