@@ -17,9 +17,23 @@ A collection of various image processing functions
 
 ## Notes ##
 * find out which images tests are using
-  * ```grep -iIr -A 2 "public static IEnumerable<string> GetImageNames" . | grep -iPo "new string\[\].*" > a.txt```
+  ```bash
+  #!/bin/bash
+  function allNames {
+  	grep -iIrh --include \*.cs -A 2 'GetImageNames' | \
+  	grep -iPo 'new string\[\].*' | \
+  	awk -F '[, ]'  '{for (i = 4; i <= NF - 1; i++) {printf "%s\n", $i};}' | \
+  	tr -d '"'
+
+  	ls ./Resources/images | \
+  	awk -F '.' '{print $1}'
+  }
+  allNames | sort | uniq -ic | sort
+  ```
+
 
 # TODO #
+<pre>
 https://www.youtube.com/watch?v=WGccIFf6MF8
 = move imagemagick to it's own plugin (to expose more imagemagick stuff)
 = opencv (emgucv) plugin ?
@@ -30,3 +44,4 @@ https://www.youtube.com/watch?v=WGccIFf6MF8
 = add coverage report
 = change canvas to another color space (edit in another color space)
 =
+</pre>
