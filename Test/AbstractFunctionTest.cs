@@ -107,6 +107,7 @@ public abstract class AbstractFunctionTest
 			Assert.IsTrue(dist.Total <= info.MaxDiff, $"Name = {info.OutName} Distance = {dist}");
 		}
 		finally {
+			//remove the compare image
 			if (info.SaveImage == SaveImageMode.SubjectOnly && info.Layers.Count > 1) {
 				info.Layers.DisposeAt(0);
 			}
@@ -160,12 +161,10 @@ public abstract class AbstractFunctionTest
 	/// <param name="folder">the subfolder within Resources folder that contains the image</param>
 	public void GetOrLoadResourceImage(TestFunctionInfo info, string name, string folder = null)
 	{
-		folder ??= "images";
-		string nameWithExt = Path.ChangeExtension(name,".png");
-		string path = Path.Combine(Setup.ProjectRootPath,"../","Resources/",folder,nameWithExt);
-		path = Path.GetFullPath(path); //normalize path so it doesn't look janky
+		var path = GetResourceImagePath(name,folder);
 		var layers = info.Layers;
 
+		string nameWithExt = Path.ChangeExtension(name,".png");
 		int index = layers.IndexOf(nameWithExt);
 		if (index >= 0) { return; }
 
@@ -174,6 +173,15 @@ public abstract class AbstractFunctionTest
 		}
 
 		info.Options.Engine.Item.Value.LoadImage(layers,path,nameWithExt);
+	}
+
+	protected string GetResourceImagePath(string name, string folder = null)
+	{
+		folder ??= "images";
+		string nameWithExt = Path.ChangeExtension(name,".png");
+		string path = Path.Combine(Setup.ProjectRootPath,"../","Resources/",folder,nameWithExt);
+		path = Path.GetFullPath(path); //normalize path so it doesn't look janky
+		return path;
 	}
 }
 

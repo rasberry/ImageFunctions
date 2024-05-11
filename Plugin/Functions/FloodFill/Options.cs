@@ -15,6 +15,7 @@ public sealed class Options : IOptions
 	public Lazy<IMetric> Metric;
 	public ColorRGBA FillColor;
 	public ColorRGBA? ReplaceColor;
+	public bool MakeNewLayer;
 
 	internal Random Rnd = new();
 
@@ -25,9 +26,10 @@ public sealed class Options : IOptions
 		sb.ND(1,"-p (x,y)"      ,"Pick starting coordinate (can be specified multiple times)");
 		sb.ND(1,"-i"            ,"Replace pixels with ones taken the second layer");
 		sb.ND(1,"-r (color)"    ,"Treat all pixels of given color as starting points");
-		sb.ND(1,"-s (number[%])","How similar pixels should be to match range: [-1.0,1.0] (default 100%)");
+		sb.ND(1,"-s (number[%])","How similar pixels should be to match range: [0.0,1.0] (default 100%)");
 		sb.ND(1,"-f (type)"     ,$"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})");
-		sb.ND(1,"-m (type)"     ,$"Use specified mapping method (default {nameof(PixelMapKind.Horizontal)})");
+		sb.ND(1,"-m (type)"     ,$"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})");
+		sb.ND(1,"-nl"           ,"Create a new layer instead of replacing original(s)");
 		sb.MetricHelpLine();
 		sb.WT();
 		sb.WT(1,"Fill Type:");
@@ -72,7 +74,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-m", PixelMapKind.Horizontal)
+		if (p.Scan("-m", PixelMapKind.Coordinate)
 			.WhenGoodOrMissing(r => { MapType = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -81,6 +83,7 @@ public sealed class Options : IOptions
 		}
 
 		if (p.Has("-i").IsGood()) { MapSecondLayer = true; }
+		if (p.Has("-nl").IsGood()) { MakeNewLayer = true; }
 
 		if (p.Scan("-s", 1.0, parserNum)
 			.WhenGoodOrMissing(r => { Similarity = r.Value; return r; })
@@ -113,8 +116,8 @@ public sealed class Options : IOptions
 			};
 		} while(!done);
 
-		if (Similarity < -1.0 || Similarity > 1.0) {
-			Log.Error(Note.MustBeBetween("Similarity","-1.0 (-100%)","1.0 (100%)"));
+		if (Similarity < 0.0 || Similarity > 1.0) {
+			Log.Error(Note.MustBeBetween("Similarity","-0.0 (0%)","1.0 (100%)"));
 			return false;
 		}
 

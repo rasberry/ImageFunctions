@@ -26,9 +26,9 @@ public class Function : IFunction
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
 		if (!Options.ParseArgs(args, Register)) {
-			Log.Debug($"FillType:{Options.FillType} MapSecondLayer:{Options.MapSecondLayer} MapType:{Options.MapType} Similarity:{Options.Similarity}");
 			return false;
 		}
+		//Log.Debug($"FillType:{Options.FillType} MapSecondLayer:{Options.MapSecondLayer} MapType:{Options.MapType} Similarity:{Options.Similarity}");
 
 		if (Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast(1));
@@ -36,36 +36,51 @@ public class Function : IFunction
 		}
 
 		ICanvas mapSource = null;
-		if (Options.MapSecondLayer && Layers.Count < 2) {
-			Log.Error(PlugNote.MapSeconLayerNeedsTwoLayers());
-			return false;
-		}
-		else {
-			mapSource = Layers.ElementAt(1).Canvas;
+		if (Options.MapSecondLayer) {
+			if (Layers.Count < 2) {
+				Log.Error(PlugNote.MapSeconLayerNeedsTwoLayers());
+				return false;
+			}
+			else {
+				var layerTwo = Layers.ElementAt(1);
+				//Log.Debug($"layerTwo={layerTwo.Name}");
+				mapSource = layerTwo.Canvas;
+			}
 		}
 
 		if (Options.FillType == FillMethodKind.DepthFirst) {
-			Storage = new StackWrapper<Point>();
+			Storage = new StackWrapper<(Point,ColorRGBA)>();
 		} else {
-			Storage = new QueueWrapper<Point>();
+			Storage = new QueueWrapper<(Point,ColorRGBA)>();
 		}
+
+		MaxDist = ImageComparer.Max(Options.Metric?.Value);
+		ICanvas surface;
+		if (Options.MakeNewLayer) {
+			surface = Tools.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
+		}
+		else {
+			surface = Layers.First().Canvas;
+		}
+
+		//TODO when using similarity we are adding points that then become the new datum colors
+		//i don't think i want to do that so need to find a way to compare new colors against the original datums
+		//might need to re-work this to flood fill one point at a time instead of all of them
 
 		// add explicitly provided points
 		if (Options.StartPoints != null && Options.StartPoints.Count > 0) {
 			foreach(var p in Options.StartPoints) {
-				Storage.Stow(p);
+				var c = surface[p.X,p.Y];
+				Storage.Stow((p,c));
 			}
 		}
-
-		MaxDist = ImageComparer.Max(Options.Metric?.Value);
-		var surface = Layers.First().Canvas;
 
 		//find and add replaceColor pixel coordinates
 		if (Options.ReplaceColor.HasValue) {
 			Tools.ThreadPixels(surface,(x,y) => {
 				var c = surface[x,y];
 				if (IsSimilar(Options.ReplaceColor.Value,c)) {
-					Storage.Stow(new Point(x,y));
+					Storage.Stow((new Point(x,y),c));
 				}
 			});
 		}
@@ -78,29 +93,39 @@ public class Function : IFunction
 		// I think this only would happen if the fill color is too similar to the source color
 		// but seems worth doing anyways
 		var visited = new HashSet<Point>();
+		long iteration = 0;
 
 		//main loop. basically go until we run out of discovered points
 		// the color taken  is assumed to be what we are trying to replace
 		// there could be multiple different colors in flight if more than
 		// one starting point was provided
 		while(Storage.Count > 0) {
-			var p = Storage.Take();
-			var c = surface[p.X,p.Y];
+			var (p,color) = Storage.Take();
+			if (visited.Contains(p)) { continue; }
+
 			visited.Add(p);
+			var c = surface[p.X,p.Y];
+			//Log.Debug($"visited = {visited.Count} p={p.X},{p.Y}");
 
 			foreach(var sp in GetNearbyPoints(surface,p)) {
-				var sc = surface[sp.X,sp.Y];
-				if (!visited.Contains(sp) && IsSimilar(c,sc)) {
-					Storage.Stow(sp);
+				if (IsSimilar(c,color)) {
+					Storage.Stow((sp,color));
 				}
 			}
 
 			if (Options.MapSecondLayer) {
-				surface[p.X,p.Y] = MapPixel(surface, mapSource, p.X, p.Y);
+				surface[p.X,p.Y] = MapPixel(mapSource, p.X, p.Y, iteration);
 			}
 			else {
 				surface[p.X,p.Y] = Options.FillColor;
 			}
+
+			iteration++;
+		}
+
+		if (!Options.MakeNewLayer && Options.MapSecondLayer) {
+			//remove second layer since we should only be left with one layer
+			Layers.DisposeAt(1);
 		}
 
 		return true;
@@ -112,7 +137,8 @@ public class Function : IFunction
 	bool IsSimilar(ColorRGBA pick, ColorRGBA sample)
 	{
 		var dist = ImageComparer.ColorDistance(pick,sample,Options.Metric?.Value);
-		bool isSimilar = Math.Clamp(1.0 - dist.Total / MaxDist,0.0,1.0) >= Options.Similarity;
+		var amount = Math.Clamp(1.0 - dist.Total / MaxDist,0.0,1.0);
+		bool isSimilar = amount >= Options.Similarity;
 		return isSimilar;
 	}
 
@@ -128,17 +154,17 @@ public class Function : IFunction
 	}
 
 	//dest is the final layer, source is the layer being mapped from
-	ColorRGBA MapPixel(ICanvas dest, ICanvas source, int x, int y)
+	ColorRGBA MapPixel(ICanvas source, int x, int y, long pos)
 	{
 		switch(Options.MapType) {
 			case PixelMapKind.Horizontal: {
-				long spos = (dest.Width * y + x) % ((long)source.Width * source.Height);
+				long spos = pos % ((long)source.Width * source.Height);
 				int sx = (int)(spos % source.Width);
 				int sy = (int)(spos / source.Width);
 				return source[sx,sy];
 			}
 			case PixelMapKind.Vertical: {
-				long spos = (dest.Height * x + y) % ((long)source.Width * source.Height);
+				long spos = pos % ((long)source.Width * source.Height);
 				int sx = (int)(spos / source.Height);
 				int sy = (int)(spos % source.Height);
 				return source[sx,sy];
@@ -161,6 +187,6 @@ public class Function : IFunction
 	IRegister Register;
 	ILayers Layers;
 	ICoreOptions Core;
-	IStowTakeStore<Point> Storage;
+	IStowTakeStore<(Point,ColorRGBA)> Storage;
 	double MaxDist;
 }
