@@ -11,6 +11,7 @@ A collection of various image processing functions
   * ```dotnet run --project src --```
 * test project
   * ```dotnet test```
+  * ```dotnet test -l "console;verbosity=detailed" --filter "TestZoomBlur"```
 * build wiki
   * ```dotnet run --project Writer```
 
