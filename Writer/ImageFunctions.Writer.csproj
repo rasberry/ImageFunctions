@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- <Nullable>enable</Nullable> -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RazorEngineCore" Version="2024.4.1" />
+    <ProjectReference Include="..\Core\ImageFunctions.Core.csproj" />
+    <ProjectReference Include="..\Plugin\ImageFunctions.Plugin.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Test\ImageFunctions.Test.csproj" />
+  </ItemGroup>
+
+
+</Project>

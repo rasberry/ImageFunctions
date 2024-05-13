@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- <Nullable>enable</Nullable> -->
+    <OutputPath>../build</OutputPath>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  
+  <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="ImageFunctions.Test" />
+    <InternalsVisibleTo Include="ImageFunctions.Writer" />
+
+    <!-- references to anything referenced by Core must be <Private>false</Private> -->
+    <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
+        <Private>false</Private>
+        <ExcludeAssets>runtime</ExcludeAssets>
+    </ProjectReference>
+    <PackageReference Include="Rasberry.Cli" Version="2.2.3">
+        <Private>false</Private>
+        <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="13.7.0" />
+    <PackageReference Include="skiasharp" Version="2.88.8" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.8" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Text" />
+    <Using Include="System.Linq" />
+    <Using Include="System.IO" />
+    <Using Include="System.Collections.Generic" />
+  </ItemGroup>
+
+</Project>

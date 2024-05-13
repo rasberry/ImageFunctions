@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+    <StartupObject>test.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.1.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\ImageFunctions.csproj" />
+  </ItemGroup>
+
+  <UsingTask TaskName="test.Wiki.BuildWikiTask" AssemblyFile="$(MSBuildProjectDirectory)\$(OutDir)$(AssemblyName).dll" />
+
+  <Target Name="BuildWiki">
+    <Message Importance="High" Text="Building test ..." />
+    <MSBuild Projects="test.csproj" />
+    <Message Importance="High" Text="Building the wiki ..." />
+    <test.Wiki.BuildWikiTask RebuildImages="$(RebuildImages)"/>
+  </Target>
+
+</Project>

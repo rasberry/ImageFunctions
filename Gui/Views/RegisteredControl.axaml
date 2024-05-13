@@ -1,0 +1,35 @@
+<UserControl
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+	x:Class="ImageFunctions.Gui.Views.RegisteredControl"
+	x:DataType="vm:SelectionViewModel"
+	d:DesignHeight="450"
+	d:DesignWidth="800"
+	mc:Ignorable="d"
+>
+<Design.DataContext>
+	<vm:SelectionViewModel/>
+</Design.DataContext>
+
+<UserControl.Styles>
+	<Style Selector="TextBlock#ChoosenText">
+		<Setter Property="Margin" Value="8,0,0,0"/>
+		<Setter Property="FontWeight" Value="Normal"/>
+		<Setter Property="Opacity" Value="0.6"/>
+	</Style>
+</UserControl.Styles>
+
+<Expander>
+	<Expander.Header>
+		<StackPanel Orientation="Horizontal">
+			<TextBlock Text="{Binding Kind}" />
+			<TextBlock Name="ChoosenText" Text="{Binding SelectedText}" />
+		</StackPanel>
+	</Expander.Header>
+	<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />
+</Expander>
+
+</UserControl>

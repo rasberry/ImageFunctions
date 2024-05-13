@@ -1,0 +1,40 @@
+<UserControl
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+	x:Class="ImageFunctions.Gui.Views.LayersImageControl"
+	x:DataType="vm:LayersImageData"
+	d:DesignHeight="200"
+	d:DesignWidth="200"
+	mc:Ignorable="d"
+>
+<Design.DataContext>
+	<vm:LayersImageData/>
+</Design.DataContext>
+
+<UserControl.Styles>
+	<Style Selector="Button">
+		<Setter Property="Margin" Value="0,0,0,0"/>
+		<Setter Property="Padding" Value="8,8,8,8"/>
+	</Style>
+</UserControl.Styles>
+
+<DockPanel>
+	<StackPanel DockPanel.Dock="Left">
+		<Button Tag="Move Up" Command="{Binding LayerMoveUp}" IsEnabled="{Binding UpEnabled}">
+			<PathIcon Width="16" Height="16" Data="{StaticResource IconTriUp}"/>
+		</Button>
+		<Button Tag="Move Down" Command="{Binding LayerMoveDown}" IsEnabled="{Binding DownEnabled}">
+			<PathIcon Width="16" Height="16" Data="{StaticResource IconTriDown}"/>
+		</Button>
+		<Button Tag="Test" Click="TestClick" Command="{Binding Test}">T</Button>
+	</StackPanel>
+	<StackPanel>
+		<TextBlock Text="{Binding Name}"/>
+		<Image Source="{Binding Image}" Stretch="Uniform" MaxHeight="100"/>
+	</StackPanel>
+</DockPanel>
+
+</UserControl>

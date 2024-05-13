@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputPath>../build</OutputPath>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <!-- <ImplicitUsings>enable</ImplicitUsings> -->
+    <!-- <Nullable>enable</Nullable> -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- if referencing this project, references in *your* project to these packages
+      must be included with <Private>false</Private>
+    -->
+    <PackageReference Include="Rasberry.Cli" Version="2.2.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.3" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="System.Text" />
+    <Using Include="System.Linq" />
+    <Using Include="System.IO" />
+    <Using Include="System.Collections.Generic" />
+  </ItemGroup>
+
+<ItemGroup>
+  <InternalsVisibleTo Include="ImageFunctions.Gui" />
+  <InternalsVisibleTo Include="ImageFunctions.Test" />
+  <InternalsVisibleTo Include="ImageFunctions.Writer" />
+</ItemGroup>
+
+</Project>
