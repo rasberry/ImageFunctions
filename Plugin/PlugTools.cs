@@ -34,6 +34,7 @@ internal static class PlugTools
 	/// <param name="includeZero">whether to include zero as a valid option or not</param>
 	/// <returns>An updated result</returns>
 	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
+		where T : IComparable
 	{
 		if (r.IsBad()) { return r; }
 
@@ -49,9 +50,9 @@ internal static class PlugTools
 			}
 			isInvalid = true;
 		}
-		else if (r.Value is int vi) {
-			if ((!includeZero && vi > 0)
-				|| (includeZero && vi >= 0)) {
+		else if (r.Value is IComparable vi) {
+			var compare = vi.CompareTo(default(T));
+			if ((!includeZero && compare > 0) || (includeZero && compare >= 0)) {
 				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
@@ -64,6 +65,26 @@ internal static class PlugTools
 		else {
 			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
 		}
+	}
+
+	public static ParseResult<T> BeBetween<T>(this ParseResult<T> r, T low, T high,
+		bool lowInclusive = true, bool highInclusive = true) where T : IComparable
+	{
+		if (r.IsBad()) { return r; }
+
+		var t = typeof(T);
+		var nullType = Nullable.GetUnderlyingType(t);
+		if (nullType != null) { t = nullType; }
+
+		var clow = r.Value.CompareTo(low);
+		var chigh = r.Value.CompareTo(high);
+		if ((!lowInclusive && clow > 0 || lowInclusive && clow >= 0)
+			&& (!highInclusive && chigh < 0 || highInclusive && chigh <= 0)) {
+			return r with { Result = ParseParams.Result.Good };
+		}
+
+		Log.Error(PlugNote.MustBeInRange(r.Name,low,high,lowInclusive,highInclusive));
+		return r with { Result = ParseParams.Result.UnParsable };
 	}
 
 	//ratio 0.0 = 100% a

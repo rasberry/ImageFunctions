@@ -9,7 +9,7 @@ When making a new function:
 * Copy the templates into each file
 * Change MyFunction to the name of your function
 
-## Functions/MyFunction/Functions.cs
+## Functions/MyFunction/Function.cs
 
 ```csharp
 using ImageFunctions.Core;
@@ -29,7 +29,7 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb);
+		Options.Usage(sb, Register);
 	}
 
 	public bool Run(string[] args)
@@ -65,7 +65,7 @@ public sealed class Options : IOptions
 {
 	public string SomeOption;
 
-	public void Usage(StringBuilder sb)
+	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.ND(1,"Does something interesting");
 		sb.ND(1,"-myopt (number)","describe myopt here");
@@ -74,12 +74,14 @@ public sealed class Options : IOptions
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var parser = new ParseParams.Parser<double>((string n) => {
-			return ExtraParsers.ParseNumberPercent(n);
-		});
+		//use ParseNumberPercent for parsing numbers like 0.5 or 50%
+		//var parser = new ParseParams.Parser<double>((string n) => {
+		//	return ExtraParsers.ParseNumberPercent(n);
+		//});
 
 		if (p.Scan<string>("-myopt", "default")
 			.WhenGoodOrMissing(r => { SomeOption = r.Value; return r; })
+			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;

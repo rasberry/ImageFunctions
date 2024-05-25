@@ -13,7 +13,10 @@ public readonly record struct ColorRGBA : IColor3, ILuma
 		R = r; G = g; B = b; A = a;
 	}
 
-	public readonly double R,G,B,A;
+	public double R { get; init; }
+	public double G { get; init; }
+	public double B { get; init; }
+	public double A { get; init; }
 
 	double IColor3.C1 { get { return R; }}
 	double IColor3.C2 { get { return G; }}
