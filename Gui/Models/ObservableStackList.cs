@@ -1,7 +1,6 @@
+using ImageFunctions.Core;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
-using ImageFunctions.Core;
 using NCCAction = System.Collections.Specialized.NotifyCollectionChangedAction;
 using NCCArgs = System.Collections.Specialized.NotifyCollectionChangedEventArgs;
 
@@ -55,7 +54,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 	{
 		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(AddRange)}");
 		var copy = items.ToList();
-		if (copy.Count < 1) { return; }
+		if(copy.Count < 1) { return; }
 
 		int startIx = base.Count;
 		base.AddRange(copy);
@@ -78,7 +77,7 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 	{
 		//Trace.WriteLine($"{nameof(ObservableStackList<T>)} {nameof(Remove)}");
 		int ix = IndexOf(item);
-		if (ix < 0) { return false; }
+		if(ix < 0) { return false; }
 		PopAt(ix);
 		return true;
 	}
@@ -93,23 +92,26 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 	static readonly NCCArgs ResetCollectionChanged = new(NCCAction.Reset);
 	static readonly PropertyChangedEventArgs CountPropertyChanged = new("Count");
 
-	void OnIndexerPropertyChanged() {
+	void OnIndexerPropertyChanged()
+	{
 		PropertyChanged?.Invoke(this, IndexerPropertyChanged);
 	}
 
-	void OnCountPropertyChanged() {
+	void OnCountPropertyChanged()
+	{
 		PropertyChanged?.Invoke(this, CountPropertyChanged);
 	}
 
-	void OnCollectionReplace(T orig, T value, int index) {
+	void OnCollectionReplace(T orig, T value, int index)
+	{
 		var n = new NCCArgs(NCCAction.Replace, orig, value, index);
 		CollectionChanged?.Invoke(this, n);
 	}
 
 	void OnCollectionMove(T item, int fromIndex, int toIndex)
 	{
-		var n = new NCCArgs(NCCAction.Move,item,toIndex,fromIndex);
-		CollectionChanged?.Invoke(this,n);
+		var n = new NCCArgs(NCCAction.Move, item, toIndex, fromIndex);
+		CollectionChanged?.Invoke(this, n);
 	}
 
 	void OnCollectionSingle(NCCAction action, T item, int index)
@@ -120,12 +122,12 @@ public class ObservableStackList<T> : StackList<T>, INotifyCollectionChanged, IN
 
 	void OnCollectionRange(NCCAction action, List<T> copy, int startIx)
 	{
-		if (DisableRangedNotifications) {
+		if(DisableRangedNotifications) {
 			CollectionChanged?.Invoke(this, ResetCollectionChanged);
 		}
 		else {
 			var n = new NCCArgs(action, copy, startIx);
-			CollectionChanged?.Invoke(this,n);
+			CollectionChanged?.Invoke(this, n);
 		}
 	}
 }

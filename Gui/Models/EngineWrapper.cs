@@ -22,7 +22,7 @@ public class EngineWrapper : IImageEngine
 
 	public ICanvas NewCanvas(int width, int height)
 	{
-		var canvas = Engine.Value.NewCanvas(width,height);
+		var canvas = Engine.Value.NewCanvas(width, height);
 		return new CanvasWrapper(canvas);
 	}
 

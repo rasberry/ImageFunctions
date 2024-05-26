@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestZoomBlur : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.ZoomBlur);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -54,7 +54,7 @@ public class TestZoomBlur : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "zebra","boy","building","creek" };
+		var list = new string[] { "zebra", "boy", "building", "creek" };
 		return list;
 	}
 }

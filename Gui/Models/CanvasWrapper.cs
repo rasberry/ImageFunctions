@@ -1,8 +1,7 @@
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Avalonia.Threading;
 using ImageFunctions.Core;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -18,20 +17,20 @@ public class CanvasWrapper : ICanvas, INotifyPropertyChanged
 	[IndexerName("Item")]
 	public ColorRGBA this[int x, int y] {
 		get {
-			return Canvas[x,y];
+			return Canvas[x, y];
 		}
 		set {
 			//not firing notifications in here because it seems to cause deadlocks
-			if (!_isDirty) {
+			if(!_isDirty) {
 				//Trace.WriteLine($"{nameof(CanvasWrapper)} Set {this.GetHashCode()}");
 				_isDirty = true;
 			}
-			Canvas[x,y] = value;
+			Canvas[x, y] = value;
 		}
 	}
 
-	public int Width { get { return Canvas.Width; }}
-	public int Height { get { return Canvas.Height; }}
+	public int Width { get { return Canvas.Width; } }
+	public int Height { get { return Canvas.Height; } }
 
 	public void Dispose()
 	{
@@ -53,7 +52,8 @@ public class CanvasWrapper : ICanvas, INotifyPropertyChanged
 		}
 	}
 
-	public void DeclareClean() {
+	public void DeclareClean()
+	{
 		//Trace.WriteLine($"{nameof(CanvasWrapper)} {nameof(DeclareClean)} {this.GetHashCode()}");
 		//fire notifications since this function should only be run after the IFunction Run command is finished
 		IsDirty = false;

@@ -34,10 +34,10 @@ public class TestStackList
 	{
 		var stack = new StackList<char>();
 		//order will be reversed since we're pushing each element
-		stack.AddRange(new[] { 'A','B','C','D' });
+		stack.AddRange(new[] { 'A', 'B', 'C', 'D' });
 
 		//enumerable iterates from top of stack down.
-		var test = new char[] { 'D','C','B','A' };
+		var test = new char[] { 'D', 'C', 'B', 'A' };
 		Assert.IsTrue(test.SequenceEqual(stack));
 	}
 
@@ -46,20 +46,20 @@ public class TestStackList
 	{
 		var stack = new StackList<char>();
 		//order will be reversed since we're pushing each element
-		stack.AddRange(new[] { 'A','B','C','D' });
-		stack.Move(2,1);
+		stack.AddRange(new[] { 'A', 'B', 'C', 'D' });
+		stack.Move(2, 1);
 
-		var test1 = new char[] { 'D','B','C','A' };
+		var test1 = new char[] { 'D', 'B', 'C', 'A' };
 		Assert.IsTrue(test1.SequenceEqual(stack));
 
-		stack.Move(3,1);
+		stack.Move(3, 1);
 
-		var test2 = new char[] { 'D','A','B','C' };
+		var test2 = new char[] { 'D', 'A', 'B', 'C' };
 		Assert.IsTrue(test2.SequenceEqual(stack));
 
-		stack.Move(0,2);
+		stack.Move(0, 2);
 
-		var test3 = new char[] { 'A','B','D','C' };
+		var test3 = new char[] { 'A', 'B', 'D', 'C' };
 		Assert.IsTrue(test3.SequenceEqual(stack));
 	}
 
@@ -68,16 +68,16 @@ public class TestStackList
 	{
 		var stack = new StackList<char>();
 		//order will be reversed since we're pushing each element
-		stack.AddRange(new[] { 'A','B','C','D' });
-		stack.PushAt(2,'E');
+		stack.AddRange(new[] { 'A', 'B', 'C', 'D' });
+		stack.PushAt(2, 'E');
 
-		var test1 = new char[] { 'D','C','E','B','A' };
+		var test1 = new char[] { 'D', 'C', 'E', 'B', 'A' };
 		Assert.IsTrue(test1.SequenceEqual(stack));
 
 		var c = stack.PopAt(1);
 
-		Assert.AreEqual('C',c);
-		var test2 = new char[] { 'D','E','B','A' };
+		Assert.AreEqual('C', c);
+		var test2 = new char[] { 'D', 'E', 'B', 'A' };
 		Assert.IsTrue(test2.SequenceEqual(stack));
 	}
 
@@ -86,14 +86,14 @@ public class TestStackList
 	{
 		var stack = new StackList<char>();
 		//order will be reversed since we're pushing each element
-		stack.AddRange(new[] { 'A','B','C','D' });
+		stack.AddRange(new[] { 'A', 'B', 'C', 'D' });
 
-		Assert.AreEqual('D',stack[0]);
-		Assert.AreEqual('C',stack[1]);
-		Assert.AreEqual('B',stack[2]);
-		Assert.AreEqual('A',stack[3]);
+		Assert.AreEqual('D', stack[0]);
+		Assert.AreEqual('C', stack[1]);
+		Assert.AreEqual('B', stack[2]);
+		Assert.AreEqual('A', stack[3]);
 
 		stack[1] = 'E';
-		Assert.AreEqual('E',stack[1]);
+		Assert.AreEqual('E', stack[1]);
 	}
 }

@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestAreaSmoother : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.AreaSmoother);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,9 +39,9 @@ public class TestAreaSmoother : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
 		yield return CreateTestInfo(1, startImg, new string[0]);
-		yield return CreateTestInfo(2, startImg, new string[] { "-t","2" });
-		yield return CreateTestInfo(3, startImg, new string[] { "-t","10" });
-		yield return CreateTestInfo(4, startImg, new string[] { "--metric","Manhattan" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-t", "2" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-t", "10" });
+		yield return CreateTestInfo(4, startImg, new string[] { "--metric", "Manhattan" });
 		// case 4: return new string[] { "--sampler","11" }; //TODO this produces a bad image now
 	}
 
@@ -56,7 +56,7 @@ public class TestAreaSmoother : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "rock-p","scorpius-p" };
+		var list = new string[] { "rock-p", "scorpius-p" };
 		return list;
 	}
 }

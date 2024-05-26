@@ -5,8 +5,9 @@
     <!-- <Nullable>enable</Nullable> -->
     <OutputPath>../build</OutputPath>
     <EnableDynamicLoading>true</EnableDynamicLoading>
+    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
-  
+
   <!-- https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support -->
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />

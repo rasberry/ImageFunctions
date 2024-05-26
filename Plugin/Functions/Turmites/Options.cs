@@ -1,6 +1,6 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
 
@@ -15,57 +15,57 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
-		sb.ND(1,"-p (string)"   ,"LR pattern string. See below for full language (default 'LR')");
+		sb.ND(1, "Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
+		sb.ND(1, "-p (string)", "LR pattern string. See below for full language (default 'LR')");
 		// sb.ND(1,"-img (image)"  ,"Use an image file as the starting state");
-		sb.ND(1,"-e (edge rule)","Change edge handling rule (default Wrap)");
-		sb.ND(1,"-s (x,y)"      ,"Starting location of turmite (defaults to center coordinate)");
-		sb.ND(1,"-i (number)"   ,"Number of iterations (default 1000)");
+		sb.ND(1, "-e (edge rule)", "Change edge handling rule (default Wrap)");
+		sb.ND(1, "-s (x,y)", "Starting location of turmite (defaults to center coordinate)");
+		sb.ND(1, "-i (number)", "Number of iterations (default 1000)");
 		sb.WT();
-		sb.ND(1,"Available Edge Rules:");
-		sb.PrintEnum<PickEdgeRule>(1,EdgeRuleDesc);
+		sb.ND(1, "Available Edge Rules:");
+		sb.PrintEnum<PickEdgeRule>(1, EdgeRuleDesc);
 		sb.WT();
-		sb.ND(1,"Pattern language:");
-		sb.ND(2,"The pattern language consist of a string of characters used to decide which action to take.");
-		sb.ND(2,"Adding a number after the letter will repeat that rule. For example R3 is the same as RRR.");
+		sb.ND(1, "Pattern language:");
+		sb.ND(2, "The pattern language consist of a string of characters used to decide which action to take.");
+		sb.ND(2, "Adding a number after the letter will repeat that rule. For example R3 is the same as RRR.");
 		sb.WT();
-		sb.ND(2,"L","Make a left turn (counterclock-wise)");
-		sb.ND(2,"R","Make a right turn (clock-wise)");
-		sb.ND(2,"U","Turn around (180 degree turn)");
-		sb.ND(2,"F","Continue forward (no turn)");
-		sb.ND(2,"N","Point north");
-		sb.ND(2,"S","Point south");
-		sb.ND(2,"E","Point east");
-		sb.ND(2,"W","Point west");
+		sb.ND(2, "L", "Make a left turn (counterclock-wise)");
+		sb.ND(2, "R", "Make a right turn (clock-wise)");
+		sb.ND(2, "U", "Turn around (180 degree turn)");
+		sb.ND(2, "F", "Continue forward (no turn)");
+		sb.ND(2, "N", "Point north");
+		sb.ND(2, "S", "Point south");
+		sb.ND(2, "E", "Point east");
+		sb.ND(2, "W", "Point west");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
-		if (p.Scan("-p", DefaultSeq(), ParsePattern)
+		if(p.Scan("-p", DefaultSeq(), ParsePattern)
 			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
-		){
+		) {
 			return false;
 		}
 
-		if (p.Scan("-e", PickEdgeRule.Wrap)
+		if(p.Scan("-e", PickEdgeRule.Wrap)
 			.WhenGoodOrMissing(r => { EdgeRule = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if (p.Scan<Point?>("-s")
+		if(p.Scan<Point?>("-s")
 			.WhenGood(r => { Start = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if (p.Scan("-i", 1000ul)
+		if(p.Scan("-i", 1000ul)
 			.WhenGoodOrMissing(r => { Iterations = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -87,7 +87,7 @@ public sealed class Options : IOptions
 	static IReadOnlyList<Rule> ParsePattern(string pattern)
 	{
 		var list = new List<Rule>();
-		int i=0, len = pattern.Length;
+		int i = 0, len = pattern.Length;
 		var parser = new ParseParams.Parser<PickOp>((string n) => {
 			return ExtraParsers.ParseEnumFirstLetter<PickOp>(n, ignoreZero: true);
 		});
@@ -102,17 +102,17 @@ public sealed class Options : IOptions
 			string snum = "";
 			int? num = null;
 
-			while (i < len && char.IsNumber(pattern[i])) {
+			while(i < len && char.IsNumber(pattern[i])) {
 				snum += pattern[i];
 				i++; // consume number
 			}
-			if (!String.IsNullOrWhiteSpace(snum)) {
-				if (!int.TryParse(snum, out int inum)) {
+			if(!String.IsNullOrWhiteSpace(snum)) {
+				if(!int.TryParse(snum, out int inum)) {
 					throw PlugSqueal.CannotParsePatterNumber(snum);
 				}
 				num = inum;
 			}
-			if (num.HasValue && num < 1) {
+			if(num.HasValue && num < 1) {
 				throw PlugSqueal.PatternNumberGtrZero();
 			}
 			else {
@@ -147,7 +147,7 @@ public enum PickEdgeRule
 public enum PickOp
 {
 	None = 0,
-	L,R,U,F,N,S,E,W
+	L, R, U, F, N, S, E, W
 }
 
 public class Rule

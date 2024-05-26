@@ -10,8 +10,8 @@ public partial class RegisteredControl : UserControl
 	public RegisteredControl()
 	{
 		InitializeComponent();
-		Initialized += (s,e) => {
-			if (!string.IsNullOrWhiteSpace(SelectItemName)) {
+		Initialized += (s, e) => {
+			if(!string.IsNullOrWhiteSpace(SelectItemName)) {
 				SelectItem(SelectItemName);
 			}
 		};
@@ -25,17 +25,17 @@ public partial class RegisteredControl : UserControl
 		var listBox = this.FindLogicalDescendantOfType<ListBox>();
 
 		//have to expand this first or the listBox inside won't initialize
-		expander.Initialized += (s,e) => {
+		expander.Initialized += (s, e) => {
 			var ex = (Expander)s;
 			ex.IsExpanded = true;
 			Model.SelectedText = name;
 		};
 
-		listBox.Initialized += (s,e) => {
+		listBox.Initialized += (s, e) => {
 			var lb = (ListBox)s;
 			int i = 0;
 			foreach(SelectionItem item in lb.Items) {
-				if (item.Name == name) {
+				if(item.Name == name) {
 					lb.SelectedIndex = i;
 					break;
 				}
@@ -55,6 +55,6 @@ public partial class RegisteredControl : UserControl
 
 	public void OnItemSelected(object sender, SelectionChangedEventArgs args)
 	{
-		Model?.ItemSelected(sender,args);
+		Model?.ItemSelected(sender, args);
 	}
 }

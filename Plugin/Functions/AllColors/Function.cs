@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
@@ -31,22 +29,22 @@ public class Function : IFunction
 	public bool Run(string[] args)
 	{
 		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
 		var engine = Core.Engine.Item.Value;
-		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.FourKWidth,Options.FourKHeight);
+		var (dfw, dfh) = Core.GetDefaultWidthHeight(Options.FourKWidth, Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
 		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
-		if (O.UseOriginalCode) {
+		if(O.UseOriginalCode) {
 			DrawOriginal.Draw(image, Core.MaxDegreeOfParallelism, O);
 		}
 		else {
@@ -74,14 +72,15 @@ public class Function : IFunction
 		using var progress = new ProgressBar();
 		progress.Prefix = "Converting... ";
 
-		if (O.WhichSpace != Space.None) {
+		if(O.WhichSpace != Space.None) {
 			colorList = ConvertBySpace(image, O.WhichSpace, progress);
 		}
 		else {
 			colorList = ConvertByPattern(image, O.SortBy, progress);
 		}
 
-		void copyColors(int x, int y) {
+		void copyColors(int x, int y)
+		{
 			int coff = y * image.Height + x;
 			var nc = coff < colorList.Count
 				? colorList[coff]
@@ -98,19 +97,19 @@ public class Function : IFunction
 
 	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, ProgressBar progress)
 	{
-		Func<ColorRGBA,double> converter = null;
+		Func<ColorRGBA, double> converter = null;
 		switch(p) {
 		default:
-		case Pattern.BitOrder:      return PatternBitOrder(image, progress).ToList();
+		case Pattern.BitOrder: return PatternBitOrder(image, progress).ToList();
 		case Pattern.Spiral16Order: return Spiral16Order(image, progress).ToList();
 		case Pattern.Spiral4kOrder: return Spiral4kOrder(image, progress).ToList();
-		case Pattern.AERT:          converter = ConvertAERT; break;
-		case Pattern.HSP:           converter = ConvertHSP; break;
-		case Pattern.WCAG2:         converter = ConvertWCAG2; break;
-		case Pattern.Luminance601:  converter = ConvertLuminance601; break;
-		case Pattern.Luminance709:  converter = ConvertLuminance709; break;
+		case Pattern.AERT: converter = ConvertAERT; break;
+		case Pattern.HSP: converter = ConvertHSP; break;
+		case Pattern.WCAG2: converter = ConvertWCAG2; break;
+		case Pattern.Luminance601: converter = ConvertLuminance601; break;
+		case Pattern.Luminance709: converter = ConvertLuminance709; break;
 		case Pattern.Luminance2020: converter = ConvertLuminance2020; break;
-		case Pattern.SMPTE240M:     converter = ConvertSmpte1999; break;
+		case Pattern.SMPTE240M: converter = ConvertSmpte1999; break;
 		}
 
 		return ConvertAndSort(image, converter, ComparersLuminance(), progress);
@@ -118,8 +117,7 @@ public class Function : IFunction
 
 	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, ProgressBar progress)
 	{
-		switch(space)
-		{
+		switch(space) {
 		case Space.RGB:
 			return ConvertAndSort(image, c => c, CompareColorRGBA(), progress);
 		//case Space.CieLab:
@@ -133,15 +131,15 @@ public class Function : IFunction
 		//case Space.CieXyy:
 		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect);
 		case Space.CieXyz:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()),CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()), CompareIColor3(), progress);
 		case Space.Cmyk:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()),CompareIColor4(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()), CompareIColor4(), progress);
 		case Space.HSI:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()),CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()), CompareIColor3(), progress);
 		case Space.HSL:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()),CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()), CompareIColor3(), progress);
 		case Space.HSV:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()),CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()), CompareIColor3(), progress);
 		//case Space.HunterLab:
 		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect);
 		//case Space.LinearRgb:
@@ -149,7 +147,7 @@ public class Function : IFunction
 		//case Space.Lms:
 		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect);
 		case Space.YCbCr:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()),CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3(), progress);
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
@@ -188,7 +186,7 @@ public class Function : IFunction
 			long ib = 255 - PlugTools.XYToSpiralSquare(sx, sy, x / 16 + 7, y / 16 + 8);
 			double r = ir / 255.0, g = ig / 255.0, b = ib / 255.0;
 
-			if (O.Order != null) {
+			if(O.Order != null) {
 				var order = O.GetFixedOrder(componentCount);
 				var items = new[] { r, g, b };
 				Array.Sort(order, items);
@@ -215,7 +213,7 @@ public class Function : IFunction
 
 			int sx = ic % 4096;
 			int sy = ic / 4096;
-			long pos = PlugTools.XYToSpiralSquare(sx,sy,cx,cy);
+			long pos = PlugTools.XYToSpiralSquare(sx, sy, cx, cy);
 
 			int index = (int)(pos / 65536);
 			uint count = bucket[index];
@@ -224,7 +222,7 @@ public class Function : IFunction
 			double b = (255 - pos / 65536) / 255.0;
 			bucket[index]++;
 
-			if (O.Order != null) {
+			if(O.Order != null) {
 				var order = O.GetFixedOrder(componentCount);
 				var items = new[] { r, g, b };
 				Array.Sort(order, items);
@@ -237,40 +235,40 @@ public class Function : IFunction
 		}
 	}
 
-	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA,T> conv, Func<T,T,int>[] compList, ProgressBar progress)
+	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA, T> conv, Func<T, T, int>[] compList, ProgressBar progress)
 	{
 		var colorList = PatternBitOrder(image, progress).ToList();
-		var tempList = new List<(ColorRGBA,T)>(colorList.Count);
+		var tempList = new List<(ColorRGBA, T)>(colorList.Count);
 
-		if (O.Order != null) {
+		if(O.Order != null) {
 			var fixedOrder = O.GetFixedOrder(compList.Length);
 			//sort compList using order as the guide
-			Array.Sort(fixedOrder,compList);
+			Array.Sort(fixedOrder, compList);
 		}
 
-		for(int t=0; t<colorList.Count; t++) {
+		for(int t = 0; t < colorList.Count; t++) {
 			var c = colorList[t];
 			T next = conv(c);
-			tempList.Add((c,next));
+			tempList.Add((c, next));
 			progress.Report((double)t / colorList.Count);
 		}
 
 		progress.Prefix = "Sorting... ";
 		int count = 0;
-		var progressSorter = new Comparison<(ColorRGBA,T)>((a,b) => {
+		var progressSorter = new Comparison<(ColorRGBA, T)>((a, b) => {
 			count++;
 			progress.Report(count / SortMax);
-			return MultiSort(compList,a.Item2,b.Item2);
+			return MultiSort(compList, a.Item2, b.Item2);
 		});
 
-		if (O.ParallelSort) {
+		if(O.ParallelSort) {
 			//parallel version seems to works best on 4+ cores
-			var comp = Comparer<(ColorRGBA,T)>.Create(
-				new Comparison<(ColorRGBA,T)>((a,b) => {
-					return MultiSort(compList,a.Item2,b.Item2);
+			var comp = Comparer<(ColorRGBA, T)>.Create(
+				new Comparison<(ColorRGBA, T)>((a, b) => {
+					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			PlugTools.ParallelSort(tempList,comp,progress,Core.MaxDegreeOfParallelism);
+			PlugTools.ParallelSort(tempList, comp, progress, Core.MaxDegreeOfParallelism);
 		}
 		else {
 			//seems to be a lot faster than Array.Sort(key,collection)
@@ -278,25 +276,24 @@ public class Function : IFunction
 			tempList.Sort(progressSorter);
 		}
 
-		for(int t=0; t<colorList.Count; t++) {
+		for(int t = 0; t < colorList.Count; t++) {
 			colorList[t] = tempList[t].Item1;
 		}
 
 		return colorList;
 	}
 
-	static int MultiSort<T>(Func<T,T,int>[] compers,T a, T b)
+	static int MultiSort<T>(Func<T, T, int>[] compers, T a, T b)
 	{
-		for(int c=0; c<compers.Length; c++)
-		{
+		for(int c = 0; c < compers.Length; c++) {
 			var comp = compers[c];
-			int d = comp(a,b);
-			if (d != 0) { return d; }
+			int d = comp(a, b);
+			if(d != 0) { return d; }
 		}
 		return 0;
 	}
 
-	static Func<ColorRGBA,IColor3> GetConverter(IColor3Space space)
+	static Func<ColorRGBA, IColor3> GetConverter(IColor3Space space)
 	{
 		var c = new Converter3Helper() { Space = space };
 		return c.Convert;
@@ -311,7 +308,7 @@ public class Function : IFunction
 		}
 	}
 
-	static Func<ColorRGBA,IColor4> GetConverter(IColor4Space space)
+	static Func<ColorRGBA, IColor4> GetConverter(IColor4Space space)
 	{
 		var c = new Converter4Helper() { Space = space };
 		return c.Convert;
@@ -326,15 +323,16 @@ public class Function : IFunction
 		}
 	}
 
-	static Func<double,double,int>[] ComparersLuminance()
+	static Func<double, double, int>[] ComparersLuminance()
 	{
-		var arr = new Func<double,double,int>[] {
+		var arr = new Func<double, double, int>[] {
 			(a,b) => a > b ? 1 : a < b ? -1 : 0,
 		};
 		return arr;
 	}
 
-	static double ConvertRGBA(ColorRGBA c) {
+	static double ConvertRGBA(ColorRGBA c)
+	{
 		return 1.0;
 	}
 
@@ -389,7 +387,7 @@ public class Function : IFunction
 	{
 		double c = val <= 0.03928
 			? val / 12.92
-			: Math.Pow((val + 0.055)/1.055,2.4)
+			: Math.Pow((val + 0.055) / 1.055, 2.4)
 		;
 		return c;
 	}
@@ -401,9 +399,9 @@ public class Function : IFunction
 		return l;
 	}
 
-	static Func<ColorRGBA,ColorRGBA,int>[] CompareColorRGBA()
+	static Func<ColorRGBA, ColorRGBA, int>[] CompareColorRGBA()
 	{
-		var arr = new Func<ColorRGBA,ColorRGBA,int>[] {
+		var arr = new Func<ColorRGBA, ColorRGBA, int>[] {
 			(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
 			(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
 			(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
@@ -411,9 +409,9 @@ public class Function : IFunction
 		return arr;
 	}
 
-	static Func<IColor3,IColor3,int>[] CompareIColor3()
+	static Func<IColor3, IColor3, int>[] CompareIColor3()
 	{
-		var arr = new Func<IColor3,IColor3,int>[] {
+		var arr = new Func<IColor3, IColor3, int>[] {
 			(a,b) => a.C1 > b.C1 ? 1 : a.C1 < b.C1 ? -1 : 0,
 			(a,b) => a.C2 > b.C2 ? 1 : a.C2 < b.C2 ? -1 : 0,
 			(a,b) => a.C3 > b.C3 ? 1 : a.C3 < b.C3 ? -1 : 0,
@@ -421,9 +419,9 @@ public class Function : IFunction
 		return arr;
 	}
 
-	static Func<IColor4,IColor4,int>[] CompareIColor4()
+	static Func<IColor4, IColor4, int>[] CompareIColor4()
 	{
-		var arr = new Func<IColor4,IColor4,int>[] {
+		var arr = new Func<IColor4, IColor4, int>[] {
 			(a,b) => a.C1 > b.C1 ? 1 : a.C1 < b.C1 ? -1 : 0,
 			(a,b) => a.C2 > b.C2 ? 1 : a.C2 < b.C2 ? -1 : 0,
 			(a,b) => a.C3 > b.C3 ? 1 : a.C3 < b.C3 ? -1 : 0,
@@ -525,9 +523,9 @@ public class Function : IFunction
 	}
 	*/
 
-	static Func<(double,double,double),(double,double,double),int>[] ComparersHsi()
+	static Func<(double, double, double), (double, double, double), int>[] ComparersHsi()
 	{
-		var arr = new Func<(double,double,double),(double,double,double),int>[] {
+		var arr = new Func<(double, double, double), (double, double, double), int>[] {
 			(a,b) => a.Item1 > b.Item1 ? 1 : a.Item1 < b.Item1 ? -1 : 0,
 			(a,b) => a.Item2 > b.Item2 ? 1 : a.Item2 < b.Item2 ? -1 : 0,
 			(a,b) => a.Item3 > b.Item3 ? 1 : a.Item3 < b.Item3 ? -1 : 0,

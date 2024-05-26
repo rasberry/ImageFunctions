@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestImgDiff : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.ImgDiff);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -37,15 +37,15 @@ public class TestImgDiff : AbstractFunctionTest
 		}
 	}
 
-	public static IEnumerable<TestFunctionInfo> GetFunctionInfo((string,string) imgSet)
+	public static IEnumerable<TestFunctionInfo> GetFunctionInfo((string, string) imgSet)
 	{
 		yield return CreateTestInfo(1, imgSet, new string[0]);
 		yield return CreateTestInfo(2, imgSet, new string[] { "-i" });
 		yield return CreateTestInfo(3, imgSet, new string[] { "-o", "0.9" });
-		yield return CreateTestInfo(4, imgSet, new string[] { "-o","0.5","-c","red" });
+		yield return CreateTestInfo(4, imgSet, new string[] { "-o", "0.5", "-c", "red" });
 	}
 
-	static TestFunctionInfo CreateTestInfo(int index, (string,string) imgSet, string[] args)
+	static TestFunctionInfo CreateTestInfo(int index, (string, string) imgSet, string[] args)
 	{
 		return new TestFunctionInfo {
 			Args = args,
@@ -54,9 +54,9 @@ public class TestImgDiff : AbstractFunctionTest
 		};
 	}
 
-	public static IEnumerable<(string,string)> GetImageNames()
+	public static IEnumerable<(string, string)> GetImageNames()
 	{
-		yield return ("toes","toes-p");
-		yield return ("scorpius","scorpius-p");
+		yield return ("toes", "toes-p");
+		yield return ("scorpius", "scorpius-p");
 	}
 }

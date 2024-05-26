@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestAutoWhiteBalance : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.AutoWhiteBalance);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -40,8 +40,8 @@ public class TestAutoWhiteBalance : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
 		yield return CreateTestInfo(1, startImg, new string[0]);
-		yield return CreateTestInfo(2, startImg, new string[] { "-p","0.5%" });
-		yield return CreateTestInfo(3, startImg, new string[] { "-b","8" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-p", "0.5%" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-b", "8" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -55,7 +55,7 @@ public class TestAutoWhiteBalance : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "cloud","road" };
+		var list = new string[] { "cloud", "road" };
 		return list;
 	}
 }

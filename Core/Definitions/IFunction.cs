@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace ImageFunctions.Core;
 
 public interface IFunction

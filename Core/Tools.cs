@@ -1,6 +1,5 @@
-using System.Diagnostics;
-using System.Drawing;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Core;
 
@@ -16,9 +15,12 @@ public static class Tools
 	/// <param name="image"></param>
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
-	public static void ThreadPixels(this ICanvas image, Action<int,int> callback,
+	public static void ThreadPixels(this ICanvas image, Action<int, int> callback,
 		int? maxThreads = null, IProgress<double> progress = null)
 	{
+		if(image == null) {
+			throw Squeal.ArgumentNull(nameof(image));
+		}
 		var size = new Rectangle(0, 0, image.Width, image.Height);
 		ThreadPixels(size, callback, maxThreads, progress);
 	}
@@ -29,14 +31,14 @@ public static class Tools
 	/// <param name="rect"></param>
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
-	public static void ThreadPixels(this Rectangle rect, Action<int,int> callback,
+	public static void ThreadPixels(this Rectangle rect, Action<int, int> callback,
 		int? maxThreads = null, IProgress<double> progress = null)
 	{
 		long done = 0;
 		long max = (long)rect.Width * rect.Height;
 
 		ParallelOptions po = new();
-		if (maxThreads.HasValue) {
+		if(maxThreads.HasValue) {
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		}
 
@@ -47,7 +49,7 @@ public static class Tools
 			int x = (int)(num % rect.Width);
 			Interlocked.Increment(ref done);
 			progress?.Report((double)done / max);
-			callback(x + rect.Left,y + rect.Top);
+			callback(x + rect.Left, y + rect.Top);
 		});
 		//Trace.WriteLine($"{nameof(ThreadPixels)} 2");
 	}
@@ -55,7 +57,7 @@ public static class Tools
 	//https://en.wikipedia.org/wiki/Sinc_function
 	public static double SinC(double v)
 	{
-		if (Math.Abs(v) < double.Epsilon) {
+		if(Math.Abs(v) < double.Epsilon) {
 			return 1.0;
 		}
 		v *= Math.PI; //normalization factor
@@ -65,17 +67,20 @@ public static class Tools
 
 	public static bool EqualsIC(this string sub, string test)
 	{
-		return sub.Equals(test,StringComparison.CurrentCultureIgnoreCase);
+		if(sub == null) { return false; }
+		return sub.Equals(test, StringComparison.OrdinalIgnoreCase);
 	}
 
 	public static bool StartsWithIC(this string sub, string test)
 	{
-		return sub.StartsWith(test,StringComparison.CurrentCultureIgnoreCase);
+		if(sub == null) { return false; }
+		return sub.StartsWith(test, StringComparison.OrdinalIgnoreCase);
 	}
 
 	public static bool EndsWithIC(this string sub, string test)
 	{
-		return sub.EndsWith(test,StringComparison.CurrentCultureIgnoreCase);
+		if(sub == null) { return false; }
+		return sub.EndsWith(test, StringComparison.OrdinalIgnoreCase);
 	}
 
 	/// <summary>
@@ -89,12 +94,15 @@ public static class Tools
 	/// <returns>The created ICanvas</returns>
 	public static ICanvas NewCanvasFromLayersOrDefault(this IImageEngine engine, ILayers layers, int width, int height)
 	{
-		if (layers == null) {
+		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
+		}
+		if(engine == null) {
+			throw Squeal.ArgumentNull(nameof(engine));
 		}
 
 		ICanvas more;
-		if (layers.Count < 1) {
+		if(layers.Count < 1) {
 			more = engine.NewCanvas(width, height);
 		}
 		else {
@@ -114,11 +122,14 @@ public static class Tools
 	/// <returns>false if there are no layers otherwise true</returns>
 	public static bool TryNewCanvasFromLayers(this IImageEngine engine, ILayers layers, out ICanvas canvas)
 	{
-		if (layers == null) {
+		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
+		if(engine == null) {
+			throw Squeal.ArgumentNull(nameof(engine));
+		}
 
-		if (layers.Count < 1) {
+		if(layers.Count < 1) {
 			canvas = default;
 			return false;
 		}
@@ -138,7 +149,7 @@ public static class Tools
 	public static ICanvas NewCanvasFromLayers(this IImageEngine engine, ILayers layers)
 	{
 		bool worked = engine.TryNewCanvasFromLayers(layers, out var canvas);
-		if (!worked) {
+		if(!worked) {
 			throw Squeal.LayerMustHaveAtLeast();
 		}
 		return canvas;
@@ -147,7 +158,11 @@ public static class Tools
 	//TODO this might go away
 	public static void DrawLine(this IImageEngine engine, ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0)
 	{
-		if (engine is not IDrawEngine artist) {
+		if(engine == null) {
+			throw Squeal.ArgumentNull(nameof(engine));
+		}
+
+		if(engine is not IDrawEngine artist) {
 			throw Squeal.EngineCannotDrawLines(engine.ToString());
 		}
 
@@ -163,16 +178,16 @@ public static class Tools
 	public static string NumberToWord(int number)
 	{
 		switch(number) {
-			case 0: return "zero";
-			case 1: return "one";
-			case 2: return "two";
-			case 3: return "three";
-			case 4: return "four";
-			case 5: return "five";
-			case 6: return "six";
-			case 7: return "seven";
-			case 8: return "eight";
-			case 9: return "nine";
+		case 0: return "zero";
+		case 1: return "one";
+		case 2: return "two";
+		case 3: return "three";
+		case 4: return "four";
+		case 5: return "five";
+		case 6: return "six";
+		case 7: return "seven";
+		case 8: return "eight";
+		case 9: return "nine";
 		}
 		throw Squeal.ArgumentOutOfRange(nameof(number));
 	}
@@ -185,7 +200,7 @@ public static class Tools
 	/// <returns>The result</returns>
 	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result)
 	{
-		if (result.IsInvalid()) {
+		if(result.IsInvalid()) {
 			Log.Error(Note.CouldNotParse(result.Name, result.Value), result.Error);
 		}
 		return result;

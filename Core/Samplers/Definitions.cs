@@ -15,9 +15,3 @@ public interface ISampler
 	double Scale { get; set; }
 	PickEdgeRule EdgeRule { get; set; }
 }
-
-//public interface IMeasurer
-//{
-//	double Measure(double x1, double y1, double x2, double y2);
-//	double Measure(double[] u, double[] v);
-//}

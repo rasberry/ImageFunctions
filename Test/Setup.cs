@@ -1,5 +1,5 @@
-using System.Runtime.CompilerServices;
 using ImageFunctions.Core;
+using System.Runtime.CompilerServices;
 
 namespace ImageFunctions.Test;
 
@@ -20,7 +20,7 @@ public class Setup
 	[AssemblyCleanup]
 	public static void Cleanup()
 	{
-		if (Register != null) {
+		if(Register != null) {
 			Register.Dispose();
 			Register = null;
 		}
@@ -30,17 +30,18 @@ public class Setup
 	internal static Register Register;
 
 	// https://stackoverflow.com/questions/816566/how-do-you-get-the-current-project-directory-from-c-sharp-code-when-creating-a-c
-	internal static string ProjectRootPath { get { return runTimePath ??= CalculatePath(); }}
+	internal static string ProjectRootPath { get { return runTimePath ??= CalculatePath(); } }
 	const string FileRelativePath = nameof(Setup) + ".cs";
 	static string runTimePath = null;
 
 	static string CalculatePath()
 	{
 		string pathName = GetSourceFilePathName();
-		return pathName.Substring(0, pathName.Length - FileRelativePath.Length );
+		return pathName.Substring(0, pathName.Length - FileRelativePath.Length);
 	}
 
-	static string GetSourceFilePathName([CallerFilePath] string callerFilePath = null) {
+	static string GetSourceFilePathName([CallerFilePath] string callerFilePath = null)
+	{
 		return callerFilePath ?? "";
 	}
 }

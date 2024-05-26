@@ -6,6 +6,7 @@ namespace ImageFunctions.Core;
 
 internal static class PluginLoader
 {
+#pragma warning disable CA1031 // Do not catch general exception types - We want other plugins to load if possible
 	public static void LoadAllPlugins(IRegister register)
 	{
 		var list = GetFilesWithPlugins();
@@ -14,7 +15,7 @@ internal static class PluginLoader
 			Log.Debug($"Loading pluginfile {f}");
 			//we don't want to re-load the core dll as a plugin
 			var selfAssembly = typeof(IPlugin).Assembly;
-			if (Path.GetFullPath(f) == selfAssembly.Location) {
+			if(Path.GetFullPath(f) == selfAssembly.Location) {
 				RegisterPlugin(selfAssembly, register);
 				continue;
 			}
@@ -26,18 +27,19 @@ internal static class PluginLoader
 				plugin = context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(f));
 			}
 			catch(Exception e) {
-				Log.Warning(Note.PluginFileWarnLoading(f,e));
+				Log.Warning(Note.PluginFileWarnLoading(f, e));
 				continue;
 			}
 
-			if (plugin != null) {
+			if(plugin != null) {
 				bool found = RegisterPlugin(plugin, register);
-				if (!found) {
+				if(!found) {
 					Log.Error("Something is very wrong..");
 				}
 			}
 		}
 	}
+#pragma warning restore CA1031
 
 	static string GetPluginsFolder()
 	{
@@ -48,6 +50,7 @@ internal static class PluginLoader
 		//return root;
 	}
 
+#pragma warning disable CA1031 // Do not catch general exception types - We want to continue registering other plugins
 	// returns true if any plugin types were found in the assembly
 	public static bool RegisterPlugin(Assembly plugin, IRegister register)
 	{
@@ -55,7 +58,7 @@ internal static class PluginLoader
 		bool pluginFound = false;
 
 		foreach(Type t in plugTypes) {
-			if (! IsIPlugin(t)) { continue; }
+			if(!IsIPlugin(t)) { continue; }
 			Log.Info(Note.PluginFound(plugin.Location, t.FullName));
 			pluginFound = true;
 
@@ -63,8 +66,8 @@ internal static class PluginLoader
 			try {
 				pluginInst = (IPlugin)Activator.CreateInstance(t);
 			}
-			catch (Exception e) {
-				Log.Warning(Note.PluginTypeWarnLoading(t,e));
+			catch(Exception e) {
+				Log.Warning(Note.PluginTypeWarnLoading(t, e));
 				continue;
 			}
 
@@ -74,11 +77,12 @@ internal static class PluginLoader
 				pluginInst.Init(register);
 			}
 			catch(Exception e) {
-				Log.Warning(Note.PluginInitFailed(t,e));
+				Log.Warning(Note.PluginInitFailed(t, e));
 			}
 		}
 		return pluginFound;
 	}
+#pragma warning restore CA1031 // Do not catch general exception types
 
 	static IEnumerable<string> GetFilesWithPlugins()
 	{
@@ -102,11 +106,11 @@ internal static class PluginLoader
 				Log.Debug($"Skipping {dllFile} E:{e.Message}");
 			}
 
-			if (assembly == null) { continue; }
-			foreach (var type in assembly.GetTypes()) {
+			if(assembly == null) { continue; }
+			foreach(var type in assembly.GetTypes()) {
 				var isPlugin = IsIPlugin(type);
 				//Log.Debug($"Checking type {type.FullName} [{(isPlugin?"Y":"n")}]");
-				if (IsIPlugin(type)) {
+				if(IsIPlugin(type)) {
 					//Log.Debug($"Found plugin {type.FullName}");
 					yield return dllFile;
 				}
@@ -114,12 +118,12 @@ internal static class PluginLoader
 		}
 	}
 
-	static readonly Dictionary<string,bool> PluginTypeCache = new(StringComparer.CurrentCultureIgnoreCase);
+	static readonly Dictionary<string, bool> PluginTypeCache = new(StringComparer.CurrentCultureIgnoreCase);
 	static readonly Type iPluginType = typeof(IPlugin);
 	static bool IsIPlugin(Type subj)
 	{
 		//check memoized value first
-		if (PluginTypeCache.TryGetValue(subj.FullName, out var memoized)) {
+		if(PluginTypeCache.TryGetValue(subj.FullName, out var memoized)) {
 			return memoized;
 		}
 
@@ -131,11 +135,11 @@ internal static class PluginLoader
 	static bool CheckIsIPlugin(Type subj)
 	{
 		// we don't want to instantiate the IPlugin interface itself
-		if (subj == iPluginType) {
+		if(subj == iPluginType) {
 			return false;
 		}
 		var comparer = StringComparison.InvariantCultureIgnoreCase;
-		if (string.Equals(subj.FullName,iPluginType.FullName,comparer)) {
+		if(string.Equals(subj.FullName, iPluginType.FullName, comparer)) {
 			return false;
 		}
 
@@ -149,17 +153,17 @@ internal static class PluginLoader
 			stack.RemoveAt(stack.Count - 1); //pop
 
 			//Log.Debug($"Comp {curr.FullName} {stack.Count}");
-			if (string.Equals(curr.FullName,iPluginType.FullName,comparer)) {
+			if(string.Equals(curr.FullName, iPluginType.FullName, comparer)) {
 				return true;
 			}
 			var faces = curr.GetInterfaces();
-			if (faces.Length > 0) {
+			if(faces.Length > 0) {
 				stack.AddRange(faces); //push
 			}
 		}
 
 		//fallback to the normal check
-		if (iPluginType.IsAssignableFrom(subj)) {
+		if(iPluginType.IsAssignableFrom(subj)) {
 			return true;
 		}
 
@@ -184,7 +188,7 @@ class PluginLoadContext : AssemblyLoadContext
 		//Log.Message($"PluginLoadContext [{OriginalPath}] Trying to load {assemblyName}");
 		//Trace.WriteLine($"PluginLoadContext Trying to load {assemblyName}");
 		string assemblyPath = _resolver.ResolveAssemblyToPath(assemblyName);
-		if (assemblyPath != null) {
+		if(assemblyPath != null) {
 			//Log.Message($"PluginLoadContext [{OriginalPath}] Loading {assemblyPath}");
 			//Trace.WriteLine($"PluginLoadContext Loading {assemblyPath}");
 			return LoadFromAssemblyPath(assemblyPath);
@@ -196,7 +200,7 @@ class PluginLoadContext : AssemblyLoadContext
 	protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
 	{
 		string libraryPath = _resolver.ResolveUnmanagedDllToPath(unmanagedDllName);
-		if (libraryPath != null) {
+		if(libraryPath != null) {
 			return LoadUnmanagedDllFromPath(libraryPath);
 		}
 

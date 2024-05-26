@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Diagnostics;
 
 namespace ImageFunctions.Core;
 
@@ -71,9 +70,12 @@ public sealed class Layers : ILayers, IDisposable
 			return Stack[index];
 		}
 		set {
+			if(value == null) {
+				throw Squeal.ArgumentNull(nameof(value));
+			}
 			var item = Stack[index];
 			Stack[index] = new SingleLayerItem(value.Canvas, value.Name);
-			if (item.Canvas is IDisposable dis) {
+			if(item.Canvas is IDisposable dis) {
 				dis.Dispose();
 			}
 		}
@@ -101,7 +103,7 @@ public sealed class Layers : ILayers, IDisposable
 	public void DisposeAt(int index)
 	{
 		var item = Stack.PopAt(index);
-		if (item.Canvas is IDisposable dis) {
+		if(item.Canvas is IDisposable dis) {
 			dis.Dispose();
 		}
 	}
@@ -109,11 +111,11 @@ public sealed class Layers : ILayers, IDisposable
 	public int IndexOf(string name, int startIndex = 0)
 	{
 		//if there's nothing in the list no match possible
-		if (Stack.Count < 1) { return -1; }
+		if(Stack.Count < 1) { return -1; }
 
 		//enumerations are backwards (stack ordering)
 		for(int c = startIndex; c < Stack.Count; c++) {
-			if (Stack[c].Name == name) {
+			if(Stack[c].Name == name) {
 				return c;
 			}
 		}
@@ -123,10 +125,10 @@ public sealed class Layers : ILayers, IDisposable
 	public int IndexOf(uint id, int startIndex = 0)
 	{
 		//if there's nothing in the list no match possible
-		if (Stack.Count < 1) { return -1; }
+		if(Stack.Count < 1) { return -1; }
 
 		for(int c = startIndex; c < Stack.Count; c++) {
-			if (Stack[c].Id == id) {
+			if(Stack[c].Id == id) {
 				return c;
 			}
 		}
@@ -143,7 +145,7 @@ public sealed class Layers : ILayers, IDisposable
 		//Note: this only works because StackList is really a list and the iteration is reversed.
 		for(int i = 0; i < count; i++) {
 			var item = Stack.PopAt(0); //we always pop at zero since that's the same as removing the last item
-			if (item.Canvas is IDisposable dis) {
+			if(item.Canvas is IDisposable dis) {
 				dis.Dispose();
 			}
 		}
@@ -156,7 +158,7 @@ public sealed class Layers : ILayers, IDisposable
 	void IStackList<ISingleLayerItem>.Push(ISingleLayerItem item) => Stack.Push(item);
 	void IStackList<ISingleLayerItem>.AddRange(IEnumerable<ISingleLayerItem> items) => Stack.AddRange(items);
 	ISingleLayerItem IStackList<ISingleLayerItem>.Pop() => Stack.Pop();
-	void IStackList<ISingleLayerItem>.PushAt(int index, ISingleLayerItem item) => Stack.PushAt(index,item);
+	void IStackList<ISingleLayerItem>.PushAt(int index, ISingleLayerItem item) => Stack.PushAt(index, item);
 
 	//readonly List<SingleLayerItem> List = new();
 	readonly StackList<ISingleLayerItem> Stack = new();
@@ -177,6 +179,6 @@ public sealed class Layers : ILayers, IDisposable
 		/// <summary>The unique Id for this layer</summary>
 		public uint Id { get; init; }
 
-		static uint Counter = 0;
+		static uint Counter;
 	}
 }

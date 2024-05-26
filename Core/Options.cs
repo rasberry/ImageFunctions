@@ -1,5 +1,3 @@
-using System.Text;
-using ImageFunctions.Core.Docs;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Core;
@@ -29,7 +27,7 @@ gf - given function name == -h && gf
  1   1   1  0 |  1  1  1  0
  1   1   1  1 |  1  1  1  1
 */
-
+#pragma warning disable CA1861 //Avoid constant arrays as arguments - There's little to no performance gain for doing this here
 internal class Options : ICoreOptions
 {
 	public Options(IRegister register)
@@ -39,25 +37,25 @@ internal class Options : ICoreOptions
 
 	public void Usage(StringBuilder sb, IRegister _)
 	{
-		sb.ND(0,"Usage: "+nameof(ImageFunctions)+" [options] [function name] [-- function options]");
+		sb.ND(0, "Usage: " + nameof(ImageFunctions) + " [options] [function name] [-- function options]");
 		sb.WT();
-		sb.WT(0,"Options:");
-		sb.ND(1,"-h / --help"                 ,"Show help / full help (provide a function name to show only that help instead");
-		sb.ND(1,"-i / --image (file)"         ,"Load this image as a layer. Supports images with multiple layers");
-		sb.ND(1,"-# / --size (width) (height)","Set the default size in pixels when no images are loaded");
-		sb.ND(1,"-f / --format (name)"        ,"Save any output files as specified (engine supported) format");
-		sb.ND(1,"-x / --max-threads (number)" ,"Restrict parallel processing to a given number of threads (defaults to # of cores)");
-		sb.ND(1,"-e / --engine (name)"        ,"Select (a registered) image engine (default first available)");
-		sb.ND(1,"-v / --verbose"              ,"Show additional messages");
-		sb.ND(1,"-o / --output (name)"        ,"Output file name");
-		sb.ND(1,"-lf / --formats"             ,"List engine supported image formats");
-		sb.ND(1,"-ln / --namespace (name)"    ,"List registered items in given namespace (specify 'all' to list everything)");
-		sb.ND(1,"--"                          ,"Pass all remaining options to the function");
+		sb.WT(0, "Options:");
+		sb.ND(1, "-h / --help", "Show help / full help (provide a function name to show only that help instead");
+		sb.ND(1, "-i / --image (file)", "Load this image as a layer. Supports images with multiple layers");
+		sb.ND(1, "-# / --size (width) (height)", "Set the default size in pixels when no images are loaded");
+		sb.ND(1, "-f / --format (name)", "Save any output files as specified (engine supported) format");
+		sb.ND(1, "-x / --max-threads (number)", "Restrict parallel processing to a given number of threads (defaults to # of cores)");
+		sb.ND(1, "-e / --engine (name)", "Select (a registered) image engine (default first available)");
+		sb.ND(1, "-v / --verbose", "Show additional messages");
+		sb.ND(1, "-o / --output (name)", "Output file name");
+		sb.ND(1, "-lf / --formats", "List engine supported image formats");
+		sb.ND(1, "-ln / --namespace (name)", "List registered items in given namespace (specify 'all' to list everything)");
+		sb.ND(1, "--", "Pass all remaining options to the function");
 	}
 
 	public bool ParseArgs(string[] args, IRegister _)
 	{
-		if (args.Length < 1) {
+		if(args.Length < 1) {
 			Show |= PickShow.Usage;
 			return true; //there's no arguments so nothing else to do
 		}
@@ -67,10 +65,10 @@ internal class Options : ICoreOptions
 		var scriptArgs = new List<string>();
 		bool seperatorFound = false;
 		foreach(var a in args) {
-			if (a == "--") {
+			if(a == "--") {
 				seperatorFound = true;
 			}
-			else if (seperatorFound) {
+			else if(seperatorFound) {
 				scriptArgs.Add(a);
 			}
 			else {
@@ -80,14 +78,14 @@ internal class Options : ICoreOptions
 		FunctionArgs = scriptArgs.ToArray();
 
 		var p = new ParseParams(regularArgs.ToArray());
-		if (p.Has("-h").IsGood()) {
+		if(p.Has("-h").IsGood()) {
 			Show |= PickShow.Usage;
 		}
-		if (p.Has("--help").IsGood()) {
+		if(p.Has("--help").IsGood()) {
 			Show |= PickShow.All;
 		}
 
-		if (p.Scan<string>(new[]{"--namespace","-ln"})
+		if(p.Scan<string>(new[] { "--namespace", "-ln" })
 			.WhenGood(r => {
 				HelpNameSpace = r.Value;
 				Show |= PickShow.Registered;
@@ -99,7 +97,7 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if (p.Scan<string>(new[]{"--engine", "-e"})
+		if(p.Scan<string>(new[] { "--engine", "-e" })
 			.WhenGood(r => { EngineName = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -107,11 +105,11 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if (p.Scan<int>(new[]{"--max-threads","-x"})
+		if(p.Scan<int>(new[] { "--max-threads", "-x" })
 			.WhenInvalidTellDefault()
 			.WhenGood(r => {
-				if (r.Value < 1) {
-					Log.Error(Note.MustBeGreaterThan(r.Name,0));
+				if(r.Value < 1) {
+					Log.Error(Note.MustBeGreaterThan(r.Name, 0));
 					return r with { Result = ParseParams.Result.UnParsable };
 				}
 				MaxDegreeOfParallelism = r.Value; return r;
@@ -121,7 +119,7 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if (p.Scan<string>(new[]{"--format","-f"})
+		if(p.Scan<string>(new[] { "--format", "-f" })
 			.WhenGood(r => { _imageFormat = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -129,7 +127,7 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if (p.Scan<string>(new[]{"--output","-o"})
+		if(p.Scan<string>(new[] { "--output", "-o" })
 			.WhenGood(r => { _outputName = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -137,24 +135,24 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if (p.Scan<int?,int?>(new[] {"--size","-#"})
-			.WhenGood(r => { (_defaultWidth,_defaultHeight) = r.Value; return r; })
+		if(p.Scan<int?, int?>(new[] { "--size", "-#" })
+			.WhenGood(r => { (_defaultWidth, _defaultHeight) = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if (p.Has("-v","--verbose").IsGood()) {
+		if(p.Has("-v", "--verbose").IsGood()) {
 			Log.BeVerbose = true;
 		}
 
-		if (p.Has("-lf","--formats").IsGood()) {
+		if(p.Has("-lf", "--formats").IsGood()) {
 			Show |= PickShow.Formats;
 		}
 
 		//grab all of the inputs images
-		if (!EnumerateInputImages(p)) {
+		if(!EnumerateInputImages(p)) {
 			return false;
 		}
 
@@ -164,7 +162,7 @@ internal class Options : ICoreOptions
 			.WhenGood(r => { _functionName = r.Value; return r; })
 		;
 
-		if (Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(_functionName)) {
+		if(Show.HasFlag(PickShow.Usage) && !String.IsNullOrWhiteSpace(_functionName)) {
 			Show |= PickShow.Function;
 		}
 
@@ -176,18 +174,18 @@ internal class Options : ICoreOptions
 		StringBuilder sb = new StringBuilder();
 
 		//show normal options and function options
-		if (Show.HasFlag(PickShow.Usage)) {
+		if(Show.HasFlag(PickShow.Usage)) {
 			Usage(sb, Register);
 		}
 
-		if (Show.HasFlag(PickShow.Function)) {
-			if (!ShowFunctionHelp(_functionName, sb)) {
+		if(Show.HasFlag(PickShow.Function)) {
+			if(!ShowFunctionHelp(_functionName, sb)) {
 				return false;
 			}
 		}
 
 		//show registered items
-		if (Show.HasFlag(PickShow.Registered)) {
+		if(Show.HasFlag(PickShow.Registered)) {
 			bool namespaceGiven = !String.IsNullOrWhiteSpace(HelpNameSpace);
 			var space = namespaceGiven ? HelpNameSpace : "all";
 			ShowRegisteredItems(space, sb);
@@ -195,8 +193,8 @@ internal class Options : ICoreOptions
 
 		//need to select the engine so we can show formats
 		var er = new EngineRegister(Register);
-		if (!String.IsNullOrWhiteSpace(EngineName)) {
-			if (!er.Try(EngineName, out var engineEntry)) {
+		if(!String.IsNullOrWhiteSpace(EngineName)) {
+			if(!er.Try(EngineName, out var engineEntry)) {
 				Log.Error(Note.NotRegistered(engineEntry.NameSpace, engineEntry.Name));
 				return false;
 			}
@@ -208,36 +206,36 @@ internal class Options : ICoreOptions
 		}
 
 		//show formats
-		if (Show.HasFlag(PickShow.Formats)) {
+		if(Show.HasFlag(PickShow.Formats)) {
 			var eng = Engine.Item.Value;
 			sb.WT();
-			sb.WT(0,$"Supported Image Formats for Selected Engine - {Engine}");
-			sb.WT(0,"Legend: R = Reading, W = Writting, M = Multiple layers");
+			sb.WT(0, $"Supported Image Formats for Selected Engine - {Engine}");
+			sb.WT(0, "Legend: R = Reading, W = Writting, M = Multiple layers");
 			foreach(var f in eng.Formats()) {
 				string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}{(f.MultiFrame ? "M" : " ")}]";
-				sb.ND(1,f.Name,$"{rw} {f.Description}");
+				sb.ND(1, f.Name, $"{rw} {f.Description}");
 			}
 		}
 
 		//if there's any help to print do so now
-		if (sb.Length > 0) {
+		if(sb.Length > 0) {
 			Log.Message(sb.ToString());
 			// stop if we've printed any help
 			return false;
 		}
 
-		if (!DetermineImageFormat()) {
+		if(!DetermineImageFormat()) {
 			return false;
 		}
 
-		if (String.IsNullOrWhiteSpace(_functionName)) {
+		if(String.IsNullOrWhiteSpace(_functionName)) {
 			Log.Error(Note.MustProvideInput("function name"));
 			return false;
 		}
 
-		if (String.IsNullOrWhiteSpace(_outputName)) {
+		if(String.IsNullOrWhiteSpace(_outputName)) {
 			var name = nameof(ImageFunctions).ToLowerInvariant();
-			var date = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss");
+			var date = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss", System.Globalization.CultureInfo.CurrentCulture);
 			_outputName = $"{name}-{date}";
 		}
 
@@ -257,9 +255,9 @@ internal class Options : ICoreOptions
 
 		string suffix = all ? "" : $" for '{@namespace}'";
 		sb.WT();
-		sb.WT(0,$"Registered Items{suffix}:");
+		sb.WT(0, $"Registered Items{suffix}:");
 		foreach(var k in keyList) {
-			sb.WT(1,k);
+			sb.WT(1, k);
 		}
 	}
 
@@ -267,10 +265,10 @@ internal class Options : ICoreOptions
 	{
 		var fn = new FunctionRegister(Register);
 		IEnumerable<string> list = null;
-		if (!String.IsNullOrWhiteSpace(name)) {
+		if(!String.IsNullOrWhiteSpace(name)) {
 			//show specific help for given function
-			if (!fn.Try(name,out _)) {
-				Log.Error(Note.NotRegistered(fn.Namespace,name));
+			if(!fn.Try(name, out _)) {
+				Log.Error(Note.NotRegistered(fn.Namespace, name));
 				return false;
 			}
 			list = new[] { name };
@@ -283,7 +281,7 @@ internal class Options : ICoreOptions
 		foreach(string key in list) {
 			var funcItem = fn.Get(key);
 			sb.WT();
-			sb.WT(0,$"Function {key}:");
+			sb.WT(0, $"Function {key}:");
 			var inst = funcItem.Item.Invoke(Register, null, this);
 			inst.Usage(sb);
 		}
@@ -297,15 +295,15 @@ internal class Options : ICoreOptions
 		bool formatGiven = !String.IsNullOrWhiteSpace(_imageFormat);
 		ImageFormat? found = null;
 		foreach(var f in eng.Formats()) {
-			if (formatGiven && f.Name.EqualsIC(_imageFormat)) {
+			if(formatGiven && f.Name.EqualsIC(_imageFormat)) {
 				found = f;
 			}
-			else if (f.Name.EqualsIC("png")) {
+			else if(f.Name.EqualsIC("png")) {
 				found = f;
 			}
 		}
 
-		if (found == null) {
+		if(found == null) {
 			Log.Error(Note.NoImageFormatFound(_imageFormat));
 			return false;
 		}
@@ -317,12 +315,12 @@ internal class Options : ICoreOptions
 	{
 		bool found = true;
 		while(found) {
-			var oim = p.Scan<string>(new[]{"-i","--image"});
-			if (oim.IsMissingArgument()) {
+			var oim = p.Scan<string>(new[] { "-i", "--image" });
+			if(oim.IsMissingArgument()) {
 				Log.Error(Note.MissingArgument("--image"));
 				return false;
 			}
-			else if (oim.IsGood()) {
+			else if(oim.IsGood()) {
 				_imageFileNames.Add(oim.Value);
 			}
 			else {
@@ -334,8 +332,8 @@ internal class Options : ICoreOptions
 	}
 
 	//Options only helper parameters
-	string HelpNameSpace = null;
-	string EngineName = null;
+	string HelpNameSpace;
+	string EngineName;
 	PickShow Show = PickShow.None;
 	readonly List<string> _imageFileNames = new();
 	string _functionName;
@@ -347,14 +345,14 @@ internal class Options : ICoreOptions
 
 	//Global options
 	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }
-	public int? MaxDegreeOfParallelism  { get; internal set; }
-	public string OutputName { get { return _outputName; }}
-	public string ImageFormat { get { return _imageFormat; }}
-	public string FunctionName { get { return _functionName; }}
+	public int? MaxDegreeOfParallelism { get; internal set; }
+	public string OutputName { get { return _outputName; } }
+	public string ImageFormat { get { return _imageFormat; } }
+	public string FunctionName { get { return _functionName; } }
 	public string[] FunctionArgs { get; internal set; }
-	public IReadOnlyList<string> ImageFileNames { get { return _imageFileNames.AsReadOnly(); }}
-	public int? DefaultWidth { get { return _defaultWidth; }}
-	public int? DefaultHeight { get { return _defaultHeight; }}
+	public IReadOnlyList<string> ImageFileNames { get { return _imageFileNames.AsReadOnly(); } }
+	public int? DefaultWidth { get { return _defaultWidth; } }
+	public int? DefaultHeight { get { return _defaultHeight; } }
 
 	[Flags]
 	enum PickShow
@@ -367,3 +365,4 @@ internal class Options : ICoreOptions
 		All = 8 + 4 + 2 + 1
 	}
 }
+#pragma warning restore CA1861

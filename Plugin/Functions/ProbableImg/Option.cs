@@ -12,19 +12,19 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Generate a new image using a probability profile based on the input image");
-		sb.ND(1,"-n (number)"                ,"Max Number of start nodes (defaults to 1 or number of -pp/-xy options)");
-		sb.ND(1,"-rs (seed)"                 ,"Options number seed for the random number generator");
-		sb.ND(1,"-xy (number) (number)"      ,"Add a start node (in pixels) - multiple allowed");
-		sb.ND(1,"-pp (number)[%] (number)[%]","Add a start node (by proportion) - multiple allowed");
-		sb.ND(1,"-alt"                       ,"Use alternate rendering uses slightly less memory");
+		sb.ND(1, "Generate a new image using a probability profile based on the input image");
+		sb.ND(1, "-n (number)", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)");
+		sb.ND(1, "-rs (seed)", "Options number seed for the random number generator");
+		sb.ND(1, "-xy (number) (number)", "Add a start node (in pixels) - multiple allowed");
+		sb.ND(1, "-pp (number)[%] (number)[%]", "Add a start node (by proportion) - multiple allowed");
+		sb.ND(1, "-alt", "Use alternate rendering uses slightly less memory");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
-		if (p.Scan<int>("-rs")
+		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RandomSeed = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -32,7 +32,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int>("-n")
+		if(p.Scan<int>("-n")
 			.WhenGood(r => { TotalNodes = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -40,7 +40,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Has("-alt").IsGood()) {
+		if(p.Has("-alt").IsGood()) {
 			UseNonLookup = true;
 		}
 
@@ -49,26 +49,26 @@ public sealed class Options : IOptions
 		});
 
 		while(true) {
-			var pcp = p.Scan<double,double>("-pp",leftPar:parser,rightPar:parser);
-			if (pcp.IsMissing()) { break; }
-			if (pcp.IsInvalid()) { return false; }
-			if (pcp.IsGood()) {
-				var (ppx,ppy) = pcp.Value;
-				StartLoc.Add(StartPoint.FromPro(ppx,ppy));
+			var pcp = p.Scan<double, double>("-pp", leftPar: parser, rightPar: parser);
+			if(pcp.IsMissing()) { break; }
+			if(pcp.IsInvalid()) { return false; }
+			if(pcp.IsGood()) {
+				var (ppx, ppy) = pcp.Value;
+				StartLoc.Add(StartPoint.FromPro(ppx, ppy));
 			}
 		}
 		while(true) {
-			var pcx = p.Scan<int,int>("-xy");
-			if (pcx.IsMissing()) { break; }
-			if (pcx.IsInvalid()) { return false; }
-			if (pcx.IsGood()) {
-				var (cx,cy) = pcx.Value;
-				StartLoc.Add(StartPoint.FromLinear(cx,cy));
+			var pcx = p.Scan<int, int>("-xy");
+			if(pcx.IsMissing()) { break; }
+			if(pcx.IsInvalid()) { return false; }
+			if(pcx.IsGood()) {
+				var (cx, cy) = pcx.Value;
+				StartLoc.Add(StartPoint.FromLinear(cx, cy));
 			}
 		}
 
-		if (TotalNodes != null && TotalNodes < 1) {
-			Log.Error(Note.MustBeGreaterThan("-n",0));
+		if(TotalNodes != null && TotalNodes < 1) {
+			Log.Error(Note.MustBeGreaterThan("-n", 0));
 			return false;
 		}
 
@@ -76,28 +76,34 @@ public sealed class Options : IOptions
 	}
 }
 
-	public struct StartPoint
-	{
-		public bool IsLinear;
-		//proportional
-		public double PX;
-		public double PY;
-		//linear
-		public int LX;
-		public int LY;
+public struct StartPoint
+{
+	public bool IsLinear;
+	//proportional
+	public double PX;
+	public double PY;
+	//linear
+	public int LX;
+	public int LY;
 
-		public static StartPoint FromLinear(int x,int y) {
-			return new StartPoint {
-				IsLinear = true,
-				PX = 0.0, PY = 0.0,
-				LX = x, LY = y
-			};
-		}
-		public static StartPoint FromPro(double x, double y) {
-			return new StartPoint {
-				IsLinear = false,
-				PX = x, PY = y,
-				LX = 0, LY = 0
-			};
-		}
+	public static StartPoint FromLinear(int x, int y)
+	{
+		return new StartPoint {
+			IsLinear = true,
+			PX = 0.0,
+			PY = 0.0,
+			LX = x,
+			LY = y
+		};
 	}
+	public static StartPoint FromPro(double x, double y)
+	{
+		return new StartPoint {
+			IsLinear = false,
+			PX = x,
+			PY = y,
+			LX = 0,
+			LY = 0
+		};
+	}
+}

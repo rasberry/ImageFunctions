@@ -1,5 +1,3 @@
-using ImageFunctions.Core;
-
 namespace ImageFunctions.Plugin.Functions.FloodFill;
 
 public interface IStowTakeStore<T>
@@ -21,7 +19,7 @@ public class StackWrapper<T> : IStowTakeStore<T>
 		return Data.Pop();
 	}
 
-	public int Count { get { return Data.Count; }}
+	public int Count { get { return Data.Count; } }
 
 	Stack<T> Data = new();
 }
@@ -38,7 +36,7 @@ public class QueueWrapper<T> : IStowTakeStore<T>
 		return Data.Dequeue();
 	}
 
-	public int Count { get { return Data.Count; }}
+	public int Count { get { return Data.Count; } }
 
 	Queue<T> Data = new();
 }

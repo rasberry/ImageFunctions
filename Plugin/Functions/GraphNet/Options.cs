@@ -15,12 +15,12 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Creates a plot of a boolean-like network with a random starring state.");
-		sb.ND(1,"-b (number)"    ,"Number of states (default 2)");
-		sb.ND(1,"-n (number)"    ,"Number of nodes in the network (defaults to width of image)");
-		sb.ND(1,"-c (number)"    ,"Connections per node (default 3)");
-		sb.ND(1,"-p (number)"    ,"Chance of inserting a perturbation (default 0)");
-		sb.ND(1,"-rs (number)"   ,"Random Int32 seed value (defaults to system picked)");
+		sb.ND(1, "Creates a plot of a boolean-like network with a random starring state.");
+		sb.ND(1, "-b (number)", "Number of states (default 2)");
+		sb.ND(1, "-n (number)", "Number of nodes in the network (defaults to width of image)");
+		sb.ND(1, "-c (number)", "Connections per node (default 3)");
+		sb.ND(1, "-p (number)", "Chance of inserting a perturbation (default 0)");
+		sb.ND(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -30,35 +30,35 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(s);
 		});
 
-		if (p.Scan<int>("-b", 2)
+		if(p.Scan<int>("-b", 2)
 			.WhenGoodOrMissing(r => { States = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if (p.Scan<int?>("-n")
+		if(p.Scan<int?>("-n")
 			.WhenGood(r => { NodeCount = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if (p.Scan<int>("-c", 3)
+		if(p.Scan<int>("-c", 3)
 			.WhenGoodOrMissing(r => { Connectivity = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if (p.Scan<int>("-rs")
+		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RandomSeed = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if (p.Scan<double>("-p", 0.0, parser)
+		if(p.Scan<double>("-p", 0.0, parser)
 			.WhenGoodOrMissing(r => { PerturbationRate = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()

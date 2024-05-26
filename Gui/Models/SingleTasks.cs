@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using ImageFunctions.Core;
-using ImageFunctions.Gui.ViewModels;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -10,37 +8,38 @@ public static class SingleTasks
 	{
 		using var timeoutCancel = new CancellationTokenSource();
 		var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancel.Token));
-		if (completedTask == task) {
+		if(completedTask == task) {
 			timeoutCancel.Cancel();
 			await task;  // Very important in order to propagate exceptions
-		} else {
+		}
+		else {
 			throw new TimeoutException("The operation has timed out.");
 		}
 	}
 
 	public static SingleTonTask GetOrMake(string name, Action<CancellationToken> job, TimeSpan? timeout = null)
 	{
-		if (!Tasks.TryGetValue(name, out var task)) {
+		if(!Tasks.TryGetValue(name, out var task)) {
 			task = new SingleTonTask {
 				Job = job,
 				Timeout = timeout ?? TimeSpan.FromSeconds(DefaultTimeoutSeconds)
 			};
 
-			Tasks.Add(name,task);
+			Tasks.Add(name, task);
 		}
 		return task;
 	}
 
 	public static SingleTonTask Get(string name)
 	{
-		if (Tasks.TryGetValue(name, out var task)) {
+		if(Tasks.TryGetValue(name, out var task)) {
 			return task;
 		}
 		return null;
 	}
 
 	const int DefaultTimeoutSeconds = 30;
-	static Dictionary<string,SingleTonTask> Tasks = new();
+	static Dictionary<string, SingleTonTask> Tasks = new();
 }
 
 public class SingleTonTask : IDisposable
@@ -55,7 +54,7 @@ public class SingleTonTask : IDisposable
 	/// <returns>true if the task was started</returns>
 	public async Task<bool> Run()
 	{
-		if (IsRunning) {
+		if(IsRunning) {
 			TokenSource.Cancel();
 			return false;
 		}
@@ -71,7 +70,7 @@ public class SingleTonTask : IDisposable
 				TokenSource.TryReset();
 			});
 		}
-		catch (OperationCanceledException e) {
+		catch(OperationCanceledException e) {
 			Trace.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
 			IsRunning = false;
 			TokenSource.TryReset();
@@ -81,7 +80,7 @@ public class SingleTonTask : IDisposable
 
 	public void Cancel()
 	{
-		if (IsRunning) {
+		if(IsRunning) {
 			TokenSource.Cancel();
 		}
 	}

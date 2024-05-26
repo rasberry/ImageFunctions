@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestAreaSmoother2 : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.AreaSmoother2);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -54,7 +54,7 @@ public class TestAreaSmoother2 : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "shack-p","shell-p" };
+		var list = new string[] { "shack-p", "shell-p" };
 		return list;
 	}
 }

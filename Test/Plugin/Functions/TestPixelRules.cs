@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestPixelRules : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.PixelRules);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,10 +39,10 @@ public class TestPixelRules : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(1,startImg,new string[0]);
-		yield return CreateTestInfo(2,startImg,new string[] { "-m", "2", });
-		yield return CreateTestInfo(3,startImg,new string[] { "-m", "3", });
-		yield return CreateTestInfo(4,startImg,new string[] { "-n", "10", });
+		yield return CreateTestInfo(1, startImg, new string[0]);
+		yield return CreateTestInfo(2, startImg, new string[] { "-m", "2", });
+		yield return CreateTestInfo(3, startImg, new string[] { "-m", "3", });
+		yield return CreateTestInfo(4, startImg, new string[] { "-n", "10", });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -56,7 +56,7 @@ public class TestPixelRules : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "cats","cloud" };
+		var list = new string[] { "cats", "cloud" };
 		return list;
 	}
 }

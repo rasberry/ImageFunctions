@@ -11,12 +11,12 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Balances the image by stretching the color channels separately. The process"
-			+" 'trims' the color histogram removing sections of low color use at the top and bottom of the range"
-			+" then stretching the remaining colors to fill the space");
-		sb.ND(1,"-p (number)[%]","Threshold for discarding infrequently used colors (default 0.05%)");
-		sb.ND(1,"-b (number)"    ,"Number of buckets to use for histogram (default 256)");
-		sb.ND(1,"-a"             ,"Also stretch alpha channel");
+		sb.ND(1, "Balances the image by stretching the color channels separately. The process"
+			+ " 'trims' the color histogram removing sections of low color use at the top and bottom of the range"
+			+ " then stretching the remaining colors to fill the space");
+		sb.ND(1, "-p (number)[%]", "Threshold for discarding infrequently used colors (default 0.05%)");
+		sb.ND(1, "-b (number)", "Number of buckets to use for histogram (default 256)");
+		sb.ND(1, "-a", "Also stretch alpha channel");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -26,7 +26,7 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan("-p", 0.0005, parser)
+		if(p.Scan("-p", 0.0005, parser)
 			.WhenGoodOrMissing(r => { DiscardRatio = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -34,7 +34,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-b", 256)
+		if(p.Scan("-b", 256)
 			.WhenGoodOrMissing(r => { BucketCount = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -42,7 +42,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Has("-a").IsGood()) {
+		if(p.Has("-a").IsGood()) {
 			StretchAlpha = true;
 		}
 

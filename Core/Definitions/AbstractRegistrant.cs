@@ -10,33 +10,38 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 	/// Creates an instance of the object.
 	/// </summary>
 	/// <param name="register">IRegister that is used to register the items</param>
-	public AbstractRegistrant(IRegister register) {
+	protected AbstractRegistrant(IRegister register)
+	{
 		Reg = register;
 	}
 
-	public void Add(string name, T item) {
-		Reg.Add(Namespace,name,item);
+	public void Add(string name, T item)
+	{
+		Reg.Add(Namespace, name, item);
 	}
 
-	public IEnumerable<string> All() {
+	public IEnumerable<string> All()
+	{
 		foreach(var i in Reg.All()) {
-			if (i.NameSpace.Equals(Namespace)) {
+			if(i.NameSpace == Namespace) {
 				yield return i.Name;
 			}
 		}
 	}
 
-	public IRegisteredItem<T> Get(string name) {
-		return Reg.Get<T>(Namespace,name);
+	public IRegisteredItem<T> Get(string name)
+	{
+		return Reg.Get<T>(Namespace, name);
 	}
 
-	public bool Try(string name, out IRegisteredItem<T> item) {
-		return Reg.Try(Namespace,name,out item);
+	public bool Try(string name, out IRegisteredItem<T> item)
+	{
+		return Reg.Try(Namespace, name, out item);
 	}
 
 	/// <summary>
 	/// Override to specify the namespace for this class of items
 	/// </summary>
 	public abstract string Namespace { get; }
-	IRegister Reg;
+	readonly IRegister Reg;
 }

@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestLife : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.Life);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,9 +39,9 @@ public class TestLife : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(1, startImg, new string[] { "-i","1000","-b","70%","-th","10%" });
-		yield return CreateTestInfo(2, startImg, new string[] { "-i","1000","-b","70%","-th","10%","-w" });
-		yield return CreateTestInfo(3, startImg, new string[] { "-i","1000","-b","70%","-th","10%","-w","-ch" });
+		yield return CreateTestInfo(1, startImg, new string[] { "-i", "1000", "-b", "70%", "-th", "10%" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-i", "1000", "-b", "70%", "-th", "10%", "-w" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-i", "1000", "-b", "70%", "-th", "10%", "-w", "-ch" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -55,7 +55,7 @@ public class TestLife : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "spider","scorpius","skull" };
+		var list = new string[] { "spider", "scorpius", "skull" };
 		return list;
 	}
 }

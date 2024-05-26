@@ -1,7 +1,7 @@
-using System.Diagnostics;
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ReactiveUI;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -54,22 +54,22 @@ public class LayersImageData : ViewModelBase
 	public void LayerMoveDown()
 	{
 		int index = Layers.IndexOf(Id);
-		if (index < 0) { return; } //Not found :?
+		if(index < 0) { return; } //Not found :?
 		CheckUpDownEnabled();
-		if (DownEnabled) {
+		if(DownEnabled) {
 			//Trace.WriteLine($"{nameof(LayerMoveDown)} id:{Id} ix:{index} to:{index+1} h:{GetHashCode()}");
-			Layers.Move(index,index + 1);
+			Layers.Move(index, index + 1);
 		}
 	}
 
 	public void LayerMoveUp()
 	{
 		int index = Layers.IndexOf(Id);
-		if (index < 0) { return; } //Not found :?
+		if(index < 0) { return; } //Not found :?
 		CheckUpDownEnabled();
-		if (UpEnabled) {
+		if(UpEnabled) {
 			//Trace.WriteLine($"{nameof(LayerMoveUp)} id:{Id} ix:{index} to:{index-1} h:{GetHashCode()}");
-			Layers.Move(index,index - 1);
+			Layers.Move(index, index - 1);
 		}
 	}
 
@@ -96,6 +96,6 @@ public class LayersImageData : ViewModelBase
 	public void Test()
 	{
 		Trace.WriteLine($"Test: {this.Id} {this.Name} {this.Image.GetHashCode()} h:{GetHashCode()}");
-		Trace.WriteLine($"Test: {String.Join(",",Layers.Select(x => x.Id))}");
+		Trace.WriteLine($"Test: {String.Join(",", Layers.Select(x => x.Id))}");
 	}
 }

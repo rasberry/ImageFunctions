@@ -1,5 +1,5 @@
-using System.Drawing;
 using ImageFunctions.Core;
+using System.Drawing;
 
 namespace ImageFunctions.Test;
 
@@ -8,7 +8,7 @@ public class TestTurmites : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
 	const string MyName = nameof(Plugin.Functions.Turmites);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -43,7 +43,7 @@ public class TestTurmites : AbstractFunctionTest
 		yield return CreateTestInfo(4, new string[] { "-p", "LRRL", "-e", "reflect", "-i", "1e+7" });
 	}
 
-	static TestFunctionInfo CreateTestInfo(int num,string[] args)
+	static TestFunctionInfo CreateTestInfo(int num, string[] args)
 	{
 		return new TestFunctionInfo {
 			Args = args,

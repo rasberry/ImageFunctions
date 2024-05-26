@@ -14,7 +14,7 @@ public static class Helpers
 
 	public static void AssertAreSimilar(ColorRGBA e, ColorRGBA a, double maxdiff = 0.0)
 	{
-		var dist = Plugin.ImageComparer.ColorDistance(e,a);
+		var dist = Plugin.ImageComparer.ColorDistance(e, a);
 		Assert.IsTrue(dist.Total < maxdiff,
 			$"Color Distance {dist} > {maxdiff}."
 			+ $" Expected <{e.R},{e.G},{e.B},{e.A}>"
@@ -25,9 +25,9 @@ public static class Helpers
 	public static int IdImage(ICanvas canvas)
 	{
 		int hash = 5381;
-		for(int y=0; y < canvas.Height; y++) {
+		for(int y = 0; y < canvas.Height; y++) {
 			for(int x = 0; x < canvas.Width; x++) {
-				hash = (hash << 5) + hash + canvas[x,y].GetHashCode();
+				hash = (hash << 5) + hash + canvas[x, y].GetHashCode();
 			}
 		}
 		return hash;
@@ -35,14 +35,14 @@ public static class Helpers
 
 	public static IEnumerable<TestFunctionInfo> GetTestsForFunction(string name)
 	{
-		if (TestInfo == null) {
+		if(TestInfo == null) {
 			var testInfoType = typeof(TestFunctionInfo);
 			var abstractTestType = typeof(AbstractFunctionTest);
 			TestInfo = new Dictionary<string, List<TestFunctionInfo>>();
 
 			var all = testInfoType.Assembly.GetTypes();
 			foreach(var t in all) {
-				if (!t.IsSubclassOf(abstractTestType)) { continue; }
+				if(!t.IsSubclassOf(abstractTestType)) { continue; }
 				var inst = (AbstractFunctionTest)Activator.CreateInstance(t);
 				var funName = inst.FunctionName;
 				var infoList = inst.GetTestInfo().ToList();

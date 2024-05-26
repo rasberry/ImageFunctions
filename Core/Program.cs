@@ -5,11 +5,12 @@ namespace ImageFunctions.Core;
 //this is internal for testing purposes
 internal class Program
 {
+#pragma warning disable CA1031 // Do not catch general exception types - We want to handle all Exception
 	static int Main(string[] args)
 	{
-		#if DEBUG
+#if DEBUG
 		Trace.Listeners.Add(new ConsoleTraceListener());
-		#endif
+#endif
 
 		try {
 			using var register = new Register();
@@ -28,6 +29,7 @@ internal class Program
 			return e.GetHashCode();
 		}
 	}
+#pragma warning restore CA1031 // Do not catch general exception types
 
 	internal Program(IRegister register, Options options, ILayers layers)
 	{
@@ -39,23 +41,23 @@ internal class Program
 	int Run(string[] args)
 	{
 		//setup stage
-		if (!TrySetup(args, out int exitCode)) {
+		if(!TrySetup(args, out int exitCode)) {
 			return exitCode;
 		}
 
 		//load any input images into layers
-		if (!LoadImages()) {
+		if(!LoadImages()) {
 			return ExitCode.StoppedAtLoadImages;
 		}
 
 		//function stage
-		if (!TryRunFunction(out exitCode)) {
+		if(!TryRunFunction(out exitCode)) {
 			return exitCode;
 		}
 
 		//save the layers to one or more images
 		Log.Info($"Saving image {Options.OutputName}");
-		if (Layers.Count > 0) {
+		if(Layers.Count > 0) {
 			Options.Engine.Item.Value.SaveImage(Layers, Options.OutputName, Options.ImageFormat);
 		}
 		else {
@@ -69,7 +71,7 @@ internal class Program
 	internal bool TrySetup(string[] args, out int exitCode)
 	{
 		//process args in two parts - first part parse the options
-		if (!Options.ParseArgs(args, null)) {
+		if(!Options.ParseArgs(args, null)) {
 			exitCode = ExitCode.StoppedAtParseArgs;
 			return false;
 		}
@@ -78,7 +80,7 @@ internal class Program
 		PluginLoader.LoadAllPlugins(Register);
 
 		//second part - do any additional output or checks based on given options
-		if (!Options.ProcessOptions()) {
+		if(!Options.ProcessOptions()) {
 			exitCode = ExitCode.StoppedAtProcessOptions;
 			return false;
 		}
@@ -91,8 +93,8 @@ internal class Program
 	{
 		// figure out the function to run
 		var fr = new FunctionRegister(Register);
-		if (!fr.Try(Options.FunctionName, out var funcItem)) {
-			Log.Error(Note.NotRegistered(fr.Namespace,Options.FunctionName));
+		if(!fr.Try(Options.FunctionName, out var funcItem)) {
+			Log.Error(Note.NotRegistered(fr.Namespace, Options.FunctionName));
 			exitCode = ExitCode.StoppedFunctionNotRegistered;
 			return false;
 		}
@@ -100,7 +102,7 @@ internal class Program
 		//Not really sure how to best use the bool return. Going with exit code for now
 		Log.Info($"Running Function {funcItem}");
 		var func = funcItem.Item.Invoke(Register, Layers, Options);
-		if (!func.Run(Options.FunctionArgs)) {
+		if(!func.Run(Options.FunctionArgs)) {
 			exitCode = ExitCode.StoppedAfterRun;
 			return false;
 		}
@@ -116,7 +118,7 @@ internal class Program
 		// image specified should stay on top
 		// and the last one on the bottom.
 		foreach(var i in Options.ImageFileNames.Reverse()) {
-			if (!File.Exists(i)) {
+			if(!File.Exists(i)) {
 				Log.Error(Note.CannotFindInputImage(i));
 				return false;
 			}

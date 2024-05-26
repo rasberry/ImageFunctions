@@ -1,7 +1,6 @@
-using System.Drawing;
 using ImageFunctions.Core;
-using ImageFunctions.Plugin.Functions.Maze;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin;
 
@@ -21,7 +20,7 @@ internal static class PlugTools
 		//ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 		//ps.Sort();
 
-		var ps = new BitonicSort<T>(array,comp,progress);
+		var ps = new BitonicSort<T>(array, comp, progress);
 		ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 		ps.Sort();
 	}
@@ -36,34 +35,34 @@ internal static class PlugTools
 	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
 		where T : IComparable
 	{
-		if (r.IsBad()) { return r; }
+		if(r.IsBad()) { return r; }
 
 		var t = typeof(T);
 		var nullType = Nullable.GetUnderlyingType(t);
-		if (nullType != null) { t = nullType; }
+		if(nullType != null) { t = nullType; }
 		bool isInvalid = false;
 
-		if (r.Value is double vd) {
-			if ((!includeZero && vd >= double.Epsilon)
+		if(r.Value is double vd) {
+			if((!includeZero && vd >= double.Epsilon)
 				|| (includeZero && vd >= 0.0)) {
 				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
-		else if (r.Value is IComparable vi) {
+		else if(r.Value is IComparable vi) {
 			var compare = vi.CompareTo(default(T));
-			if ((!includeZero && compare > 0) || (includeZero && compare >= 0)) {
+			if((!includeZero && compare > 0) || (includeZero && compare >= 0)) {
 				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
 
-		if (isInvalid) {
-			Log.Error(Note.MustBeGreaterThan(r.Name,0,includeZero));
+		if(isInvalid) {
+			Log.Error(Note.MustBeGreaterThan(r.Name, 0, includeZero));
 			return r with { Result = ParseParams.Result.UnParsable };
 		}
 		else {
-			throw PlugSqueal.NotSupportedTypeByFunc(t,nameof(BeGreaterThanZero));
+			throw PlugSqueal.NotSupportedTypeByFunc(t, nameof(BeGreaterThanZero));
 		}
 	}
 
@@ -80,20 +79,20 @@ internal static class PlugTools
 	public static ParseResult<T> BeBetween<T>(this ParseResult<T> r, T low, T high,
 		bool lowInclusive = true, bool highInclusive = true) where T : IComparable
 	{
-		if (r.IsBad()) { return r; }
+		if(r.IsBad()) { return r; }
 
 		var t = typeof(T);
 		var nullType = Nullable.GetUnderlyingType(t);
-		if (nullType != null) { t = nullType; }
+		if(nullType != null) { t = nullType; }
 
 		var clow = r.Value.CompareTo(low);
 		var chigh = r.Value.CompareTo(high);
-		if ((!lowInclusive && clow > 0 || lowInclusive && clow >= 0)
+		if((!lowInclusive && clow > 0 || lowInclusive && clow >= 0)
 			&& (!highInclusive && chigh < 0 || highInclusive && chigh <= 0)) {
 			return r with { Result = ParseParams.Result.Good };
 		}
 
-		Log.Error(PlugNote.MustBeInRange(r.Name,low,high,lowInclusive,highInclusive));
+		Log.Error(PlugNote.MustBeInRange(r.Name, low, high, lowInclusive, highInclusive));
 		return r with { Result = ParseParams.Result.UnParsable };
 	}
 
@@ -111,12 +110,12 @@ internal static class PlugTools
 	/// <returns>The new between color</returns>
 	public static ColorRGBA BetweenColor(ColorRGBA a, ColorRGBA b, double ratio)
 	{
-		ratio = Math.Clamp(ratio,0.0,1.0);
+		ratio = Math.Clamp(ratio, 0.0, 1.0);
 		double nr = (1.0 - ratio) * a.R + ratio * b.R;
 		double ng = (1.0 - ratio) * a.G + ratio * b.G;
 		double nb = (1.0 - ratio) * a.B + ratio * b.B;
 		double na = (1.0 - ratio) * a.A + ratio * b.A;
-		var btw = new ColorRGBA(nr,ng,nb,na);
+		var btw = new ColorRGBA(nr, ng, nb, na);
 		// Log.Debug("between a="+a+" b="+b+" r="+ratio+" nr="+nr+" ng="+ng+" nb="+nb+" na="+na+" btw="+btw);
 		return btw;
 	}
@@ -131,7 +130,7 @@ internal static class PlugTools
 	{
 		int done = 0;
 		ParallelOptions po = new();
-		if (maxThreads.HasValue) {
+		if(maxThreads.HasValue) {
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		};
 		Parallel.For(0, max, po, num => {
@@ -152,7 +151,7 @@ internal static class PlugTools
 		Rectangle dstRect = default,
 		Point srcPoint = default)
 	{
-		if (dstRect.IsEmpty) {
+		if(dstRect.IsEmpty) {
 			dstRect = dstImg.Bounds();
 		}
 
@@ -160,7 +159,7 @@ internal static class PlugTools
 			int cy = y - dstRect.Top + srcPoint.Y;
 			for(int x = dstRect.Left; x < dstRect.Right; x++) {
 				int cx = x - dstRect.Left + srcPoint.X;
-				dstImg[x,y] = srcImg[cx,cy];
+				dstImg[x, y] = srcImg[cx, cy];
 			}
 		}
 	}
@@ -173,14 +172,14 @@ internal static class PlugTools
 	/// <param name="rect">Optional area to fill instead of the entire canvas</param>
 	public static void FillWithColor(ICanvas canvas, ColorRGBA color, Rectangle rect = default)
 	{
-		Rectangle bounds = new Rectangle(0,0,canvas.Width,canvas.Height);
-		if (!rect.IsEmpty) {
+		Rectangle bounds = new Rectangle(0, 0, canvas.Width, canvas.Height);
+		if(!rect.IsEmpty) {
 			bounds.Intersect(rect);
 		}
 
-		for(int y=bounds.Top; y<bounds.Bottom; y++) {
-			for(int x=bounds.Left; x<bounds.Right; x++) {
-				canvas[x,y] = color;
+		for(int y = bounds.Top; y < bounds.Bottom; y++) {
+			for(int x = bounds.Left; x < bounds.Right; x++) {
+				canvas[x, y] = color;
 			}
 		}
 	}
@@ -224,11 +223,11 @@ internal static class PlugTools
 	/// <param name="cx">Optional x center offset</param>
 	/// <param name="cy">Optional y center offset</param>
 	/// <returns>The x,y coordinate</returns>
-	public static (int,int) LinearToXY(long position, int width, int cx = 0, int cy = 0)
+	public static (int, int) LinearToXY(long position, int width, int cx = 0, int cy = 0)
 	{
 		int y = (int)(position / width);
 		int x = (int)(position % width);
-		return (x + cx,y + cy);
+		return (x + cx, y + cy);
 	}
 
 	/// <summary>
@@ -259,9 +258,9 @@ internal static class PlugTools
 	/// <param name="cy">Optional y center offset</param>
 	/// <returns>The x,y coordinate</returns>
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
-	public static (int,int) DiagonalToXY(long position, int cx = 0, int cy = 0)
+	public static (int, int) DiagonalToXY(long position, int cx = 0, int cy = 0)
 	{
-		if (position < 0) {
+		if(position < 0) {
 			throw new ArgumentOutOfRangeException("position must be positive");
 		}
 		//X 0,0,1,0,1,2,0,1,2,3,0,1,2,3,4,0,1,2,3,4,5
@@ -269,10 +268,10 @@ internal static class PlugTools
 		//X https://oeis.org/A002262
 		//Y https://oeis.org/A025581
 
-		long t = (long)Math.Floor((1.0 + Math.Sqrt(1.0 + 8.0 * position))/2.0);
+		long t = (long)Math.Floor((1.0 + Math.Sqrt(1.0 + 8.0 * position)) / 2.0);
 		int x = (int)(position - t * (t - 1) / 2);
-		int y = (int)((t * (t + 1) - 2 * position - 2)/2);
-		return (x + cx,y + cy);
+		int y = (int)((t * (t + 1) - 2 * position - 2) / 2);
+		return (x + cx, y + cy);
 	}
 
 	/// <summary>
@@ -289,7 +288,7 @@ internal static class PlugTools
 		//p1=(y^2+x*(2*y+3)+y+x^2)/2
 
 		x -= cx; y -= cy;
-		long pos = (y*y + x*(2*y + 3) + y + x*x)/2;
+		long pos = (y * y + x * (2 * y + 3) + y + x * x) / 2;
 		return pos;
 	}
 
@@ -300,37 +299,37 @@ internal static class PlugTools
 	/// <param name="cx">Optional x center offset</param>
 	/// <param name="cy">Optional y center offset</param>
 	/// <returns>The x,y coordinate</returns>
-	public static (int,int) SpiralSquareToXY(long position, int cx = 0, int cy = 0)
+	public static (int, int) SpiralSquareToXY(long position, int cx = 0, int cy = 0)
 	{
 		// https://math.stackexchange.com/questions/163080/on-a-two-dimensional-grid-is-there-a-formula-i-can-use-to-spiral-coordinates-in
 
 		position++; //1 based spiral
-		long k = (long)Math.Ceiling((Math.Sqrt(position)-1.0)/2.0);
+		long k = (long)Math.Ceiling((Math.Sqrt(position) - 1.0) / 2.0);
 		long t = 2 * k + 1;
 		long m = t * t;
-		t-=1;
+		t -= 1;
 		/// Console.WriteLine($"p={position} k={k} t={t} m={m} (m-t)={m-t}");
-		if (position >= m-t) {
-			var x = k-(m-position);
+		if(position >= m - t) {
+			var x = k - (m - position);
 			var y = k;
-			return ((int)x+cx,(int)y+cy);
+			return ((int)x + cx, (int)y + cy);
 		}
 		m -= t;
-		if (position >= m-t) {
+		if(position >= m - t) {
 			var x = -k;
-			var y = k-(m-position);
-			return ((int)x+cx,(int)y+cy);
+			var y = k - (m - position);
+			return ((int)x + cx, (int)y + cy);
 		}
 		m -= t;
-		if (position >= m-t) {
-			var x = -k+(m-position);
+		if(position >= m - t) {
+			var x = -k + (m - position);
 			var y = -k;
-			return ((int)x+cx,(int)y+cy);
+			return ((int)x + cx, (int)y + cy);
 		}
 		else {
 			var x = k;
-			var y = -k+(m-position-t);
-			return ((int)x+cx,(int)y+cy);
+			var y = -k + (m - position - t);
+			return ((int)x + cx, (int)y + cy);
 		}
 	}
 
@@ -342,31 +341,31 @@ internal static class PlugTools
 	/// <param name="cx">Optional x center offset</param>
 	/// <param name="cy">Optional y center offset</param>
 	/// <returns></returns>
-	public static long XYToSpiralSquare(int x,int y, int cx = 0, int cy = 0)
+	public static long XYToSpiralSquare(int x, int y, int cx = 0, int cy = 0)
 	{
 		// https://www.reddit.com/r/dailyprogrammer/comments/3ggli3/20150810_challenge_227_easy_square_spirals/
 		x -= cx;
 		y -= cy;
 
 		y = -y; //original is CW i need CCW
-		if (x >= y) {
-			if (x > -y) {
-				long m = 2*x-1; m *= m;
+		if(x >= y) {
+			if(x > -y) {
+				long m = 2 * x - 1; m *= m;
 				return m + Math.Abs(x) + y - 1;
 			}
 			else {
-				long m = 2*y+1; m *= m;
-				return m + Math.Abs(7*y) + x - 1;
+				long m = 2 * y + 1; m *= m;
+				return m + Math.Abs(7 * y) + x - 1;
 			}
 		}
 		else {
-			if (x > -y) {
-				long m = 2*y-1; m *= m;
-				return m + Math.Abs(3*y) - x - 1;
+			if(x > -y) {
+				long m = 2 * y - 1; m *= m;
+				return m + Math.Abs(3 * y) - x - 1;
 			}
 			else {
-				long m = 2*x+1; m *= m;
-				return m + Math.Abs(5*x) - y - 1;
+				long m = 2 * x + 1; m *= m;
+				return m + Math.Abs(5 * x) - y - 1;
 			}
 		}
 	}
@@ -390,7 +389,7 @@ internal static class PlugTools
 	/// <param name="defaultWidth">The fallback width to use</param>
 	/// <param name="defaultHeight">The fallback height to use/param>
 	/// <returns>A tuple with width, height</returns>
-	public static (int,int) GetDefaultWidthHeight(this ICoreOptions options, int defaultWidth = NomSize, int defaultHeight = NomSize)
+	public static (int, int) GetDefaultWidthHeight(this ICoreOptions options, int defaultWidth = NomSize, int defaultHeight = NomSize)
 	{
 		return (
 			options.DefaultWidth.GetValueOrDefault(defaultWidth),
@@ -398,7 +397,7 @@ internal static class PlugTools
 		);
 	}
 
-	static char[] RectPointDelims = new char[] { ' ',',','x' };
+	static char[] RectPointDelims = new char[] { ' ', ',', 'x' };
 
 	/// <summary>
 	/// Parse a sequence of numbers into a point object
@@ -414,10 +413,10 @@ internal static class PlugTools
 	{
 		var parser = new ParseParams.Parser<int>(int.Parse);
 		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
-		if (list.Count != 2) { //must be two elements x,y
+		if(list.Count != 2) { //must be two elements x,y
 			throw PlugSqueal.SequenceMustContain(2);
 		}
-		return new Point(list[0],list[1]);
+		return new Point(list[0], list[1]);
 	}
 
 	/// <summary>
@@ -434,16 +433,16 @@ internal static class PlugTools
 	{
 		var parser = new ParseParams.Parser<int>(int.Parse);
 		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
-		if (list.Count != 2 && list.Count != 4) { //must be two or four elements w,h / x,y,w,h
-			throw PlugSqueal.SequenceMustContainOr(2,4);
+		if(list.Count != 2 && list.Count != 4) { //must be two or four elements w,h / x,y,w,h
+			throw PlugSqueal.SequenceMustContainOr(2, 4);
 		}
-		if (list.Count == 2) {
+		if(list.Count == 2) {
 			//assume width / height for 2 elements
-			return new Rectangle(0,0,list[0],list[1]);
+			return new Rectangle(0, 0, list[0], list[1]);
 		}
 		else {
 			//x, y, w, h
-			return new Rectangle(list[0],list[1],list[2],list[3]);
+			return new Rectangle(list[0], list[1], list[2], list[3]);
 		}
 	}
 
@@ -455,6 +454,6 @@ internal static class PlugTools
 	public static ColorRGBA ParseColor(string arg)
 	{
 		var sdc = ExtraParsers.ParseColor(arg);
-		return ColorRGBA.FromRGBA255(sdc.R,sdc.G,sdc.B,sdc.A);
+		return ColorRGBA.FromRGBA255(sdc.R, sdc.G, sdc.B, sdc.A);
 	}
 }

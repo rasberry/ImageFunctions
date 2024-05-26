@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -22,16 +20,16 @@ public class Function : IFunction
 		O.Usage(sb, Register);
 	}
 
-	public bool Run( string[] args)
+	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
@@ -44,7 +42,7 @@ public class Function : IFunction
 			? new MethodTwo { O = O }
 			: new MethodOne { O = O }
 		;
-		m.CreateProfile(progress,source,bounds);
+		m.CreateProfile(progress, source, bounds);
 
 		//foreach(var kvp in Profile) {
 		//	Log.Debug($"Key = {kvp.Key}");
@@ -53,7 +51,7 @@ public class Function : IFunction
 
 		var engine = Core.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers);
-		m.CreateImage(progress,canvas);
+		m.CreateImage(progress, canvas);
 		source.CopyFrom(canvas);
 
 		return true;
@@ -69,26 +67,26 @@ public class Function : IFunction
 class ColorProfile<T>
 {
 	//dictionaries of index,count
-	public Dictionary<T,long> NColor;
-	public Dictionary<T,long> WColor;
-	public Dictionary<T,long> SColor;
-	public Dictionary<T,long> EColor;
+	public Dictionary<T, long> NColor;
+	public Dictionary<T, long> WColor;
+	public Dictionary<T, long> SColor;
+	public Dictionary<T, long> EColor;
 
 	public override string ToString()
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("\tNorth =====");
-		DColorToString(sb,NColor);
+		DColorToString(sb, NColor);
 		sb.AppendLine("\tWest  =====");
-		DColorToString(sb,WColor);
+		DColorToString(sb, WColor);
 		sb.AppendLine("\tSouth =====");
-		DColorToString(sb,SColor);
+		DColorToString(sb, SColor);
 		sb.AppendLine("\tEast  =====");
-		DColorToString(sb,EColor);
+		DColorToString(sb, EColor);
 		return sb.ToString();
 	}
 
-	void DColorToString(StringBuilder sb, Dictionary<T,long> d)
+	void DColorToString(StringBuilder sb, Dictionary<T, long> d)
 	{
 		foreach(var kvp in d) {
 			sb.AppendLine($"\t{kvp.Key} #={kvp.Value}");

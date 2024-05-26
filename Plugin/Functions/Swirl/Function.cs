@@ -1,6 +1,6 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Swirl;
 
@@ -23,13 +23,13 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
@@ -40,15 +40,15 @@ public class Function : IFunction
 		double swirlx, swirly;
 		Rectangle rect = source.Bounds();
 
-		if (O.RadiusPx != null) {
+		if(O.RadiusPx != null) {
 			swirlRadius = O.RadiusPx.Value;
 		}
 		else {
 			double m = O.RadiusPp != null ? O.RadiusPp.Value : 0.9;
-			swirlRadius = m * Math.Min(rect.Width,rect.Height);
+			swirlRadius = m * Math.Min(rect.Width, rect.Height);
 		}
 
-		if (O.CenterPx != null) {
+		if(O.CenterPx != null) {
 			swirlx = O.CenterPx.Value.X;
 			swirly = O.CenterPx.Value.Y;
 		}
@@ -63,14 +63,14 @@ public class Function : IFunction
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 
-		rect.ThreadPixels((x,y) => {
+		rect.ThreadPixels((x, y) => {
 			int cy = y - rect.Top;
 			int cx = x - rect.Left;
-			ColorRGBA nc = SwirlPixel(source,x,y,swirlx,swirly,swirlRadius,swirlTwists);
-			canvas[cx,cy] = nc;
-		},Core.MaxDegreeOfParallelism,progress);
+			ColorRGBA nc = SwirlPixel(source, x, y, swirlx, swirly, swirlRadius, swirlTwists);
+			canvas[cx, cy] = nc;
+		}, Core.MaxDegreeOfParallelism, progress);
 
-		source.CopyFrom(canvas,rect);
+		source.CopyFrom(canvas, rect);
 		return true;
 	}
 
@@ -80,13 +80,13 @@ public class Function : IFunction
 	{
 		double pixelx = x - swirlx;
 		double pixely = y - swirly;
-		double pixelDist = O.Metric.Value.Measure(x,y,swirlx,swirly);
+		double pixelDist = O.Metric.Value.Measure(x, y, swirlx, swirly);
 		double swirlAmount = 1.0 - (pixelDist / swirlRadius);
 
-		if (swirlAmount > 0.0) {
+		if(swirlAmount > 0.0) {
 			double twistAngle = swirlTwists * swirlAmount * Math.PI * 2;
-			if (!O.CounterClockwise) { twistAngle *= -1.0; }
-			double pixelAng = Math.Atan2(pixely,pixelx) + twistAngle;
+			if(!O.CounterClockwise) { twistAngle *= -1.0; }
+			double pixelAng = Math.Atan2(pixely, pixelx) + twistAngle;
 			pixelx = Math.Cos(pixelAng) * pixelDist;
 			pixely = Math.Sin(pixelAng) * pixelDist;
 		}

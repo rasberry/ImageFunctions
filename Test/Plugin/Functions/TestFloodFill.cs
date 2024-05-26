@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestFloodFill : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.FloodFill);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,10 +39,10 @@ public class TestFloodFill : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(1, startImg, new string[] { "-p","0,0","-p","50,50" });
-		yield return CreateTestInfo(2, startImg, new string[] { "-p","0,0","-p","50,50","-s","0.9" });
-		yield return CreateTestInfo(3, startImg, new string[] { "-p","0,0","-p","50,50","-s","0.9","-i" });
-		yield return CreateTestInfo(4, startImg, new string[] { "-p","100,100","-s","0.9","-i","-f","DepthFirst","-m","Horizontal"});
+		yield return CreateTestInfo(1, startImg, new string[] { "-p", "0,0", "-p", "50,50" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-p", "0,0", "-p", "50,50", "-s", "0.9" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-p", "0,0", "-p", "50,50", "-s", "0.9", "-i" });
+		yield return CreateTestInfo(4, startImg, new string[] { "-p", "100,100", "-s", "0.9", "-i", "-f", "DepthFirst", "-m", "Horizontal" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -51,13 +51,13 @@ public class TestFloodFill : AbstractFunctionTest
 		return new TestFunctionInfo {
 			Args = args,
 			OutName = $"{MyName}-{startImg}-{index}",
-			ImageNames = needsSecond ? new[] { startImg, "scorpius"} : new[] { startImg }
+			ImageNames = needsSecond ? new[] { startImg, "scorpius" } : new[] { startImg }
 		};
 	}
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "pool","rainbow","toes-p" };
+		var list = new string[] { "pool", "rainbow", "toes-p" };
 		return list;
 	}
 }

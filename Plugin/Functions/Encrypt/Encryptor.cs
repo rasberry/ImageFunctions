@@ -18,7 +18,7 @@ public class Encryptor
 			bytes = StringToBytes(s);
 			return true;
 		}
-		catch(ArgumentException) {}
+		catch(ArgumentException) { }
 		return false;
 	}
 
@@ -27,7 +27,7 @@ public class Encryptor
 	public void TransformStream(bool decrypt, Stream inData, Stream outData,
 		byte[] password, IProgress<double> progress = null)
 	{
-		if (IVBytes == null) {
+		if(IVBytes == null) {
 			IVBytes = GetIVBytesFromPassword(password);
 		}
 
@@ -45,18 +45,18 @@ public class Encryptor
 		;
 		using var cryptoStream = new CryptoStream(outData, encryptor, CryptoStreamMode.Write);
 
-		CopyToWithProgress(inData,cryptoStream,progress);
+		CopyToWithProgress(inData, cryptoStream, progress);
 	}
 
 	// https://referencesource.microsoft.com/#mscorlib/system/io/stream.cs,2a0f078c2e0c0aa8
 	const int _DefaultCopyBufferSize = 81920;
-	void CopyToWithProgress(Stream source, Stream destination,IProgress<double> progress = null)
+	void CopyToWithProgress(Stream source, Stream destination, IProgress<double> progress = null)
 	{
 		byte[] buffer = new byte[_DefaultCopyBufferSize];
 		long len = source.Length;
 		long count = 0;
 		int read;
-		while ((read = source.Read(buffer, 0, buffer.Length)) != 0) {
+		while((read = source.Read(buffer, 0, buffer.Length)) != 0) {
 			destination.Write(buffer, 0, read);
 			count += read;
 			progress?.Report((double)count / len);
@@ -65,8 +65,9 @@ public class Encryptor
 
 	// could have used the one from OpenSSL but it looks hard to implement
 	// https://github.com/openssl/openssl/blob/master/crypto/evp/evp_key.c
-	public static byte[] GetIVBytesFromPassword(byte[] pBytes) {
-		if (pBytes == null || pBytes.Length < 1) {
+	public static byte[] GetIVBytesFromPassword(byte[] pBytes)
+	{
+		if(pBytes == null || pBytes.Length < 1) {
 			Core.Squeal.ArgumentNullOrEmpty(nameof(pBytes));
 		}
 
@@ -74,7 +75,7 @@ public class Encryptor
 		var ivBytes = new byte[IVLengthBytes];
 
 		// we need IVLength bytes so if the password is shorted than that, add padding
-		if (pBytes.Length < IVLengthBytes) {
+		if(pBytes.Length < IVLengthBytes) {
 			for(int s = pBytes.Length; s < IVLengthBytes; s++) {
 				ivBytes[s] = DefaultIV[s];
 			}
@@ -86,8 +87,8 @@ public class Encryptor
 
 		//hash the password + padding
 		var hashBytes = SHA256.HashData(ivBytes);
-		if (hashBytes.Length != SHA256LengthBytes) {
-			throw PlugSqueal.OutOfRange(nameof(hashBytes),$"SHA256.HashData returned {hashBytes.Length} instead of {SHA256LengthBytes}");
+		if(hashBytes.Length != SHA256LengthBytes) {
+			throw PlugSqueal.OutOfRange(nameof(hashBytes), $"SHA256.HashData returned {hashBytes.Length} instead of {SHA256LengthBytes}");
 		}
 
 		//copy the hashed bytes back to the iv

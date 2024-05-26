@@ -1,5 +1,3 @@
-using ImageFunctions.Core;
-
 namespace ImageFunctions.Plugin.Functions.FloodFill;
 
 public enum FillMethodKind

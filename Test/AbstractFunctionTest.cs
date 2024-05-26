@@ -1,5 +1,5 @@
-using System.Drawing;
 using ImageFunctions.Core;
+using System.Drawing;
 using static ImageFunctions.Plugin.ImageComparer;
 
 namespace ImageFunctions.Test;
@@ -37,7 +37,7 @@ public abstract class AbstractFunctionTest
 	/// <param name="loader">Optional custom image loader</param>
 	public void RunFunction(TestFunctionInfo info, CustomImageLoader loader = null)
 	{
-		if (info.Layers == null) {
+		if(info.Layers == null) {
 			throw Squeal.ArgumentNull("info.Layers - Layers should be managed from the test method");
 		}
 
@@ -46,7 +46,7 @@ public abstract class AbstractFunctionTest
 		args.Add(FunctionName);
 
 		//setup size if provided
-		if (info.Size.HasValue) {
+		if(info.Size.HasValue) {
 			args.Add("-#");
 			args.Add(info.Size.Value.Width.ToString());
 			args.Add(info.Size.Value.Height.ToString());
@@ -61,7 +61,7 @@ public abstract class AbstractFunctionTest
 
 		//reset the global options and parse test options
 		var options = new Options(Setup.Register);
-		if (System.Diagnostics.Debugger.IsAttached) {
+		if(System.Diagnostics.Debugger.IsAttached) {
 			options.MaxDegreeOfParallelism = 1;
 		}
 		info.Options = options;
@@ -71,7 +71,7 @@ public abstract class AbstractFunctionTest
 		Assert.IsTrue(options.ProcessOptions());
 
 		//Load any specified images
-		if (info.ImageNames?.Any() == true) {
+		if(info.ImageNames?.Any() == true) {
 			loader ??= GetOrLoadResourceImage;
 			//reverse here since we're using a stack and we want the order
 			// to
@@ -108,11 +108,11 @@ public abstract class AbstractFunctionTest
 		}
 		finally {
 			//remove the compare image
-			if (info.SaveImage == SaveImageMode.SubjectOnly && info.Layers.Count > 1) {
+			if(info.SaveImage == SaveImageMode.SubjectOnly && info.Layers.Count > 1) {
 				info.Layers.DisposeAt(0);
 			}
-			if (info.SaveImage != SaveImageMode.None && info.Layers.Count > 0) {
-				var path = Path.Combine(Setup.ProjectRootPath,"..",info.OutName);
+			if(info.SaveImage != SaveImageMode.None && info.Layers.Count > 0) {
+				var path = Path.Combine(Setup.ProjectRootPath, "..", info.OutName);
 				info.Options.Engine.Item.Value.SaveImage(info.Layers, path);
 			}
 		}
@@ -126,14 +126,14 @@ public abstract class AbstractFunctionTest
 	public ComponentDistance CompareTopTwoLayers(TestFunctionInfo info)
 	{
 		var layers = info.Layers;
-		if (layers.Count < 2) {
+		if(layers.Count < 2) {
 			throw Squeal.LayerMustHaveAtLeast(2);
 		}
 
 		var one = layers[0].Canvas;
 		var two = layers[1].Canvas;
 
-		return CanvasDistance(one,two);
+		return CanvasDistance(one, two);
 	}
 
 	/// <summary>
@@ -144,13 +144,13 @@ public abstract class AbstractFunctionTest
 	public bool AreTopLayersEqual(TestFunctionInfo info)
 	{
 		var layers = info.Layers;
-		if (layers.Count < 2) {
+		if(layers.Count < 2) {
 			throw Squeal.LayerMustHaveAtLeast(2);
 		}
 
 		var one = layers[0].Canvas;
 		var two = layers[1].Canvas;
-		return AreCanvasEqual(one,two);
+		return AreCanvasEqual(one, two);
 	}
 
 	/// <summary>
@@ -161,25 +161,25 @@ public abstract class AbstractFunctionTest
 	/// <param name="folder">the subfolder within Resources folder that contains the image</param>
 	public void GetOrLoadResourceImage(TestFunctionInfo info, string name, string folder = null)
 	{
-		var path = GetResourceImagePath(name,folder);
+		var path = GetResourceImagePath(name, folder);
 		var layers = info.Layers;
 
-		string nameWithExt = Path.ChangeExtension(name,".png");
+		string nameWithExt = Path.ChangeExtension(name, ".png");
 		int index = layers.IndexOf(nameWithExt);
-		if (index >= 0) { return; }
+		if(index >= 0) { return; }
 
-		if (!File.Exists(path)) {
+		if(!File.Exists(path)) {
 			throw TestSqueal.FileNotFound(path);
 		}
 
-		info.Options.Engine.Item.Value.LoadImage(layers,path,nameWithExt);
+		info.Options.Engine.Item.Value.LoadImage(layers, path, nameWithExt);
 	}
 
 	protected string GetResourceImagePath(string name, string folder = null)
 	{
 		folder ??= "images";
-		string nameWithExt = Path.ChangeExtension(name,".png");
-		string path = Path.Combine(Setup.ProjectRootPath,"../","Resources/",folder,nameWithExt);
+		string nameWithExt = Path.ChangeExtension(name, ".png");
+		string path = Path.Combine(Setup.ProjectRootPath, "../", "Resources/", folder, nameWithExt);
 		path = Path.GetFullPath(path); //normalize path so it doesn't look janky
 		return path;
 	}

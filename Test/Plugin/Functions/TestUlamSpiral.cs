@@ -1,5 +1,5 @@
-using System.Drawing;
 using ImageFunctions.Core;
+using System.Drawing;
 
 namespace ImageFunctions.Test;
 
@@ -8,7 +8,7 @@ public class TestUlamSpiral : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
 	const string MyName = nameof(Plugin.Functions.UlamSpiral);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -38,15 +38,15 @@ public class TestUlamSpiral : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
 		yield return CreateTestInfo(1, new string[0]);
-		yield return CreateTestInfo(2, new string[] { "-c1","white","-c2","black" });
+		yield return CreateTestInfo(2, new string[] { "-c1", "white", "-c2", "black" });
 		yield return CreateTestInfo(3, new string[] { "-m", "1" });
 		yield return CreateTestInfo(4, new string[] { "-m", "2" });
 		yield return CreateTestInfo(5, new string[] { "-6m" });
 		yield return CreateTestInfo(6, new string[] { "-f" });
-		yield return CreateTestInfo(7, new string[] { "-f","-s","2","-ds","20.0" });
+		yield return CreateTestInfo(7, new string[] { "-f", "-s", "2", "-ds", "20.0" });
 	}
 
-	static TestFunctionInfo CreateTestInfo(int num,string[] args)
+	static TestFunctionInfo CreateTestInfo(int num, string[] args)
 	{
 		return new TestFunctionInfo {
 			Args = args,

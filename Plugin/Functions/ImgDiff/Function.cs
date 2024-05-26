@@ -1,6 +1,6 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
@@ -23,14 +23,14 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (Layers.Count < 2) {
+		if(Layers.Count < 2) {
 			Log.Error(Note.LayerMustHaveAtLeast(2));
 			return false;
 		}
@@ -49,7 +49,7 @@ public class Function : IFunction
 		var totalDist = ProcessDiff(frame, srcImg, compareImg);
 		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
 
-		if (O.MakeThirdLayer) {
+		if(O.MakeThirdLayer) {
 			Layers.Push(frame);
 		}
 		else {
@@ -76,15 +76,15 @@ public class Function : IFunction
 			bool sameSame = O.MatchSamePixels ^ areSame; //XOR
 
 			//option to output original pixels if they 'match'
-			if (O.OutputOriginal) {
-				if (sameSame) {
+			if(O.OutputOriginal) {
+				if(sameSame) {
 					frame[x, y] = colorTransp;
 				}
 			}
 			//otherwise highlight 'unmatched' pixels
-			else if (!sameSame) {
+			else if(!sameSame) {
 				double dist; ColorRGBA sc, ec;
-				if (O.HilightOpacity == null) {
+				if(O.HilightOpacity == null) {
 					dist = ColorDistanceRatio(one, two);
 					sc = colorHilight;
 					ec = colorWhite;
@@ -106,7 +106,7 @@ public class Function : IFunction
 
 	double ColorDistanceRatio(ColorRGBA one, ColorRGBA two)
 	{
-		var dist = ImageComparer.ColorDistance(one,two,O.MetricInstance.Value);
+		var dist = ImageComparer.ColorDistance(one, two, O.MetricInstance.Value);
 		return dist.Total / DistanceMax;
 	}
 

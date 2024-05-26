@@ -1,7 +1,7 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -24,21 +24,21 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var (dfw, dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth, Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
 		var bounds = source.Bounds();
 
 		Init(Register);
-		PlugTools.FillWithColor(source,GetColor(PickColor.Back),bounds);
+		PlugTools.FillWithColor(source, GetColor(PickColor.Back), bounds);
 
 		var srect = GetSpacedRectangle(bounds);
 		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds) : 1;
@@ -46,35 +46,35 @@ public class Function : IFunction
 		var drawFunc = GetDrawFunc();
 		var (cx, cy) = GetCenterXY(srect);
 		bool drawSlow = O.DotSize > O.Spacing; //turn off multithreading since threads might overlap
-		var list = new List<(int,int,int)>(); //used to order dots by size
+		var list = new List<(int, int, int)>(); //used to order dots by size
 		bool drawPrimes = O.ColorPrimesForce || (!O.ColorComposites && !O.ColorPrimesBy6m);
 		double primeFactor = O.ColorComposites ? 0.0 : 1.0;
 
 		//using a closure is not my favorite way of doing this,
 		// but easier than passing tons of arguments to a function
-		Action<int,int> drawOne = (int x, int y) => {
+		Action<int, int> drawOne = (int x, int y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
-			if (O.ColorComposites) {
+			if(O.ColorComposites) {
 				int count = Primes.CountFactors(num);
-				if (drawSlow && count > O.Spacing) {
-					list.Add((count,x,y));
+				if(drawSlow && count > O.Spacing) {
+					list.Add((count, x, y));
 				}
 				else {
 					DrawComposite(source, count * factor, x, y, drawFunc);
 				}
 			}
 			//the next modes require the number to be prime
-			if (!Primes.IsPrime(num)) { return; }
+			if(!Primes.IsPrime(num)) { return; }
 
-			if (O.ColorPrimesBy6m) {
-				var (ism1,isp1) = Primes.IsPrime6m(num);
+			if(O.ColorPrimesBy6m) {
+				var (ism1, isp1) = Primes.IsPrime6m(num);
 				var color = GetColor(PickColor.Back);
-				if (ism1) { color = GetColor(PickColor.Prime); }
-				if (isp1) { color = GetColor(PickColor.Prime2); }
+				if(ism1) { color = GetColor(PickColor.Prime); }
+				if(isp1) { color = GetColor(PickColor.Prime2); }
 				drawFunc(source, x, y, color, primeFactor);
 			}
 			//only one prime coloring mode is allowed
-			else if (drawPrimes) {
+			else if(drawPrimes) {
 				var color = GetColor(PickColor.Prime);
 				drawFunc(source, x, y, color, primeFactor);
 			}
@@ -82,21 +82,21 @@ public class Function : IFunction
 
 		using var pb2 = new ProgressBar() { Prefix = "Drawing " };
 
-		if (drawSlow) {
+		if(drawSlow) {
 			//have to keep track of progress manually
 			double pbmax = srect.Width * srect.Height;
 			double pbcount = 0;
 			for(int y = srect.Top; y < srect.Bottom; y++) {
 				for(int x = srect.Left; x < srect.Right; x++) {
-					drawOne(x,y);
-					pb2.Report(++pbcount/pbmax);
+					drawOne(x, y);
+					pb2.Report(++pbcount / pbmax);
 				}
 			}
 
 			//for slow composites need to draw leftovers
-			if (O.ColorComposites) {
+			if(O.ColorComposites) {
 				//Log.Debug($"leftover count: {list.Count}");
-				list.Sort((a,b) => a.Item1 - b.Item1);
+				list.Sort((a, b) => a.Item1 - b.Item1);
 
 				foreach(var item in list) {
 					var (count, x, y) = item;
@@ -107,7 +107,7 @@ public class Function : IFunction
 		}
 		else {
 			srect.ThreadPixels((x, y) => {
-				drawOne(x,y);
+				drawOne(x, y);
 			}, Core.MaxDegreeOfParallelism, pb2);
 		}
 
@@ -141,10 +141,10 @@ public class Function : IFunction
 		srect.ThreadPixels((x, y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
 			int count = Primes.CountFactors(num);
-			if (count > maxFactor) {
+			if(count > maxFactor) {
 				//the lock ensures we don't accidentally miss a larger value
-				lock (maxLock) {
-					if (count > maxFactor) { maxFactor = count; }
+				lock(maxLock) {
+					if(count > maxFactor) { maxFactor = count; }
 				}
 			}
 		}, Core.MaxDegreeOfParallelism, pb1);
@@ -170,29 +170,28 @@ public class Function : IFunction
 		return n ^ (n >> 1);
 	}
 
-	(int,int) GetCenterXY(Rectangle rect)
+	(int, int) GetCenterXY(Rectangle rect)
 	{
 		int cx = -O.CenterX.GetValueOrDefault(0);
 		int cy = -O.CenterY.GetValueOrDefault(0);
-		if (O.Mapping == PickMapping.Spiral) {
+		if(O.Mapping == PickMapping.Spiral) {
 			cx = (rect.Width / 2) - cx;
 			cy = (rect.Height / 2) - cy;
 		}
-		return (cx,cy);
+		return (cx, cy);
 	}
 
-	long MapXY(int x,int y,int cx,int cy, int w = 0)
+	long MapXY(int x, int y, int cx, int cy, int w = 0)
 	{
-		x+=1; //offset to correct x coord
-		//these are all 1+ since ulams spiral starts at 1 not 0
-		switch(O.Mapping)
-		{
+		x += 1; //offset to correct x coord
+				//these are all 1+ since ulams spiral starts at 1 not 0
+		switch(O.Mapping) {
 		case PickMapping.Linear:
-			return 1 + PlugTools.XYToLinear(x,y,w,cx,cy);
+			return 1 + PlugTools.XYToLinear(x, y, w, cx, cy);
 		case PickMapping.Diagonal:
-			return 1 + PlugTools.XYToDiagonal(x,y,cx,cy);
+			return 1 + PlugTools.XYToDiagonal(x, y, cx, cy);
 		case PickMapping.Spiral:
-			return 1 + PlugTools.XYToSpiralSquare(x,y,cx,cy);
+			return 1 + PlugTools.XYToSpiralSquare(x, y, cx, cy);
 		}
 		return -1;
 	}
@@ -210,7 +209,7 @@ public class Function : IFunction
 
 	Action<ICanvas, int, int, ColorRGBA, double> GetDrawFunc()
 	{
-		if (IsCloseTo(O.DotSize,1.0)) {
+		if(IsCloseTo(O.DotSize, 1.0)) {
 			return DrawDotPixel;
 		}
 		else {
@@ -222,8 +221,8 @@ public class Function : IFunction
 	{
 		int s = O.Spacing;
 		//scale up with spacing and center so we get a nice border
-		x = x * s + s/2; y = y * s + s/2;
-		frame[x,y] = color;
+		x = x * s + s / 2; y = y * s + s / 2;
+		frame[x, y] = color;
 	}
 
 	void DrawDotSpere(ICanvas frame, int x, int y, ColorRGBA color, double factor)
@@ -232,37 +231,37 @@ public class Function : IFunction
 		//circle size = max*f^2 (squared so it feels like a sphere)
 		double d = O.DotSize * factor * factor;
 		//scale up with spacing and center so we get a nice border
-		x = x * s + s/2; y = y * s + s/2;
+		x = x * s + s / 2; y = y * s + s / 2;
 
-		if (d <= 1.0) {
-			frame[x,y] = color;
+		if(d <= 1.0) {
+			frame[x, y] = color;
 			return;
 		}
 
-		var bounds = new Rectangle(0,0,frame.Width,frame.Height);
-		int d2 = (int)(d/2);
+		var bounds = new Rectangle(0, 0, frame.Width, frame.Height);
+		int d2 = (int)(d / 2);
 		Rectangle r = new Rectangle(x - d2, y - d2, (int)d, (int)d);
 		for(int dy = r.Top; dy < r.Bottom; dy++) {
 			for(int dx = r.Left; dx < r.Right; dx++) {
-				if (!bounds.Contains(dx,dy)) { continue; }
+				if(!bounds.Contains(dx, dy)) { continue; }
 
 				switch(O.WhichDot) {
-					case PickDot.Square: {
-						frame[dx,dy] = color;
-						break;
-					}
-					case PickDot.Circle: {
-						double dist = Metric.Value.Measure(dx,dy,x,y);
-						if (dist <= d2) { frame[dx,dy] = color; }
-						break;
-					}
-					case PickDot.Blob: {
-						double ratio = Metric.Value.Measure(dx,dy,x,y) * 2.0 / d;
-						var ec = frame[dx,dy]; //merge with background
-						var c = PlugTools.BetweenColor(color,ec,ratio);
-						frame[dx,dy] = c;
-						break;
-					}
+				case PickDot.Square: {
+					frame[dx, dy] = color;
+					break;
+				}
+				case PickDot.Circle: {
+					double dist = Metric.Value.Measure(dx, dy, x, y);
+					if(dist <= d2) { frame[dx, dy] = color; }
+					break;
+				}
+				case PickDot.Blob: {
+					double ratio = Metric.Value.Measure(dx, dy, x, y) * 2.0 / d;
+					var ec = frame[dx, dy]; //merge with background
+					var c = PlugTools.BetweenColor(color, ec, ratio);
+					frame[dx, dy] = c;
+					break;
+				}
 				}
 			}
 		}
@@ -290,7 +289,7 @@ public class Function : IFunction
 
 	ColorRGBA GetColor(PickColor pick)
 	{
-		return c_color[(int)pick-1];
+		return c_color[(int)pick - 1];
 	}
 
 	static bool IsCloseTo(double number, double check, double epsilon = double.Epsilon)

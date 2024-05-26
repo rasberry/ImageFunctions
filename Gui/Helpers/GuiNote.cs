@@ -2,17 +2,19 @@ namespace ImageFunctions.Gui.Helpers;
 
 public static class GuiNote
 {
-	public static string RegisteredItemWasNotFound(string name) {
+	public static string RegisteredItemWasNotFound(string name)
+	{
 		return $"Registered {name} should have been found but wasn't !!";
 	}
-	public static string WarningMustBeSelected(string name) {
+	public static string WarningMustBeSelected(string name)
+	{
 		string aan = StartsWithVowel(name) ? "An" : "A";
 		return $"⚠️{aan} {name} must be selected";
 	}
 
 	static bool StartsWithVowel(string text)
 	{
-		if (String.IsNullOrWhiteSpace(text)) {
+		if(String.IsNullOrWhiteSpace(text)) {
 			return false;
 		}
 		char one = text[0];

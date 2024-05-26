@@ -1,5 +1,5 @@
-using System.Drawing;
 using ImageFunctions.Core;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 
@@ -22,14 +22,14 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
@@ -47,19 +47,19 @@ public class Function : IFunction
 	void SplitAndAverage(ICanvas frame, Rectangle rect)
 	{
 		//Log.Debug("SplitAndAverage "+rect.DebugString());
-		if (rect.Width < 1 || rect.Height < 1) { return; }
+		if(rect.Width < 1 || rect.Height < 1) { return; }
 
-		int chunkW,chunkH,remW,remH;
-		if (O.UseProportionalSplit) {
+		int chunkW, chunkH, remW, remH;
+		if(O.UseProportionalSplit) {
 			chunkW = (int)(rect.Width / O.ImageSplitFactor);
 			chunkH = (int)(rect.Height / O.ImageSplitFactor);
 		}
 		else {
-			int dim = Math.Min(rect.Width,rect.Height);
+			int dim = Math.Min(rect.Width, rect.Height);
 			chunkW = chunkH = (int)(dim / O.ImageSplitFactor);
 		}
-		if (chunkW < 1 || chunkH < 1) { return; }
-		remW = rect.Width  % chunkW;
+		if(chunkW < 1 || chunkH < 1) { return; }
+		remW = rect.Width % chunkW;
 		remH = rect.Height % chunkH;
 
 		//Log.Debug("["+rect.Width+"x"+rect.Height+"] sf="+ImageSplitFactor+" P="+UseProportionalSplit+" cW="+chunkW+" cH="+chunkH+" rW="+remW+" rH="+remH);
@@ -76,14 +76,14 @@ public class Function : IFunction
 		//Log.Debug("xs="+xStart+" xe="+xEnd+" ys="+yStart+" ye="+yEnd);
 
 		//using w and h to account for remainders
-		int w=0,h=0;
+		int w = 0, h = 0;
 		for(int y = yStart; y <= yEnd; y += h) {
 			for(int x = xStart; x <= xEnd; x += w) {
 				w = chunkW + (x == xStart ? remW : 0);
 				h = chunkH + (y == yStart ? remH : 0);
-				var r = new Rectangle(x,y,w,h);
+				var r = new Rectangle(x, y, w, h);
 				//Log.Debug("r = "+r.DebugString());
-				var sp = SortPair.FromRect(frame,r);
+				var sp = SortPair.FromRect(frame, r);
 				grid.Add(sp);
 			}
 		}
@@ -95,24 +95,25 @@ public class Function : IFunction
 			? (int)(grid.Count * O.DescentFactor)
 			: (int)O.DescentFactor
 		;
-		recurseCount = Math.Max(1,Math.Min(recurseCount,grid.Count - 1));
+		recurseCount = Math.Max(1, Math.Min(recurseCount, grid.Count - 1));
 		//Log.Debug("c="+grid.Count+" df = "+DescentFactor+" rc="+recurseCount);
 
-		for(int g=grid.Count-1; g>=0; g--) {
+		for(int g = grid.Count - 1; g >= 0; g--) {
 			var sp = grid[g];
 			//Log.Debug("sorted "+g+" "+sp.Value+" "+sp.Rect.DebugString());
-			if (g < recurseCount) {
-				SplitAndAverage(frame,sp.Rect);
-			} else {
-				ReplaceWithColor(frame,sp.Rect,FindAverage(frame,sp.Rect));
+			if(g < recurseCount) {
+				SplitAndAverage(frame, sp.Rect);
+			}
+			else {
+				ReplaceWithColor(frame, sp.Rect, FindAverage(frame, sp.Rect));
 			}
 		}
 	}
 
 	static double Measure(ICanvas frame, Rectangle rect)
 	{
-		if (rect.Width < 2 || rect.Height < 2) {
-			var c = frame[rect.Left,rect.Top];
+		if(rect.Width < 2 || rect.Height < 2) {
+			var c = frame[rect.Left, rect.Top];
 			double pxvc = GetPixelValue(c);
 			return pxvc;
 		}
@@ -121,12 +122,12 @@ public class Function : IFunction
 		for(int y = rect.Top; y < rect.Bottom; y++) {
 			for(int x = rect.Left; x < rect.Right; x++) {
 				int num = 0;
-				ColorRGBA? c = null,n = null,e = null,s = null,w = null;
-				c = frame[x,y];
-				if (x > rect.Left)     { w = frame[x-1,y]; num++; }
-				if (x < rect.Right-1)  { e = frame[x+1,y]; num++; }
-				if (y > rect.Top)      { n = frame[x,y-1]; num++; }
-				if (y < rect.Bottom-1) { s = frame[x,y+1]; num++; }
+				ColorRGBA? c = null, n = null, e = null, s = null, w = null;
+				c = frame[x, y];
+				if(x > rect.Left) { w = frame[x - 1, y]; num++; }
+				if(x < rect.Right - 1) { e = frame[x + 1, y]; num++; }
+				if(y > rect.Top) { n = frame[x, y - 1]; num++; }
+				if(y < rect.Bottom - 1) { s = frame[x, y + 1]; num++; }
 				double pxvc = GetPixelValue(c);
 				sum += ((
 					  Math.Abs(pxvc - GetPixelValue(n))
@@ -143,11 +144,11 @@ public class Function : IFunction
 
 	ColorRGBA FindAverage(ICanvas frame, Rectangle rect)
 	{
-		double r=0.0, g=0.0, b=0.0;
+		double r = 0.0, g = 0.0, b = 0.0;
 
 		for(int y = rect.Top; y < rect.Bottom; y++) {
 			for(int x = rect.Left; x < rect.Right; x++) {
-				var c = frame[x,y];
+				var c = frame[x, y];
 				//TODO maybe multiply by alpha ?
 				r += c.R;
 				g += c.G;
@@ -157,9 +158,9 @@ public class Function : IFunction
 		double den = rect.Width * rect.Height;
 		var avg = new ColorRGBA(
 			 r / den
-			,g / den
-			,b / den
-			,1.0
+			, g / den
+			, b / den
+			, 1.0
 		);
 		return avg;
 	}
@@ -179,7 +180,7 @@ public class Function : IFunction
 				//if (onBorder) {
 				//	frame[x,y] = red;
 				//} else {
-					frame[x,y] = color;
+				frame[x, y] = color;
 				//}
 			}
 		}
@@ -187,9 +188,9 @@ public class Function : IFunction
 
 	static double GetPixelValue(ColorRGBA? p)
 	{
-		if (!p.HasValue) { return 0.0; }
+		if(!p.HasValue) { return 0.0; }
 		var c = p.Value;
-		double val = (c.R + c.G + c.B)/3.0;
+		double val = (c.R + c.G + c.B) / 3.0;
 		//Log.Debug("GetPixelValue val="+val+" r="+c.R+" g="+c.G+" b="+c.B);
 		return val;
 	}
@@ -203,18 +204,21 @@ public class Function : IFunction
 		public double Value;
 		public Rectangle Rect;
 
-		public static bool operator <(SortPair a, SortPair b) {
+		public static bool operator <(SortPair a, SortPair b)
+		{
 			return a.Value < b.Value;
 		}
-		public static bool operator >(SortPair a, SortPair b) {
+		public static bool operator >(SortPair a, SortPair b)
+		{
 			return a.Value > b.Value;
 		}
 
-		public static SortPair FromRect(ICanvas frame,Rectangle r)
+		public static SortPair FromRect(ICanvas frame, Rectangle r)
 		{
-			double m = Measure(frame,r);
+			double m = Measure(frame, r);
 			return new SortPair {
-				Value = m, Rect = r
+				Value = m,
+				Rect = r
 			};
 		}
 

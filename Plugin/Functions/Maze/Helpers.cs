@@ -5,10 +5,10 @@ public static class Aids
 	public static PickWall Opposite(this PickWall w)
 	{
 		switch(w) {
-			case PickWall.N: return PickWall.S;
-			case PickWall.E: return PickWall.W;
-			case PickWall.S: return PickWall.N;
-			case PickWall.W: return PickWall.E;
+		case PickWall.N: return PickWall.S;
+		case PickWall.E: return PickWall.W;
+		case PickWall.S: return PickWall.N;
+		case PickWall.W: return PickWall.E;
 		}
 		return PickWall.None;
 	}
@@ -23,7 +23,7 @@ public static class Aids
 		return w &= ~f & PickWall.All;
 	}
 
-	#if false
+#if false
 	//currently for debugging only
 	public static string MazeToString(this IMaze m)
 	{
@@ -48,5 +48,5 @@ public static class Aids
 		}
 		return sa.ToString();
 	}
-	#endif
+#endif
 }

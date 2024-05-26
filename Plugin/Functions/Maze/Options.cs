@@ -17,19 +17,19 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Draws one of several mazes");
-		sb.ND(1,"-m  (maze)"     ,"Choose a maze (default prims)");
-		sb.ND(1,"-cc (color)"    ,"Change cell color (default black)");
-		sb.ND(1,"-wc (color)"    ,"Change wall color (default white)");
-		sb.ND(1,"-rs (number)"   ,"Random Int32 seed value (defaults to system picked)");
-		sb.ND(1,"-sq (s,s,...)"  ,"Growing Tree cell picking sequence (default 'N')");
-		sb.ND(1,"-sr"            ,"Randomly pick between sequence options");
+		sb.ND(1, "Draws one of several mazes");
+		sb.ND(1, "-m  (maze)", "Choose a maze (default prims)");
+		sb.ND(1, "-cc (color)", "Change cell color (default black)");
+		sb.ND(1, "-wc (color)", "Change wall color (default white)");
+		sb.ND(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)");
+		sb.ND(1, "-sq (s,s,...)", "Growing Tree cell picking sequence (default 'N')");
+		sb.ND(1, "-sr", "Randomly pick between sequence options");
 		sb.WT();
-		sb.ND(1,"Available Mazes:");
-		sb.PrintEnum<PickMaze>(1,MazeDesc,excludeZero:true);
+		sb.ND(1, "Available Mazes:");
+		sb.PrintEnum<PickMaze>(1, MazeDesc, excludeZero: true);
 		sb.WT();
-		sb.ND(1,"Available Sequence Options: (Only for Growing Tree)");
-		sb.PrintEnum<PickNext>(1,SeqDesc,SeqName,excludeZero:true);
+		sb.ND(1, "Available Sequence Options: (Only for Growing Tree)");
+		sb.PrintEnum<PickNext>(1, SeqDesc, SeqName, excludeZero: true);
 	}
 
 	static string MazeDesc(PickMaze maze)
@@ -82,7 +82,7 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseEnumFirstLetter<PickNext>(s);
 		});
 		//need to provide delimiters
-		return ExtraParsers.ParseSequence(arg, new char[] {','}, parser);
+		return ExtraParsers.ParseSequence(arg, new char[] { ',' }, parser);
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -90,7 +90,7 @@ public sealed class Options : IOptions
 		var p = new ParseParams(args);
 		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
 
-		if (p.Scan("-m", PickMaze.Prims)
+		if(p.Scan("-m", PickMaze.Prims)
 			.WhenGoodOrMissing(r => { Which = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -98,7 +98,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-cc", PlugColors.Black, colorParser)
+		if(p.Scan("-cc", PlugColors.Black, colorParser)
 			.WhenGoodOrMissing(r => { CellColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -106,7 +106,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-wc", PlugColors.White, colorParser)
+		if(p.Scan("-wc", PlugColors.White, colorParser)
 			.WhenGoodOrMissing(r => { WallColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -114,7 +114,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int>("-rs")
+		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RndSeed = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -122,7 +122,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-sq", DefaultSeq(), SeqParser)
+		if(p.Scan("-sq", DefaultSeq(), SeqParser)
 			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -130,7 +130,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Has("-sr").IsGood()) {
+		if(p.Has("-sr").IsGood()) {
 			SequenceRandomPick = true;
 		}
 

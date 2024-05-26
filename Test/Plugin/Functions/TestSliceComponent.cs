@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestSliceComponent : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.SliceComponent);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,8 +39,8 @@ public class TestSliceComponent : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(1, startImg, new string[] { "-c","G","-o","7" });
-		yield return CreateTestInfo(2, startImg, new string[] { "-s","HSV","-c","H","-o","11" });
+		yield return CreateTestInfo(1, startImg, new string[] { "-c", "G", "-o", "7" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-s", "HSV", "-c", "H", "-o", "11" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -54,7 +54,7 @@ public class TestSliceComponent : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "cookie","creek" };
+		var list = new string[] { "cookie", "creek" };
 		return list;
 	}
 }

@@ -1,5 +1,3 @@
-using System.Numerics;
-using System.Security.Principal;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 
@@ -9,16 +7,16 @@ public static class ImageComparer
 {
 	public static bool AreCanvasEqual(ICanvas one, ICanvas two)
 	{
-		if (one.Width != two.Width || one.Height != two.Height) {
+		if(one.Width != two.Width || one.Height != two.Height) {
 			return false;
 		}
 
 		for(int y = 0; y < one.Height; y++) {
 			for(int x = 0; x < one.Width; x++) {
-				var po = one[x,y];
-				var pt = two[x,y];
-				bool same = AreColorsEqual(po,pt);
-				if (!same) { return false; }
+				var po = one[x, y];
+				var pt = two[x, y];
+				bool same = AreColorsEqual(po, pt);
+				if(!same) { return false; }
 			}
 		}
 		return true;
@@ -39,17 +37,17 @@ public static class ImageComparer
 		IMetric metric = null, bool excludeAlpha = false)
 	{
 		var black = new ColorRGBA(0.0, 0.0, 0.0, 1.0);
-		int mw = Math.Max(one.Width,two.Width);
-		int mh = Math.Max(one.Height,two.Height);
+		int mw = Math.Max(one.Width, two.Width);
+		int mh = Math.Max(one.Height, two.Height);
 		double dR = 0.0, dG = 0.0, dB = 0.0, dA = 0.0;
 
 		double total = 0.0;
 		for(int y = 0; y < mh; y++) {
 			for(int x = 0; x < mw; x++) {
-				var pOne = one.Width > x && one.Height > y ? one[x,y] : black;
-				var pTwo = two.Width > x && two.Height > y ? two[x,y] : black;
+				var pOne = one.Width > x && one.Height > y ? one[x, y] : black;
+				var pTwo = two.Width > x && two.Height > y ? two[x, y] : black;
 
-				var dist = ColorDistance(pOne,pTwo,metric,excludeAlpha);
+				var dist = ColorDistance(pOne, pTwo, metric, excludeAlpha);
 				dR += dist.R;
 				dG += dist.G;
 				dB += dist.B;
@@ -59,7 +57,11 @@ public static class ImageComparer
 		}
 
 		return new ComponentDistance {
-			R = dR, G = dG, B = dB, A = dA, Total = total
+			R = dR,
+			G = dG,
+			B = dB,
+			A = dA,
+			Total = total
 		};
 	}
 
@@ -72,26 +74,30 @@ public static class ImageComparer
 		double da = one.A - two.A;
 		double total;
 
-		if (metric != null) {
+		if(metric != null) {
 			var oneList = excludeAlpha
-				? new [] { one.R, one.G, one.B }
-				: new [] { one.R, one.G, one.B, one.A }
+				? new[] { one.R, one.G, one.B }
+				: new[] { one.R, one.G, one.B, one.A }
 			;
 			var twoList = excludeAlpha
-				? new [] { two.R, two.G, two.B }
-				: new [] { two.R, two.G, two.B, two.A }
+				? new[] { two.R, two.G, two.B }
+				: new[] { two.R, two.G, two.B, two.A }
 			;
-			total = metric.Measure(oneList,twoList);
+			total = metric.Measure(oneList, twoList);
 		}
 		else {
 			total = excludeAlpha
-				? Math.Sqrt(dr*dr + dg*dg + db*db)
-				: Math.Sqrt(dr*dr + dg*dg + db*db + da*da)
+				? Math.Sqrt(dr * dr + dg * dg + db * db)
+				: Math.Sqrt(dr * dr + dg * dg + db * db + da * da)
 			;
 		}
 
 		return new ComponentDistance {
-			R = dr, G = dg, B = db, A = da, Total = total
+			R = dr,
+			G = dg,
+			B = db,
+			A = da,
+			Total = total
 		};
 	}
 
@@ -106,13 +112,13 @@ public static class ImageComparer
 
 	public static double Max(this IMetric metric, bool excludeAlpha = false)
 	{
-		if (metric == null) {
+		if(metric == null) {
 			return excludeAlpha ? Math.Sqrt(3.0) : 2.0;
 		}
 
-		var one = excludeAlpha ? new[] { 0.0,0.0,0.0 } : new[] { 0.0,0.0,0.0,0.0 };
-		var two = excludeAlpha ? new[] { 1.0,1.0,1.0 } : new[] { 1.0,1.0,1.0,1.0 };
-		var max = metric.Measure(one,two);
+		var one = excludeAlpha ? new[] { 0.0, 0.0, 0.0 } : new[] { 0.0, 0.0, 0.0, 0.0 };
+		var two = excludeAlpha ? new[] { 1.0, 1.0, 1.0 } : new[] { 1.0, 1.0, 1.0, 1.0 };
+		var max = metric.Measure(one, two);
 		return max;
 	}
 }

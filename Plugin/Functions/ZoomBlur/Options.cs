@@ -1,8 +1,8 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Core.Samplers;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.ZoomBlur;
 
@@ -16,10 +16,10 @@ public class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Blends rays of pixels to produce a 'zoom' effect");
-		sb.ND(1,"-z  (number)[%]"             ,"Zoom amount (default 1.1)");
-		sb.ND(1,"-cc (number) (number)"       ,"Coordinates of zoom center in pixels");
-		sb.ND(1,"-cp (number)[%] (number)[%]" ,"Coordinates of zoom center by proportion (default 50% 50%)");
+		sb.ND(1, "Blends rays of pixels to produce a 'zoom' effect");
+		sb.ND(1, "-z  (number)[%]", "Zoom amount (default 1.1)");
+		sb.ND(1, "-cc (number) (number)", "Coordinates of zoom center in pixels");
+		sb.ND(1, "-cp (number)[%] (number)[%]", "Coordinates of zoom center by proportion (default 50% 50%)");
 		//sb.WL(" -oh"                        ,"Only zoom horizontally");
 		//sb.WL(" -ov"                        ,"Only zoom vertically");
 		sb.SamplerHelpLine();
@@ -33,7 +33,7 @@ public class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan("-z", 1.1)
+		if(p.Scan("-z", 1.1)
 			.WhenGoodOrMissing(r => { ZoomAmount = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.BeGreaterThanZero(true)
@@ -42,10 +42,10 @@ public class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int,int>("-cc")
+		if(p.Scan<int, int>("-cc")
 			.WhenGood(r => {
-				var (cx,cy) = r.Value;
-				CenterPx = new Point(cx,cy);
+				var (cx, cy) = r.Value;
+				CenterPx = new Point(cx, cy);
 				return r;
 			})
 			.WhenInvalidTellDefault()
@@ -54,10 +54,10 @@ public class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<double,double>("-cp",leftPar: parser, rightPar: parser)
+		if(p.Scan<double, double>("-cp", leftPar: parser, rightPar: parser)
 			.WhenGood(r => {
-				var (px,py) = r.Value;
-				CenterRt = new PointF((float)px,(float)py);
+				var (px, py) = r.Value;
+				CenterRt = new PointF((float)px, (float)py);
 				return r;
 			})
 			.WhenInvalidTellDefault()
@@ -67,17 +67,17 @@ public class Options : IOptions
 		}
 
 		//-cc / -cp are either/or options. if neither are specified set the default
-		if (CenterPx == null && CenterRt == null) {
-			CenterRt = new PointF(0.5f,0.5f);
+		if(CenterPx == null && CenterRt == null) {
+			CenterRt = new PointF(0.5f, 0.5f);
 		}
 
-		if (p.DefaultSampler(register)
+		if(p.DefaultSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if (p.DefaultMetric(register)
+		if(p.DefaultMetric(register)
 			.WhenGood(r => { Measurer = r.Value; return r; })
 			.IsInvalid()
 		) {

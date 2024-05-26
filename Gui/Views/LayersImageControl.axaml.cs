@@ -1,8 +1,6 @@
-using System.Diagnostics;
 using Avalonia.Controls;
-using Avalonia.LogicalTree;
-using ImageFunctions.Gui.Models;
 using ImageFunctions.Gui.ViewModels;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Views;
 

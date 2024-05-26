@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestSwirl : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.Swirl);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -56,7 +56,7 @@ public class TestSwirl : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "fractal","lego" };
+		var list = new string[] { "fractal", "lego" };
 		return list;
 	}
 }

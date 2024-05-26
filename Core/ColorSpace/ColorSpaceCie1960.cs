@@ -15,7 +15,7 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 		double u = 2.0 * p.X / 3.0;
 		double v = p.Y;
 		double w = 0.5 * (p.Z + 3.0 * p.Y - p.X);
-		return new UVW(u,v,w,o.A);
+		return new UVW(u, v, w, o.A);
 	}
 
 	public ColorRGBA ToNative(in UVW o)
@@ -29,14 +29,16 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 		double y = o.V;
 		double z = 3.0 * o.U / 2.0 - 3.0 * o.V + 2.0 * o.W;
 
-		var xyz = new ColorSpaceCie1931.XYZ(x,y,z,o.A);
+		var xyz = new ColorSpaceCie1931.XYZ(x, y, z, o.A);
 		return XyzSpace.ToNative(xyz);
 	}
 
-	ColorRGBA IColor3Space.ToNative(in IColor3 o) {
-		return o is UVW n ? ToNative(n) : ToNative(new UVW(o.C1,o.C2,o.C3,o.A));
+	ColorRGBA IColor3Space.ToNative(in IColor3 o)
+	{
+		return o is UVW n ? ToNative(n) : ToNative(new UVW(o.C1, o.C2, o.C3, o.A));
 	}
-	IColor3 IColor3Space.ToSpace(in ColorRGBA o) {
+	IColor3 IColor3Space.ToSpace(in ColorRGBA o)
+	{
 		return ToSpace(o);
 	}
 
@@ -48,29 +50,36 @@ public class ColorSpaceCie1960 : IColor3Space<ColorSpaceCie1960.UVW>, ILumaColor
 
 	static ColorSpaceCie1931 XyzSpace = new ColorSpaceCie1931();
 
-	public ColorSpaceInfo Info { get {
-		return new ColorSpaceInfo {
-			Description = "International Commission on Illumination 1960",
-			ComponentNames = new[] { "U", "V", "W", "A" }
-		};
-	}}
+	public ColorSpaceInfo Info {
+		get {
+			return new ColorSpaceInfo {
+				Description = "International Commission on Illumination 1960",
+				ComponentNames = new[] { "U", "V", "W", "A" }
+			};
+		}
+	}
 
-	public readonly struct UVW : IColor3, ILuma
+	public readonly record struct UVW : IColor3, ILuma
 	{
-		public UVW(double u, double v, double w, double a = 1.0) {
+		public UVW(double u, double v, double w, double a = 1.0)
+		{
 			U = u; V = v; W = w; A = a;
 		}
-		public readonly double U,V,W,A;
 
-		double IColor3.C1 { get { return U; }}
-		double IColor3.C2 { get { return V; }}
-		double IColor3.C3 { get { return W; }}
-		double IColor3.A  { get { return A; }}
-		public double Luma { get { return W; }}
+		public double U { get; }
+		public double V { get; }
+		public double W { get; }
+		public double A { get; }
+
+		double IColor3.C1 { get { return U; } }
+		double IColor3.C2 { get { return V; } }
+		double IColor3.C3 { get { return W; } }
+		double IColor3.A { get { return A; } }
+		public double Luma { get { return W; } }
 
 		public ComponentOrdinal GetOrdinal(string name)
 		{
-			return name.ToUpperInvariant() switch {
+			return name?.ToUpperInvariant() switch {
 				"U" => ComponentOrdinal.C1,
 				"V" => ComponentOrdinal.C2,
 				"W" => ComponentOrdinal.C3,

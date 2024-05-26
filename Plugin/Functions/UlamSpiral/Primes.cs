@@ -1,35 +1,32 @@
-using System;
-using System.Collections.Generic;
-
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
 public static class Primes
 {
 	public static bool IsPrime(long num)
 	{
-		if (num < 2) { return false; }
+		if(num < 2) { return false; }
 		return IsCompositeWhy(num) < 2;
 	}
 
 	// returns first factor that makes a number non-prime or 1 if it is prime
 	public static long IsCompositeWhy(long num)
 	{
-		if (num < 2) { return 1; }
+		if(num < 2) { return 1; }
 		int i = IndexOf(num); //is it a known prime?
-		if (i >= 0) { return 1; }
+		if(i >= 0) { return 1; }
 
 		//does it divide a known prime?
 		long sqrt = (long)Math.Sqrt(num);
 		foreach(long p in FirstPrimes) {
-			if (p > sqrt) { break; }
-			if (num % p == 0) { return p; }
+			if(p > sqrt) { break; }
+			if(num % p == 0) { return p; }
 		}
 
 		//keep looking through all the odds above the last known prime
 		long test = FirstPrimes[FirstPrimes.Length - 1];
 		while(test <= sqrt) {
 			//note: this might return non-prime factors, but not sure
-			if (num % test == 0) { return test; }
+			if(num % test == 0) { return test; }
 			test += 2;
 		}
 		return 1; //if we've reached here the number is prime
@@ -40,7 +37,7 @@ public static class Primes
 		int count = 0;
 		while(count < max) {
 			long factor = IsCompositeWhy(num);
-			if (factor < 2) { break; }
+			if(factor < 2) { break; }
 			num /= factor;
 			count++;
 		}
@@ -48,19 +45,19 @@ public static class Primes
 	}
 
 	//returns if prime is 6m-1 or 6m+1 or neither
-	public static (bool,bool) IsPrime6m(long num)
+	public static (bool, bool) IsPrime6m(long num)
 	{
-		if (num < 5) { return (false,false); }
+		if(num < 5) { return (false, false); }
 		bool isp1 = (num + 1) % 6 == 0;
 		bool ism1 = (num - 1) % 6 == 0;
-		return (ism1,isp1);
+		return (ism1, isp1);
 	}
 
 	static long NextPrime(long num)
 	{
 		num += (num % 2 == 0 ? 1 : 2);
 		while(true) {
-			if (IsPrime(num)) { return num; }
+			if(IsPrime(num)) { return num; }
 			num += 2;
 		}
 	}
@@ -68,7 +65,7 @@ public static class Primes
 	static int IndexOf(long num)
 	{
 		int inum = (int)num;
-		int i = Array.BinarySearch<int>(FirstPrimes,inum);
+		int i = Array.BinarySearch<int>(FirstPrimes, inum);
 		return i;
 	}
 

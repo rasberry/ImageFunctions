@@ -79,14 +79,14 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 	public virtual void Move(int fromIndex, int toIndex)
 	{
-		if (fromIndex == toIndex) { return; }
+		if(fromIndex == toIndex) { return; }
 
 		int fix = StackIxToListIx(fromIndex);
 		int tix = StackIxToListIx(toIndex);
 
 		var item = Storage[fix];
 		Storage.RemoveAt(fix);
-		Storage.Insert(tix,item);
+		Storage.Insert(tix, item);
 	}
 
 	public virtual T PopAt(int index)
@@ -100,7 +100,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	public virtual void PushAt(int index, T item)
 	{
 		int ix = StackIxToListIx(index - 1);
-		Storage.Insert(ix,item);
+		Storage.Insert(ix, item);
 	}
 
 	public virtual IEnumerator<T> GetEnumerator()
@@ -118,11 +118,14 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	/// <param name="items">IEnumerable of items to add</param>
 	public virtual void AddRange(IEnumerable<T> items)
 	{
+		if(items == null) {
+			throw Squeal.ArgumentNull(nameof(items));
+		}
 		foreach(var i in items) { Push(i); }
 	}
 
 	public T Pop() => PopAt(0);
-	public void Push(T item) => PushAt(0,item);
+	public void Push(T item) => PushAt(0, item);
 	public virtual int Count => Storage.Count;
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -145,15 +148,17 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	protected virtual bool Remove(T item) => Storage.Remove(item);
 	protected virtual bool IsReadOnly => false;
 
-	void ICollection<T>.CopyTo(T[] array, int startIndex) => CopyTo(array,startIndex);
-	int IList<T>.IndexOf(T item)            => IndexOf(item);
-	void IList<T>.Insert(int index, T item) => PushAt(index,item);
-	void IList<T>.RemoveAt(int index)       => PopAt(index);
-	void ICollection<T>.Add(T item)         => Push(item);
-	void ICollection<T>.Clear()             => Clear();
-	bool ICollection<T>.Contains(T item)    => Contains(item);
-	bool ICollection<T>.Remove(T item)      => Remove(item);
-	bool ICollection<T>.IsReadOnly          => IsReadOnly;
+#pragma warning disable CA1033 // Interface methods should be callable by child types - only want stack methods public
+	void ICollection<T>.CopyTo(T[] array, int startIndex) => CopyTo(array, startIndex);
+	int IList<T>.IndexOf(T item) => IndexOf(item);
+	void IList<T>.Insert(int index, T item) => PushAt(index, item);
+	void IList<T>.RemoveAt(int index) => PopAt(index);
+	void ICollection<T>.Add(T item) => Push(item);
+	void ICollection<T>.Clear() => Clear();
+	bool ICollection<T>.Contains(T item) => Contains(item);
+	bool ICollection<T>.Remove(T item) => Remove(item);
+	bool ICollection<T>.IsReadOnly => IsReadOnly;
+#pragma warning restore CA1033
 	#endregion IList<T> Implementation =========================================
 
 	#region IList Implementation ===============================================
@@ -162,6 +167,9 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 	protected virtual void CopyTo(Array array, int startIndex)
 	{
+		if(array == null) {
+			throw Squeal.ArgumentNull(nameof(array));
+		}
 		int count = Storage.Count;
 		var mimic = (object[])array;
 
@@ -170,6 +178,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		}
 	}
 
+#pragma warning disable CA1033 // Interface methods should be callable by child types - only want stack methods public
 	int IList.Add(object item)
 	{
 		EnsureIsValid(item);
@@ -178,44 +187,51 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		return ix;
 	}
 
-	bool IList.IsFixedSize { get {
-		if (Storage is IList list) {
-			return list.IsFixedSize;
+	bool IList.IsFixedSize {
+		get {
+			if(Storage is IList list) {
+				return list.IsFixedSize;
+			}
+			return IsReadOnly;
 		}
-		return IsReadOnly;
-	}}
+	}
 
 	object IList.this[int index] {
 		get => this[index];
 		set => this[index] = EnsureIsValid(value);
 	}
 
-	bool ICollection.IsSynchronized { get {
-		if (Storage is ICollection col) {
-			return col.IsSynchronized;
+	bool ICollection.IsSynchronized {
+		get {
+			if(Storage is ICollection col) {
+				return col.IsSynchronized;
+			}
+			return false;
 		}
-		return false;
-	}}
+	}
 
-	object ICollection.SyncRoot { get {
-		if (Storage is ICollection col) {
-			return col.SyncRoot;
+	object ICollection.SyncRoot {
+		get {
+			if(Storage is ICollection col) {
+				return col.SyncRoot;
+			}
+			return this;
 		}
-		return this;
-	}}
+	}
 
 	void ICollection.CopyTo(Array array, int index) => CopyTo(array, index);
-	void IList.Clear()                        => Clear();
-	bool IList.Contains(object item)          => Contains(EnsureIsValid(item));
-	int IList.IndexOf(object item)            => IndexOf(EnsureIsValid(item));
-	void IList.Insert(int index, object item) => PushAt(index,EnsureIsValid(item));
-	void IList.Remove(object item)            => Remove(EnsureIsValid(item));
-	void IList.RemoveAt(int index)            => PopAt(index);
-	bool IList.IsReadOnly                     => IsReadOnly;
+	void IList.Clear() => Clear();
+	bool IList.Contains(object item) => Contains(EnsureIsValid(item));
+	int IList.IndexOf(object item) => IndexOf(EnsureIsValid(item));
+	void IList.Insert(int index, object item) => PushAt(index, EnsureIsValid(item));
+	void IList.Remove(object item) => Remove(EnsureIsValid(item));
+	void IList.RemoveAt(int index) => PopAt(index);
+	bool IList.IsReadOnly => IsReadOnly;
+#pragma warning restore CA1033
 
 	static T EnsureIsValid(object value)
 	{
-		if (!IsValidType(value)) {
+		if(!IsValidType(value)) {
 			throw new ArrayTypeMismatchException($"Incompatible type {value?.GetType().FullName}");
 		}
 		return (T)value;
@@ -223,8 +239,8 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 	static bool IsValidType(object value)
 	{
-		if (value is not T) {
-			if (value == null) {
+		if(value is not T) {
+			if(value == null) {
 				return default(T) == null;
 			}
 			return false;

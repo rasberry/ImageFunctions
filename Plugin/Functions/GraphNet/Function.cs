@@ -22,21 +22,21 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var (dfw,dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth,Options.DefaultHeight);
+		var (dfw, dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth, Options.DefaultHeight);
 		var canvas = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(canvas);
 
-		if (O.NodeCount.HasValue) {
-			if (O.NodeCount < 1 || O.NodeCount > canvas.Width) {
-				Log.Error(Note.MustBeBetween("-n","1",$"{canvas.Width} (inclusive)"));
+		if(O.NodeCount.HasValue) {
+			if(O.NodeCount < 1 || O.NodeCount > canvas.Width) {
+				Log.Error(Note.MustBeBetween("-n", "1", $"{canvas.Width} (inclusive)"));
 				return false;
 			}
 		}
@@ -55,17 +55,17 @@ public class Function : IFunction
 		double prate = O.PerturbationRate;
 
 		using var progress = new ProgressBar();
-		for(int y=0; y<maxy; y++) {
+		for(int y = 0; y < maxy; y++) {
 			int x = 0;
-			for(int n=0; n<maxn; n++) {
-				double g = state[n].Value / (nstates-1);
-				var color = new ColorRGBA(g,g,g,1.0);
+			for(int n = 0; n < maxn; n++) {
+				double g = state[n].Value / (nstates - 1);
+				var color = new ColorRGBA(g, g, g, 1.0);
 				for(int nx = 0; nx < nodew; nx++) {
-					canvas[x,y] = color;
+					canvas[x, y] = color;
 					x++;
 				}
 			}
-			PermuteState(state,prate,nodeCount);
+			PermuteState(state, prate, nodeCount);
 			progress.Report(y / (double)maxy);
 		}
 
@@ -75,9 +75,9 @@ public class Function : IFunction
 	uint[] vtemp = null;
 	void PermuteState(Node[] state, double prate, int nodeCount)
 	{
-		for(int n=0; n<nodeCount; n++) {
+		for(int n = 0; n < nodeCount; n++) {
 			uint sum = 0;
-			for(int c=0; c<O.Connectivity; c++) {
+			for(int c = 0; c < O.Connectivity; c++) {
 				int i = state[n].Connection[c];  //get the index of the connection
 
 				bool vkink = Rnd.NextDouble() < prate; //do we perturb value ?
@@ -85,12 +85,12 @@ public class Function : IFunction
 
 				bool okink = Rnd.NextDouble() < prate; //do we perturb operation ?
 				PickOp op = okink ? (PickOp)Rnd.Next(PickOpCount) : state[n].Op[c];
-				sum = MixValues(sum,val,op);
+				sum = MixValues(sum, val, op);
 			}
 			vtemp[n] = sum % (uint)O.States; //don't want to modify state while getting the new values
 		}
 
-		for(int n=0; n<nodeCount; n++) {
+		for(int n = 0; n < nodeCount; n++) {
 			state[n].Value = vtemp[n];
 		}
 	}
@@ -103,14 +103,14 @@ public class Function : IFunction
 		;
 		vtemp = new uint[nodeCount];
 
-		for(int n=0; n<nodeCount; n++) {
+		for(int n = 0; n < nodeCount; n++) {
 			var node = new Node {
 				Value = (uint)Rnd.Next(O.States), //random initial state
 				Connection = new int[O.Connectivity],
 				Op = new PickOp[O.Connectivity]
 			};
 
-			for(int c=0; c<O.Connectivity; c++) {
+			for(int c = 0; c < O.Connectivity; c++) {
 				//random connection to another node
 				node.Connection[c] = Rnd.Next(nodeCount);
 				node.Op[c] = (PickOp)Rnd.Next(PickOpCount);
@@ -122,7 +122,7 @@ public class Function : IFunction
 	void PrintState(Node[] state)
 	{
 		var sb = new StringBuilder();
-		for(int n=0; n<state.Length; n++) {
+		for(int n = 0; n < state.Length; n++) {
 			var sn = state[n];
 			Log.Message($"{n} Value={sn.Value}");
 			Log.Message(PrintArray(sn.Connection));
@@ -135,7 +135,7 @@ public class Function : IFunction
 		var sb = new StringBuilder();
 		sb.Append('[');
 		sb.Append(arr[0]);
-		for(int i=1; i<arr.Length; i++) {
+		for(int i = 1; i < arr.Length; i++) {
 			sb.Append(',');
 			sb.Append(arr[i]);
 		}
@@ -143,6 +143,7 @@ public class Function : IFunction
 		return sb.ToString();
 	}
 
+#pragma warning disable format
 	// https://en.wikipedia.org/wiki/Truth_table
 	enum PickOp {
 		/*0*/ False = 00, //contradiction
@@ -167,26 +168,26 @@ public class Function : IFunction
 	uint MixValues(uint left, uint rite, PickOp op)
 	{
 		switch(op) {
-			/*0*/ case PickOp.False: return 0;
-			/*1*/ case PickOp.Nor:   return ~(left | rite);
-			/*2*/ case PickOp.Cn:    return ~left & ~rite;
-			/*3*/ case PickOp.Notl:  return ~left;
-			/*4*/ case PickOp.Mn:    return left & ~rite;
-			/*5*/ case PickOp.Notr:  return ~rite;
-			/*6*/ case PickOp.Xor:   return left ^ rite;
-			/*7*/ case PickOp.Nand:  return ~(left & rite);
-
-			/*8*/ case PickOp.And:   return left & rite;
-			/*9*/ case PickOp.Xnor:  return ~(left ^ rite);
-			/*A*/ case PickOp.Pr:    return rite;
-			/*B*/ case PickOp.Mi:    return ~left | rite;
-			/*C*/ case PickOp.Pl:    return left;
-			/*D*/ case PickOp.Ci:    return left | ~rite;
-			/*E*/ case PickOp.Or:    return left | rite;
-			/*F*/ case PickOp.True:  return uint.MaxValue;
+		/*0*/ case PickOp.False: return 0;
+		/*1*/ case PickOp.Nor:   return ~(left | rite);
+		/*2*/ case PickOp.Cn:    return ~left & ~rite;
+		/*3*/ case PickOp.Notl:  return ~left;
+		/*4*/ case PickOp.Mn:    return left & ~rite;
+		/*5*/ case PickOp.Notr:  return ~rite;
+		/*6*/ case PickOp.Xor:   return left ^ rite;
+		/*7*/ case PickOp.Nand:  return ~(left & rite);
+		/*8*/ case PickOp.And:   return left & rite;
+		/*9*/ case PickOp.Xnor:  return ~(left ^ rite);
+		/*A*/ case PickOp.Pr:    return rite;
+		/*B*/ case PickOp.Mi:    return ~left | rite;
+		/*C*/ case PickOp.Pl:    return left;
+		/*D*/ case PickOp.Ci:    return left | ~rite;
+		/*E*/ case PickOp.Or:    return left | rite;
+		/*F*/ case PickOp.True:  return uint.MaxValue;
 		}
 		return 0;
 	}
+#pragma warning restore format
 
 	struct Node
 	{

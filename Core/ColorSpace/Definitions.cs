@@ -53,7 +53,7 @@ public interface IColor4Space<T> : IColor4Space where T : IColor4
 	ColorRGBA ToNative(in T o);
 }
 
-public enum ComponentOrdinal { C1=0, C2=1, C3=2, C4=3, A=4 }
+public enum ComponentOrdinal { C1 = 0, C2 = 1, C3 = 2, C4 = 3, A = 4 }
 
 public interface IMapComponent
 {

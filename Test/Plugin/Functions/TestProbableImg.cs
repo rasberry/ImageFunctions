@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestProbableImg : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.ProbableImg);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -39,10 +39,10 @@ public class TestProbableImg : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(1,startImg,new string[] { "-rs","321" });
-		yield return CreateTestInfo(2,startImg,new string[] { "-rs","321","-n","5" });
-		yield return CreateTestInfo(3,startImg,new string[] { "-rs","321","-pp","50%","50%" });
-		yield return CreateTestInfo(4,startImg,new string[] { "-rs","321","-pp","50%","50%","-alt" });
+		yield return CreateTestInfo(1, startImg, new string[] { "-rs", "321" });
+		yield return CreateTestInfo(2, startImg, new string[] { "-rs", "321", "-n", "5" });
+		yield return CreateTestInfo(3, startImg, new string[] { "-rs", "321", "-pp", "50%", "50%" });
+		yield return CreateTestInfo(4, startImg, new string[] { "-rs", "321", "-pp", "50%", "50%", "-alt" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
@@ -56,7 +56,7 @@ public class TestProbableImg : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "cookie","flower","harddrive" };
+		var list = new string[] { "cookie", "flower", "harddrive" };
 		return list;
 	}
 }

@@ -18,10 +18,10 @@ public readonly record struct ColorRGBA : IColor3, ILuma
 	public double B { get; init; }
 	public double A { get; init; }
 
-	double IColor3.C1 { get { return R; }}
-	double IColor3.C2 { get { return G; }}
-	double IColor3.C3 { get { return B; }}
-	double IColor3.A  { get { return A; }}
+	double IColor3.C1 { get { return R; } }
+	double IColor3.C2 { get { return G; } }
+	double IColor3.C3 { get { return B; } }
+	double IColor3.A { get { return A; } }
 
 	public static ColorRGBA FromRGBA255(byte r, byte g, byte b, byte a)
 	{
@@ -30,7 +30,7 @@ public readonly record struct ColorRGBA : IColor3, ILuma
 
 	public ComponentOrdinal GetOrdinal(string name)
 	{
-		return name.ToUpperInvariant() switch {
+		return name?.ToUpperInvariant() switch {
 			"R" => ComponentOrdinal.C1,
 			"G" => ComponentOrdinal.C2,
 			"B" => ComponentOrdinal.C3,
@@ -39,10 +39,12 @@ public readonly record struct ColorRGBA : IColor3, ILuma
 		};
 	}
 
-	public double Luma { get {
-		//BT. 2020
-		double Kr = 0.2627, Kb = 0.0593, Kg = 1.0 - Kb - Kr;
-		return  Kr * R + Kb * G + Kg * B;
+	public double Luma {
+		get {
+			//BT. 2020
+			double Kr = 0.2627, Kb = 0.0593, Kg = 1.0 - Kb - Kr;
+			return Kr * R + Kb * G + Kg * B;
 
-	}}
+		}
+	}
 }

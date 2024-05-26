@@ -9,27 +9,27 @@ public static class Log
 
 	public static void Info(string m)
 	{
-		if (BeVerbose) {
-			WithColor($"I: {m}",ConsoleColor.Gray);
+		if(BeVerbose) {
+			WithColor($"I: {m}", ConsoleColor.Gray);
 		}
 	}
 
 	public static void Warning(string m)
 	{
-		WithColor($"W: {m}",ConsoleColor.Yellow, true);
+		WithColor($"W: {m}", ConsoleColor.Yellow, true);
 	}
 
 	public static void Error(string m, Exception e = null)
 	{
 		string se = e == null ? "" : $" : {e.Message}";
-		WithColor($"E: {m}{se}",ConsoleColor.Red,true);
+		WithColor($"E: {m}{se}", ConsoleColor.Red, true);
 	}
 
 	public static void Debug(string m)
 	{
-		#if DEBUG
-		WithColor($"D: {m}",ConsoleColor.DarkGray);
-		#endif
+#if DEBUG
+		WithColor($"D: {m}", ConsoleColor.DarkGray);
+#endif
 	}
 
 	public static bool BeVerbose { get; set; }

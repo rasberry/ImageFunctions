@@ -1,10 +1,7 @@
-using System.Diagnostics;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.LogicalTree;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
 
@@ -22,7 +19,7 @@ public partial class MainWindow : Window
 
 	void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
 	{
-		if (Model != null) {
+		if(Model != null) {
 			var current = Model.PreviewRectangle;
 			Model.PreviewRectangle = new Rect(current.TopLeft, args.NewSize);
 		}
@@ -44,21 +41,21 @@ public partial class MainWindow : Window
 	{
 		//setup global even handlers for mouse enter/exit events
 		PointerEnteredEvent.Raised.Subscribe(o => {
-			var (s,e) = o; //tuple deconstruct
+			var (s, e) = o; //tuple deconstruct
 			UpdateStatusHandler(s, (PointerEventArgs)e, false);
 		});
 		PointerExitedEvent.Raised.Subscribe(o => {
-			var (s,e) = o;
+			var (s, e) = o;
 			UpdateStatusHandler(s, (PointerEventArgs)e, true);
 		});
 	}
 
 	void UpdateStatusHandler(object sender, PointerEventArgs args, bool isLeaving)
 	{
-		if (sender is not Button button) { return; }
+		if(sender is not Button button) { return; }
 		string text = button?.Tag?.ToString();
 
-		if (text != null) {
+		if(text != null) {
 			Model?.UpdateStatusText(text, isLeaving);
 		}
 	}
@@ -72,9 +69,9 @@ public partial class MainWindow : Window
 	async void OpenFileDialog(object sender, RoutedEventArgs args)
 	{
 		IStorageProvider sp = GetStorageProvider();
-		if (sp is null) { return; }
+		if(sp is null) { return; }
 		var filter = new List<FilePickerFileType>();
-		if (Model?.SupportedReadTypes != null) {
+		if(Model?.SupportedReadTypes != null) {
 			filter.Add(Model?.SupportedReadTypes);
 		}
 		filter.Add(FilePickerFileTypes.All);
@@ -86,7 +83,7 @@ public partial class MainWindow : Window
 		});
 
 		IStorageFile item = result.FirstOrDefault();
-		if (item != null) {
+		if(item != null) {
 			var path = item.Path.LocalPath ?? item.Path.ToString();
 			Model?.LoadAndShowImage(path);
 		}

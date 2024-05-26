@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Concurrent;
 using ImageFunctions.Core;
 using Rasberry.Cli;
 
@@ -26,13 +24,13 @@ public class Function : IFunction
 	// based on https://docs.gimp.org/2.8/en/gimp-layer-white-balance.html
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
@@ -44,16 +42,16 @@ public class Function : IFunction
 
 		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		progress.Prefix = "Modifying Colors ";
-		Tools.ThreadPixels(source,(int x, int y) => {
-			Core.ColorSpace.IColor3 orig = source[x,y];
+		Tools.ThreadPixels(source, (int x, int y) => {
+			Core.ColorSpace.IColor3 orig = source[x, y];
 			var c1 = Math.Clamp((orig.C1 - factors.C1Shift) * factors.C1Stretch, 0.0, 1.0);
 			var c2 = Math.Clamp((orig.C2 - factors.C2Shift) * factors.C2Stretch, 0.0, 1.0);
 			var c3 = Math.Clamp((orig.C3 - factors.C3Shift) * factors.C3Stretch, 0.0, 1.0);
 			double a = O.StretchAlpha
-				? Math.Clamp((orig.A  - factors.AShift)  * factors.AStretch,  0.0, 1.0)
+				? Math.Clamp((orig.A - factors.AShift) * factors.AStretch, 0.0, 1.0)
 				: orig.A;
-			source[x,y] = new ColorRGBA(c1,c2,c3,a);
-		},maxThreads,progress);
+			source[x, y] = new ColorRGBA(c1, c2, c3, a);
+		}, maxThreads, progress);
 
 		return true;
 	}
@@ -68,12 +66,12 @@ public class Function : IFunction
 		var (c1High, c1Low) = FindHighLow(buckets.C1, floor);
 		var (c2High, c2Low) = FindHighLow(buckets.C2, floor);
 		var (c3High, c3Low) = FindHighLow(buckets.C3, floor);
-		var (aHigh,  aLow)  = FindHighLow(buckets.A,  floor);
+		var (aHigh, aLow) = FindHighLow(buckets.A, floor);
 
 		(data.C1Shift, data.C1Stretch) = CalcShiftStretch(c1High, c1Low, buckets.C1.Length);
 		(data.C2Shift, data.C2Stretch) = CalcShiftStretch(c2High, c2Low, buckets.C2.Length);
 		(data.C3Shift, data.C3Stretch) = CalcShiftStretch(c3High, c3Low, buckets.C3.Length);
-		(data.AShift,  data.AStretch)  = CalcShiftStretch(aHigh,  aLow,  buckets.A.Length);
+		(data.AShift, data.AStretch) = CalcShiftStretch(aHigh, aLow, buckets.A.Length);
 
 		return data;
 	}
@@ -81,28 +79,28 @@ public class Function : IFunction
 	static (double, double) CalcShiftStretch(int high, int low, int count)
 	{
 		//if we only have a single bucket don't do anything
-		if (high <= low) { return (0.0, 1.0); }
+		if(high <= low) { return (0.0, 1.0); }
 
 		var shift = (double)low / count;
 		var stretch = count / (double)(high - low);
 		return (shift, stretch);
 	}
 
-	static (int,int) FindHighLow(long[] band, long floor)
+	static (int, int) FindHighLow(long[] band, long floor)
 	{
 		int high = 0;
 		int low = 0;
 		for(int b = 0; b < band.Length; b++) {
-			if (band[b] < floor) { low = b; }
+			if(band[b] < floor) { low = b; }
 			//stop at the first bucket that goes above floor
 			else { break; }
 		}
 		for(int e = band.Length - 1; e >= 0; e--) {
-			if (band[e] < floor) { high = e; }
+			if(band[e] < floor) { high = e; }
 			//stop at the first bucket that goes above floor
 			else { break; }
 		}
-		return (high,low);
+		return (high, low);
 	}
 
 	static Histogram3Data CalcHistorgram(ProgressBar pb, ICanvas canvas, int bucketCount)
@@ -111,17 +109,17 @@ public class Function : IFunction
 		var buckets = new Histogram3Data(bucketCount);
 		int lastIndex = bucketCount - 1;
 
-		for(int y=0; y < canvas.Height; y++) {
-			for(int x=0; x < canvas.Width; x++) {
+		for(int y = 0; y < canvas.Height; y++) {
+			for(int x = 0; x < canvas.Width; x++) {
 				//using IColor3 to eventually support colorspaces
-				Core.ColorSpace.IColor3 px = canvas[x,y];
+				Core.ColorSpace.IColor3 px = canvas[x, y];
 
 				//since both 0.0 and 1.0 are valid values, multiply by lastIndex instead of bucketCount
 				// to ensure we don't get a bias for bucketCount bucket being dumped into lastIndex bucket
 				var b1 = Math.Clamp((int)(px.C1 * lastIndex), 0, lastIndex);
 				var b2 = Math.Clamp((int)(px.C2 * lastIndex), 0, lastIndex);
 				var b3 = Math.Clamp((int)(px.C3 * lastIndex), 0, lastIndex);
-				var bA = Math.Clamp((int)(px.A  * lastIndex), 0, lastIndex);
+				var bA = Math.Clamp((int)(px.A * lastIndex), 0, lastIndex);
 
 				buckets.C1[b1]++;
 				buckets.C2[b2]++;
@@ -141,11 +139,12 @@ public class Function : IFunction
 
 	class Histogram3Data
 	{
-		public Histogram3Data(int count) {
+		public Histogram3Data(int count)
+		{
 			C1 = new long[count];
 			C2 = new long[count];
 			C3 = new long[count];
-			A =  new long[count];
+			A = new long[count];
 		}
 
 		public long[] C1;

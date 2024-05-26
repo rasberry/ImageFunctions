@@ -10,19 +10,19 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Computes the color change rate - similar to edge detection");
-		sb.ND(1,"-g","Grayscale output");
-		sb.ND(1,"-a","Calculate absolute value difference");
+		sb.ND(1, "Computes the color change rate - similar to edge detection");
+		sb.ND(1, "-g", "Grayscale output");
+		sb.ND(1, "-a", "Calculate absolute value difference");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
-		if (p.Has("-g").IsGood()) {
+		if(p.Has("-g").IsGood()) {
 			DoGrayscale = true;
 		}
-		if (p.Has("-a").IsGood()) {
+		if(p.Has("-a").IsGood()) {
 			UseABS = true;
 		}
 

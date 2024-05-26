@@ -1,30 +1,33 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
 public class Prims : IMaze
 {
-	public Prims(Options o) {
+	public Prims(Options o)
+	{
 		Rnd = o.RndSeed.HasValue ? new Random(o.RndSeed.Value) : new Random();
 	}
 
-	public Action<int,int,PickWall> DrawCell { get; set; }
-	public Func<int,int,PickWall,bool> IsBlocked { get; set; }
+	public Action<int, int, PickWall> DrawCell { get; set; }
+	public Func<int, int, PickWall, bool> IsBlocked { get; set; }
 	public int CellsWide { get; set; }
 	public int CellsHigh { get; set; }
 
 	struct Cell
 	{
-		public Cell(int x,int y,PickWall w) {
-			P = new Point(x,y);
+		public Cell(int x, int y, PickWall w)
+		{
+			P = new Point(x, y);
 			W = w;
 		}
 		public Point P;
 		public PickWall W;
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			return $"[{P.X},{P.Y}] {W}";
 		}
 	}
@@ -35,8 +38,8 @@ public class Prims : IMaze
 	public void DrawMaze(ProgressBar prog)
 	{
 		Point first = FindCell();
-		AddWallsForCell(first.X,first.Y);
-		DrawCell(first.X,first.Y,PickWall.None);
+		AddWallsForCell(first.X, first.Y);
+		DrawCell(first.X, first.Y, PickWall.None);
 
 		//Log.Debug($"size {CellsWide},{CellsHigh}");
 		int TCells = CellsWide * CellsHigh;
@@ -46,7 +49,7 @@ public class Prims : IMaze
 			//PrintQueue();
 			Cell c = RemoveRandomWall();
 			//Log.Debug($"RW = {c}");
-			if (MarkCellsForWall(c)) {
+			if(MarkCellsForWall(c)) {
 				CellCount++;
 				// prog.Prefix = Walls.Count + " ";
 				prog.Report((double)CellCount / TCells);
@@ -67,29 +70,29 @@ public class Prims : IMaze
 	Point FindCell()
 	{
 		return new Point(
-			Rnd.Next(0,CellsWide),
-			Rnd.Next(0,CellsHigh)
+			Rnd.Next(0, CellsWide),
+			Rnd.Next(0, CellsHigh)
 		);
 	}
 
-	void AddWallsForCell(int x,int y)
+	void AddWallsForCell(int x, int y)
 	{
-		bool isWall = IsBlocked(x,y,PickWall.None);
-		if (!isWall) { return; }
+		bool isWall = IsBlocked(x, y, PickWall.None);
+		if(!isWall) { return; }
 		int h = CellsHigh;
 		int w = CellsWide;
 
-		if (y > 0) { Walls.Add(new Cell(x,y,PickWall.N)); }
-		if (y < h) { Walls.Add(new Cell(x,y,PickWall.S)); }
-		if (x > 0) { Walls.Add(new Cell(x,y,PickWall.W)); }
-		if (x < w) { Walls.Add(new Cell(x,y,PickWall.E)); }
+		if(y > 0) { Walls.Add(new Cell(x, y, PickWall.N)); }
+		if(y < h) { Walls.Add(new Cell(x, y, PickWall.S)); }
+		if(x > 0) { Walls.Add(new Cell(x, y, PickWall.W)); }
+		if(x < w) { Walls.Add(new Cell(x, y, PickWall.E)); }
 	}
 
 	Cell RemoveRandomWall()
 	{
 		//doing a switch and remove so we don't have to shift everything after the chosen wall O(n)
 		int len = Walls.Count;
-		int which = Rnd.Next(0,len);
+		int which = Rnd.Next(0, len);
 		Cell c = Walls[which];
 		Cell e = Walls[len - 1];
 		Walls[which] = e; //switch
@@ -101,20 +104,20 @@ public class Prims : IMaze
 	{
 		Cell q = default(Cell); bool wasSet = true;
 		switch(c.W) {
-			case PickWall.N: q = new Cell(c.P.X,c.P.Y-1,PickWall.None); break;
-			case PickWall.E: q = new Cell(c.P.X+1,c.P.Y,PickWall.None); break;
-			case PickWall.S: q = new Cell(c.P.X,c.P.Y+1,PickWall.None); break;
-			case PickWall.W: q = new Cell(c.P.X-1,c.P.Y,PickWall.None); break;
-			default: wasSet = false; break; //q was not set
+		case PickWall.N: q = new Cell(c.P.X, c.P.Y - 1, PickWall.None); break;
+		case PickWall.E: q = new Cell(c.P.X + 1, c.P.Y, PickWall.None); break;
+		case PickWall.S: q = new Cell(c.P.X, c.P.Y + 1, PickWall.None); break;
+		case PickWall.W: q = new Cell(c.P.X - 1, c.P.Y, PickWall.None); break;
+		default: wasSet = false; break; //q was not set
 		}
 		//return if out of bounds or if target cell is already open
-		if (!wasSet || !IsBlocked(q.P.X,q.P.Y,q.W)) {
+		if(!wasSet || !IsBlocked(q.P.X, q.P.Y, q.W)) {
 			//Log.Debug($"Skipped {q}");
 			return false;
 		}
 
 		//Log.Debug($"Hole {c} {q} [{c.W}]");
-		AddWallsForCell(q.P.X,q.P.Y);
+		AddWallsForCell(q.P.X, q.P.Y);
 		//we're drawing only the destination cell so the wall is opposite from that perspective
 		DrawCell(q.P.X, q.P.Y, Aids.Opposite(c.W));
 		return true;

@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestDerivatives : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.Derivatives);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -54,7 +54,7 @@ public class TestDerivatives : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "fractal","handle" };
+		var list = new string[] { "fractal", "handle" };
 		return list;
 	}
 }

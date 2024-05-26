@@ -1,7 +1,7 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Samplers;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Deform;
 
@@ -15,16 +15,16 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Warps an image using a mapping function");
-		sb.ND(1,"-cx (number) (number)"      ,"Coordinates of center in pixels");
-		sb.ND(1,"-cp (number)[%] (number)[%]","Coordinates of center by proportion (default 50% 50%)");
-		sb.ND(1,"-e (number)"                ,"(e) Power Exponent (default 2.0)");
-		sb.ND(1,"-m (mode)"                  ,"Choose mode (default Polynomial)");
+		sb.ND(1, "Warps an image using a mapping function");
+		sb.ND(1, "-cx (number) (number)", "Coordinates of center in pixels");
+		sb.ND(1, "-cp (number)[%] (number)[%]", "Coordinates of center by proportion (default 50% 50%)");
+		sb.ND(1, "-e (number)", "(e) Power Exponent (default 2.0)");
+		sb.ND(1, "-m (mode)", "Choose mode (default Polynomial)");
 		sb.SamplerHelpLine();
 		sb.WT();
-		sb.ND(1,"Available Modes");
-		sb.ND(1,"1. Polynomial","x^e/w, y^e/h");
-		sb.ND(1,"2. Inverted"  ,"n/x, n/y; n = (x^e + y^e)");
+		sb.ND(1, "Available Modes");
+		sb.ND(1, "1. Polynomial", "x^e/w, y^e/h");
+		sb.ND(1, "2. Inverted", "n/x, n/y; n = (x^e + y^e)");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -34,10 +34,10 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan<double,double>("-cp", leftPar: parser, rightPar: parser)
+		if(p.Scan<double, double>("-cp", leftPar: parser, rightPar: parser)
 			.WhenGood(r => {
-				var (ppx,ppy) = r.Value;
-				CenterPp = new PointF((float)ppx,(float)ppy);
+				var (ppx, ppy) = r.Value;
+				CenterPp = new PointF((float)ppx, (float)ppy);
 				return r;
 			})
 			.WhenInvalidTellDefault()
@@ -46,10 +46,10 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int,int>("-cx")
+		if(p.Scan<int, int>("-cx")
 			.WhenGood(r => {
-				var (cx,cy) = r.Value;
-				CenterPx = new Point(cx,cy);
+				var (cx, cy) = r.Value;
+				CenterPx = new Point(cx, cy);
 				return r;
 			})
 			.WhenInvalidTellDefault()
@@ -59,11 +59,11 @@ public sealed class Options : IOptions
 		}
 
 		// -cp and -cx are either/or options so choose a default if neither were specified
-		if (CenterPx == null && CenterPp == null) {
-			CenterPp = new PointF(0.5f,0.5f);
+		if(CenterPx == null && CenterPp == null) {
+			CenterPp = new PointF(0.5f, 0.5f);
 		}
 
-		if (p.Scan("-e", 2.0)
+		if(p.Scan("-e", 2.0)
 			.WhenGoodOrMissing(r => { Power = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -71,7 +71,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-m", Mode.Polynomial)
+		if(p.Scan("-m", Mode.Polynomial)
 			.WhenGoodOrMissing(r => { WhichMode = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -79,7 +79,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.DefaultSampler(register)
+		if(p.DefaultSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -89,7 +89,8 @@ public sealed class Options : IOptions
 		return true;
 	}
 
-	public enum Mode {
+	public enum Mode
+	{
 		None = 0,
 		Polynomial = 1,
 		Inverted = 2

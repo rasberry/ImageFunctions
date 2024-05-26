@@ -1,5 +1,5 @@
-using System.Drawing;
 using ImageFunctions.Core;
+using System.Drawing;
 
 namespace ImageFunctions.Test;
 
@@ -7,7 +7,7 @@ namespace ImageFunctions.Test;
 public class TestGraphNet : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.GraphNet);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -36,9 +36,9 @@ public class TestGraphNet : AbstractFunctionTest
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
-		yield return CreateTestInfo(1, new string[] { "-rs","77" });
-		yield return CreateTestInfo(2, new string[] { "-rs","88","-p","0.1%" });
-		yield return CreateTestInfo(3, new string[] { "-rs","216","-b","256" });
+		yield return CreateTestInfo(1, new string[] { "-rs", "77" });
+		yield return CreateTestInfo(2, new string[] { "-rs", "88", "-p", "0.1%" });
+		yield return CreateTestInfo(3, new string[] { "-rs", "216", "-b", "256" });
 	}
 
 	const int TestSizePixels = 256;

@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Logging;
 using Avalonia.ReactiveUI;
 using ImageFunctions.Core;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui;
 
@@ -41,11 +41,11 @@ internal sealed class Program
 			//.WithInterFont()
 			.UseReactiveUI();
 
-		#if DEBUG
+#if DEBUG
 		builder.LogToTrace(LogEventLevel.Debug, LogArea.Platform);
-		#else
+#else
 		builder.LogToTrace();
-		#endif
+#endif
 
 		return builder;
 	}
@@ -59,7 +59,7 @@ internal sealed class Program
 
 	static void Cleanup()
 	{
-		if (Register != null) {
+		if(Register != null) {
 			Register.Dispose();
 			Register = null;
 		}

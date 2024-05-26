@@ -5,8 +5,11 @@
     <TargetFramework>net8.0</TargetFramework>
     <OutputPath>../build</OutputPath>
     <EnableDynamicLoading>true</EnableDynamicLoading>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <!-- <ImplicitUsings>enable</ImplicitUsings> -->
     <!-- <Nullable>enable</Nullable> -->
+    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,7 +6,7 @@ namespace ImageFunctions.Test;
 public class TestEncrypt : AbstractFunctionTest
 {
 	const string MyName = nameof(Plugin.Functions.Encrypt);
-	public override string FunctionName { get { return MyName; }}
+	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
 	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
@@ -21,9 +21,9 @@ public class TestEncrypt : AbstractFunctionTest
 	void EncryptImageLoader(TestFunctionInfo info, string name, string folder = null)
 	{
 		//for the second test were decrypting so swap which images are being used
-		if (info.OutName.EndsWith("2")) {
+		if(info.OutName.EndsWith("2")) {
 			//loading phase - null or images folder used
-			if (folder == null || folder == "images") {
+			if(folder == null || folder == "images") {
 				folder = "control";
 				name = $"{MyName}-{name}-1";
 			}
@@ -32,11 +32,11 @@ public class TestEncrypt : AbstractFunctionTest
 				folder = "images";
 				int start = MyName.Length + 1;
 				int len = name.Length - start - 2;
-				name = name.Substring(start,len);
+				name = name.Substring(start, len);
 			}
 		}
 
-		GetOrLoadResourceImage(info,name,folder);
+		GetOrLoadResourceImage(info, name, folder);
 	}
 
 	static IEnumerable<TestFunctionInfo> GetTestInfoInternal()
@@ -77,7 +77,7 @@ public class TestEncrypt : AbstractFunctionTest
 
 	public static IEnumerable<string> GetImageNames()
 	{
-		var list = new string[] { "toes","zebra" };
+		var list = new string[] { "toes", "zebra" };
 		return list;
 	}
 }

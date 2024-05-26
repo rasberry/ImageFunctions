@@ -1,7 +1,7 @@
-using System.Drawing;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.FloodFill;
 
@@ -21,21 +21,21 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Fills area(s) of color with another color");
-		sb.ND(1,"-c (color)"    ,"Fill color (default white)");
-		sb.ND(1,"-p (x,y)"      ,"Pick starting coordinate (can be specified multiple times)");
-		sb.ND(1,"-i"            ,"Replace pixels with ones taken the second layer");
-		sb.ND(1,"-r (color)"    ,"Treat all pixels of given color as starting points");
-		sb.ND(1,"-s (number[%])","How similar pixels should be to match range: [0.0,1.0] (default 100%)");
-		sb.ND(1,"-f (type)"     ,$"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})");
-		sb.ND(1,"-m (type)"     ,$"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})");
-		sb.ND(1,"-nl"           ,"Create a new layer instead of replacing original(s)");
+		sb.ND(1, "Fills area(s) of color with another color");
+		sb.ND(1, "-c (color)", "Fill color (default white)");
+		sb.ND(1, "-p (x,y)", "Pick starting coordinate (can be specified multiple times)");
+		sb.ND(1, "-i", "Replace pixels with ones taken the second layer");
+		sb.ND(1, "-r (color)", "Treat all pixels of given color as starting points");
+		sb.ND(1, "-s (number[%])", "How similar pixels should be to match range: [0.0,1.0] (default 100%)");
+		sb.ND(1, "-f (type)", $"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})");
+		sb.ND(1, "-m (type)", $"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})");
+		sb.ND(1, "-nl", "Create a new layer instead of replacing original(s)");
 		sb.MetricHelpLine();
 		sb.WT();
-		sb.WT(1,"Fill Type:");
+		sb.WT(1, "Fill Type:");
 		sb.PrintEnum<FillMethodKind>(1);
 		sb.WT();
-		sb.WT(1,"Map Type:");
+		sb.WT(1, "Map Type:");
 		sb.PrintEnum<PixelMapKind>(1);
 	}
 
@@ -50,7 +50,7 @@ public sealed class Options : IOptions
 			return ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
 		});
 
-		if (p.Scan("-c", PlugColors.White, parseColor)
+		if(p.Scan("-c", PlugColors.White, parseColor)
 			.WhenGoodOrMissing(r => { FillColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -58,7 +58,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-r", par:parseColor)
+		if(p.Scan("-r", par: parseColor)
 			.WhenGood(r => { FillColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -66,7 +66,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-f", FillMethodKind.BreadthFirst)
+		if(p.Scan("-f", FillMethodKind.BreadthFirst)
 			.WhenGoodOrMissing(r => { FillType = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -74,7 +74,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan("-m", PixelMapKind.Coordinate)
+		if(p.Scan("-m", PixelMapKind.Coordinate)
 			.WhenGoodOrMissing(r => { MapType = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -82,10 +82,10 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Has("-i").IsGood()) { MapSecondLayer = true; }
-		if (p.Has("-nl").IsGood()) { MakeNewLayer = true; }
+		if(p.Has("-i").IsGood()) { MapSecondLayer = true; }
+		if(p.Has("-nl").IsGood()) { MakeNewLayer = true; }
 
-		if (p.Scan("-s", 1.0, parserNum)
+		if(p.Scan("-s", 1.0, parserNum)
 			.WhenGoodOrMissing(r => { Similarity = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -93,7 +93,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.DefaultMetric(register)
+		if(p.DefaultMetric(register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -102,7 +102,7 @@ public sealed class Options : IOptions
 
 		bool done = false;
 		do {
-			if (p.Scan("-p", Point.Empty, PlugTools.ParsePoint)
+			if(p.Scan("-p", Point.Empty, PlugTools.ParsePoint)
 				.WhenMissing(r => { done = true; return r; })
 				.WhenGood(r => {
 					StartPoints ??= new();
@@ -116,15 +116,15 @@ public sealed class Options : IOptions
 			};
 		} while(!done);
 
-		if (Similarity < 0.0 || Similarity > 1.0) {
-			Log.Error(Note.MustBeBetween("Similarity","-0.0 (0%)","1.0 (100%)"));
+		if(Similarity < 0.0 || Similarity > 1.0) {
+			Log.Error(Note.MustBeBetween("Similarity", "-0.0 (0%)", "1.0 (100%)"));
 			return false;
 		}
 
 		return true;
 	}
 
-	static char[] Delimiters = new char[] { ',',' ','x',';' };
+	static char[] Delimiters = new char[] { ',', ' ', 'x', ';' };
 }
 
 /*

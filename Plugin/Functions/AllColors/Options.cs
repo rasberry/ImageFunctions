@@ -1,10 +1,10 @@
-using Rasberry.Cli;
 using ImageFunctions.Core;
-using ImageFunctions.Core.Docs;
+using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 
-public enum Pattern {
+public enum Pattern
+{
 	None = 0,
 	BitOrder = 1,
 	AERT,
@@ -18,7 +18,8 @@ public enum Pattern {
 	Spiral4kOrder
 }
 
-public enum Space {
+public enum Space
+{
 	None = 0,
 	RGB,
 	HSV,
@@ -41,34 +42,33 @@ public sealed class Options : IOptions
 {
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Creates an image with every possible 24-bit color ordered by chosen pattern.");
-		sb.ND(1,"-p (pattern)"   ,"Sort by Pattern (default BitOrder)");
-		sb.ND(1,"-s (space)"     ,"Sort by color space components (instead of pattern)");
-		sb.ND(1,"-so (n,...)"    ,"Change priority order of components (default 1,2,3,4)");
-		sb.ND(1,"-ps"            ,"Use multi-threaded sort function instead of regular sort");
-		sb.ND(1,"-o (number)[%]" ,"Color Offset to use (should be between 0% and 100%");
-		sb.ND(1,"-on (number)"   ,$"Absolute Color Offset to use (should be between {int.MinValue} and {int.MaxValue}");
-		sb.ND(1,"-l / --legacy"  ,"Use original (legacy) algorithm");
+		sb.ND(1, "Creates an image with every possible 24-bit color ordered by chosen pattern.");
+		sb.ND(1, "-p (pattern)", "Sort by Pattern (default BitOrder)");
+		sb.ND(1, "-s (space)", "Sort by color space components (instead of pattern)");
+		sb.ND(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)");
+		sb.ND(1, "-ps", "Use multi-threaded sort function instead of regular sort");
+		sb.ND(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%");
+		sb.ND(1, "-on (number)", $"Absolute Color Offset to use (should be between {int.MinValue} and {int.MaxValue}");
+		sb.ND(1, "-l / --legacy", "Use original (legacy) algorithm");
 		sb.WT();
-		sb.ND(1,"Available Patterns");
-		sb.PrintEnum<Pattern>(1,GetPatternDescription);
+		sb.ND(1, "Available Patterns");
+		sb.PrintEnum<Pattern>(1, GetPatternDescription);
 		sb.WT();
-		sb.ND(1,"Available Spaces");
+		sb.ND(1, "Available Spaces");
 		sb.PrintEnum<Space>(1);
 	}
 
 	static string GetPatternDescription(Pattern p)
 	{
-		switch(p)
-		{
-		case Pattern.BitOrder:       return "Numeric order";
-		case Pattern.AERT:           return "AERT brightness";
-		case Pattern.HSP:            return "HSP color model brightness";
-		case Pattern.WCAG2:          return "WCAG2 relative luminance";
-		case Pattern.Luminance709:   return "Luminance BT.709";
-		case Pattern.Luminance601:   return "Luminance BT.601";
-		case Pattern.Luminance2020:  return "Luminance BT.2020";
-		case Pattern.SMPTE240M:      return "Luminance SMPTE 240M (1999)";
+		switch(p) {
+		case Pattern.BitOrder: return "Numeric order";
+		case Pattern.AERT: return "AERT brightness";
+		case Pattern.HSP: return "HSP color model brightness";
+		case Pattern.WCAG2: return "WCAG2 relative luminance";
+		case Pattern.Luminance709: return "Luminance BT.709";
+		case Pattern.Luminance601: return "Luminance BT.601";
+		case Pattern.Luminance2020: return "Luminance BT.2020";
+		case Pattern.SMPTE240M: return "Luminance SMPTE 240M (1999)";
 		}
 		return "";
 	}
@@ -77,7 +77,7 @@ public sealed class Options : IOptions
 	{
 		var p = new ParseParams(args);
 
-		if (p.Scan<Pattern>("-p",Pattern.None)
+		if(p.Scan<Pattern>("-p", Pattern.None)
 			.WhenGoodOrMissing(r => { SortBy = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -85,7 +85,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<Space>("-s",Space.None)
+		if(p.Scan<Space>("-s", Space.None)
 			.WhenGoodOrMissing(r => { WhichSpace = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -93,10 +93,10 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Has("-ps").IsGood()) {
+		if(p.Has("-ps").IsGood()) {
 			ParallelSort = true;
 		}
-		if (p.Has("-l").IsGood() || p.Has("--legacy").IsGood()) {
+		if(p.Has("-l").IsGood() || p.Has("--legacy").IsGood()) {
 			UseOriginalCode = true;
 		}
 
@@ -104,7 +104,7 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan<double?>("-o", null, parser)
+		if(p.Scan<double?>("-o", null, parser)
 			.WhenGoodOrMissing(r => { ColorOffsetPct = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -112,7 +112,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<int?>("-on", null)
+		if(p.Scan<int?>("-on", null)
 			.WhenGoodOrMissing(r => { ColorOffsetAbs = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -120,16 +120,16 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<string>("-so")
+		if(p.Scan<string>("-so")
 			.WhenGood(r => {
-				string[] items = (r.Value??"").Split(',');
-				if (items.Length < 1) {
+				string[] items = (r.Value ?? "").Split(',');
+				if(items.Length < 1) {
 					Log.Error(PlugNote.MustHaveOnePriority());
 					return r with { Result = ParseParams.Result.UnParsable };
 				}
 				int[] priorities = new int[items.Length];
-				for(int i=0; i<items.Length; i++) {
-					if (!int.TryParse(items[i],out var num)) {
+				for(int i = 0; i < items.Length; i++) {
+					if(!int.TryParse(items[i], out var num)) {
 						Log.Error(PlugNote.PriorityMustBeNumber());
 						return r with { Result = ParseParams.Result.UnParsable };
 					}
@@ -144,7 +144,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (SortBy == Pattern.None && WhichSpace == Space.None) {
+		if(SortBy == Pattern.None && WhichSpace == Space.None) {
 			SortBy = Pattern.BitOrder;
 		}
 		return true;
@@ -160,14 +160,16 @@ public sealed class Options : IOptions
 	public const int FourKWidth = 4096;
 	public const int FourKHeight = 4096;
 
-	internal int ColorOffset { get {
-		if (ColorOffsetPct.HasValue) {
-			return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
+	internal int ColorOffset {
+		get {
+			if(ColorOffsetPct.HasValue) {
+				return (int)(int.MaxValue * ColorOffsetPct.GetValueOrDefault(0));
+			}
+			else {
+				return ColorOffsetAbs.GetValueOrDefault(0);
+			}
 		}
-		else {
-			return ColorOffsetAbs.GetValueOrDefault(0);
-		}
-	}}
+	}
 
 	//This fills in the entries if Order is smaller than needed
 	//example: user gives 1,2 but length is 3 this will return
@@ -175,10 +177,10 @@ public sealed class Options : IOptions
 	int[] FixedOrder = null;
 	internal int[] GetFixedOrder(int length)
 	{
-		if (Order == null) { return null; }
-		if (FixedOrder == null || FixedOrder.Length < length) {
+		if(Order == null) { return null; }
+		if(FixedOrder == null || FixedOrder.Length < length) {
 			int[] fullOrder = new int[length];
-			Order.CopyTo(fullOrder,0);
+			Order.CopyTo(fullOrder, 0);
 			for(int i = Order.Length; i < length; i++) {
 				fullOrder[i] = int.MaxValue;
 			}

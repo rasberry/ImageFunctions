@@ -16,31 +16,31 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Encrypt or Decrypts the pixels of an image");
-		sb.ND(1,"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
-		sb.ND(1,"-d"            ,"Enable decryption (default is to encrypt)");
-		sb.ND(1,"-p (text)"     ,"Password used to encrypt / decrypt image");
-		sb.ND(1,"-pi"           ,"Ask for the password on the command prompt (instead of -p)");
-		sb.ND(1,"-raw"          ,"Treat password text as a raw string (shell escaping still applies)");
-		sb.ND(1,"-iv (text)"    ,"Initialization Vector - must be exactly "+Encryptor.IVLengthBytes+" bytes");
-		sb.ND(1,"-test"         ,"Print out any specified (text) inputs as hex and exit");
+		sb.ND(1, "Encrypt or Decrypts the pixels of an image");
+		sb.ND(1, "Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
+		sb.ND(1, "-d", "Enable decryption (default is to encrypt)");
+		sb.ND(1, "-p (text)", "Password used to encrypt / decrypt image");
+		sb.ND(1, "-pi", "Ask for the password on the command prompt (instead of -p)");
+		sb.ND(1, "-raw", "Treat password text as a raw string (shell escaping still applies)");
+		sb.ND(1, "-iv (text)", "Initialization Vector - must be exactly " + Encryptor.IVLengthBytes + " bytes");
+		sb.ND(1, "-test", "Print out any specified (text) inputs as hex and exit");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
 
-		if (p.Has("-raw").IsGood()) {
+		if(p.Has("-raw").IsGood()) {
 			TreatPassAsRaw = true;
 		}
-		if (p.Has("-d").IsGood()) {
+		if(p.Has("-d").IsGood()) {
 			DoDecryption = true;
 		}
-		if (p.Has("-test").IsGood()) {
+		if(p.Has("-test").IsGood()) {
 			TestMode = true;
 		}
 
-		if (p.Scan<byte[]>("-iv", par: Encryptor.StringToBytes)
+		if(p.Scan<byte[]>("-iv", par: Encryptor.StringToBytes)
 			.WhenGood(r => { IVBytes = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -48,11 +48,11 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if (p.Scan<string>("-p")
+		if(p.Scan<string>("-p")
 			.WhenGood(r => { UserPassword = r.Value; return r; })
 			.WhenMissing(r => {
-				if (p.Has("-pi").IsGood()) {
-					if (!TryPromptForPassword(out UserPassword)) {
+				if(p.Has("-pi").IsGood()) {
+					if(!TryPromptForPassword(out UserPassword)) {
 						Log.Error(Note.InvalidPassword());
 						return r;
 					}
@@ -67,31 +67,31 @@ public sealed class Options : IOptions
 		}
 
 		bool goodPass = false;
-		if (!String.IsNullOrEmpty(UserPassword)) {
-			if (TreatPassAsRaw) {
+		if(!String.IsNullOrEmpty(UserPassword)) {
+			if(TreatPassAsRaw) {
 				Password = Encoding.UTF8.GetBytes(UserPassword);
 				goodPass = true;
 			}
-			else if (Encryptor.TryStringToBytes(UserPassword,out Password)) {
+			else if(Encryptor.TryStringToBytes(UserPassword, out Password)) {
 				goodPass = true;
 			}
 		}
-		if (!goodPass) {
+		if(!goodPass) {
 			Log.Error(Note.InvalidPassword());
 			return false;
 		}
 
-		if (IVBytes != null && IVBytes.Length < Encryptor.IVLengthBytes) {
-			Log.Error(Note.MustBeSizeInBytes("-iv",Encryptor.IVLengthBytes));
+		if(IVBytes != null && IVBytes.Length < Encryptor.IVLengthBytes) {
+			Log.Error(Note.MustBeSizeInBytes("-iv", Encryptor.IVLengthBytes));
 		}
 
-		if (TestMode) {
+		if(TestMode) {
 			var iv = IVBytes ?? Encryptor.GetIVBytesFromPassword(Password);
 			Log.Message(
 				"Password As Hex: "
-				+"\n "+BytesAsHex(Password)
-				+"\nIV As Hex:"
-				+"\n "+BytesAsHex(iv)
+				+ "\n " + BytesAsHex(Password)
+				+ "\nIV As Hex:"
+				+ "\n " + BytesAsHex(iv)
 			);
 			return false; //stop the program
 		}
@@ -106,11 +106,11 @@ public sealed class Options : IOptions
 		StringBuilder sb = new StringBuilder();
 		while(true) {
 			var key = Console.ReadKey(true);
-			if (key.Key == ConsoleKey.Enter) { break; }
+			if(key.Key == ConsoleKey.Enter) { break; }
 			sb.Append(key.KeyChar);
 		}
 		pass = sb.ToString();
-		if (String.IsNullOrWhiteSpace(pass)) {
+		if(String.IsNullOrWhiteSpace(pass)) {
 			return false;
 		}
 		return true;
@@ -122,9 +122,10 @@ public sealed class Options : IOptions
 		sb.Append('[');
 		bool isFirst = true;
 		foreach(byte b in data) {
-			if (!isFirst) {
+			if(!isFirst) {
 				sb.Append(' ');
-			} else {
+			}
+			else {
 				isFirst = false;
 			}
 			sb.Append(b.ToString("X2"));

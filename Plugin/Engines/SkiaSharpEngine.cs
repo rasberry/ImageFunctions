@@ -1,4 +1,3 @@
-using System.Text;
 using ImageFunctions.Core;
 using SkiaSharp;
 
@@ -10,7 +9,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 	{
 		foreach(var f in Enum.GetValues<SKEncodedImageFormat>()) {
 			string desc = GetFormatDesc(f);
-			if (desc == null) { continue; } //not supported
+			if(desc == null) { continue; } //not supported
 
 			yield return new ImageFormat(
 				f.ToString(),
@@ -27,18 +26,18 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 	static string GetFormatDesc(SKEncodedImageFormat format)
 	{
 		switch(format) {
-			case SKEncodedImageFormat.Astc: return "Adaptive Scalable Texture Compression";
-			case SKEncodedImageFormat.Bmp:  return "Windows Bitmap";
-			case SKEncodedImageFormat.Dng:  return "Adobe Digital Negative";
-			case SKEncodedImageFormat.Gif:  return "Graphics Interchange Format";
-			case SKEncodedImageFormat.Heif: return "High Efficiency Image File format";
-			case SKEncodedImageFormat.Ico:  return "Windows icon images";
-			case SKEncodedImageFormat.Jpeg: return "Joint Photographic Experts Group";
-			case SKEncodedImageFormat.Ktx:  return "Khronos texture format for OpenGL";
-			case SKEncodedImageFormat.Pkm:  return "Custom format for GrafX2";
-			case SKEncodedImageFormat.Png:  return "Portable Network Graphics";
-			case SKEncodedImageFormat.Wbmp: return "Wireless Application Protocol Bitmap Format (1 bit per pixel)";
-			case SKEncodedImageFormat.Webp: return "Google WebP format";
+		case SKEncodedImageFormat.Astc: return "Adaptive Scalable Texture Compression";
+		case SKEncodedImageFormat.Bmp: return "Windows Bitmap";
+		case SKEncodedImageFormat.Dng: return "Adobe Digital Negative";
+		case SKEncodedImageFormat.Gif: return "Graphics Interchange Format";
+		case SKEncodedImageFormat.Heif: return "High Efficiency Image File format";
+		case SKEncodedImageFormat.Ico: return "Windows icon images";
+		case SKEncodedImageFormat.Jpeg: return "Joint Photographic Experts Group";
+		case SKEncodedImageFormat.Ktx: return "Khronos texture format for OpenGL";
+		case SKEncodedImageFormat.Pkm: return "Custom format for GrafX2";
+		case SKEncodedImageFormat.Png: return "Portable Network Graphics";
+		case SKEncodedImageFormat.Wbmp: return "Wireless Application Protocol Bitmap Format (1 bit per pixel)";
+		case SKEncodedImageFormat.Webp: return "Google WebP format";
 		}
 		return null;
 	}
@@ -46,18 +45,18 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 	static string GetExtension(SKEncodedImageFormat format)
 	{
 		switch(format) {
-			case SKEncodedImageFormat.Astc: return ".astc";
-			case SKEncodedImageFormat.Bmp:  return ".bmp";
-			case SKEncodedImageFormat.Dng:  return ".dng";
-			case SKEncodedImageFormat.Gif:  return ".gif";
-			case SKEncodedImageFormat.Heif: return ".heif";
-			case SKEncodedImageFormat.Ico:  return ".ico";
-			case SKEncodedImageFormat.Jpeg: return ".jpg";
-			case SKEncodedImageFormat.Ktx:  return ".ktx";
-			case SKEncodedImageFormat.Pkm:  return ".pkm";
-			case SKEncodedImageFormat.Png:  return ".png";
-			case SKEncodedImageFormat.Wbmp: return ".wbmp";
-			case SKEncodedImageFormat.Webp: return ".webp";
+		case SKEncodedImageFormat.Astc: return ".astc";
+		case SKEncodedImageFormat.Bmp: return ".bmp";
+		case SKEncodedImageFormat.Dng: return ".dng";
+		case SKEncodedImageFormat.Gif: return ".gif";
+		case SKEncodedImageFormat.Heif: return ".heif";
+		case SKEncodedImageFormat.Ico: return ".ico";
+		case SKEncodedImageFormat.Jpeg: return ".jpg";
+		case SKEncodedImageFormat.Ktx: return ".ktx";
+		case SKEncodedImageFormat.Pkm: return ".pkm";
+		case SKEncodedImageFormat.Png: return ".png";
+		case SKEncodedImageFormat.Wbmp: return ".wbmp";
+		case SKEncodedImageFormat.Webp: return ".webp";
 		}
 		return null;
 	}
@@ -65,38 +64,38 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 	static string GetMimeType(SKEncodedImageFormat format)
 	{
 		switch(format) {
-			case SKEncodedImageFormat.Astc: return "";
-			case SKEncodedImageFormat.Bmp:  return "image/bmp";
-			case SKEncodedImageFormat.Dng:  return "image/x-adobe-dng";
-			case SKEncodedImageFormat.Gif:  return "image/gif";
-			case SKEncodedImageFormat.Heif: return "image/heif";
-			case SKEncodedImageFormat.Ico:  return "image/vnd.microsoft.icon";
-			case SKEncodedImageFormat.Jpeg: return "image/jpeg";
-			case SKEncodedImageFormat.Ktx:  return "image/ktx";
-			case SKEncodedImageFormat.Pkm:  return "";
-			case SKEncodedImageFormat.Png:  return "image/png";
-			case SKEncodedImageFormat.Wbmp: return "image/vnd.wap.wbmp";
-			case SKEncodedImageFormat.Webp: return "image/webp";
+		case SKEncodedImageFormat.Astc: return "";
+		case SKEncodedImageFormat.Bmp: return "image/bmp";
+		case SKEncodedImageFormat.Dng: return "image/x-adobe-dng";
+		case SKEncodedImageFormat.Gif: return "image/gif";
+		case SKEncodedImageFormat.Heif: return "image/heif";
+		case SKEncodedImageFormat.Ico: return "image/vnd.microsoft.icon";
+		case SKEncodedImageFormat.Jpeg: return "image/jpeg";
+		case SKEncodedImageFormat.Ktx: return "image/ktx";
+		case SKEncodedImageFormat.Pkm: return "";
+		case SKEncodedImageFormat.Png: return "image/png";
+		case SKEncodedImageFormat.Wbmp: return "image/vnd.wap.wbmp";
+		case SKEncodedImageFormat.Webp: return "image/webp";
 		}
 		return null;
 	}
 
 	public void LoadImage(ILayers layers, string path, string name = null)
 	{
-		if (layers == null) {
+		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
 		var fileStream = File.OpenRead(path);
 		using var skStream = new SKManagedStream(fileStream);
-		using var codec = SKCodec.Create(skStream,out var result);
-		if (result != SKCodecResult.Success) {
+		using var codec = SKCodec.Create(skStream, out var result);
+		if(result != SKCodecResult.Success) {
 			throw Squeal.CouldNotLoadFile(path, result.ToString());
 		}
 
 		name ??= Path.GetFileName(path);
 
 		//images with no frames are normal images with one layer
-		if (codec.FrameCount == 0) {
+		if(codec.FrameCount == 0) {
 			var bitmap = SKBitmap.Decode(codec);
 			layers.Push(new InSkiaCanvas(bitmap), name);
 			return;
@@ -106,7 +105,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		// https://learn.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/graphics/skiasharp/bitmaps/animating
 		int FrameCount = codec.FrameCount;
 		string ext = Path.GetExtension(path);
-		for (int frame = 0; frame < FrameCount; frame++) {
+		for(int frame = 0; frame < FrameCount; frame++) {
 			// Create a full-color bitmap for each frame
 			SKImageInfo imageInfo = new SKImageInfo(codec.Info.Width, codec.Info.Height);
 			var bitmap = new SKBitmap(imageInfo);
@@ -126,32 +125,32 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 
 	public ICanvas NewCanvas(int width, int height)
 	{
-		return new InSkiaCanvas(width,height);
+		return new InSkiaCanvas(width, height);
 	}
 
 	public void SaveImage(ILayers layers, string path, string format = null)
 	{
-		if (layers == null) {
+		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
-		if (layers.Count < 1) {
+		if(layers.Count < 1) {
 			throw Squeal.NoLayers();
 		}
 
 		SKEncodedImageFormat skFormat;
-		if (format == null) {
+		if(format == null) {
 			skFormat = SKEncodedImageFormat.Png;
 		}
 		else {
-			if (!Enum.TryParse(format, true, out skFormat)) {
+			if(!Enum.TryParse(format, true, out skFormat)) {
 				throw Squeal.FormatIsNotSupported(format);
 			}
 		}
 
 		//make sure the output file has the right extension
-		path = Path.ChangeExtension(path,GetExtension(skFormat));
+		path = Path.ChangeExtension(path, GetExtension(skFormat));
 
-		if (layers.Count == 1) {
+		if(layers.Count == 1) {
 			var canvas = (InSkiaCanvas)layers.First().Canvas;
 			WriteImage(canvas.Bitmap, path, skFormat);
 		}
@@ -161,7 +160,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			int count = 1;
 			foreach(var lay in layers) {
 				var canvas = (InSkiaCanvas)lay.Canvas;
-				string name = Path.ChangeExtension(path,$"{count}{ext}");
+				string name = Path.ChangeExtension(path, $"{count}{ext}");
 				WriteImage(canvas.Bitmap, name, skFormat);
 			}
 		}
@@ -212,28 +211,30 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 
 	class InSkiaCanvas : ICanvas
 	{
-		public InSkiaCanvas(SKBitmap bitmap) {
+		public InSkiaCanvas(SKBitmap bitmap)
+		{
 			Bitmap = bitmap;
 		}
-		public InSkiaCanvas(int width, int height) {
-			Bitmap = new SKBitmap(width,height,SKColorType.Rgba8888,SKAlphaType.Unpremul);
+		public InSkiaCanvas(int width, int height)
+		{
+			Bitmap = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Unpremul);
 		}
 
 		//This is slow but SkiaSharp is a mess of a library
 		// so not going to fix
 		public ColorRGBA this[int x, int y] {
 			get {
-				var pix = Bitmap.GetPixel(x,y);
+				var pix = Bitmap.GetPixel(x, y);
 				return ToColorRGBA(pix);
 			}
 			set {
 				var pix = ToSKColor(value);
-				Bitmap.SetPixel(x,y,pix);
+				Bitmap.SetPixel(x, y, pix);
 			}
 		}
 
-		public int Width { get { return Bitmap.Width; }}
-		public int Height { get { return Bitmap.Height; }}
+		public int Width { get { return Bitmap.Width; } }
+		public int Height { get { return Bitmap.Height; } }
 
 		public void Dispose()
 		{

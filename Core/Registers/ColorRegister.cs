@@ -9,7 +9,7 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Color"; }}
+	public override string Namespace { get { return "Color"; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
@@ -19,9 +19,9 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 		foreach(System.Drawing.KnownColor kc in colorEnum) {
 			var sdColor = System.Drawing.Color.FromKnownColor(kc);
 			bool good = sdColor.IsKnownColor && !sdColor.IsSystemColor;
-			if (good) {
+			if(good) {
 				var ifColor = ColorRGBA.FromRGBA255(sdColor.R, sdColor.G, sdColor.B, sdColor.A);
-				reg.Add(sdColor.Name,ifColor);
+				reg.Add(sdColor.Name, ifColor);
 			}
 		}
 

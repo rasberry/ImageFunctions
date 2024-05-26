@@ -23,14 +23,14 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
@@ -48,7 +48,7 @@ public class Function : IFunction
 		using var inStream = new PixelStream(canvas);
 		using var outStream = new PixelStream(canvas);
 
-		processor.TransformStream(O.DoDecryption,inStream,outStream,O.Password,progress);
+		processor.TransformStream(O.DoDecryption, inStream, outStream, O.Password, progress);
 
 		//put processed image back
 		frame.CopyFrom(canvas);
