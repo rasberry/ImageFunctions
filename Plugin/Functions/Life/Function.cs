@@ -34,7 +34,15 @@ public class Function : IFunction
 			return false;
 		}
 
-		var canvas = Layers.First().Canvas;
+		ICanvas canvas;
+		if (Options.MakeNewLayer) {
+			canvas = Tools.NewCanvasFromLayers(Core.Engine.Item.Value,Layers);
+			PlugTools.CopyFrom(canvas, Layers.First().Canvas);
+		}
+		else {
+			canvas = Layers.First().Canvas;
+		}
+
 		if (Options.UseChannels) {
 			ProgressRatio = 1.0/3.0; ProgressOffset = 0.0;
 			RunSimulation(canvas, Channel.Red);
@@ -54,7 +62,7 @@ public class Function : IFunction
 	void RunSimulation(ICanvas canvas, Channel channel)
 	{
 		HashSet<Point> last = new();
-		Dictionary<Point,ulong> history = new();
+		Dictionary<Point,ulong> history = Options.NoHistory ? null : new();
 
 		//populate world
 		for(int y = 0; y < canvas.Height; y++) {
@@ -73,7 +81,7 @@ public class Function : IFunction
 			if (last.Contains(p)) {
 				UpdatePixel(canvas, x, y, PlugColors.White, channel);
 			}
-			else if (history.TryGetValue(p, out ulong count)) {
+			else if (history != null && history.TryGetValue(p, out ulong count)) {
 				double pct = (double)count / Options.IterationMax;
 				double pctAdjust = Options.Brighten.HasValue ? Math.Pow(pct, 1.0 - Options.Brighten.Value) : pct;
 				var c = new ColorRGBA(pctAdjust,pctAdjust,pctAdjust,1.0);
@@ -95,7 +103,7 @@ public class Function : IFunction
 		};
 	}
 
-	void DoSimulation(int W, int H, HashSet<Point> last, Dictionary<Point,ulong> history)
+	void DoSimulation(int W, int H, HashSet<Point> last, Dictionary<Point,ulong> history = null)
 	{
 		HashSet<Point> next = new();
 		HashSet<Point> dead = new();
@@ -128,7 +136,7 @@ public class Function : IFunction
 	}
 
 	void RunIteration(int W, int H,
-		ref HashSet<Point> next, ref HashSet<Point> last, HashSet<Point> dead, Dictionary<Point,ulong> history)
+		ref HashSet<Point> next, ref HashSet<Point> last, HashSet<Point> dead, Dictionary<Point,ulong> history = null)
 	{
 		//add neighbors to be checked - need to check these since they could become alive
 		foreach (var p in last) {
@@ -156,7 +164,7 @@ public class Function : IFunction
 			if (!isAlive) {
 				dead.Add(p);
 			}
-			else {
+			else if (history != null) {
 				if (!history.ContainsKey(p)) {
 					history.Add(p,1);
 				}

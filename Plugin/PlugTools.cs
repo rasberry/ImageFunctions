@@ -29,7 +29,7 @@ internal static class PlugTools
 	/// <summary>
 	/// Ensures the parameter is greater than zero.
 	/// </summary>
-	/// <typeparam name="T">Type parameter must be an int, int?, double, or double?</typeparam>
+	/// <typeparam name="T">Type parameter must be an IComparible or IComparable?</typeparam>
 	/// <param name="r">The result of the parameter parsing</param>
 	/// <param name="includeZero">whether to include zero as a valid option or not</param>
 	/// <returns>An updated result</returns>
@@ -67,6 +67,16 @@ internal static class PlugTools
 		}
 	}
 
+	/// <summary>
+	/// Ensures the parameter is between two numbers
+	/// </summary>
+	/// <typeparam name="T">Type parameter must be an IComparible or IComparable?</typeparam>
+	/// <param name="r">The result of the parameter parsing</param>
+	/// <param name="low">The smallest allowable value</param>
+	/// <param name="high">The largest allowable value</param>
+	/// <param name="lowInclusive">Whether to allow the value itself</param>
+	/// <param name="highInclusive">Whether to allow the value itself</param>
+	/// <returns>An updated result</returns>
 	public static ParseResult<T> BeBetween<T>(this ParseResult<T> r, T low, T high,
 		bool lowInclusive = true, bool highInclusive = true) where T : IComparable
 	{
@@ -154,31 +164,6 @@ internal static class PlugTools
 			}
 		}
 	}
-
-	/// <summary>
-	/// Parse a parameter as a number or percent
-	/// </summary>
-	/// <param name="num">The parameter value. the format should be a decimal number with an optional % sign e.g. 0.401 or 40.1%</param>
-	/// <param name="val">The parsed parameter</param>
-	/// <returns>Whether the parsing was successfull</returns>
-	//public static bool ParseNumberPercent(string num, out double? val)
-	//{
-	//	//couldn't use this directly because of the optional IFormatProvider
-	//	return ExtraParsers.TryParseNumberPercent(num, out val);
-	//}
-
-	/// <summary>
-	/// Parse a parameter as a number or percent
-	/// </summary>
-	/// <param name="num">The parameter value. the format should be a decimal number with an optional % sign e.g. 0.401 or 40.1%</param>
-	/// <param name="val">The parsed parameter</param>
-	/// <returns>Whether the parsing was successfull</returns>
-	//public static bool ParseNumberPercent(string num, out double val)
-	//{
-	//	//couldn't use this directly because of the optional IFormatProvider
-	//	return ExtraParsers.TryParseNumberPercent(num, out val);
-	//}
-
 
 	/// <summary>
 	/// Fills the canvas with a single color

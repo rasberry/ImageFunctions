@@ -147,7 +147,7 @@ public static class Tools
 	//TODO this might go away
 	public static void DrawLine(this IImageEngine engine, ICanvas canvas, ColorRGBA color, PointD start, PointD end, double width = 1.0)
 	{
-		if (!(engine is IDrawEngine artist)) {
+		if (engine is not IDrawEngine artist) {
 			throw Squeal.EngineCannotDrawLines(engine.ToString());
 		}
 

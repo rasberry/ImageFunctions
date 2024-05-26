@@ -23,7 +23,7 @@ public sealed class Options : IOptions
 		sb.ND(1,"-nl"          ,"render the output on a new layer instead of replacing the original one");
 		sb.ND(1,"-ch"          ,"run one simulation per channel (RGB)");
 		sb.ND(1,"-th (number%)","threshold for picking white/black (default 50%)");
-		sb.ND(1,"-d"           ,"disable recording history trails");
+		sb.ND(1,"-nh"          ,"disable recording history trails");
 		sb.ND(1,"-b (number%)" ,"brighten history pixels by amount");
 		sb.ND(1,"-s"           ,"Stop when population stabilizes for 10 iterations");
 		sb.ND(1,"-w"           ,"Let world wrap around at the edges");
@@ -67,7 +67,7 @@ public sealed class Options : IOptions
 
 		if (p.Has("-nl").IsGood()) { MakeNewLayer = true; }
 		if (p.Has("-ch").IsGood()) { UseChannels = true; }
-		if (p.Has("-d").IsGood()) { NoHistory = true; }
+		if (p.Has("-nh").IsGood()) { NoHistory = true; }
 		if (p.Has("-s").IsGood()) { StopWhenStable = true; }
 		if (p.Has("-w").IsGood()) { Wrap = true; }
 		if (p.Has("-log").IsGood()) { UseLog = true; }
