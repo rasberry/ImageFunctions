@@ -46,7 +46,7 @@ call dotnet format
 if not %ERRORLEVEL%==0 goto :EOF
 call dotnet build -consoleloggerparameters:"Summary;Verbosity=normal" -m -p:"WarnLevel=5;EnforceCodeStyleInBuild=true" -t:"clean,build"
 if not %ERRORLEVEL%==0 goto :EOF
-call dotnet test
+dotnet test -l "console;verbosity=detailed"
 goto :EOF
 
 :test
