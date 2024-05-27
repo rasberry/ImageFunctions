@@ -64,13 +64,13 @@ public sealed class Options : IOptions
 public enum Graphic
 {
 	None = 0,
-	First_Twist1,
-	First_Twist2,
-	First_Twist3,
-	Second_Twist3a,
-	Second_Twist3b,
-	Second_Twist3c,
-	Second_Twist4,
-	Third,
-	Fourth
+	First_Twist1 = 1,
+	First_Twist2 = 2,
+	First_Twist3 = 3,
+	Second_Twist3a = 4,
+	Second_Twist3b = 5,
+	Second_Twist3c = 6,
+	Second_Twist4 = 7,
+	Third = 8,
+	Fourth = 9
 }

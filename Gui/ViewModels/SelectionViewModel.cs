@@ -47,9 +47,9 @@ public partial class SelectionViewModel : ViewModelBase
 public enum SelectionKind
 {
 	None = 0,
-	Functions,
-	Colors,
-	Engines,
-	Metrics,
-	Samplers
+	Functions = 1,
+	Colors = 2,
+	Engines = 3,
+	Metrics = 4,
+	Samplers = 5
 }

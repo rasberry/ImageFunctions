@@ -8,11 +8,7 @@ public static class Note
 	}
 	public static string ChannelCountNotSupported(int channelCount)
 	{
-		return $"Channel Count {channelCount} is not supported";
-	}
-	public static string CMYKNotSupported()
-	{
-		return "CMYK is not supported";
+		return NotSupported($"Channel Count {channelCount}");
 	}
 	public static string ComponentNotFound(string name)
 	{
@@ -33,7 +29,7 @@ public static class Note
 	}
 	public static string FormatIsNotSupported(string name)
 	{
-		return $"format {name ?? "?"} is not supported";
+		return NotSupported($"format {name ?? "?"}");
 	}
 	public static string InitializingPlugin(Type t)
 	{
@@ -112,6 +108,10 @@ public static class Note
 	public static string NoLayersToSave()
 	{
 		return "No Layers to Save";
+	}
+	public static string NotSupported(string prefix)
+	{
+		return $"{prefix} is not supported";
 	}
 	public static string PriorityMustBeNumber()
 	{

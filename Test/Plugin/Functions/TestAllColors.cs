@@ -17,6 +17,7 @@ public class TestAllColors : AbstractFunctionTest
 		using var layers = new Layers();
 		info.Layers = layers;
 		info.MaxDiff = 0.002;
+		info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
@@ -42,6 +43,7 @@ public class TestAllColors : AbstractFunctionTest
 		yield return CreateTestInfo(5, new string[] { "-s", "HSV", "-so", "2,1,3" });
 		yield return CreateTestInfo(6, new string[] { "-s", "YCbCr", "-so", "1,2,3" });
 		yield return CreateTestInfo(7, new string[] { "-s", "YCbCr", "-so", "3,2,1" });
+		yield return CreateTestInfo(8, new string[] { "-so", "3,2,1" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int num, string[] args)

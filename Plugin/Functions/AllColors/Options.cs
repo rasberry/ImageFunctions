@@ -7,59 +7,71 @@ public enum Pattern
 {
 	None = 0,
 	BitOrder = 1,
-	AERT,
-	HSP,
-	WCAG2,
-	SMPTE240M,
-	Luminance709,
-	Luminance601,
-	Luminance2020,
-	Spiral16Order,
-	Spiral4kOrder
+	AERT = 2,
+	HSP = 3,
+	WCAG2 = 4,
+	SMPTE240M = 5,
+	Luminance709 = 6,
+	Luminance601 = 7,
+	Luminance2020 = 8,
+	Spiral16 = 9,
+	Spiral4kBuckets = 10,
+	Spiral4k = 11,
+	Squares4k = 12
 }
 
 public enum Space
 {
 	None = 0,
-	RGB,
-	HSV,
-	HSL,
-	HSI,
-	YCbCr,
+	RGB = 1,
+	HSV = 2,
+	HSL = 3,
+	HSI = 4,
+	YCbCr = 5,
+	CieXyz = 6,
+	Cmyk = 7,
 	//CieLab,
 	//CieLch,
 	//CieLchuv,
 	//CieLuv,
 	//CieXyy,
-	CieXyz,
-	Cmyk,
 	//HunterLab,
 	//LinearRgb,
 	//Lms
 }
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageInfoProvider
 {
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Creates an image with every possible 24-bit color ordered by chosen pattern.");
-		sb.ND(1, "-p (pattern)", "Sort by Pattern (default BitOrder)");
-		sb.ND(1, "-s (space)", "Sort by color space components (instead of pattern)");
-		sb.ND(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)");
-		sb.ND(1, "-ps", "Use multi-threaded sort function instead of regular sort");
-		sb.ND(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%");
-		sb.ND(1, "-on (number)", $"Absolute Color Offset to use (should be between {int.MinValue} and {int.MaxValue}");
-		sb.ND(1, "-l / --legacy", "Use original (legacy) algorithm");
-		sb.WT();
-		sb.ND(1, "Available Patterns");
-		sb.PrintEnum<Pattern>(1, GetPatternDescription);
-		sb.WT();
-		sb.ND(1, "Available Spaces");
-		sb.PrintEnum<Space>(1);
+		sb.RenderUsage(this);
 	}
 
-	static string GetPatternDescription(Pattern p)
+	public UsageInfo GetUsageInfo()
 	{
+		return new UsageInfo {
+			Description = new UsageDescription(1, "Creates an image with every possible 24-bit color ordered by chosen pattern."),
+			Parameters = [
+				new(1, "-p (pattern)", "Sort by Pattern (default BitOrder)", typeof(Pattern)),
+				new(1, "-s (space)", "Sort by color space components (instead of pattern)", typeof(Space)),
+				new(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)", typeof(string)),
+				new(1, "-ps", "Use multi-threaded sort function instead of regular sort", typeof(bool)),
+				new(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%", typeof(double)) { Min = 0.0, Max = 1.0 },
+				new(1, "-on (number)", $"Absolute Color Offset to use", typeof(int)),
+				new(1, "-l / --legacy", "Use original (legacy) algorithm", typeof(bool)),
+			],
+			EnumParameters = [
+				new(1, "Available Patterns", typeof(Pattern)) { DescriptionMap = GetPatternDescription, ExcludeZero = true },
+				new(1, "Available Spaces", typeof(Space)) { ExcludeZero = true }
+			]
+		};
+	}
+
+	static string GetPatternDescription(object t)
+	{
+		if(t is not Pattern p) {
+			throw Squeal.InvalidArgument(nameof(t));
+		}
 		switch(p) {
 		case Pattern.BitOrder: return "Numeric order";
 		case Pattern.AERT: return "AERT brightness";
@@ -69,6 +81,9 @@ public sealed class Options : IOptions
 		case Pattern.Luminance601: return "Luminance BT.601";
 		case Pattern.Luminance2020: return "Luminance BT.2020";
 		case Pattern.SMPTE240M: return "Luminance SMPTE 240M (1999)";
+		case Pattern.Spiral16: return "Spiral blocks of 16 x 16";
+		case Pattern.Spiral4kBuckets: return "Spiral blocks of 4k x 4k";
+		case Pattern.Squares4k: return "Square blocks of 256 x 256";
 		}
 		return "";
 	}
@@ -157,6 +172,7 @@ public sealed class Options : IOptions
 	public bool UseOriginalCode = false;
 	public double? ColorOffsetPct;
 	public int? ColorOffsetAbs;
+
 	public const int FourKWidth = 4096;
 	public const int FourKHeight = 4096;
 

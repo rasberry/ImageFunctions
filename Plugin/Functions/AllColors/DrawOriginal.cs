@@ -48,6 +48,10 @@ public static class DrawOriginal
 		case Pattern.SMPTE240M: converter = ConvertSmpte1999; break;
 		}
 
+		if (converter == null) {
+			throw Squeal.NotSupported($"Pattern {p}");
+		}
+
 		return ConvertAndSort(bounds, converter, ComparersLuminance(), null, maxThreads, O);
 	}
 
@@ -56,16 +60,6 @@ public static class DrawOriginal
 		switch(space) {
 		case Space.RGB:
 			return ConvertAndSort(bounds, c => c, ComparersRgba32(), order, maxThreads, O);
-		//case Space.CieLab:
-		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect,order,maxThreads);
-		//case Space.CieLch:
-		//	return ConvertAndSort(c => _Converter.ToCieLch(c),ComparersCieLch(),rect,order,maxThreads);
-		//case Space.CieLchuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLchuv(c),ComparersCieLchuv(),rect,order,maxThreads);
-		//case Space.CieLuv:
-		//	return ConvertAndSort(c => _Converter.ToCieLuv(c),ComparersCieLuv(),rect,order,maxThreads);
-		//case Space.CieXyy:
-		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect,order,maxThreads);
 		case Space.CieXyz:
 			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCie1931()), CompareIColor3(), order, maxThreads, O);
 		case Space.Cmyk:
@@ -76,12 +70,6 @@ public static class DrawOriginal
 			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsl()), CompareIColor3(), order, maxThreads, O);
 		case Space.HSV:
 			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsv()), CompareIColor3(), order, maxThreads, O);
-		//case Space.HunterLab:
-		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect,order,maxThreads);
-		//case Space.LinearRgb:
-		//	return ConvertAndSort(c => _Converter.ToLinearRgb(c),ComparersLinearRgb(),rect,order,maxThreads);
-		//case Space.Lms:
-		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect,order,maxThreads);
 		case Space.YCbCr:
 			return ConvertAndSort(bounds, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3(), order, maxThreads, O);
 		}
@@ -118,7 +106,6 @@ public static class DrawOriginal
 		return cList;
 	}
 
-	//const int offset = 128 * 13421771; //(int)(2147483648.0 * 8/9);
 	static Color ToColor(int color)
 	{
 		int r = (color >> 00) & 255;
@@ -333,149 +320,4 @@ public static class DrawOriginal
 		};
 		return arr;
 	}
-
-	/*
-	static Func<Hsv,Hsv,int>[] ComparersHsv()
-	{
-		var arr = new Func<Hsv,Hsv,int>[] {
-			(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
-			(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
-			(a,b) => a.V > b.V ? 1 : a.V < b.V ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<Hsl,Hsl,int>[] ComparersHsl()
-	{
-		var arr = new Func<Hsl,Hsl,int>[] {
-			(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
-			(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieLab,CieLab,int>[] ComparersCieLab()
-	{
-		var arr = new Func<CieLab,CieLab,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.A > b.A ? 1 : a.A < b.A ? -1 : 0,
-			(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieLch,CieLch,int>[] ComparersCieLch()
-	{
-		var arr = new Func<CieLch,CieLch,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
-			(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieLchuv,CieLchuv,int>[] ComparersCieLchuv()
-	{
-		var arr = new Func<CieLchuv,CieLchuv,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
-			(a,b) => a.H > b.H ? 1 : a.H < b.H ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieLuv,CieLuv,int>[] ComparersCieLuv()
-	{
-		var arr = new Func<CieLuv,CieLuv,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.U > b.U ? 1 : a.U < b.U ? -1 : 0,
-			(a,b) => a.V > b.V ? 1 : a.V < b.V ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieXyy,CieXyy,int>[] ComparersCieXyy()
-	{
-		var arr = new Func<CieXyy,CieXyy,int>[] {
-			(a,b) => a.X > b.X ? 1 : a.X < b.X ? -1 : 0,
-			(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
-			(a,b) => a.Yl > b.Yl ? 1 : a.Yl < b.Yl ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<CieXyz,CieXyz,int>[] ComparersCieXyz()
-	{
-		var arr = new Func<CieXyz,CieXyz,int>[] {
-			(a,b) => a.X > b.X ? 1 : a.X < b.X ? -1 : 0,
-			(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
-			(a,b) => a.Z > b.Z ? 1 : a.Z < b.Z ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<Cmyk,Cmyk,int>[] ComparersCmyk()
-	{
-		var arr = new Func<Cmyk,Cmyk,int>[] {
-			(a,b) => a.C > b.C ? 1 : a.C < b.C ? -1 : 0,
-			(a,b) => a.M > b.M ? 1 : a.M < b.M ? -1 : 0,
-			(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
-			(a,b) => a.K > b.K ? 1 : a.K < b.K ? -1 : 0,
-		};
-		return arr;
-	}
-	*/
-
-	static Func<(double, double, double), (double, double, double), int>[] ComparersHsi()
-	{
-		var arr = new Func<(double, double, double), (double, double, double), int>[] {
-			(a,b) => a.Item1 > b.Item1 ? 1 : a.Item1 < b.Item1 ? -1 : 0,
-			(a,b) => a.Item2 > b.Item2 ? 1 : a.Item2 < b.Item2 ? -1 : 0,
-			(a,b) => a.Item3 > b.Item3 ? 1 : a.Item3 < b.Item3 ? -1 : 0,
-		};
-		return arr;
-	}
-
-	/*
-	static Func<HunterLab,HunterLab,int>[] ComparersHunterLab()
-	{
-		var arr = new Func<HunterLab,HunterLab,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.A > b.A ? 1 : a.A < b.A ? -1 : 0,
-			(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<LinearRgb,LinearRgb,int>[] ComparersLinearRgb()
-	{
-		var arr = new Func<LinearRgb,LinearRgb,int>[] {
-			(a,b) => a.R > b.R ? 1 : a.R < b.R ? -1 : 0,
-			(a,b) => a.G > b.G ? 1 : a.G < b.G ? -1 : 0,
-			(a,b) => a.B > b.B ? 1 : a.B < b.B ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<Lms,Lms,int>[] ComparersLms()
-	{
-		var arr = new Func<Lms,Lms,int>[] {
-			(a,b) => a.L > b.L ? 1 : a.L < b.L ? -1 : 0,
-			(a,b) => a.M > b.M ? 1 : a.M < b.M ? -1 : 0,
-			(a,b) => a.S > b.S ? 1 : a.S < b.S ? -1 : 0,
-		};
-		return arr;
-	}
-
-	static Func<YCbCr,YCbCr,int>[] ComparersYCbCr()
-	{
-		var arr = new Func<YCbCr,YCbCr,int>[] {
-			(a,b) => a.Y > b.Y ? 1 : a.Y < b.Y ? -1 : 0,
-			(a,b) => a.Cb > b.Cb ? 1 : a.Cb < b.Cb ? -1 : 0,
-			(a,b) => a.Cr > b.Cr ? 1 : a.Cr < b.Cr ? -1 : 0,
-		};
-		return arr;
-	}
-	*/
 }

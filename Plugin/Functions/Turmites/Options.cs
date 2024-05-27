@@ -147,7 +147,7 @@ public enum PickEdgeRule
 public enum PickOp
 {
 	None = 0,
-	L, R, U, F, N, S, E, W
+	L = 1, R = 2, U = 3, F = 4, N = 5, S = 6, E = 7, W = 8
 }
 
 public class Rule

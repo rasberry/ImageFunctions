@@ -51,12 +51,16 @@ public static class Squeal
 	{
 		return new ArgumentOutOfRangeException(Note.NoLayersPresent());
 	}
+	public static Exception NotSupported(string prefix)
+	{
+		throw new NotSupportedException(Note.NotSupported(prefix));
+	}
 	public static Exception NotSupportedChannelCount(int channelCount)
 	{
 		throw new NotSupportedException(Note.ChannelCountNotSupported(channelCount));
 	}
 	public static Exception NotSupportedCMYK()
 	{
-		return new NotSupportedException(Note.CMYKNotSupported());
+		return new NotSupportedException(Note.NotSupported("CMYK"));
 	}
 }
