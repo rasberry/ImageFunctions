@@ -25,13 +25,13 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Runs the Game of Life simulation and captures the state in various ways - The given starting image is turned into black/white"),
 			Parameters = [
-				new UsageOne<ulong>(1, "-i (number)", "maximum number of iterations (default 10000)"),
+				new UsageOne<ulong>(1, "-i (number)", "maximum number of iterations (default 10000)") { Min = 1, Default = 10000 },
 				//TODO new UsageOne<>(1, "-t (name)", "start with a template instead of using the first layer"),
 				new UsageOne<bool>(1, "-nl", "render the output on a new layer instead of replacing the original one"),
 				new UsageOne<bool>(1, "-ch", "run one simulation per channel (RGB)"),
-				new UsageOne<double>(1, "-th (number[%])", "threshold for picking white/black (default 50%)"),
+				new UsageOne<double>(1, "-th (number[%])", "threshold for picking white/black (default 50%)") { Min = 0.0, Max = 1.0, Default = 0.5 },
 				new UsageOne<bool>(1, "-nh", "disable recording history trails"),
-				new UsageOne<double>(1, "-b (number[%])", "brighten history pixels by amount"),
+				new UsageOne<double>(1, "-b (number[%])", "brighten history pixels by amount") { Min = 0.0, Max = 1.0 },
 				new UsageOne<bool>(1, "-s", "Stop when population stabilizes for 10 iterations"),
 				new UsageOne<bool>(1, "-w", "Let world wrap around at the edges"),
 				//TODO add way to change rule B3/S23 is the standard one

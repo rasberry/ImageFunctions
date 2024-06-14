@@ -23,10 +23,10 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Warps an image using a mapping function"),
 			Parameters = [
-				new UsageTwo<int,int>(1, "-cx (number) (number)", "Coordinates of center in pixels"),
-				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Coordinates of center by proportion (default 50% 50%)"),
-				new UsageOne<double>(1, "-e (number)", "(e) Power Exponent (default 2.0)"),
-				new UsageOne<Mode>(1, "-m (mode)", "Choose mode (default Polynomial)"),
+				new UsageTwo<int,int>(1, "-cx (number) (number)", "Coordinates of center in pixels") { Min = 0 },
+				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Coordinates of center by proportion (default 50% 50%)") { Min = 0.0, Max = 1.0 },
+				new UsageOne<double>(1, "-e (number)", "(e) Power Exponent (default 2.0)") { Default = 2.0 },
+				new UsageOne<Mode>(1, "-m (mode)", "Choose mode (default Polynomial)") { Default = Mode.Polynomial },
 				SamplerHelpers.SamplerUsageParameter()
 			],
 			EnumParameters = [

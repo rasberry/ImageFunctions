@@ -24,9 +24,9 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite"),
 			Parameters = [
 				new UsageOne<string>(1, "-p (string)", "LR pattern string. See below for full language (default 'LR')"),
-				new UsageOne<PickEdgeRule>(1, "-e (edge rule)", "Change edge handling rule (default Wrap)"),
+				new UsageOne<PickEdgeRule>(1, "-e (edge rule)", "Change edge handling rule (default Wrap)") { Default = PickEdgeRule.Wrap },
 				new UsageOne<Point?>(1, "-s (x,y)", "Starting location of turmite (defaults to center coordinate)"),
-				new UsageOne<ulong>(1, "-i (number)", "Number of iterations (default 1000)"),
+				new UsageOne<ulong>(1, "-i (number)", "Number of iterations (default 1000)") { Min = 1, Default = 1000 },
 			],
 			EnumParameters = [
 				new UsageEnum<PickEdgeRule>(1,"Available Edge Rules:") { DescriptionMap = EdgeRuleDesc }
@@ -77,6 +77,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-i", 1000ul)
 			.WhenGoodOrMissing(r => { Iterations = r.Value; return r; })
+			.BeGreaterThan(1ul, true)
 			.IsInvalid()
 		) {
 			return false;

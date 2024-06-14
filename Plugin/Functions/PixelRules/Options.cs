@@ -23,9 +23,9 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Average a set of pixels by following a minimaztion function"),
 			Parameters = [
-				new UsageOne<Mode>(1, "-m (mode)", "Which mode to use (default StairCaseDescend)"),
-				new UsageOne<int>(1, "-n (number)", "Number of times to apply operation (default 1)"),
-				new UsageOne<int>(1, "-x (number)", "Maximum number of iterations - in case of infinite loops (default 100)"),
+				new UsageOne<Mode>(1, "-m (mode)", "Which mode to use (default StairCaseDescend)") { Default = Mode.StairCaseDescend },
+				new UsageOne<int>(1, "-n (number)", "Number of times to apply operation (default 1)") { Min = 0, Default = 1 },
+				new UsageOne<int>(1, "-x (number)", "Maximum number of iterations - in case of infinite loops (default 100)") { Min = 0, Default = 100 },
 				SamplerHelpers.SamplerUsageParameter(),
 				MetricHelpers.MetricUsageParameter()
 			],

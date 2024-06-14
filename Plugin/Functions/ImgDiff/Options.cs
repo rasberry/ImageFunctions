@@ -27,10 +27,10 @@ public sealed class Options : IOptions, IUsageProvider
 				"By default differences are highlighted based on distance ranging from highlight color to white"
 			),
 			Parameters = [
-				new UsageOne<double>(1, "-o (number)[%]", "Overlay highlight color at given opacity"),
+				new UsageOne<double>(1, "-o (number)[%]", "Overlay highlight color at given opacity") { Min = 0.0, Max = 1.0 },
 				new UsageOne<bool>(1, "-i", "Match identical pixels instead of differences"),
 				new UsageOne<bool>(1, "-x", "Output original pixels instead of highlighting them"),
-				new UsageOne<ColorRGBA>(1, "-c (color)", "Change highlight color (default is magenta)"),
+				new UsageOne<ColorRGBA>(1, "-c (color)", "Change highlight color (default is magenta)") { Default = PlugColors.Magenta },
 				new UsageOne<bool>(1, "-nl", "Create a third layer instead of replacing two with one"),
 				MetricHelpers.MetricUsageParameter()
 			],

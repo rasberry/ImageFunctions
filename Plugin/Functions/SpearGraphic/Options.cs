@@ -24,7 +24,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Creates a spear graphic"),
 			Parameters = [
 				new UsageOne<Graphic>(1, "-g (name)", "Choose which graphic to create"),
-				new UsageOne<Color>(1, "-bg (color)", "Change Background color (default transparent)"),
+				new UsageOne<Color>(1, "-bg (color)", "Change Background color (default transparent)") { Default = Color.Transparent },
 				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)")
 			],
 			EnumParameters = [
