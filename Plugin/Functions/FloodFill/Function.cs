@@ -15,17 +15,15 @@ public class Function : IFunction
 		};
 		return f;
 	}
-	public void Usage(StringBuilder sb)
-	{
-		Options.Usage(sb, Register);
-	}
+
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 		//Log.Debug($"FillType:{Options.FillType} MapSecondLayer:{Options.MapSecondLayer} MapType:{Options.MapType} Similarity:{Options.Similarity}");
@@ -36,7 +34,7 @@ public class Function : IFunction
 		}
 
 		ICanvas mapSource = null;
-		if(Options.MapSecondLayer) {
+		if(O.MapSecondLayer) {
 			if(Layers.Count < 2) {
 				Log.Error(PlugNote.MapSeconLayerNeedsTwoLayers());
 				return false;
@@ -48,16 +46,16 @@ public class Function : IFunction
 			}
 		}
 
-		if(Options.FillType == FillMethodKind.DepthFirst) {
+		if(O.FillType == FillMethodKind.DepthFirst) {
 			Storage = new StackWrapper<(Point, ColorRGBA)>();
 		}
 		else {
 			Storage = new QueueWrapper<(Point, ColorRGBA)>();
 		}
 
-		MaxDist = ImageComparer.Max(Options.Metric?.Value);
+		MaxDist = ImageComparer.Max(O.Metric?.Value);
 		ICanvas surface;
-		if(Options.MakeNewLayer) {
+		if(O.MakeNewLayer) {
 			surface = Tools.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
 		}
 		else {
@@ -69,18 +67,18 @@ public class Function : IFunction
 		//might need to re-work this to flood fill one point at a time instead of all of them
 
 		// add explicitly provided points
-		if(Options.StartPoints != null && Options.StartPoints.Count > 0) {
-			foreach(var p in Options.StartPoints) {
+		if(O.StartPoints != null && O.StartPoints.Count > 0) {
+			foreach(var p in O.StartPoints) {
 				var c = surface[p.X, p.Y];
 				Storage.Stow((p, c));
 			}
 		}
 
 		//find and add replaceColor pixel coordinates
-		if(Options.ReplaceColor.HasValue) {
+		if(O.ReplaceColor.HasValue) {
 			Tools.ThreadPixels(surface, (x, y) => {
 				var c = surface[x, y];
-				if(IsSimilar(Options.ReplaceColor.Value, c)) {
+				if(IsSimilar(O.ReplaceColor.Value, c)) {
 					Storage.Stow((new Point(x, y), c));
 				}
 			});
@@ -114,17 +112,17 @@ public class Function : IFunction
 				}
 			}
 
-			if(Options.MapSecondLayer) {
+			if(O.MapSecondLayer) {
 				surface[p.X, p.Y] = MapPixel(mapSource, p.X, p.Y, iteration);
 			}
 			else {
-				surface[p.X, p.Y] = Options.FillColor;
+				surface[p.X, p.Y] = O.FillColor;
 			}
 
 			iteration++;
 		}
 
-		if(!Options.MakeNewLayer && Options.MapSecondLayer) {
+		if(!O.MakeNewLayer && O.MapSecondLayer) {
 			//remove second layer since we should only be left with one layer
 			Layers.DisposeAt(1);
 		}
@@ -137,9 +135,9 @@ public class Function : IFunction
 	// 1.0 - completely similar (identical)
 	bool IsSimilar(ColorRGBA pick, ColorRGBA sample)
 	{
-		var dist = ImageComparer.ColorDistance(pick, sample, Options.Metric?.Value);
+		var dist = ImageComparer.ColorDistance(pick, sample, O.Metric?.Value);
 		var amount = Math.Clamp(1.0 - dist.Total / MaxDist, 0.0, 1.0);
-		bool isSimilar = amount >= Options.Similarity;
+		bool isSimilar = amount >= O.Similarity;
 		return isSimilar;
 	}
 
@@ -157,7 +155,7 @@ public class Function : IFunction
 	//dest is the final layer, source is the layer being mapped from
 	ColorRGBA MapPixel(ICanvas source, int x, int y, long pos)
 	{
-		switch(Options.MapType) {
+		switch(O.MapType) {
 		case PixelMapKind.Horizontal: {
 			long spos = pos % ((long)source.Width * source.Height);
 			int sx = (int)(spos % source.Width);
@@ -176,15 +174,15 @@ public class Function : IFunction
 			return source[sx, sy];
 		}
 		case PixelMapKind.Random: {
-			int sx = Options.Rnd.Next(source.Width);
-			int sy = Options.Rnd.Next(source.Height);
+			int sx = O.Rnd.Next(source.Width);
+			int sy = O.Rnd.Next(source.Height);
 			return source[sx, sy];
 		}
 		}
 		throw Squeal.InvalidArgument("-m");
 	}
 
-	readonly Options Options = new();
+	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
 	ICoreOptions Core;

@@ -3,16 +3,27 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Derivatives;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public bool UseABS = false;
 	public bool DoGrayscale = false;
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Computes the color change rate - similar to edge detection");
-		sb.ND(1, "-g", "Grayscale output");
-		sb.ND(1, "-a", "Calculate absolute value difference");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1, "Computes the color change rate - similar to edge detection"),
+			Parameters = [
+				new UsageOne<bool>(1, "-g", "Enable grayscale output"),
+				new UsageOne<bool>(1, "-a", "Calculate absolute value difference")
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

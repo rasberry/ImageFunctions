@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public PickEdgeRule EdgeRule = PickEdgeRule.None;
 	public IReadOnlyList<Rule> Sequence = null;
@@ -15,28 +15,38 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite");
-		sb.ND(1, "-p (string)", "LR pattern string. See below for full language (default 'LR')");
-		// sb.ND(1,"-img (image)"  ,"Use an image file as the starting state");
-		sb.ND(1, "-e (edge rule)", "Change edge handling rule (default Wrap)");
-		sb.ND(1, "-s (x,y)", "Starting location of turmite (defaults to center coordinate)");
-		sb.ND(1, "-i (number)", "Number of iterations (default 1000)");
-		sb.WT();
-		sb.ND(1, "Available Edge Rules:");
-		sb.PrintEnum<PickEdgeRule>(1, EdgeRuleDesc);
-		sb.WT();
-		sb.ND(1, "Pattern language:");
-		sb.ND(2, "The pattern language consist of a string of characters used to decide which action to take.");
-		sb.ND(2, "Adding a number after the letter will repeat that rule. For example R3 is the same as RRR.");
-		sb.WT();
-		sb.ND(2, "L", "Make a left turn (counterclock-wise)");
-		sb.ND(2, "R", "Make a right turn (clock-wise)");
-		sb.ND(2, "U", "Turn around (180 degree turn)");
-		sb.ND(2, "F", "Continue forward (no turn)");
-		sb.ND(2, "N", "Point north");
-		sb.ND(2, "S", "Point south");
-		sb.ND(2, "E", "Point east");
-		sb.ND(2, "W", "Point west");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite"),
+			Parameters = [
+				new UsageOne<string>(1, "-p (string)", "LR pattern string. See below for full language (default 'LR')"),
+				new UsageOne<PickEdgeRule>(1, "-e (edge rule)", "Change edge handling rule (default Wrap)"),
+				new UsageOne<Point?>(1, "-s (x,y)", "Starting location of turmite (defaults to center coordinate)"),
+				new UsageOne<ulong>(1, "-i (number)", "Number of iterations (default 1000)"),
+			],
+			EnumParameters = [
+				new UsageEnum<PickEdgeRule>(1,"Available Edge Rules:") { DescriptionMap = EdgeRuleDesc }
+			],
+			SuffixParameters = [
+				new UsageText(1, "Pattern language:") { AddNewLineBefore = true },
+				new UsageText(2, "The pattern language consist of a string of characters used to decide which action to take."),
+				new UsageText(2, "Adding a number after the letter will repeat that rule. For example R3 is the same as RRR."),
+				new UsageText(2, "L", "Make a left turn (counterclock-wise)") { AddNewLineBefore = true },
+				new UsageText(2, "R", "Make a right turn (clock-wise)"),
+				new UsageText(2, "U", "Turn around (180 degree turn)"),
+				new UsageText(2, "F", "Continue forward (no turn)"),
+				new UsageText(2, "N", "Point north"),
+				new UsageText(2, "S", "Point south"),
+				new UsageText(2, "E", "Point east"),
+				new UsageText(2, "W", "Point west")
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -75,7 +85,7 @@ public sealed class Options : IOptions
 		return true;
 	}
 
-	static string EdgeRuleDesc(PickEdgeRule rule)
+	static string EdgeRuleDesc(object rule)
 	{
 		switch(rule) {
 		case PickEdgeRule.Wrap: return "Wrap around to the other side";

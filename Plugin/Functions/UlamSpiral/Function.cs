@@ -17,10 +17,8 @@ public class Function : IFunction
 		};
 		return f;
 	}
-	public void Usage(StringBuilder sb)
-	{
-		O.Usage(sb, Register);
-	}
+
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
@@ -32,7 +30,7 @@ public class Function : IFunction
 		}
 
 		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(Options.DefaultWidth, Options.DefaultHeight);
+		var (dfw, dfh) = Core.GetDefaultWidthHeight(UlamSpiral.Options.DefaultWidth, UlamSpiral.Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
 		var bounds = source.Bounds();

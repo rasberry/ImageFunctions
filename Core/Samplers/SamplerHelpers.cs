@@ -9,7 +9,15 @@ public static class SamplerHelpers
 		sb.ND(1, "--sampler (name)", "Use given (registered) sampler (defaults to nearest pixel)");
 	}
 
-	public static ParseResult<Lazy<ISampler>> DefaultSampler(this ParseParams p, IRegister register)
+	public static UsageOne SamplerUsageParameter(int indention = 1)
+	{
+		return new UsageOne<string>(indention,
+			"--sampler (name)", "Use given (registered) sampler (defaults to nearest pixel)") {
+			Auxiliary = AuxiliaryKind.Sampler
+		};
+	}
+
+	public static ParseResult<Lazy<ISampler>> ScanSampler(this ParseParams p, IRegister register)
 	{
 		if(p == null) {
 			throw Squeal.ArgumentNull(nameof(p));

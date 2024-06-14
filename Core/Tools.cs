@@ -205,4 +205,40 @@ public static class Tools
 		}
 		return result;
 	}
+
+	//TODO docs
+	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister,StringBuilder,INameSpaceName,bool> printer)
+	{
+		if (reg == null) {
+			throw Squeal.ArgumentNull(nameof(reg));
+		}
+		if (printer == null) {
+			throw Squeal.ArgumentNull(nameof(printer));
+		}
+
+		if (PrinterMap.ContainsKey(@namespace)) {
+			throw Squeal.AlreadyMapped($"Printer for {@namespace}");
+		}
+
+		PrinterMap.Add(@namespace,printer);
+	}
+
+	//TODO docs
+	public static bool TryPrintCustomHelp(this IRegister reg, StringBuilder sb, INameSpaceName item)
+	{
+		if (reg == null) {
+			throw Squeal.ArgumentNull(nameof(reg));
+		}
+		if (item == null) {
+			return false;
+		}
+
+		if (!PrinterMap.TryGetValue(item.NameSpace, out var func)) {
+			return false;
+		}
+
+		return func(reg,sb,item);
+	}
+
+	static readonly Dictionary<string, Func<IRegister,StringBuilder,INameSpaceName,bool>> PrinterMap = new();
 }

@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Swirl;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public Point? CenterPx;
 	public PointF? CenterPp;
@@ -19,15 +19,26 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Smears pixels in a circle around a point");
-		sb.ND(1, "-cx (number) (number)", "Swirl center X and Y coordinate in pixels");
-		sb.ND(1, "-cp (number)[%] (number)[%]", "Swirl center X and Y coordinate proportionally (default 50%,50%)");
-		sb.ND(1, "-rx (number)", "Swirl radius in pixels");
-		sb.ND(1, "-rp (number)[%]", "Swirl radius proportional to smallest image dimension (default 90%)");
-		sb.ND(1, "-s  (number)[%]", "Number of rotations (default 0.9)");
-		sb.ND(1, "-ccw", "Rotate Counter-clockwise. (default is clockwise)");
-		sb.SamplerHelpLine();
-		sb.MetricHelpLine();
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Smears pixels in a circle around a point"),
+			Parameters = [
+				new UsageTwo<int,int>(1, "-cx (number) (number)", "Swirl center X and Y coordinate in pixels"),
+				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Swirl center X and Y coordinate proportionally (default 50%,50%)"),
+				new UsageOne<int>(1, "-rx (number)", "Swirl radius in pixels"),
+				new UsageOne<double>(1, "-rp (number)[%]", "Swirl radius proportional to smallest image dimension (default 90%)"),
+				new UsageOne<double>(1, "-s  (number)[%]", "Number of rotations (default 0.9)"),
+				new UsageOne<bool>(1, "-ccw", "Rotate Counter-clockwise. (default is clockwise)"),
+				SamplerHelpers.SamplerUsageParameter(),
+				MetricHelpers.MetricUsageParameter(),
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -100,14 +111,14 @@ public sealed class Options : IOptions
 			CounterClockwise = true;
 		}
 
-		if(p.DefaultSampler(register)
+		if(p.ScanSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.DefaultMetric(register)
+		if(p.ScanMetric(register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {

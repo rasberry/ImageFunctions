@@ -4,35 +4,29 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.SliceComponent;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public string SomeOption;
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Slices an image component into multiple layers.");
-		sb.ND(1, "-s (space)", "Color space to use (default RGB)");
-		sb.ND(1, "-c (component)", "Component to slice (default R)");
-		sb.ND(1, "-n (number)", "Number of slices to use (default 16)");
-		sb.ND(1, "-r (number[%])", "Reset the component to given value (0.0-1.0 / 0%-100%)");
-		sb.ND(1, "-o (number)", "Keep only a specific slice between 1 and -n");
-		sb.WT();
-		sb.ND(1, "Available Spaces", "Components");
-		PrintSpaces(sb, register);
+		sb.RenderUsage(this);
 	}
 
-	void PrintSpaces(StringBuilder sb, IRegister register)
+	public Usage GetUsageInfo()
 	{
-		var reg = new Color3SpaceRegister(register);
-		foreach(var name in reg.All()) {
-			var space = reg.Get(name);
-			var info = space.Item.Info;
-			var desc = info.Description;
-			if(!String.IsNullOrWhiteSpace(desc)) {
-				desc = $" - {desc}";
-			}
-			sb.ND(1, $"{space.Name}", $"[{String.Join(',', info.ComponentNames)}]{desc}");
-		}
+		var u = new Usage {
+			Description = new UsageDescription(1,"Slices an image component into multiple layers."),
+			Parameters = [
+				ColorSpaceHelpers.Color3SpaceUsageParameter(1),
+				new UsageOne<string>(1, "-c (component)", "Component to slice (default R)"),
+				new UsageOne<int>(1, "-n (number)", "Number of slices to use (default 16)"),
+				new UsageOne<double>(1, "-r (number[%])", "Reset the component to given value (0.0-1.0 / 0%-100%)"),
+				new UsageOne<int>(1, "-o (number)", "Keep only a specific slice between 1 and -n"),
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -41,6 +35,13 @@ public sealed class Options : IOptions
 		var parser = new ParseParams.Parser<double>((string n) => {
 			return ExtraParsers.ParseNumberPercent(n);
 		});
+
+		if (ColorSpaceHelpers.ScanColor3Space(p,register)
+			.WhenGoodOrMissing(r => { Space = r.Value; return r; })
+			.IsInvalid()
+		) {
+			return false;
+		}
 
 		if(p.Scan<string>("-s", "Rgb")
 			.WhenGoodOrMissing(r => { SpaceName = r.Value; return r; })

@@ -185,10 +185,8 @@ internal class Options : ICoreOptions
 		}
 
 		//show registered items
-		if(Show.HasFlag(PickShow.Registered)) {
-			bool namespaceGiven = !String.IsNullOrWhiteSpace(HelpNameSpace);
-			var space = namespaceGiven ? HelpNameSpace : "all";
-			ShowRegisteredItems(space, sb);
+		if(Show.HasFlag(PickShow.Registered) || UsageFlags != AuxiliaryKind.None) {
+			ShowRegisteredItems(sb, Show.HasFlag(PickShow.Registered));
 		}
 
 		//need to select the engine so we can show formats
@@ -207,14 +205,7 @@ internal class Options : ICoreOptions
 
 		//show formats
 		if(Show.HasFlag(PickShow.Formats)) {
-			var eng = Engine.Item.Value;
-			sb.WT();
-			sb.WT(0, $"Supported Image Formats for Selected Engine - {Engine}");
-			sb.WT(0, "Legend: R = Reading, W = Writting, M = Multiple layers");
-			foreach(var f in eng.Formats()) {
-				string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}{(f.MultiFrame ? "M" : " ")}]";
-				sb.ND(1, f.Name, $"{rw} {f.Description}");
-			}
+			ShowFormats(sb);
 		}
 
 		//if there's any help to print do so now
@@ -242,29 +233,68 @@ internal class Options : ICoreOptions
 		return true;
 	}
 
-	void ShowRegisteredItems(string @namespace, StringBuilder sb)
+	//a = nothing or all
+	//n = namespace given
+	//x = aux flags
+	//a n x
+	//0 0 0 not possible
+	//0 0 1 print aux
+	//0 1 0 print n
+	//0 1 1 print n | aux
+	//1 0 0 print a
+	//1 0 1 print a
+	//1 1 0 not possible
+	//1 1 1 not possible
+	void ShowRegisteredItems(StringBuilder sb, bool hasPickShow)
 	{
-		IEnumerable<string> keyList = null;
+		//Log.Debug($"UsageFlags={UsageFlags}");
+		var ns = hasPickShow && String.IsNullOrWhiteSpace(HelpNameSpace) ? "all" : HelpNameSpace;
+
+		bool joinFilters(INameSpaceName k) {
+			bool show = (hasPickShow && k.NameSpace.StartsWithIC(ns)) || IsNameSpaceFlagged(k);
+			//Log.Debug($"{k.NameSpace} {show}");
+			return show;
+		}
 
 		bool all;
-		keyList = ((all = @namespace.EqualsIC("all"))
+		var keyList = ((all = ns.EqualsIC("all"))
 			? Register.All()
-			: Register.All().Where(k => k.NameSpace.StartsWithIC(@namespace))
+			: Register.All().Where(joinFilters)
 		)
-		.Select(n => $"{n.NameSpace}.{n.Name}").Order();
+		.OrderBy(n => $"{n.NameSpace}.{n.Name}");
 
-		string suffix = all ? "" : $" for '{@namespace}'";
+		string currentSpace = "";
 		sb.WT();
-		sb.WT(0, $"Registered Items{suffix}:");
+		sb.WT(0, $"Registered Items:");
 		foreach(var k in keyList) {
-			sb.WT(1, k);
+			if (k.NameSpace != currentSpace) {
+				sb.WT();
+				sb.WT(0,$"{k.NameSpace}:");
+				currentSpace = k.NameSpace;
+			}
+			if (!Register.TryPrintCustomHelp(sb,k)) {
+				sb.WT(1, $"{k.Name}");
+			}
 		}
+	}
+
+	bool IsNameSpaceFlagged(INameSpaceName n)
+	{
+		if (UsageFlags == AuxiliaryKind.None) {
+			return false;
+		}
+
+		return UsageFlags.HasFlag(AuxiliaryKind.Sampler) && n.NameSpace == Samplers.SamplerRegister.NS
+			|| UsageFlags.HasFlag(AuxiliaryKind.Metric) && n.NameSpace == Metrics.MetricRegister.NS
+			|| UsageFlags.HasFlag(AuxiliaryKind.Color3Space) && n.NameSpace == ColorSpace.Color3SpaceRegister.NS
+			|| UsageFlags.HasFlag(AuxiliaryKind.Color4Space) && n.NameSpace == ColorSpace.Color4SpaceRegister.NS
+		;
 	}
 
 	bool ShowFunctionHelp(string name, StringBuilder sb)
 	{
 		var fn = new FunctionRegister(Register);
-		IEnumerable<string> list = null;
+		IEnumerable<string> list;
 		if(!String.IsNullOrWhiteSpace(name)) {
 			//show specific help for given function
 			if(!fn.Try(name, out _)) {
@@ -283,10 +313,37 @@ internal class Options : ICoreOptions
 			sb.WT();
 			sb.WT(0, $"Function {key}:");
 			var inst = funcItem.Item.Invoke(Register, null, this);
-			inst.Usage(sb);
+			var opts = inst.Options;
+			if (opts is IUsageProvider uip) {
+				UsageFlags = GetFlagsFromUsageInfo(uip.GetUsageInfo());
+			}
+			inst.Options.Usage(sb, Register);
 		}
 
 		return true;
+	}
+
+	AuxiliaryKind GetFlagsFromUsageInfo(Usage info)
+	{
+		var flags = AuxiliaryKind.None;
+		foreach(var p in info.Parameters) {
+			if (p is IUsageParameter iup) {
+				flags |= iup.Auxiliary;
+			}
+		}
+		return flags;
+	}
+
+	void ShowFormats(StringBuilder sb)
+	{
+		var eng = Engine.Item.Value;
+		sb.WT();
+		sb.WT(0, $"Supported Image Formats for Selected Engine - {Engine.Name}");
+		sb.WT(0, "Legend: R = Reading, W = Writting, M = Multiple layers");
+		foreach(var f in eng.Formats()) {
+			string rw = $"[{(f.CanRead ? "R" : " ")}{(f.CanWrite ? "W" : " ")}{(f.MultiFrame ? "M" : " ")}]";
+			sb.ND(1, f.Name, $"{rw} {f.Description}");
+		}
 	}
 
 	bool DetermineImageFormat()
@@ -342,6 +399,7 @@ internal class Options : ICoreOptions
 	readonly IRegister Register;
 	int? _defaultWidth;
 	int? _defaultHeight;
+	AuxiliaryKind UsageFlags = AuxiliaryKind.None;
 
 	//Global options
 	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }

@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Life;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public ulong IterationMax;
 	public double Threshhold;
@@ -17,17 +17,28 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Runs the Game of Life simulation and captures the state in various ways - The given starting image is turned into black/white");
-		sb.ND(1, "-i (number)", "maximum number of iterations (default 10000)");
-		//sb.ND(1,"-t (name)"    ,"start with a template instead of using the first layer");
-		sb.ND(1, "-nl", "render the output on a new layer instead of replacing the original one");
-		sb.ND(1, "-ch", "run one simulation per channel (RGB)");
-		sb.ND(1, "-th (number%)", "threshold for picking white/black (default 50%)");
-		sb.ND(1, "-nh", "disable recording history trails");
-		sb.ND(1, "-b (number%)", "brighten history pixels by amount");
-		sb.ND(1, "-s", "Stop when population stabilizes for 10 iterations");
-		sb.ND(1, "-w", "Let world wrap around at the edges");
-		//add way to change rule B3/S23 is the standard one
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Runs the Game of Life simulation and captures the state in various ways - The given starting image is turned into black/white"),
+			Parameters = [
+				new UsageOne<ulong>(1, "-i (number)", "maximum number of iterations (default 10000)"),
+				//TODO new UsageOne<>(1, "-t (name)", "start with a template instead of using the first layer"),
+				new UsageOne<bool>(1, "-nl", "render the output on a new layer instead of replacing the original one"),
+				new UsageOne<bool>(1, "-ch", "run one simulation per channel (RGB)"),
+				new UsageOne<double>(1, "-th (number[%])", "threshold for picking white/black (default 50%)"),
+				new UsageOne<bool>(1, "-nh", "disable recording history trails"),
+				new UsageOne<double>(1, "-b (number[%])", "brighten history pixels by amount"),
+				new UsageOne<bool>(1, "-s", "Stop when population stabilizes for 10 iterations"),
+				new UsageOne<bool>(1, "-w", "Let world wrap around at the edges"),
+				//TODO add way to change rule B3/S23 is the standard one
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -37,7 +48,7 @@ public sealed class Options : IOptions
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if(p.Scan("-i", 10000u)
+		if(p.Scan<ulong>("-i", 10000ul)
 			.WhenGoodOrMissing(r => { IterationMax = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()

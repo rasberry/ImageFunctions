@@ -2,8 +2,7 @@ using ImageFunctions.Core.Attributes;
 
 namespace ImageFunctions.Core.ColorSpace;
 
-//No point in doing lazy since colorspace classes don't store anything they are
-// cheaper than Lazy
+//No point in doing lazy since colorspace classes don't store anything they are cheaper than Lazy
 public class Color3SpaceRegister : AbstractRegistrant<IColor3Space>
 {
 	public Color3SpaceRegister(IRegister register) : base(register)
@@ -11,7 +10,8 @@ public class Color3SpaceRegister : AbstractRegistrant<IColor3Space>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Color3Space"; } }
+	internal const string NS = "Color3Space";
+	public override string Namespace { get { return NS; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
@@ -35,6 +35,8 @@ public class Color3SpaceRegister : AbstractRegistrant<IColor3Space>
 		reg.Add("YiqFcc", new ColorSpaceYiqFcc());
 		reg.Add("YuvBT601", new ColorSpaceYuvBT601());
 		reg.Add("YuvBT709", new ColorSpaceYuvBT709());
+
+		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.TryPrintColorSpace);
 	}
 }
 
@@ -45,12 +47,15 @@ public class Color4SpaceRegister : AbstractRegistrant<IColor4Space>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Color4Space"; } }
+	internal const string NS = "Color4Space";
+	public override string Namespace { get { return NS; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
 	{
 		var reg = new Color4SpaceRegister(register);
 		reg.Add("Cmyk", new ColorSpaceCmyk());
+
+		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.TryPrintColorSpace);
 	}
 }

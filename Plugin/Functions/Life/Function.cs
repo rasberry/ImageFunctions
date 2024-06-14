@@ -15,17 +15,15 @@ public class Function : IFunction
 		};
 		return f;
 	}
-	public void Usage(StringBuilder sb)
-	{
-		Options.Usage(sb, Register);
-	}
+
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
@@ -35,7 +33,7 @@ public class Function : IFunction
 		}
 
 		ICanvas canvas;
-		if(Options.MakeNewLayer) {
+		if(O.MakeNewLayer) {
 			canvas = Tools.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
 			PlugTools.CopyFrom(canvas, Layers.First().Canvas);
 		}
@@ -43,7 +41,7 @@ public class Function : IFunction
 			canvas = Layers.First().Canvas;
 		}
 
-		if(Options.UseChannels) {
+		if(O.UseChannels) {
 			ProgressRatio = 1.0 / 3.0; ProgressOffset = 0.0;
 			RunSimulation(canvas, Channel.Red);
 			ProgressOffset = 1.0 / 3.0;
@@ -62,7 +60,7 @@ public class Function : IFunction
 	void RunSimulation(ICanvas canvas, Channel channel)
 	{
 		HashSet<Point> last = new();
-		Dictionary<Point, ulong> history = Options.NoHistory ? null : new();
+		Dictionary<Point, ulong> history = O.NoHistory ? null : new();
 
 		//populate world
 		for(int y = 0; y < canvas.Height; y++) {
@@ -82,8 +80,8 @@ public class Function : IFunction
 				UpdatePixel(canvas, x, y, PlugColors.White, channel);
 			}
 			else if(history != null && history.TryGetValue(p, out ulong count)) {
-				double pct = (double)count / Options.IterationMax;
-				double pctAdjust = Options.Brighten.HasValue ? Math.Pow(pct, 1.0 - Options.Brighten.Value) : pct;
+				double pct = (double)count / O.IterationMax;
+				double pctAdjust = O.Brighten.HasValue ? Math.Pow(pct, 1.0 - O.Brighten.Value) : pct;
 				var c = new ColorRGBA(pctAdjust, pctAdjust, pctAdjust, 1.0);
 				UpdatePixel(canvas, x, y, c, channel);
 			}
@@ -113,15 +111,15 @@ public class Function : IFunction
 		int lastPop = last.Count;
 		ulong lastStable = 0;
 
-		while(iter < Options.IterationMax) {
+		while(iter < O.IterationMax) {
 			progress.Prefix = $"Population {last.Count} ";
-			progress.Report((double)iter / Options.IterationMax * ProgressRatio + ProgressOffset);
+			progress.Report((double)iter / O.IterationMax * ProgressRatio + ProgressOffset);
 
 			RunIteration(W, H, ref next, ref last, dead, history);
 			iter++;
 
 			//Log.Debug($"Iter={iter} Pop={Last.Count}");
-			if(Options.StopWhenStable && lastPop == last.Count) {
+			if(O.StopWhenStable && lastPop == last.Count) {
 				lastStable++;
 				if(lastStable > 9) {
 					Log.Message($"Stopping. Population stabilized at {last.Count}");
@@ -189,7 +187,7 @@ public class Function : IFunction
 		int L = w - 1;
 		int B = h - 1;
 
-		if(Options.Wrap) {
+		if(O.Wrap) {
 			int xm = x > 0 ? x - 1 : L + x;
 			int xp = x < L ? x + 1 : x - L;
 			int ym = y > 0 ? y - 1 : B + y;
@@ -226,14 +224,14 @@ public class Function : IFunction
 	bool IsAlive(ColorRGBA color, Channel channel)
 	{
 		return channel switch {
-			Channel.Red => color.R >= Options.Threshhold,
-			Channel.Green => color.G >= Options.Threshhold,
-			Channel.Blue => color.B >= Options.Threshhold,
-			_ => color.Luma >= Options.Threshhold,
+			Channel.Red => color.R >= O.Threshhold,
+			Channel.Green => color.G >= O.Threshhold,
+			Channel.Blue => color.B >= O.Threshhold,
+			_ => color.Luma >= O.Threshhold,
 		};
 	}
 
-	readonly Options Options = new();
+	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
 	ICoreOptions Core;

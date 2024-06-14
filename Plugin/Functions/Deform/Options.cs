@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Deform;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public Point? CenterPx;
 	public PointF? CenterPp;
@@ -15,16 +15,34 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Warps an image using a mapping function");
-		sb.ND(1, "-cx (number) (number)", "Coordinates of center in pixels");
-		sb.ND(1, "-cp (number)[%] (number)[%]", "Coordinates of center by proportion (default 50% 50%)");
-		sb.ND(1, "-e (number)", "(e) Power Exponent (default 2.0)");
-		sb.ND(1, "-m (mode)", "Choose mode (default Polynomial)");
-		sb.SamplerHelpLine();
-		sb.WT();
-		sb.ND(1, "Available Modes");
-		sb.ND(1, "1. Polynomial", "x^e/w, y^e/h");
-		sb.ND(1, "2. Inverted", "n/x, n/y; n = (x^e + y^e)");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1, "Warps an image using a mapping function"),
+			Parameters = [
+				new UsageTwo<int,int>(1, "-cx (number) (number)", "Coordinates of center in pixels"),
+				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Coordinates of center by proportion (default 50% 50%)"),
+				new UsageOne<double>(1, "-e (number)", "(e) Power Exponent (default 2.0)"),
+				new UsageOne<Mode>(1, "-m (mode)", "Choose mode (default Polynomial)"),
+				SamplerHelpers.SamplerUsageParameter()
+			],
+			EnumParameters = [
+				new UsageEnum<Mode>(1, "Available Modes") { DescriptionMap = ModeDesc, ExcludeZero = true }
+			]
+		};
+
+		return u;
+	}
+
+	static string ModeDesc(object mode)
+	{
+		Mode m = (Mode)mode;
+		if (m == Mode.Polynomial) { return "x^e/w, y^e/h"; }
+		if (m == Mode.Inverted) { return "n/x, n/y; n = (x^e + y^e)"; }
+		return "";
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -79,7 +97,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if(p.DefaultSampler(register)
+		if(p.ScanSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {

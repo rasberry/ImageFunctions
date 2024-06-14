@@ -3,6 +3,10 @@ namespace ImageFunctions.Core;
 // Return exceptions to be thrown
 public static class Squeal
 {
+	public static Exception AlreadyMapped(string @namespace)
+	{
+		return new ArgumentException(Note.AlreadyMapped(@namespace));
+	}
 	public static Exception AlreadyRegistered(string @namespace, string name)
 	{
 		return new ArgumentException(Note.ItemAlreadyRegistered(@namespace, name));
@@ -50,6 +54,10 @@ public static class Squeal
 	public static Exception NoLayers()
 	{
 		return new ArgumentOutOfRangeException(Note.NoLayersPresent());
+	}
+	public static Exception NotMapped(string name)
+	{
+		throw new KeyNotFoundException(Note.NotMapped(name));
 	}
 	public static Exception NotSupported(string prefix)
 	{

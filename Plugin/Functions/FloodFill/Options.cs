@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.FloodFill;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public FillMethodKind FillType;
 	public PixelMapKind MapType;
@@ -21,22 +21,31 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Fills area(s) of color with another color");
-		sb.ND(1, "-c (color)", "Fill color (default white)");
-		sb.ND(1, "-p (x,y)", "Pick starting coordinate (can be specified multiple times)");
-		sb.ND(1, "-i", "Replace pixels with ones taken the second layer");
-		sb.ND(1, "-r (color)", "Treat all pixels of given color as starting points");
-		sb.ND(1, "-s (number[%])", "How similar pixels should be to match range: [0.0,1.0] (default 100%)");
-		sb.ND(1, "-f (type)", $"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})");
-		sb.ND(1, "-m (type)", $"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})");
-		sb.ND(1, "-nl", "Create a new layer instead of replacing original(s)");
-		sb.MetricHelpLine();
-		sb.WT();
-		sb.WT(1, "Fill Type:");
-		sb.PrintEnum<FillMethodKind>(1);
-		sb.WT();
-		sb.WT(1, "Map Type:");
-		sb.PrintEnum<PixelMapKind>(1);
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Fills area(s) of color with another color"),
+			Parameters = [
+				new UsageOne<ColorRGBA>(1, "-c (color)", "Fill color (default white)"),
+				new UsageOne<Point>(1, "-p (x,y)", "Pick starting coordinate (can be specified multiple times)"),
+				new UsageOne<bool>(1, "-i", "Replace pixels with ones taken the second layer"),
+				new UsageOne<ColorRGBA>(1, "-r (color)", "Treat all pixels of given color as starting points"),
+				new UsageOne<double>(1, "-s (number[%])", "How similar pixels should be to match range: [0.0,1.0] (default 100%)"),
+				new UsageOne<FillMethodKind>(1, "-f (type)", $"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})"),
+				new UsageOne<PixelMapKind>(1, "-m (type)", $"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})"),
+				new UsageOne<bool>(1, "-nl", "Create a new layer instead of replacing original(s)"),
+				MetricHelpers.MetricUsageParameter()
+			],
+			EnumParameters = [
+				new UsageEnum<FillMethodKind>(1, "Fill Type:"),
+				new UsageEnum<PixelMapKind>(1, "Map Type:"),
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -93,7 +102,7 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if(p.DefaultMetric(register)
+		if(p.ScanMetric(register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -123,8 +132,6 @@ public sealed class Options : IOptions
 
 		return true;
 	}
-
-	static char[] Delimiters = new char[] { ',', ' ', 'x', ';' };
 }
 
 /*

@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.ZoomBlur;
 
-public class Options : IOptions
+public class Options : IOptions, IUsageProvider
 {
 	public Lazy<ISampler> Sampler;
 	public Lazy<IMetric> Measurer;
@@ -16,14 +16,24 @@ public class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Blends rays of pixels to produce a 'zoom' effect");
-		sb.ND(1, "-z  (number)[%]", "Zoom amount (default 1.1)");
-		sb.ND(1, "-cc (number) (number)", "Coordinates of zoom center in pixels");
-		sb.ND(1, "-cp (number)[%] (number)[%]", "Coordinates of zoom center by proportion (default 50% 50%)");
-		//sb.WL(" -oh"                        ,"Only zoom horizontally");
-		//sb.WL(" -ov"                        ,"Only zoom vertically");
-		sb.SamplerHelpLine();
-		sb.MetricHelpLine();
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Blends rays of pixels to produce a 'zoom' effect"),
+			Parameters = [
+				new UsageOne<double>(1, "-z  (number)[%]", "Zoom amount (default 1.1)"),
+				new UsageTwo<int,int>(1, "-cc (number) (number)", "Coordinates of zoom center in pixels"),
+				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Coordinates of zoom center by proportion (default 50% 50%)"),
+				//new UsageOne<>(" -oh", "Only zoom horizontally");
+				//new UsageOne<>(" -ov", "Only zoom vertically");
+				SamplerHelpers.SamplerUsageParameter(),
+				MetricHelpers.MetricUsageParameter()
+			]
+		};
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -71,13 +81,13 @@ public class Options : IOptions
 			CenterRt = new PointF(0.5f, 0.5f);
 		}
 
-		if(p.DefaultSampler(register)
+		if(p.ScanSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if(p.DefaultMetric(register)
+		if(p.ScanMetric(register)
 			.WhenGood(r => { Measurer = r.Value; return r; })
 			.IsInvalid()
 		) {

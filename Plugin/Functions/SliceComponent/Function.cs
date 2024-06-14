@@ -16,17 +16,15 @@ public class Function : IFunction
 		};
 		return f;
 	}
-	public void Usage(StringBuilder sb)
-	{
-		Options.Usage(sb, Register);
-	}
+
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Register)) {
 			return false;
 		}
 
@@ -37,7 +35,7 @@ public class Function : IFunction
 
 		using var progress = new ProgressBar();
 		var engine = Core.Engine.Item.Value;
-		int numSlices = Options.WhichSlice.HasValue ? 1 : Options.Slices;
+		int numSlices = O.WhichSlice.HasValue ? 1 : O.Slices;
 
 		//pull out the original which we'll replace with slices
 		var original = Layers.PopAt(0).Canvas;
@@ -48,21 +46,21 @@ public class Function : IFunction
 		}
 
 		Tools.ThreadPixels(original, (x, y) => {
-			var c = Options.Space.ToSpace(original[x, y]);
-			var ord = c.GetOrdinal(Options.ComponentName);
+			var c = O.Space.ToSpace(original[x, y]);
+			var ord = c.GetOrdinal(O.ComponentName);
 			double v = GetValue(ord, c);
-			int index = Math.Clamp((int)(v * Options.Slices), 0, Options.Slices - 1);
+			int index = Math.Clamp((int)(v * O.Slices), 0, O.Slices - 1);
 
-			if(Options.WhichSlice.HasValue) {
-				if(index + 1 != Options.WhichSlice.Value) { return; }
+			if(O.WhichSlice.HasValue) {
+				if(index + 1 != O.WhichSlice.Value) { return; }
 				index = 0;
 			}
 
-			IColor3 mc = Options.ResetValue.HasValue
-				? WithValue(ord, c, Options.ResetValue.Value)
+			IColor3 mc = O.ResetValue.HasValue
+				? WithValue(ord, c, O.ResetValue.Value)
 				: c
 			;
-			slices[index][x, y] = Options.Space.ToNative(mc);
+			slices[index][x, y] = O.Space.ToNative(mc);
 		}, Core.MaxDegreeOfParallelism, progress);
 
 		return true;
@@ -91,7 +89,7 @@ public class Function : IFunction
 		};
 	}
 
-	readonly Options Options = new();
+	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
 	ICoreOptions Core;

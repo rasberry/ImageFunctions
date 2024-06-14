@@ -21,10 +21,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public void Usage(StringBuilder sb)
-	{
-		O.Usage(sb, Register);
-	}
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
@@ -39,7 +36,7 @@ public class Function : IFunction
 
 		//since we're rendering pixels make a new layer each time
 		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(Options.FourKWidth, Options.FourKHeight);
+		var (dfw, dfh) = Core.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
 		//Trace.WriteLine($"{nameof(AllColors)} Run 3");

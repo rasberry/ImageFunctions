@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Encrypt;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public bool DoDecryption;
 	public byte[] Password;
@@ -16,14 +16,27 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Encrypt or Decrypts the pixels of an image");
-		sb.ND(1, "Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option");
-		sb.ND(1, "-d", "Enable decryption (default is to encrypt)");
-		sb.ND(1, "-p (text)", "Password used to encrypt / decrypt image");
-		sb.ND(1, "-pi", "Ask for the password on the command prompt (instead of -p)");
-		sb.ND(1, "-raw", "Treat password text as a raw string (shell escaping still applies)");
-		sb.ND(1, "-iv (text)", "Initialization Vector - must be exactly " + Encryptor.IVLengthBytes + " bytes");
-		sb.ND(1, "-test", "Print out any specified (text) inputs as hex and exit");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,
+				"Encrypt or Decrypts the pixels of an image",
+				"Note: (text) is escaped using RegEx syntax so that passing binary data is possible. Also see -raw option"
+			),
+			Parameters = [
+				new UsageOne<bool>(1, "-d", "Enable decryption (default is to encrypt"),
+				new UsageOne<string>(1, "-p (text)", "Password used to encrypt / decrypt image"),
+				new UsageOne<bool>(1, "-pi", "Ask for the password on the command prompt (instead of -p)"),
+				new UsageOne<bool>(1, "-raw", "Treat password text as a raw string (shell escaping still applies)"),
+				new UsageOne<string>(1, "-iv (text)", "Initialization Vector - must be exactly " + Encryptor.IVLengthBytes + " bytes"),
+				new UsageOne<bool>(1, "-test", "Print out any specified (text) inputs as hex and exit")
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

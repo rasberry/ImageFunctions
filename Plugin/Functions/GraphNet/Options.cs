@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.GraphNet;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public int? NodeCount;
 	public int Connectivity;
@@ -15,12 +15,23 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Creates a plot of a boolean-like network with a random starring state.");
-		sb.ND(1, "-b (number)", "Number of states (default 2)");
-		sb.ND(1, "-n (number)", "Number of nodes in the network (defaults to width of image)");
-		sb.ND(1, "-c (number)", "Connections per node (default 3)");
-		sb.ND(1, "-p (number)", "Chance of inserting a perturbation (default 0)");
-		sb.ND(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Creates a plot of a boolean-like network with a random starring state."),
+			Parameters = [
+				new UsageOne<int>(1, "-b (number)", "Number of states (default 2)"),
+				new UsageOne<int?>(1, "-n (number)", "Number of nodes in the network (defaults to width of image)"),
+				new UsageOne<int>(1, "-c (number)", "Connections per node (default 3)"),
+				new UsageOne<double>(1, "-p (number)", "Chance of inserting a perturbation (default 0)"),
+				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)"),
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

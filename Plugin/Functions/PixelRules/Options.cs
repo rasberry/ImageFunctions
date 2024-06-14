@@ -5,7 +5,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.PixelRules;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public Mode WhichMode = Mode.StairCaseDescend;
 	public int Passes = 1;
@@ -15,15 +15,26 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Average a set of pixels by following a minimaztion function");
-		sb.ND(1, "-m (mode)", "Which mode to use (default StairCaseDescend)");
-		sb.ND(1, "-n (number)", "Number of times to apply operation (default 1)");
-		sb.ND(1, "-x (number)", "Maximum number of iterations - in case of infinite loops (default 100)");
-		sb.SamplerHelpLine();
-		sb.MetricHelpLine();
-		sb.WT();
-		sb.ND(1, "Available Modes");
-		sb.PrintEnum<Mode>(1, ModeDesc);
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Average a set of pixels by following a minimaztion function"),
+			Parameters = [
+				new UsageOne<Mode>(1, "-m (mode)", "Which mode to use (default StairCaseDescend)"),
+				new UsageOne<int>(1, "-n (number)", "Number of times to apply operation (default 1)"),
+				new UsageOne<int>(1, "-x (number)", "Maximum number of iterations - in case of infinite loops (default 100)"),
+				SamplerHelpers.SamplerUsageParameter(),
+				MetricHelpers.MetricUsageParameter()
+			],
+			EnumParameters = [
+				new UsageEnum<Mode>(1, "Available Modes") { DescriptionMap = ModeDesc }
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -56,14 +67,14 @@ public sealed class Options : IOptions
 			return false;
 		}
 
-		if(p.DefaultSampler(register)
+		if(p.ScanSampler(register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.DefaultMetric(register)
+		if(p.ScanMetric(register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -73,7 +84,7 @@ public sealed class Options : IOptions
 		return true;
 	}
 
-	static string ModeDesc(Mode m)
+	static string ModeDesc(object m)
 	{
 		switch(m) {
 		case Mode.StairCaseDescend: return "move towards smallest distance";

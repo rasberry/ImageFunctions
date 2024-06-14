@@ -4,7 +4,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public double? HilightOpacity;
 	public bool MatchSamePixels;
@@ -16,14 +16,27 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Highlights differences between two images.");
-		sb.ND(1, "By default differences are highlighted based on distance ranging from highlight color to white");
-		sb.ND(1, "-o (number)[%]", "Overlay highlight color at given opacity");
-		sb.ND(1, "-i", "Match identical pixels instead of differences");
-		sb.ND(1, "-x", "Output original pixels instead of highlighting them");
-		sb.ND(1, "-c (color)", "Change highlight color (default is magenta)");
-		sb.ND(1, "-m (metric)", "Use another (registered) distance metric (default Euclidean)");
-		sb.ND(1, "-nl", "Create a third layer instead of replacing two with one");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,
+				"Highlights differences between two images.",
+				"By default differences are highlighted based on distance ranging from highlight color to white"
+			),
+			Parameters = [
+				new UsageOne<double>(1, "-o (number)[%]", "Overlay highlight color at given opacity"),
+				new UsageOne<bool>(1, "-i", "Match identical pixels instead of differences"),
+				new UsageOne<bool>(1, "-x", "Output original pixels instead of highlighting them"),
+				new UsageOne<ColorRGBA>(1, "-c (color)", "Change highlight color (default is magenta)"),
+				new UsageOne<bool>(1, "-nl", "Create a third layer instead of replacing two with one"),
+				MetricHelpers.MetricUsageParameter()
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -60,20 +73,13 @@ public sealed class Options : IOptions
 		) {
 			return false;
 		}
-		if(p.Scan("-m", "Euclidean")
-			.WhenGoodOrMissing(r => { MetricName = r.Value; return r; })
-			.WhenInvalidTellDefault()
+
+		if(p.ScanMetric(register)
+			.WhenGood(r => { MetricInstance = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
-
-		var mr = new MetricRegister(register);
-		if(!mr.Try(MetricName, out var mEntry)) {
-			Log.Error(Note.NotRegistered(mr.Namespace, MetricName));
-			return false;
-		}
-		MetricInstance = mEntry.Item;
 
 		return true;
 	}

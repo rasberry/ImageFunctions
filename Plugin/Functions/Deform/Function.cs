@@ -16,10 +16,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public void Usage(StringBuilder sb)
-	{
-		O.Usage(sb, Register);
-	}
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{
@@ -68,14 +65,14 @@ public class Function : IFunction
 		double px = 0.0, py = 0.0;
 
 		switch(O.WhichMode) {
-		case Options.Mode.Polynomial: {
+		case Deform.Options.Mode.Polynomial: {
 			//solve(w^q/n = w,n) : n = w^(q-1)
 			double dx = Math.Pow(Math.Abs(qw), exp - 1.0);
 			double dy = Math.Pow(Math.Abs(qh), exp - 1.0);
 			px = Math.Sign(x) * Math.Pow(Math.Abs(x), exp) / dx;
 			py = Math.Sign(y) * Math.Pow(Math.Abs(y), exp) / dy;
 		}; break;
-		case Options.Mode.Inverted: {
+		case Deform.Options.Mode.Inverted: {
 			double ax = Math.Pow(Math.Abs(x), exp);
 			double ay = Math.Pow(Math.Abs(y), exp);
 			double aw = Math.Pow(Math.Abs(qw), exp);

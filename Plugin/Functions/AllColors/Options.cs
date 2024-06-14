@@ -40,29 +40,29 @@ public enum Space
 	//Lms
 }
 
-public sealed class Options : IOptions, IUsageInfoProvider
+public sealed class Options : IOptions, IUsageProvider
 {
 	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.RenderUsage(this);
 	}
 
-	public UsageInfo GetUsageInfo()
+	public Usage GetUsageInfo()
 	{
-		return new UsageInfo {
+		return new Usage {
 			Description = new UsageDescription(1, "Creates an image with every possible 24-bit color ordered by chosen pattern."),
 			Parameters = [
-				new(1, "-p (pattern)", "Sort by Pattern (default BitOrder)", typeof(Pattern)),
-				new(1, "-s (space)", "Sort by color space components (instead of pattern)", typeof(Space)),
-				new(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)", typeof(string)),
-				new(1, "-ps", "Use multi-threaded sort function instead of regular sort", typeof(bool)),
-				new(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%", typeof(double)) { Min = 0.0, Max = 1.0 },
-				new(1, "-on (number)", $"Absolute Color Offset to use", typeof(int)),
-				new(1, "-l / --legacy", "Use original (legacy) algorithm", typeof(bool)),
+				new UsageOne<Pattern>(1, "-p (pattern)", "Sort by Pattern (default BitOrder)"),
+				new UsageOne<Space>(1, "-s (space)", "Sort by color space components (instead of pattern)"),
+				new UsageOne<string>(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)"),
+				new UsageOne<bool>(1, "-ps", "Use multi-threaded sort function instead of regular sort"),
+				new UsageOne<double>(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%") { Min = 0.0, Max = 1.0 },
+				new UsageOne<int>(1, "-on (number)", $"Absolute Color Offset to use"),
+				new UsageOne<bool>(1, "-l / --legacy", "Use original (legacy) algorithm"),
 			],
 			EnumParameters = [
-				new(1, "Available Patterns", typeof(Pattern)) { DescriptionMap = GetPatternDescription, ExcludeZero = true },
-				new(1, "Available Spaces", typeof(Space)) { ExcludeZero = true }
+				new UsageEnum<Pattern>(1, "Available Patterns") { DescriptionMap = GetPatternDescription, ExcludeZero = true },
+				new UsageEnum<Space>(1, "Available Spaces") { ExcludeZero = true }
 			]
 		};
 	}
@@ -82,7 +82,8 @@ public sealed class Options : IOptions, IUsageInfoProvider
 		case Pattern.Luminance2020: return "Luminance BT.2020";
 		case Pattern.SMPTE240M: return "Luminance SMPTE 240M (1999)";
 		case Pattern.Spiral16: return "Spiral blocks of 16 x 16";
-		case Pattern.Spiral4kBuckets: return "Spiral blocks of 4k x 4k";
+		case Pattern.Spiral4kBuckets: return "Spiral blocks of 4k x 4k using buckets";
+		case Pattern.Spiral4k: return "Spiral blocks of 4k x 4k";
 		case Pattern.Squares4k: return "Square blocks of 256 x 256";
 		}
 		return "";

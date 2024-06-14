@@ -9,7 +9,15 @@ public static class MetricHelpers
 		sb.ND(1, "--metric (name)", "Use a (registered) distance metric (defaults to euclidean)");
 	}
 
-	public static ParseResult<Lazy<IMetric>> DefaultMetric(this ParseParams p, IRegister register)
+	public static UsageOne MetricUsageParameter(int indention = 1)
+	{
+		return new UsageOne<string>(indention,
+			"--metric (name)", "Use a (registered) distance metric (defaults to euclidean)") {
+			Auxiliary = AuxiliaryKind.Metric
+		};
+	}
+
+	public static ParseResult<Lazy<IMetric>> ScanMetric(this ParseParams p, IRegister register)
 	{
 		if(p == null) {
 			throw Squeal.ArgumentNull(nameof(p));

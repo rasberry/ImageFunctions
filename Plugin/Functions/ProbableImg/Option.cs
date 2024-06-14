@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.ProbableImg;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public int? RandomSeed = null;
 	public int? TotalNodes = null;
@@ -12,12 +12,23 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Generate a new image using a probability profile based on the input image");
-		sb.ND(1, "-n (number)", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)");
-		sb.ND(1, "-rs (seed)", "Options number seed for the random number generator");
-		sb.ND(1, "-xy (number) (number)", "Add a start node (in pixels) - multiple allowed");
-		sb.ND(1, "-pp (number)[%] (number)[%]", "Add a start node (by proportion) - multiple allowed");
-		sb.ND(1, "-alt", "Use alternate rendering uses slightly less memory");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Generate a new image using a probability profile based on the input image"),
+			Parameters = [
+				new UsageOne<int>(1, "-n (number)", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)"),
+				new UsageOne<int>(1, "-rs (seed)", "Options number seed for the random number generator"),
+				new UsageTwo<int,int>(1, "-xy (number) (number)", "Add a start node (in pixels) - multiple allowed"),
+				new UsageTwo<double,double>(1, "-pp (number)[%] (number)[%]", "Add a start node (by proportion) - multiple allowed"),
+				new UsageOne<bool>(1, "-alt", "Use alternate rendering uses slightly less memory"),
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public ColorRGBA CellColor;
 	public ColorRGBA WallColor;
@@ -17,22 +17,31 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Draws one of several mazes");
-		sb.ND(1, "-m  (maze)", "Choose a maze (default prims)");
-		sb.ND(1, "-cc (color)", "Change cell color (default black)");
-		sb.ND(1, "-wc (color)", "Change wall color (default white)");
-		sb.ND(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)");
-		sb.ND(1, "-sq (s,s,...)", "Growing Tree cell picking sequence (default 'N')");
-		sb.ND(1, "-sr", "Randomly pick between sequence options");
-		sb.WT();
-		sb.ND(1, "Available Mazes:");
-		sb.PrintEnum<PickMaze>(1, MazeDesc, excludeZero: true);
-		sb.WT();
-		sb.ND(1, "Available Sequence Options: (Only for Growing Tree)");
-		sb.PrintEnum<PickNext>(1, SeqDesc, SeqName, excludeZero: true);
+		sb.RenderUsage(this);
 	}
 
-	static string MazeDesc(PickMaze maze)
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Draws one of several mazes"),
+			Parameters = [
+				new UsageOne<PickMaze>(1, "-m  (maze)", "Choose a maze (default prims)"),
+				new UsageOne<ColorRGBA>(1, "-cc (color)", "Change cell color (default black)"),
+				new UsageOne<ColorRGBA>(1, "-wc (color)", "Change wall color (default white)"),
+				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)"),
+				new UsageOne<string>(1, "-sq (s,s,...)", "Growing Tree cell picking sequence (default 'N')"),
+				new UsageOne<bool>(1, "-sr", "Randomly pick between sequence options"),
+			],
+			EnumParameters = [
+				new UsageEnum<PickMaze>(1, "Available Mazes:") { ExcludeZero = true, DescriptionMap = MazeDesc },
+				new UsageEnum<PickNext>(1, "Available Sequence Options: (Only for Growing Tree)") { ExcludeZero = true, DescriptionMap = SeqDesc, NameMap = SeqName },
+			]
+		};
+
+		return u;
+	}
+
+	static string MazeDesc(object maze)
 	{
 		switch(maze) {
 		case PickMaze.Automata: return "Cellular automata maze";
@@ -49,7 +58,7 @@ public sealed class Options : IOptions
 		return "";
 	}
 
-	static string SeqDesc(PickNext next)
+	static string SeqDesc(object next)
 	{
 		switch(next) {
 		case PickNext.Middle: return "Pick the middle cell of the current path";
@@ -60,7 +69,7 @@ public sealed class Options : IOptions
 		return "";
 	}
 
-	static string SeqName(PickNext next)
+	static string SeqName(object next)
 	{
 		switch(next) {
 		case PickNext.Middle: return "(M)iddle";

@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public bool ColorComposites;
 	public bool ColorPrimesBy6m;
@@ -24,30 +24,37 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Creates an Ulam spiral graphic ");
-		sb.ND(1, "-p", "Color pixel if prime (true if -f not specified)");
-		sb.ND(1, "-f", "Color pixel based on number of divisors; dot size is proportional to divisor count");
-		sb.ND(1, "-6m", "Color primes depending on if they are 6*m+1 or 6*m-1");
-		sb.ND(1, "-c (x,y)", "Center x,y coordinate (default 0,0)");
-		sb.ND(1, "-m (mapping)", "Mapping used to translate x,y into an index number (default spiral)");
-		sb.ND(1, "-s (number)", "Spacing between points (default 1)");
-		sb.ND(1, "-ds (number)", "Maximum dot size in pixels; decimals allowed (default 1.0)");
-		sb.ND(1, "-dt (dot type)", "Dot used for drawing (default circle)");
-		sb.ND(1, "-c(1,2,3,4) (color)", "Colors to be used depending on mode. (setting any of the colors is optional)");
-		sb.WT();
-		sb.ND(1, "Color Mappings:");
-		sb.ND(1, "default", "c1=background  c2=primes");
-		sb.ND(1, "-f", "c1=background  c2=primes  c3=composites");
-		sb.ND(1, "-6m", "c1=background  c2=6m-1    c3=composites  c4=6m+1");
-		sb.WT();
-		sb.ND(1, "Available Mappings:");
-		sb.PrintEnum<PickMapping>(1, DescMapping, excludeZero: true);
-		sb.WT();
-		sb.ND(1, "Available Dot Types:");
-		sb.PrintEnum<PickDot>(1, DescDotType, excludeZero: true);
+		sb.RenderUsage(this);
 	}
 
-	static string DescMapping(PickMapping m)
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Creates an Ulam spiral graphic"),
+			Parameters = [
+				new UsageOne<bool>(1, "-p", "Color pixel if prime (true if -f not specified)"),
+				new UsageOne<bool>(1, "-f", "Color pixel based on number of divisors; dot size is proportional to divisor count"),
+				new UsageOne<bool>(1, "-6m", "Color primes depending on if they are 6*m+1 or 6*m-1"),
+				new UsageOne<string>(1, "-c (x,y)", "Center x,y coordinate (default 0,0)"),
+				new UsageOne<PickMapping>(1, "-m (mapping)", "Mapping used to translate x,y into an index number (default spiral)"),
+				new UsageOne<int>(1, "-s (number)", "Spacing between points (default 1)"),
+				new UsageOne<double>(1, "-ds (number)", "Maximum dot size in pixels; decimals allowed (default 1.0)"),
+				new UsageOne<PickDot>(1, "-dt (dot type)", "Dot used for drawing (default circle)"),
+				new UsageOne<ColorRGBA>(1, "-c(1,2,3,4) (color)", "Colors to be used depending on mode. (setting any of the colors is optional)"),
+				new UsageText(1, "Color Mappings:") { AddNewLineBefore = true },
+				new UsageText(1, "default", "c1=background  c2=primes"),
+				new UsageOne<bool>(1, "-f", "c1=background  c2=primes  c3=composites"),
+				new UsageOne<bool>(1, "-6m", "c1=background  c2=6m-1    c3=composites  c4=6m+1"),
+			],
+			EnumParameters = [
+				new UsageEnum<PickMapping>(1, "Available Mappings:") { DescriptionMap = DescMapping, ExcludeZero = true },
+				new UsageEnum<PickDot>(1, "Available Dot Types:") { DescriptionMap = DescDotType, ExcludeZero = true },
+			]
+		};
+		return u;
+	}
+
+	static string DescMapping(object m)
 	{
 		switch(m) {
 		case PickMapping.Diagonal: return "Diagonal winding from top left";
@@ -57,7 +64,7 @@ public sealed class Options : IOptions
 		return "";
 	}
 
-	static string DescDotType(PickDot m)
+	static string DescDotType(object m)
 	{
 		switch(m) {
 		case PickDot.Blob: return "Draws a spherical fading dot";

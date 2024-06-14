@@ -84,7 +84,7 @@ class Program
 		var reg = funReg.Get(name);
 		var fun = reg.Item.Invoke(Register, null, null);
 
-		fun.Usage(sb);
+		fun.Options.Usage(sb, Register);
 		model.Usage = sb.ToString();
 		model.Table = new MarkdownTable();
 		model.FunctionName = reg.Name;

@@ -3,7 +3,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public bool UseProportionalSplit = false;
 	public double ImageSplitFactor = 2.0;
@@ -11,10 +11,21 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Creates areas of flat color by recursively splitting high detail chunks");
-		sb.ND(1, "-p", "Use proportianally sized sections (default is square sized sections)");
-		sb.ND(1, "-s (number)[%]", "Multiple or percent of image dimension used for splitting (default 2.0)");
-		sb.ND(1, "-r (number)[%]", "Count or percent or sections to re-split (default 50%)");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Creates areas of flat color by recursively splitting high detail chunks"),
+			Parameters = [
+				new UsageOne<bool>(1, "-p", "Use proportianally sized sections (default is square sized sections)"),
+				new UsageOne<double>(1, "-s (number)[%]", "Multiple or percent of image dimension used for splitting (default 2.0)"),
+				new UsageOne<double>(1, "-r (number)[%]", "Count or percent or sections to re-split (default 50%)"),
+			],
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

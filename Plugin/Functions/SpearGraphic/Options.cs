@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public Graphic Spear;
 	public ColorRGBA BackgroundColor;
@@ -15,13 +15,24 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Creates a spear graphic");
-		sb.ND(1, "-g (name)", "Choose which graphic to create");
-		sb.ND(1, "-bg (color)", "Change Background color (default transparent)");
-		sb.ND(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)");
-		sb.WT();
-		sb.ND(1, "Available Graphics");
-		sb.PrintEnum<Graphic>(1, excludeZero: true);
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,"Creates a spear graphic"),
+			Parameters = [
+				new UsageOne<Graphic>(1, "-g (name)", "Choose which graphic to create"),
+				new UsageOne<Color>(1, "-bg (color)", "Change Background color (default transparent)"),
+				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)")
+			],
+			EnumParameters = [
+				new UsageEnum<Graphic>(1, "Available Graphics") { ExcludeZero = true }
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

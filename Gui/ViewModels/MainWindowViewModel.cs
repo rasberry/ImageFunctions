@@ -117,7 +117,7 @@ public class MainWindowViewModel : ViewModelBase
 			var func = RegFunction?.Item.Invoke(Program.Register, null, null);
 			token.ThrowIfCancellationRequested();
 			var sb = new StringBuilder();
-			func?.Usage(sb);
+			func?.Options.Usage(sb, Program.Register); //TODO take advantage of IUsageProvider
 			token.ThrowIfCancellationRequested();
 			if(sb.Length > 0) {
 				Dispatcher.UIThread.Post(() => {

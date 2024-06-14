@@ -9,7 +9,8 @@ public class SamplerRegister : AbstractRegistrant<Lazy<ISampler>>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Sampler"; } }
+	internal const string NS = "Sampler";
+	public override string Namespace { get { return NS; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)

@@ -2,6 +2,10 @@ namespace ImageFunctions.Core;
 
 public static class Note
 {
+	public static string AlreadyMapped(string @namespace)
+	{
+		return $"{@namespace} has already been mapped";
+	}
 	public static string CannotFindInputImage(string path)
 	{
 		return $"cannot find input image '{path}'";
@@ -65,11 +69,16 @@ public static class Note
 		string vals = (v1.HasValue && v2.HasValue) ? $" [{v1} : {v2}]" : "";
 		return $"{name}(s) must be equal{vals}";
 	}
-	public static string MustBeGreaterThan(string name, int number, bool inclusive = false)
+	public static string MustBeGreaterThan<T>(string name, T number, bool inclusive = false)
 	{
-		string w = number >= 0 && number <= 9
-			? Tools.NumberToWord(number)
-			: number.ToString(System.Globalization.CultureInfo.InvariantCulture)
+		if (number == null) {
+			throw Squeal.ArgumentNull(nameof(number));
+		}
+		var c = System.Globalization.CultureInfo.InvariantCulture;
+		int num = number is IConvertible n ? n.ToInt32(c) : -1;
+		string w = num >= 0 && num <= 9
+			? Tools.NumberToWord(num)
+			: number.ToString()
 		;
 		return $"{name} must be greater than {(inclusive ? "or equal to " : "")}{w}";
 	}
@@ -88,6 +97,10 @@ public static class Note
 	public static string MustProvideInput(string name)
 	{
 		return $"option '{name}' is required (Note: function arguments must be included after '--')";
+	}
+	public static string NotMapped(string name)
+	{
+		return $"{name} was not found";
 	}
 	public static string NotRegistered(string @class, string name)
 	{

@@ -3,10 +3,9 @@ namespace ImageFunctions.Core;
 public interface IFunction
 {
 	/// <summary>
-	/// Print out the usage and options of the function
+	/// Returns an instance of the function options
 	/// </summary>
-	/// <param name="sb">Add lines to the given StringBuilder</param>
-	void Usage(StringBuilder sb);
+	IOptions Options { get; }
 
 	/// <summary>
 	/// Run the function with the specified function specific arguments

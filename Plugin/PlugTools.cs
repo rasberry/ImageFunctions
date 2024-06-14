@@ -1,6 +1,7 @@
 using ImageFunctions.Core;
 using Rasberry.Cli;
 using System.Drawing;
+using System.Globalization;
 
 namespace ImageFunctions.Plugin;
 
@@ -28,11 +29,24 @@ internal static class PlugTools
 	/// <summary>
 	/// Ensures the parameter is greater than zero.
 	/// </summary>
-	/// <typeparam name="T">Type parameter must be an IComparible or IComparable?</typeparam>
+	/// <typeparam name="T">Type parameter must be IComparable</typeparam>
 	/// <param name="r">The result of the parameter parsing</param>
 	/// <param name="includeZero">whether to include zero as a valid option or not</param>
 	/// <returns>An updated result</returns>
 	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
+		where T : IComparable
+	{
+		return BeGreaterThan<T>(r,default,includeZero);
+	}
+
+	/// <summary>
+	/// Ensures the parameter is greater than a given number.
+	/// </summary>
+	/// <typeparam name="T">Type parameter must be IComparable</typeparam>
+	/// <param name="r">The result of the parameter parsing</param>
+	/// <param name="inclusive">whether to include the minimum as valid option or not</param>
+	/// <returns>An updated result</returns>
+	public static ParseResult<T> BeGreaterThan<T>(this ParseResult<T> r, T minimum, bool inclusive = false)
 		where T : IComparable
 	{
 		if(r.IsBad()) { return r; }
@@ -43,33 +57,35 @@ internal static class PlugTools
 		bool isInvalid = false;
 
 		if(r.Value is double vd) {
-			if((!includeZero && vd >= double.Epsilon)
-				|| (includeZero && vd >= 0.0)) {
+			double min = (minimum is IConvertible c) ? c.ToDouble(CultureInfo.InvariantCulture) : 0.0;
+
+			if((!inclusive && (vd - min) >= double.Epsilon)
+				|| (inclusive && (vd - min) >= 0.0)) {
 				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
 		else if(r.Value is IComparable vi) {
-			var compare = vi.CompareTo(default(T));
-			if((!includeZero && compare > 0) || (includeZero && compare >= 0)) {
+			var compare = vi.CompareTo(minimum);
+			if((!inclusive && compare > 0) || (inclusive && compare >= 0)) {
 				return r with { Result = ParseParams.Result.Good };
 			}
 			isInvalid = true;
 		}
 
 		if(isInvalid) {
-			Log.Error(Note.MustBeGreaterThan(r.Name, 0, includeZero));
+			Log.Error(Note.MustBeGreaterThan(r.Name, minimum, inclusive));
 			return r with { Result = ParseParams.Result.UnParsable };
 		}
 		else {
-			throw PlugSqueal.NotSupportedTypeByFunc(t, nameof(BeGreaterThanZero));
+			throw PlugSqueal.NotSupportedTypeByFunc(t, nameof(BeGreaterThan));
 		}
 	}
 
 	/// <summary>
 	/// Ensures the parameter is between two numbers
 	/// </summary>
-	/// <typeparam name="T">Type parameter must be an IComparible or IComparable?</typeparam>
+	/// <typeparam name="T">Type parameter must be an IComparable</typeparam>
 	/// <param name="r">The result of the parameter parsing</param>
 	/// <param name="low">The smallest allowable value</param>
 	/// <param name="high">The largest allowable value</param>

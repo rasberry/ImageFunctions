@@ -16,10 +16,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public void Usage(StringBuilder sb)
-	{
-		O.Usage(sb, Register);
-	}
+	public IOptions Options { get { return O; }}
 
 	public bool Run(string[] args)
 	{

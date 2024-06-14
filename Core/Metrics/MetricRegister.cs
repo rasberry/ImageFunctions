@@ -9,7 +9,8 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Metric"; } }
+	internal const string NS = "Metric";
+	public override string Namespace { get { return NS; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
