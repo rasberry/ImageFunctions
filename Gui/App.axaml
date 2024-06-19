@@ -8,22 +8,6 @@
 >
 	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
-		<!-- <DataTemplate DataType="{x:Type vm:LayersImageData}">
-			<DockPanel>
-				<StackPanel DockPanel.Dock="Left">
-					<Button Tag="Move Up" Command="{Binding LayerMoveUp}" IsEnabled="{Binding UpEnabled}">
-						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriUp}"/>
-					</Button>
-					<Button Tag="Move Down" Command="{Binding LayerMoveDown}" IsEnabled="{Binding DownEnabled}">
-						<PathIcon Width="16" Height="16" Data="{StaticResource IconTriDown}"/>
-					</Button>
-				</StackPanel>
-				<StackPanel>
-					<TextBlock Text="{Binding Name}"/>
-					<Image Source="{Binding Image}" Stretch="Uniform" MaxHeight="100"/>
-				</StackPanel>
-			</DockPanel>
-		</DataTemplate> -->
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">
 				<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>

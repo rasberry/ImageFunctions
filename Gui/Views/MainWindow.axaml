@@ -71,6 +71,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		<Grid Grid.Column="4" RowDefinitions="*,Auto,150" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
 				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
+				<!-- todo replace with dynamic controls -->
 				<TextBox TextWrapping="NoWrap" AcceptsReturn="True" Text="{Binding UsageText}" />
 			</DockPanel>
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
