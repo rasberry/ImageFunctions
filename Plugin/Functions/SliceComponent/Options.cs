@@ -19,10 +19,10 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Slices an image component into multiple layers."),
 			Parameters = [
 				ColorSpaceHelpers.Color3SpaceUsageParameter(1),
-				new UsageOne<string>(1, "-c (component)", "Component to slice (default R)"),
-				new UsageOne<int>(1, "-n (number)", "Number of slices to use (default 16)") { Min = 1, Default = 16 },
-				new UsageOne<double>(1, "-r (number[%])", "Reset the component to given value (0.0-1.0 / 0%-100%)") { Min = 0.0, Max = 1.0 },
-				new UsageOne<int>(1, "-o (number)", "Keep only a specific slice between 1 and -n"),
+				new UsageOne<string>(1, "-c", "Component to slice (default R)") { TypeText = "component" },
+				new UsageOne<int>(1, "-n", "Number of slices to use (default 16)") { Min = 1, Default = 16 },
+				new UsageOne<double>(1, "-r", "Reset the component to given value (0.0-1.0 / 0%-100%)") { IsNumberPct = true },
+				new UsageOne<int>(1, "-o", "Keep only a specific slice between 1 and -n"),
 			],
 		};
 

@@ -51,9 +51,7 @@ internal static class PlugTools
 	{
 		if(r.IsBad()) { return r; }
 
-		var t = typeof(T);
-		var nullType = Nullable.GetUnderlyingType(t);
-		if(nullType != null) { t = nullType; }
+		var t = typeof(T).UnWrapNullable();
 		bool isInvalid = false;
 
 		if(r.Value is double vd) {
@@ -96,10 +94,7 @@ internal static class PlugTools
 		bool lowInclusive = true, bool highInclusive = true) where T : IComparable
 	{
 		if(r.IsBad()) { return r; }
-
-		var t = typeof(T);
-		var nullType = Nullable.GetUnderlyingType(t);
-		if(nullType != null) { t = nullType; }
+		var t = typeof(T).UnWrapNullable();
 
 		var clow = r.Value.CompareTo(low);
 		var chigh = r.Value.CompareTo(high);

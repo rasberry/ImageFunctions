@@ -27,11 +27,11 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Smears pixels in a circle around a point"),
 			Parameters = [
-				new UsageTwo<int,int>(1, "-cx (number) (number)", "Swirl center X and Y coordinate in pixels") { Min = 0 },
-				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Min = 0.0, Max = 1.0, Default = 0.5 },
-				new UsageOne<int>(1, "-rx (number)", "Swirl radius in pixels"),
-				new UsageOne<double>(1, "-rp (number)[%]", "Swirl radius proportional to smallest image dimension (default 90%)") { Default = 0.9 },
-				new UsageOne<double>(1, "-s  (number)[%]", "Number of rotations (default 0.9)") { Default = 0.9 },
+				new UsageTwo<int>(1, "-cx", "Swirl center X and Y coordinate in pixels") { Min = 0 },
+				new UsageTwo<double>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<int>(1, "-rx", "Swirl radius in pixels"),
+				new UsageOne<double>(1, "-rp", "Swirl radius proportional to smallest image dimension (default 90%)") { Default = 0.9, IsNumberPct = true },
+				new UsageOne<double>(1, "-s", "Number of rotations (default 0.9)") { Default = 0.9 },
 				new UsageOne<bool>(1, "-ccw", "Rotate Counter-clockwise. (default is clockwise)"),
 				SamplerHelpers.SamplerUsageParameter(),
 				MetricHelpers.MetricUsageParameter(),

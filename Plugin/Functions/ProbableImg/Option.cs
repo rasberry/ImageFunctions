@@ -20,10 +20,10 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Generate a new image using a probability profile based on the input image"),
 			Parameters = [
-				new UsageOne<int>(1, "-n (number)", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)"),
-				new UsageOne<int>(1, "-rs (seed)", "Options number seed for the random number generator"),
-				new UsageTwo<int,int>(1, "-xy (number) (number)", "Add a start node (in pixels) - multiple allowed") { Min = 0 },
-				new UsageTwo<double,double>(1, "-pp (number)[%] (number)[%]", "Add a start node (by proportion) - multiple allowed") { Min = 0.0, Max = 1.0 },
+				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)"),
+				new UsageOne<int>(1, "-rs", "Options number seed for the random number generator") { TypeText = "seed" },
+				new UsageTwo<int>(1, "-xy", "Add a start node (in pixels) - multiple allowed") { Min = 0 },
+				new UsageTwo<double>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true },
 				new UsageOne<bool>(1, "-alt", "Use alternate rendering uses slightly less memory"),
 			],
 		};

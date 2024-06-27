@@ -23,8 +23,8 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, desc),
 			Parameters = [
-				new UsageOne<double>(1, "-p (number)[%]", "Threshold for discarding infrequently used colors (default 0.05%)") { Default = 0.0005, Min = 0.0, Max = 1.0 },
-				new UsageOne<int>(1, "-b (number)", "Number of buckets to use for histogram (default 256)") { Default = 256, Min = 1 },
+				new UsageOne<double>(1, "-p", "Threshold for discarding infrequently used colors (default 0.05%)") { Default = 0.0005, IsNumberPct = true },
+				new UsageOne<int>(1, "-b", "Number of buckets to use for histogram (default 256)") { Default = 256, Min = 1, Max = 65536 },
 				new UsageOne<bool>(1, "-a", "Also stretch alpha channel")
 			]
 		};

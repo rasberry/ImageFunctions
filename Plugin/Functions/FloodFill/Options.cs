@@ -29,13 +29,13 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Fills area(s) of color with another color"),
 			Parameters = [
-				new UsageOne<ColorRGBA>(1, "-c (color)", "Fill color (default white)") { Default = PlugColors.White },
-				new UsageOne<Point>(1, "-p (x,y)", "Pick starting coordinate (can be specified multiple times)"),
+				new UsageOne<ColorRGBA>(1, "-c", "Fill color (default white)") { Default = PlugColors.White },
+				new UsageOne<Point>(1, "-p", "Pick starting coordinate (can be specified multiple times)"),
 				new UsageOne<bool>(1, "-i", "Replace pixels with ones taken the second layer"),
-				new UsageOne<ColorRGBA>(1, "-r (color)", "Treat all pixels of given color as starting points"),
-				new UsageOne<double>(1, "-s (number[%])", "How similar pixels should be to match range: [0.0,1.0] (default 100%)") { Min = 0.0, Max = 1.0, Default = 1.0 },
-				new UsageOne<FillMethodKind>(1, "-f (type)", $"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})") { Default = FillMethodKind.BreadthFirst },
-				new UsageOne<PixelMapKind>(1, "-m (type)", $"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})") { Default = PixelMapKind.Coordinate },
+				new UsageOne<ColorRGBA>(1, "-r", "Treat all pixels of given color as starting points"),
+				new UsageOne<double>(1, "-s", "How similar pixels should be to match range: [0.0,1.0] (default 100%)") { Default = 1.0, IsNumberPct = true },
+				new UsageOne<FillMethodKind>(1, "-f", $"Use specified fill method (default {nameof(FillMethodKind.BreadthFirst)})") { Default = FillMethodKind.BreadthFirst, TypeText = "Fill" },
+				new UsageOne<PixelMapKind>(1, "-m", $"Use specified mapping method (default {nameof(PixelMapKind.Coordinate)})") { Default = PixelMapKind.Coordinate, TypeText = "Map" },
 				new UsageOne<bool>(1, "-nl", "Create a new layer instead of replacing original(s)"),
 				MetricHelpers.MetricUsageParameter()
 			],

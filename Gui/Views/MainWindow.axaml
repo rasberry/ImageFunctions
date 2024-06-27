@@ -36,6 +36,10 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 	<Style Selector="#Chooser PathIcon">
 		<Setter Property="Margin" Value="0,0,8,0"/>
 	</Style>
+	<Style Selector="SelectableTextBlock#UsageTextBlock">
+		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
+		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
+	</Style>
 </Window.Styles>
 
 <Grid RowDefinitions="*,Auto">
@@ -70,9 +74,22 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
 		<Grid Grid.Column="4" RowDefinitions="*,Auto,150" Name="CommandColumn">
 			<DockPanel Grid.Row="0">
-				<TextBlock DockPanel.Dock="Top">Usage</TextBlock>
-				<!-- todo replace with dynamic controls -->
-				<TextBox TextWrapping="NoWrap" AcceptsReturn="True" Text="{Binding UsageText}" />
+				<DockPanel DockPanel.Dock="Top">
+					<TextBlock DockPanel.Dock="Left">Usage</TextBlock>
+					<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+						<RadioButton GroupName="UsageHideshow" Content="Controls" IsChecked="True" Theme="{DynamicResource PureCardRadioButton}" />
+						<RadioButton GroupName="UsageHideshow" Content="Text" Name="RadioUsageText" Theme="{DynamicResource PureCardRadioButton}" />
+					</StackPanel>
+				</DockPanel>
+				<Panel>
+					<ScrollViewer IsVisible="{Binding #RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}"
+						HorizontalScrollBarVisibility="Auto">
+						<SelectableTextBlock Name="UsageTextBlock" TextWrapping="NoWrap" Text="{Binding UsageText}" />
+					</ScrollViewer>
+					<ScrollViewer IsVisible="{Binding !#RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}">
+						<ItemsControl ItemsSource="{Binding InputsList}" />
+					</ScrollViewer>
+				</Panel>
 			</DockPanel>
 			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
 			<DockPanel Grid.Row="2">
@@ -90,7 +107,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 		<!-- Top level Column selectors -->
 		<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
-		<ScrollViewer Grid.Column="6" Name="Chooser">
+		<ScrollViewer Grid.Column="6" Name="Chooser" Theme="{DynamicResource StaticScrollViewer}">
 			<StackPanel>
 				<views:RegisteredControl Name="RegFunctionCtrl" DataContext="{Binding RegFunctionItems}" />
 				<views:RegisteredControl Name="RegColorCtrl"    DataContext="{Binding RegColorItems}" />

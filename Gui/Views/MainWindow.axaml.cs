@@ -52,8 +52,8 @@ public partial class MainWindow : Window
 
 	void UpdateStatusHandler(object sender, PointerEventArgs args, bool isLeaving)
 	{
-		if(sender is not Button button) { return; }
-		string text = button?.Tag?.ToString();
+		if(sender is not Control control) { return; }
+		string text = control?.Tag?.ToString();
 
 		if(text != null) {
 			Model?.UpdateStatusText(text, isLeaving);

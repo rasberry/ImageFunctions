@@ -24,9 +24,9 @@ public class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Blends rays of pixels to produce a 'zoom' effect"),
 			Parameters = [
-				new UsageOne<double>(1, "-z  (number)[%]", "Zoom amount (default 1.1)") { Min = 0.0, Default = 1.1 },
-				new UsageTwo<int,int>(1, "-cc (number) (number)", "Coordinates of zoom center in pixels"),
-				new UsageTwo<double,double>(1, "-cp (number)[%] (number)[%]", "Coordinates of zoom center by proportion (default 50% 50%)") { Min = 0.0, Max = 1.0, Default = 0.5 },
+				new UsageOne<double>(1, "-z", "Zoom amount (default 1.1)") { Max = 200.0, Default = 1.1, IsNumberPct = true },
+				new UsageTwo<int>(1, "-cc", "Coordinates of zoom center in pixels"),
+				new UsageTwo<double>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
 				//new UsageOne<>(" -oh", "Only zoom horizontally");
 				//new UsageOne<>(" -ov", "Only zoom vertically");
 				SamplerHelpers.SamplerUsageParameter(),

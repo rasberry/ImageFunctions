@@ -23,4 +23,11 @@ public partial class App : Application
 
 		base.OnFrameworkInitializationCompleted();
 	}
+
+	// public void OnInputsClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+	// {
+	// 	Model?.OnInputsClick(sender,args);
+	// }
+
+	//MainWindowViewModel Model;
 }

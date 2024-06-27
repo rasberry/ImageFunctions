@@ -52,12 +52,12 @@ public sealed class Options : IOptions, IUsageProvider
 		return new Usage {
 			Description = new UsageDescription(1, "Creates an image with every possible 24-bit color ordered by chosen pattern."),
 			Parameters = [
-				new UsageOne<Pattern>(1, "-p (pattern)", "Sort by Pattern (default BitOrder)"),
-				new UsageOne<Space>(1, "-s (space)", "Sort by color space components (instead of pattern)"),
-				new UsageOne<string>(1, "-so (n,...)", "Change priority order of components (default 1,2,3,4)"),
+				new UsageOne<Pattern>(1, "-p", "Sort by Pattern (default BitOrder)"),
+				new UsageOne<Space>(1, "-s", "Sort by color space components (instead of pattern)"),
+				new UsageOne<string>(1, "-so", "Change priority order of components (default 1,2,3,4)") { TypeText = "n,..." },
 				new UsageOne<bool>(1, "-ps", "Use multi-threaded sort function instead of regular sort"),
-				new UsageOne<double>(1, "-o (number)[%]", "Color Offset to use (should be between 0% and 100%") { Min = 0.0, Max = 1.0 },
-				new UsageOne<int>(1, "-on (number)", $"Absolute Color Offset to use"),
+				new UsageOne<double>(1, "-o", "Color Offset to use (should be between 0% and 100%") { IsNumberPct = true },
+				new UsageOne<int>(1, "-on", $"Absolute Color Offset to use"),
 				new UsageOne<bool>(1, "-l / --legacy", "Use original (legacy) algorithm"),
 			],
 			EnumParameters = [

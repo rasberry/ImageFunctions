@@ -28,10 +28,10 @@ public sealed class Options : IOptions, IUsageProvider
 			),
 			Parameters = [
 				new UsageOne<bool>(1, "-d", "Enable decryption (default is to encrypt"),
-				new UsageOne<string>(1, "-p (text)", "Password used to encrypt / decrypt image"),
+				new UsageOne<string>(1, "-p", "Password used to encrypt / decrypt image") { TypeText = "text" },
 				new UsageOne<bool>(1, "-pi", "Ask for the password on the command prompt (instead of -p)"),
 				new UsageOne<bool>(1, "-raw", "Treat password text as a raw string (shell escaping still applies)"),
-				new UsageOne<string>(1, "-iv (text)", "Initialization Vector - must be exactly " + Encryptor.IVLengthBytes + " bytes"),
+				new UsageOne<string>(1, "-iv", "Initialization Vector - must be exactly " + Encryptor.IVLengthBytes + " bytes") { TypeText = "text" },
 				new UsageOne<bool>(1, "-test", "Print out any specified (text) inputs as hex and exit")
 			]
 		};

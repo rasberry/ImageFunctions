@@ -23,11 +23,11 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Creates a plot of a boolean-like network with a random starring state."),
 			Parameters = [
-				new UsageOne<int>(1, "-b (number)", "Number of states (default 2)"),
-				new UsageOne<int?>(1, "-n (number)", "Number of nodes in the network (defaults to width of image)"),
-				new UsageOne<int>(1, "-c (number)", "Connections per node (default 3)"),
-				new UsageOne<double>(1, "-p (number)", "Chance of inserting a perturbation (default 0)"),
-				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)"),
+				new UsageOne<int>(1, "-b", "Number of states (default 2)"),
+				new UsageOne<int?>(1, "-n", "Number of nodes in the network (defaults to width of image)"),
+				new UsageOne<int>(1, "-c", "Connections per node (default 3)"),
+				new UsageOne<double>(1, "-p", "Chance of inserting a perturbation (default 0)"),
+				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
 			],
 		};
 

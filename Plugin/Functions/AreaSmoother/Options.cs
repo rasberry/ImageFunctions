@@ -22,7 +22,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Blends adjacent areas of flat color together by sampling the nearest two colors to the area"),
 			Parameters = [
-				new UsageOne<int>(1, "-t (number)", "Number of times to run fit function (default 7)") { Default = 7, Min = 1, Max = 32 },
+				new UsageOne<int>(1, "-t", "Number of times to run fit function (default 7)") { Default = 7, Min = 1, Max = 99 },
 				new UsageOne<bool>(1, "-r", "Draw the gradient ratio as a grayscale image instead of modifying the original colors"),
 				SamplerHelpers.SamplerUsageParameter(),
 				MetricHelpers.MetricUsageParameter()

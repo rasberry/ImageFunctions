@@ -4,16 +4,12 @@ namespace ImageFunctions.Core.Samplers;
 
 public static class SamplerHelpers
 {
-	public static void SamplerHelpLine(this StringBuilder sb)
-	{
-		sb.ND(1, "--sampler (name)", "Use given (registered) sampler (defaults to nearest pixel)");
-	}
-
 	public static UsageOne SamplerUsageParameter(int indention = 1)
 	{
-		return new UsageOne<string>(indention,
-			"--sampler (name)", "Use given (registered) sampler (defaults to nearest pixel)") {
-			Auxiliary = AuxiliaryKind.Sampler
+		return new UsageRegistered(indention,
+			"--sampler", "Use given (registered) sampler (defaults to nearest neighbor)") {
+			NameSpace = SamplerRegister.NS,
+			TypeText = "name"
 		};
 	}
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -116,14 +117,18 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			var func = RegFunction?.Item.Invoke(Program.Register, null, null);
 			token.ThrowIfCancellationRequested();
+
+			var opts = func.Options;
 			var sb = new StringBuilder();
-			func?.Options.Usage(sb, Program.Register); //TODO take advantage of IUsageProvider
+			func?.Options.Usage(sb, Program.Register);
 			token.ThrowIfCancellationRequested();
-			if(sb.Length > 0) {
-				Dispatcher.UIThread.Post(() => {
-					UsageText = sb.ToString();
-				});
-			}
+
+			Dispatcher.UIThread.Post(() => {
+				UsageText = sb.ToString();
+				if (opts is IUsageProvider iup) {
+					RePopulateInputControls(iup, token);
+				}
+			});
 		}
 	}
 
@@ -177,7 +182,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	void OnSomethingSelected(SelectionItem item)
 	{
-		Trace.WriteLine($"Something selected {item?.Name}");
+		//Trace.WriteLine($"Something selected {item?.Name}");
 	}
 
 	static Avalonia.Media.SolidColorBrush ConvertColor(string key, ColorRegister reg)
@@ -195,7 +200,7 @@ public class MainWindowViewModel : ViewModelBase
 	public FilePickerFileType SupportedReadTypes { get; private set; }
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
 
-	string _statusText = $"Welcome to {nameof(ImageFunctions)}";
+	string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
 	public string StatusText {
 		get => _statusText;
 		set => this.RaiseAndSetIfChanged(ref _statusText, value);
@@ -221,7 +226,6 @@ public class MainWindowViewModel : ViewModelBase
 			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
 		}
 	}
-
 
 	// The behavior shows the text as long as the control is still under the pointer
 	// but wait before hiding the text after the pointer leaves
@@ -435,4 +439,81 @@ public class MainWindowViewModel : ViewModelBase
 		var task = SingleTasks.Get(nameof(RunCommand));
 		task?.Cancel();
 	}
+
+	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
+	{
+		InputsList.Clear();
+
+		var usage = provider.GetUsageInfo();
+		foreach(var p in usage.Parameters) {
+			if (p is IUsageParameter iup) {
+				var input = DetermineInputControl(usage, iup);
+				if (input != null) { InputsList.Add(input); }
+			}
+			else {
+				//just text so skip
+			}
+			token.ThrowIfCancellationRequested();
+		}
+	}
+
+	InputItem DetermineInputControl(Usage usage, IUsageParameter iup)
+	{
+		//bool isTwo = p is IUsageParameterTwo; //TODO
+		var it = iup.InputType.UnWrapNullable();
+
+		if (iup is UsageRegistered ur) {
+			IEnumerable<string> names = Program.Register.All()
+				.Where(i => i.NameSpace == ur.NameSpace)
+				.Select(i => i.Name)
+			;
+			return new InputItemDropDown(iup, names);
+		}
+		else if (it.IsBool()) {
+			return new InputItem(iup);
+		}
+		else if (it.IsEnum) {
+			IUsageEnum iue = null;
+			foreach(var i in usage.EnumParameters) {
+				if (i.EnumType.Equals(iup.InputType)) {
+					iue = i; break;
+				}
+			}
+			return new InputItemDropDown(iup, iue);
+		}
+		else if (it.IsString()) {
+			return new InputItemText(iup);
+		}
+		else if (it.IsColorRGBA()) {
+			//TODO color picker ?
+			return null;
+		}
+		else if (it.IsColor()) {
+			//TODO color picker ?
+			return null;
+		}
+		else if (it.IsPoint()) {
+			//TODO point picker .. ?
+			return null;
+		}
+		else if (it.IsNumeric()) {
+			return new InputItemSlider(iup);
+		}
+
+		throw Core.Squeal.NotSupported($"Type {it}");
+	}
+
+	public ObservableCollection<InputItem> InputsList { get; init; } = new();
+
+	string _showCommandUsageText = "";
+	public string ShowCommandUsageText {
+		get => _showCommandUsageText;
+		set => this.RaiseAndSetIfChanged(ref _showCommandUsageText, value);
+	}
+
+	// public void OnInputsClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
+	// {
+	// 	if (sender is not CheckBox box) { return; }
+	// 	Log.Debug($"model click {box.Name} {box.IsChecked}");
+	// }
 }

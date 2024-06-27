@@ -4,16 +4,17 @@ namespace ImageFunctions.Core.Metrics;
 
 public static class MetricHelpers
 {
-	public static void MetricHelpLine(this StringBuilder sb)
-	{
-		sb.ND(1, "--metric (name)", "Use a (registered) distance metric (defaults to euclidean)");
-	}
+	// public static void MetricHelpLine(this StringBuilder sb)
+	// {
+	// 	sb.ND(1, "--metric (name)", "Use a (registered) distance metric (defaults to euclidean)");
+	// }
 
 	public static UsageOne MetricUsageParameter(int indention = 1)
 	{
-		return new UsageOne<string>(indention,
-			"--metric (name)", "Use a (registered) distance metric (defaults to euclidean)") {
-			Auxiliary = AuxiliaryKind.Metric
+		return new UsageRegistered(indention,
+			"--metric", "Use a (registered) distance metric (defaults to euclidean)") {
+			NameSpace = MetricRegister.NS,
+			TypeText = "name"
 		};
 	}
 

@@ -20,8 +20,9 @@ public static class UsageRenderer
 		var pList = info.Parameters;
 		if(pList != null) {
 			foreach(var p in pList) {
-				if (p is UsageText ut && ut.AddNewLineBefore) { sb.WT(); }
-				sb.ND(p.Indention, p.Name, p.Description);
+				if (p.AddNewLineBefore) { sb.WT(); }
+				var label = GetUsageLabel(p);
+				sb.ND(p.Indention, label, p.Description);
 			}
 		}
 
@@ -37,24 +38,66 @@ public static class UsageRenderer
 		var sList = info.SuffixParameters;
 		if (sList != null) {
 			foreach(var p in sList) {
-				if (p is UsageText ut && ut.AddNewLineBefore) { sb.WT(); }
+				if (p.AddNewLineBefore) { sb.WT(); }
 				sb.ND(p.Indention, p.Name, p.Description);
 			}
 		}
 
 		return sb;
 	}
+
+	public static string GetUsageLabel(IUsageText p)
+	{
+		if (p is IUsageParameterTwo iup2) {
+			var tt = iup2.TypeText ?? MapTypeToText(iup2.InputType, iup2.IsNumberPct);
+			var suffix = String.IsNullOrEmpty(tt) ? "" : $" ({tt})";
+			var label = p.Name + suffix + suffix;
+			return label;
+		}
+		else if (p is IUsageParameter iup) {
+			var tt = iup.TypeText ?? MapTypeToText(iup.InputType, iup.IsNumberPct);
+			var label = p.Name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
+			return label;
+		}
+		else {
+			return p?.Name;
+		}
+	}
+
+	public static string MapTypeToText(Type t, bool isNumPct)
+	{
+		if (t == null) {
+			throw Squeal.ArgumentNull(nameof(t));
+		}
+
+		t = t.UnWrapNullable();
+
+		if (t.IsEnum) {
+			return t.Name;
+		}
+		if (t.IsBool()) {
+			return "";
+		}
+		else if (t.IsColorRGBA() || t.IsColor()) {
+			return "color";
+		}
+		else if (t.IsPoint()) {
+			return "x,y";
+		}
+		if (t.IsNumeric()) {
+			return isNumPct ? "number[%]" : "number";
+		}
+		else {
+			throw Squeal.NotSupported($"Type {t.Name}");
+		}
+	}
 }
 
-//Note: the names need to match the namespace name exactly
-[Flags]
-public enum AuxiliaryKind
+public class GetSet<T>
 {
-	None = 0,
-	Sampler = 1,
-	Metric = 2,
-	Color3Space = 4,
-	Color4Space = 8
+	public T Get() => Value;
+	public void Set(T val) => Value = val;
+	T Value;
 }
 
 public interface IUsageProvider
@@ -67,6 +110,7 @@ public interface IUsageText
 	int Indention { get; }
 	string Name { get; }
 	string Description { get; }
+	bool AddNewLineBefore { get; }
 }
 
 public record UsageText : IUsageText
@@ -87,10 +131,11 @@ public record UsageText : IUsageText
 public interface IUsageParameter : IUsageText
 {
 	Type InputType { get; }
-	IComparable Min { get; }
-	IComparable Max { get; }
-	AuxiliaryKind Auxiliary { get; }
+	double? Min { get; }
+	double? Max { get; }
 	object Default { get; }
+	string TypeText { get; }
+	bool IsNumberPct { get; }
 }
 
 public record UsageOne : UsageText, IUsageParameter
@@ -102,10 +147,11 @@ public record UsageOne : UsageText, IUsageParameter
 	}
 
 	public Type InputType { get; init; }
-	public IComparable Min { get; init; }
-	public IComparable Max { get; init; }
-	public AuxiliaryKind Auxiliary { get; init; }
 	public object Default { get; init; }
+	public string TypeText { get; init; }
+	public double? Min { get; init; }
+	public double? Max { get; init; }
+	public bool IsNumberPct { get; init; }
 }
 
 public record UsageOne<T> : UsageOne
@@ -116,32 +162,35 @@ public record UsageOne<T> : UsageOne
 	}
 }
 
+public record UsageRegistered : UsageOne
+{
+	public UsageRegistered(int indention, string name, string description)
+		: base(indention, typeof(string), name, description)
+	{
+	}
+
+	public string NameSpace { get; init; }
+}
+
 public interface IUsageParameterTwo : IUsageParameter
 {
-	Type InputTypeTwo { get; }
-	IComparable MinTwo { get; }
-	IComparable MaxTwo { get; }
 	object DefaultTwo { get; }
 }
 
 public record UsageTwo : UsageOne, IUsageParameterTwo
 {
-	public UsageTwo(int indention, Type inputTypeOne, Type inputTypeTwo, string name, string description)
-		: base(indention, inputTypeOne, name, description)
+	public UsageTwo(int indention, Type inputType, string name, string description)
+		: base(indention, inputType, name, description)
 	{
-		this.InputTypeTwo = inputTypeTwo;
 	}
 
-	public Type InputTypeTwo { get; init; }
-	public IComparable MinTwo { get; init; }
-	public IComparable MaxTwo { get; init; }
 	public object DefaultTwo { get; init; }
 }
 
-public record UsageTwo<T,U> : UsageTwo
+public record UsageTwo<T> : UsageTwo
 {
 	public UsageTwo(int indention, string name, string description)
-		: base(indention, typeof(T), typeof(U), name, description)
+		: base(indention, typeof(T), name, description)
 	{
 	}
 }

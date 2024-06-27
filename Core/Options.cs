@@ -185,7 +185,7 @@ internal class Options : ICoreOptions
 		}
 
 		//show registered items
-		if(Show.HasFlag(PickShow.Registered) || UsageFlags != AuxiliaryKind.None) {
+		if(Show.HasFlag(PickShow.Registered) || NameSpaceList != null) {
 			ShowRegisteredItems(sb, Show.HasFlag(PickShow.Registered));
 		}
 
@@ -280,15 +280,11 @@ internal class Options : ICoreOptions
 
 	bool IsNameSpaceFlagged(INameSpaceName n)
 	{
-		if (UsageFlags == AuxiliaryKind.None) {
+		if (NameSpaceList == null) {
 			return false;
 		}
 
-		return UsageFlags.HasFlag(AuxiliaryKind.Sampler) && n.NameSpace == Samplers.SamplerRegister.NS
-			|| UsageFlags.HasFlag(AuxiliaryKind.Metric) && n.NameSpace == Metrics.MetricRegister.NS
-			|| UsageFlags.HasFlag(AuxiliaryKind.Color3Space) && n.NameSpace == ColorSpace.Color3SpaceRegister.NS
-			|| UsageFlags.HasFlag(AuxiliaryKind.Color4Space) && n.NameSpace == ColorSpace.Color4SpaceRegister.NS
-		;
+		return NameSpaceList.Contains(n.NameSpace);
 	}
 
 	bool ShowFunctionHelp(string name, StringBuilder sb)
@@ -315,7 +311,7 @@ internal class Options : ICoreOptions
 			var inst = funcItem.Item.Invoke(Register, null, this);
 			var opts = inst.Options;
 			if (opts is IUsageProvider uip) {
-				UsageFlags = GetFlagsFromUsageInfo(uip.GetUsageInfo());
+				NameSpaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 			}
 			inst.Options.Usage(sb, Register);
 		}
@@ -323,15 +319,15 @@ internal class Options : ICoreOptions
 		return true;
 	}
 
-	AuxiliaryKind GetFlagsFromUsageInfo(Usage info)
+	List<string> GetFlagsFromUsageInfo(Usage info)
 	{
-		var flags = AuxiliaryKind.None;
+		List<string> nameSpaceList = new();
 		foreach(var p in info.Parameters) {
-			if (p is IUsageParameter iup) {
-				flags |= iup.Auxiliary;
+			if (p is UsageRegistered ur) {
+				nameSpaceList.Add(ur.NameSpace);
 			}
 		}
-		return flags;
+		return nameSpaceList;
 	}
 
 	void ShowFormats(StringBuilder sb)
@@ -399,7 +395,7 @@ internal class Options : ICoreOptions
 	readonly IRegister Register;
 	int? _defaultWidth;
 	int? _defaultHeight;
-	AuxiliaryKind UsageFlags = AuxiliaryKind.None;
+	List<string> NameSpaceList;
 
 	//Global options
 	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }

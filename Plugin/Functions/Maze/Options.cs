@@ -25,11 +25,11 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Draws one of several mazes"),
 			Parameters = [
-				new UsageOne<PickMaze>(1, "-m  (maze)", "Choose a maze (default prims)") { Default = PickMaze.Prims },
-				new UsageOne<ColorRGBA>(1, "-cc (color)", "Change cell color (default black)") { Default = PlugColors.Black },
-				new UsageOne<ColorRGBA>(1, "-wc (color)", "Change wall color (default white)") { Default = PlugColors.White },
-				new UsageOne<int>(1, "-rs (number)", "Random Int32 seed value (defaults to system picked)"),
-				new UsageOne<string>(1, "-sq (s,s,...)", "Growing Tree cell picking sequence (default 'N')"),
+				new UsageOne<PickMaze>(1, "-m", "Choose a maze (default prims)") { Default = PickMaze.Prims, TypeText = "Maze" },
+				new UsageOne<ColorRGBA>(1, "-cc", "Change cell color (default black)") { Default = PlugColors.Black },
+				new UsageOne<ColorRGBA>(1, "-wc", "Change wall color (default white)") { Default = PlugColors.White },
+				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
+				new UsageOne<string>(1, "-sq", "Growing Tree cell picking sequence (default 'N')") { TypeText = "s,s,..." },
 				new UsageOne<bool>(1, "-sr", "Randomly pick between sequence options"),
 			],
 			EnumParameters = [

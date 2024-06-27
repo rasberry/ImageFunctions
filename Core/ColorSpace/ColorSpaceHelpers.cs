@@ -40,19 +40,26 @@ public static class ColorSpaceHelpers
 		return true;
 	}
 
+	const string Default3 = "Rgb";
+	const string Default4 = "Cmyk";
+
 	public static UsageOne Color3SpaceUsageParameter(int indention = 1)
 	{
-		return new UsageOne<string>(indention,
-			"--space (name)", "Use a (registered) color(3) space (defaults to RGB)") {
-			Auxiliary = AuxiliaryKind.Color3Space
+		return new UsageRegistered(indention,
+			"--space", "Use a (registered) color(3) space (defaults to RGB)") {
+			NameSpace = Color3SpaceRegister.NS,
+			TypeText = "name",
+			Default = Default3
 		};
 	}
 
 	public static UsageOne Color4SpaceUsageParameter(int indention = 1)
 	{
-		return new UsageOne<string>(indention,
-			"--space4 (name)", "Use a (registered) color(4) space (defaults to CMYK)") {
-			Auxiliary = AuxiliaryKind.Color4Space
+		return new UsageRegistered(indention,
+			"--space4", "Use a (registered) color(4) space (defaults to CMYK)") {
+			NameSpace = Color4SpaceRegister.NS,
+			TypeText = "name",
+			Default = Default4
 		};
 	}
 
@@ -69,7 +76,7 @@ public static class ColorSpaceHelpers
 		var r = p.Scan<string>("--space");
 
 		if(r.IsMissing()) {
-			var entry = reg.Get("Rgb");
+			var entry = reg.Get(Default3);
 			space = entry.Item;
 			result = ParseParams.Result.Good;
 		}
@@ -99,7 +106,7 @@ public static class ColorSpaceHelpers
 		var r = p.Scan<string>("--space4");
 
 		if(r.IsMissing()) {
-			var entry = reg.Get("Cmyk");
+			var entry = reg.Get(Default4);
 			space = entry.Item;
 			result = ParseParams.Result.Good;
 		}
