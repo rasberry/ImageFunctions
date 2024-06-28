@@ -20,7 +20,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Generate a new image using a probability profile based on the input image"),
 			Parameters = [
-				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)"),
+				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)") { Min = 1, Default = 1, Max = 999 },
 				new UsageOne<int>(1, "-rs", "Options number seed for the random number generator") { TypeText = "seed" },
 				new UsageTwo<int>(1, "-xy", "Add a start node (in pixels) - multiple allowed") { Min = 0 },
 				new UsageTwo<double>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true },
@@ -45,6 +45,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-n")
 			.WhenGood(r => { TotalNodes = r.Value; return r; })
+			.BeGreaterThan(1,true)
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
@@ -76,11 +77,6 @@ public sealed class Options : IOptions, IUsageProvider
 				var (cx, cy) = pcx.Value;
 				StartLoc.Add(StartPoint.FromLinear(cx, cy));
 			}
-		}
-
-		if(TotalNodes != null && TotalNodes < 1) {
-			Log.Error(Note.MustBeGreaterThan("-n", 0));
-			return false;
 		}
 
 		return true;

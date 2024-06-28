@@ -49,5 +49,8 @@ public static class TypeTool
 		return t.Equals(typeof(string));
 	}
 
-
+	public static bool IsDouble(this Type t)
+	{
+		return t.Equals(typeof(double));
+	}
 }

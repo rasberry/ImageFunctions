@@ -23,10 +23,10 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Creates a plot of a boolean-like network with a random starring state."),
 			Parameters = [
-				new UsageOne<int>(1, "-b", "Number of states (default 2)"),
-				new UsageOne<int?>(1, "-n", "Number of nodes in the network (defaults to width of image)"),
-				new UsageOne<int>(1, "-c", "Connections per node (default 3)"),
-				new UsageOne<double>(1, "-p", "Chance of inserting a perturbation (default 0)"),
+				new UsageOne<int>(1, "-b", "Number of states (default 2)") { Default = 2, Min = 1, Max = 999 },
+				new UsageOne<int?>(1, "-n", "Number of nodes in the network (defaults to width of image)") { Min = 1 },
+				new UsageOne<int>(1, "-c", "Connections per node (default 3)") { Default = 3, Min = 1, Max = 99 },
+				new UsageOne<double>(1, "-p", "Chance of inserting a perturbation (default 0)") { IsNumberPct = true },
 				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
 			],
 		};
@@ -43,6 +43,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-b", 2)
 			.WhenGoodOrMissing(r => { States = r.Value; return r; })
+			.BeGreaterThan(1,true)
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
@@ -57,6 +58,7 @@ public sealed class Options : IOptions, IUsageProvider
 		}
 		if(p.Scan<int>("-c", 3)
 			.WhenGoodOrMissing(r => { Connectivity = r.Value; return r; })
+			.BeGreaterThanZero()
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

@@ -24,8 +24,8 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1, "Warps an image using a mapping function"),
 			Parameters = [
 				new UsageTwo<int>(1, "-cx", "Coordinates of center in pixels") { Min = 0 },
-				new UsageTwo<double>(1, "-cp", "Coordinates of center by proportion (default 50% 50%)") { IsNumberPct = true },
-				new UsageOne<double>(1, "-e", "(e) Power Exponent (default 2.0)") { Default = 2.0 },
+				new UsageTwo<double>(1, "-cp", "Coordinates of center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<double>(1, "-e", "(e) Power Exponent (default 2.0)") { Default = 2.0, Min = -20.0, Max = 20 },
 				new UsageOne<Mode>(1, "-m", "Choose mode (default Polynomial)") { Default = Mode.Polynomial },
 				SamplerHelpers.SamplerUsageParameter()
 			],

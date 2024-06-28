@@ -34,7 +34,7 @@ internal static class PluginLoader
 			if(plugin != null) {
 				bool found = RegisterPlugin(plugin, register);
 				if(!found) {
-					Log.Error("Something is very wrong..");
+					Log.Error(Note.PluginNotFound(plugin.Location, f));
 				}
 			}
 		}

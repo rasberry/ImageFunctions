@@ -25,7 +25,7 @@ public class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Blends rays of pixels to produce a 'zoom' effect"),
 			Parameters = [
 				new UsageOne<double>(1, "-z", "Zoom amount (default 1.1)") { Max = 200.0, Default = 1.1, IsNumberPct = true },
-				new UsageTwo<int>(1, "-cc", "Coordinates of zoom center in pixels"),
+				new UsageTwo<int>(1, "-cc", "Coordinates of zoom center in pixels") { Min = 0 },
 				new UsageTwo<double>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
 				//new UsageOne<>(" -oh", "Only zoom horizontally");
 				//new UsageOne<>(" -ov", "Only zoom vertically");

@@ -20,21 +20,23 @@
 		</DataTemplate>
 
 		<!-- InputItem -->
-		<DataTemplate DataType="{x:Type mo:InputItemSlider}">
-			<CheckBox Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}" Padding="6" Margin="0,2,0,2">
-				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*">
+		<DataTemplate DataType="{x:Type vm:InputItemSlider}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
+				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						Text="{Binding Display}" HorizontalContentAlignment="Right"/>
-					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Value="{Binding Value}"
-						Minimum="{Binding Min}" Maximum="{Binding Max}" />
-					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+						Text="{Binding Display}" HorizontalContentAlignment="Left"/>
+					<CheckBox Grid.Row="0" Grid.Column="2" IsVisible="{Binding IsNumberPct}" IsChecked="{Binding ShowAsPct}"
+						Theme="{DynamicResource PureCardCheckBox}" Padding="16,0">%</CheckBox>
+					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+						Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
+					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
 						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type mo:InputItemDropDown}">
-			<CheckBox Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}" Padding="6" Margin="0,2,0,2">
+		<DataTemplate DataType="{x:Type vm:InputItemDropDown}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<ComboBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
@@ -44,19 +46,19 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type mo:InputItemText}">
-			<CheckBox Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}" Padding="6" Margin="0,2,0,2">
+		<DataTemplate DataType="{x:Type vm:InputItemText}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						Text="{Binding Text}" HorizontalContentAlignment="Right"/>
+						Text="{Binding Text}" HorizontalContentAlignment="Left"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
 						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type mo:InputItem}">
-			<CheckBox Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}" Padding="6" Margin="0,2,0,2">
+		<DataTemplate DataType="{x:Type vm:InputItem}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
@@ -75,6 +77,13 @@
 		<Style Selector="TextBlock.TextSmall">
 			<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
 			<Setter Property="Foreground" Value="{DynamicResource TextBlockSecondaryForeground}" />
+		</Style>
+		<Style Selector="CheckBox.InputItem">
+			<Setter Property="Padding" Value="6" />
+			<Setter Property="Margin" Value="0,2" />
+		</Style>
+		<Style Selector="CheckBox.InputItem Slider">
+			<Setter Property="Margin" Value="0,8,0,0" />
 		</Style>
 	</Application.Styles>
 

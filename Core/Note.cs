@@ -154,6 +154,10 @@ public static class Note
 	{
 		return $"Plugin {name} Found {file}";
 	}
+	public static string PluginNotFound(string file, string name)
+	{
+		return $"Plugin {name} NOT Found {file}";
+	}
 	public static string Registering(string @namespace, string name)
 	{
 		return $"Registering {@namespace}.{name}";

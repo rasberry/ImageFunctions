@@ -23,7 +23,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite"),
 			Parameters = [
-				new UsageOne<string>(1, "-p", "LR pattern string. See below for full language (default 'LR')") { TypeText = "Pattern" },
+				new UsageOne<string>(1, "-p", "LR pattern string. See below for full language (default 'LR')") { TypeText = "Pattern", Default = "LR" },
 				new UsageOne<PickEdgeRule>(1, "-e", "Change edge handling rule (default Wrap)") { Default = PickEdgeRule.Wrap, TypeText = "EdgeRule" },
 				new UsageOne<Point?>(1, "-s", "Starting location of turmite (defaults to center coordinate)"),
 				new UsageOne<ulong>(1, "-i", "Number of iterations (default 1000)") { Min = 1, Max = 999999, Default = 1000 },

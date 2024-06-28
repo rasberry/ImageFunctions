@@ -29,9 +29,9 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageTwo<int>(1, "-cx", "Swirl center X and Y coordinate in pixels") { Min = 0 },
 				new UsageTwo<double>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = 0.5, IsNumberPct = true },
-				new UsageOne<int>(1, "-rx", "Swirl radius in pixels"),
+				new UsageOne<int>(1, "-rx", "Swirl radius in pixels") { Min = 0, Max = 9999 },
 				new UsageOne<double>(1, "-rp", "Swirl radius proportional to smallest image dimension (default 90%)") { Default = 0.9, IsNumberPct = true },
-				new UsageOne<double>(1, "-s", "Number of rotations (default 0.9)") { Default = 0.9 },
+				new UsageOne<double>(1, "-s", "Number of rotations (default 0.9)") { Min = 0.01, Default = 0.9, Max = 99 },
 				new UsageOne<bool>(1, "-ccw", "Rotate Counter-clockwise. (default is clockwise)"),
 				SamplerHelpers.SamplerUsageParameter(),
 				MetricHelpers.MetricUsageParameter(),
@@ -80,6 +80,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-rx")
 			.WhenGood(r => { RadiusPx = r.Value; return r; })
+			.BeGreaterThanZero()
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
@@ -101,6 +102,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-s", 0.9)
 			.WhenGoodOrMissing(r => { Rotations = r.Value; return r; })
+			.BeGreaterThanZero()
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

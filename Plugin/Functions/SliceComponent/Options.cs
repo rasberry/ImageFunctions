@@ -20,9 +20,9 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				ColorSpaceHelpers.Color3SpaceUsageParameter(1),
 				new UsageOne<string>(1, "-c", "Component to slice (default R)") { TypeText = "component" },
-				new UsageOne<int>(1, "-n", "Number of slices to use (default 16)") { Min = 1, Default = 16 },
+				new UsageOne<int>(1, "-n", "Number of slices to use (default 16)") { Min = 1, Default = 16, Max = 99 },
 				new UsageOne<double>(1, "-r", "Reset the component to given value (0.0-1.0 / 0%-100%)") { IsNumberPct = true },
-				new UsageOne<int>(1, "-o", "Keep only a specific slice between 1 and -n"),
+				new UsageOne<int>(1, "-o", "Keep only a specific slice between 1 and -n") { Min = 1, Max = 99 },
 			],
 		};
 
