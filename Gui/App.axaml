@@ -46,6 +46,23 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+		<DataTemplate DataType="{x:Type vm:InputItemSync}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
+					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Padding="16,8"
+						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
+						<Panel>
+							<PathIcon Width="16" Height="16" Data="{StaticResource IconSyncOff}" IsVisible="{Binding !IsSyncEnabled}"/>
+							<PathIcon Width="16" Height="16" Data="{StaticResource IconSync}" IsVisible="{Binding IsSyncEnabled}"/>
+						</Panel>
+					</CheckBox>
+					<TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Item.Name}" TextAlignment="Right"/>
+					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+				</Grid>
+			</CheckBox>
+		</DataTemplate>
 		<DataTemplate DataType="{x:Type vm:InputItemText}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
@@ -107,6 +124,8 @@
 			<StreamGeometry x:Key="IconTriDown">M7,10L12,15L17,10H7Z</StreamGeometry>
 			<StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
 			<StreamGeometry x:Key="IconStop">M18,18H6V6H18V18</StreamGeometry>
+			<StreamGeometry x:Key="IconSync">M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z</StreamGeometry>
+			<StreamGeometry x:Key="IconSyncOff">M18 12C18 11 17.74 10.04 17.3 9.2L18.76 7.74C19.54 8.97 20 10.43 20 12C20 13.39 19.64 14.68 19 15.82L17.5 14.32C17.82 13.6 18 12.83 18 12M2.39 1.73L1.11 3L5.5 7.37C4.55 8.68 4 10.27 4 12C4 13.57 4.46 15.03 5.24 16.26L6.7 14.8C6.25 13.97 6 13 6 12C6 10.83 6.34 9.74 6.92 8.81L15.19 17.08C14.26 17.66 13.17 18 12 18V15L8 19L12 23V20C13.73 20 15.32 19.45 16.63 18.5L20.84 22.73L22.11 21.46L2.39 1.73M12 6V8.8L12.1 8.9L16 5L12 1V4C10.62 4 9.32 4.36 8.18 5L9.68 6.5C10.4 6.18 11.18 6 12 6Z</StreamGeometry>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

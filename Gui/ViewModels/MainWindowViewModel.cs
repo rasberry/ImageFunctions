@@ -504,13 +504,13 @@ public class MainWindowViewModel : ViewModelBase
 		var it = iup.InputType.UnWrapNullable();
 
 		if (iup is UsageRegistered ur) {
-			IEnumerable<string> names = Program.Register.All(ur.NameSpace)
-				.Select(i => i.Name)
-			;
+			//IEnumerable<string> names = Program.Register.All(ur.NameSpace)
+			//	.Select(i => i.Name)
+			//;
 			// TODO make a regiered item specific model
 			// and change mechanism to use side bar
 			// include toggle 'sync' button so we can defaults don't immediately dissapear
-			return new InputItemDropDown(iup, names);
+			return new InputItemSync(iup, ur.NameSpace);
 		}
 		else if (it.IsBool()) {
 			return new InputItem(iup);

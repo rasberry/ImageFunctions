@@ -184,6 +184,34 @@ public class InputItemDropDown : InputItem
 	}
 }
 
+public class InputItemSync : InputItem
+{
+	public InputItemSync(IUsageParameter input, string @namespace) : base(input)
+	{
+		var reg = Program.Register;
+		NameSpace = @namespace;
+		var defName = reg.Default(@namespace);
+		if (!String.IsNullOrEmpty(defName)) {
+			Item = new SelectionItem { Name = defName, NameSpace = @namespace };
+		}
+	}
+
+	public string NameSpace { get; private set; }
+	public string Tag { get { return $"Synchronize with {NameSpace}"; }}
+
+	bool _isSyncEnabled;
+	public bool IsSyncEnabled {
+		get => _isSyncEnabled;
+		set => this.RaiseAndSetIfChanged(ref _isSyncEnabled, value);
+	}
+
+	SelectionItem _item;
+	public SelectionItem Item {
+		get => _item;
+		set => this.RaiseAndSetIfChanged(ref _item, value);
+	}
+}
+
 public class InputItemText : InputItem
 {
 	public InputItemText(IUsageParameter input) : base(input)
