@@ -31,5 +31,6 @@ public class SamplerRegister : AbstractRegistrant<Lazy<ISampler>>
 		reg.Add("Spline", new Lazy<ISampler>(() => new Spline()));
 		reg.Add("Triangle", new Lazy<ISampler>(() => new Triangle()));
 		reg.Add("Welch", new Lazy<ISampler>(() => new Welch()));
+		reg.Default("NearestNeighbor");
 	}
 }

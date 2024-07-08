@@ -21,6 +21,7 @@ public class MetricRegister : AbstractRegistrant<Lazy<IMetric>>
 		reg.Add("Manhattan", new Lazy<IMetric>(() => new MetricWrap(DistanceManhattan, DistanceManhattan)));
 		reg.Add("Chebyshev", new Lazy<IMetric>(() => new MetricWrap(Chebyshev, Chebyshev)));
 		reg.Add("ChebyshevInv", new Lazy<IMetric>(() => new MetricWrap(ChebyshevInv, ChebyshevInv)));
+		reg.Default("Euclidean");
 	}
 
 	class MetricWrap : IMetric

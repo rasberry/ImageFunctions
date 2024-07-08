@@ -22,11 +22,7 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 
 	public IEnumerable<string> All()
 	{
-		foreach(var i in Reg.All()) {
-			if(i.NameSpace == Namespace) {
-				yield return i.Name;
-			}
-		}
+		return Reg.All(Namespace).Select(n => n.Name);
 	}
 
 	public IRegisteredItem<T> Get(string name)
@@ -37,6 +33,11 @@ public abstract class AbstractRegistrant<T> : IRegistrant<T>
 	public bool Try(string name, out IRegisteredItem<T> item)
 	{
 		return Reg.Try(Namespace, name, out item);
+	}
+
+	public string Default(string @name = null)
+	{
+		return Reg.Default(Namespace, @name);
 	}
 
 	/// <summary>

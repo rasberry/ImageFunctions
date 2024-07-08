@@ -108,13 +108,14 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		<!-- Top level Column selectors -->
 		<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
 		<ScrollViewer Grid.Column="6" Name="Chooser" Theme="{DynamicResource StaticScrollViewer}">
-			<StackPanel>
+			<ItemsControl ItemsSource="{Binding RegisteredControlList}" />
+			<!--<StackPanel>
 				<views:RegisteredControl Name="RegFunctionCtrl" DataContext="{Binding RegFunctionItems}" />
 				<views:RegisteredControl Name="RegColorCtrl"    DataContext="{Binding RegColorItems}" />
 				<views:RegisteredControl Name="RegEngineCtrl"   DataContext="{Binding RegEngineItems}" SelectItemName="SixLabors"/>
 				<views:RegisteredControl Name="RegMetricCtrl"   DataContext="{Binding RegMetricItems}" />
 				<views:RegisteredControl Name="RegSamplerCtrl"  DataContext="{Binding RegSamplerItems}" />
-			</StackPanel>
+			</StackPanel>-->
 		</ScrollViewer>
 	</Grid>
 

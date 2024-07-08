@@ -59,9 +59,33 @@ internal class Register : IRegister, IDisposable
 		return false;
 	}
 
-	public IEnumerable<INameSpaceName> All()
+	public IEnumerable<INameSpaceName> All(string @namespace = null)
 	{
-		return Store.Keys.Cast<INameSpaceName>();
+		var all = Store.Keys.Cast<INameSpaceName>();
+		if (@namespace != null) {
+			return all.Where(n => n.NameSpace.EqualsIC(@namespace));
+		}
+		else {
+			return all;
+		}
+	}
+
+	public IEnumerable<string> Spaces()
+	{
+		return All().Select(k => k.NameSpace).Distinct().Order();
+	}
+
+	public string Default(string @namespace, string name = null)
+	{
+		if (@name != null) {
+			Defaults[@namespace] = name;
+		}
+
+		if (Defaults.TryGetValue(@namespace, out var def)) {
+			return def;
+		}
+
+		return null;
 	}
 
 	void EnsureNameIsNotNull(string @namespace, string name)
@@ -77,18 +101,18 @@ internal class Register : IRegister, IDisposable
 
 	public void Dispose()
 	{
-		if(Store == null) { return; }
 		foreach(var kvp in Store) {
 			if(kvp.Value is IDisposable disposable) {
 				disposable.Dispose();
 			}
 		}
-		Store = null;
+		Store.Clear();
 	}
 
 	//can't use the INameSpaceName as the key because the overridden
 	// GetHashCode doesn't get called
-	Dictionary<NameSpaceName, object> Store = new();
+	readonly Dictionary<NameSpaceName, object> Store = new();
+	readonly Dictionary<string, string> Defaults = new();
 }
 
 readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceName>
@@ -105,7 +129,7 @@ readonly struct NameSpaceName : INameSpaceName, IEquatable<NameSpaceName>
 
 	public override int GetHashCode()
 	{
-		var c = System.Globalization.CultureInfo.CurrentCulture;
+		var c = System.Globalization.CultureInfo.InvariantCulture;
 		var ns = NameSpace.ToLower(c);
 		var n = Name.ToLower(c);
 		return HashCode.Combine(ns, n);

@@ -14,14 +14,44 @@ public interface IRegister
 	/// <param name="item">The instace of the item to store</param>
 	void Add<T>(string @namespace, string name, T item);
 
-	//TODO docs
+	/// <summary>
+	/// Finds the requested item. Should throw an exception if not found.
+	/// </summary>
+	/// <typeparam name="T">The expected item type</typeparam>
+	/// <param name="namespace">The namespace of the item</param>
+	/// <param name="name">The name of the item</param>
+	/// <returns>The item</returns>
 	IRegisteredItem<T> Get<T>(string @namespace, string name);
 
-	//TODO docs
+	/// <summary>
+	/// Attempts to find the requested item
+	/// </summary>
+	/// <typeparam name="T">The expected item type</typeparam>
+	/// <param name="namespace">The namespace of the item</param>
+	/// <param name="name">The name of the item</param>
+	/// <param name="item">The resulting item if found</param>
+	/// <returns>true if found otherwise false</returns>
 	bool Try<T>(string @namespace, string name, out IRegisteredItem<T> item);
 
-	//TODO docs
-	IEnumerable<INameSpaceName> All();
+	/// <summary>
+	/// Returns all registered items.
+	/// </summary>
+	/// <param name="namespace">optional namespace to filter by</param>
+	/// <returns></returns>
+	IEnumerable<INameSpaceName> All(string @namespace = null);
+
+	/// <summary>
+	/// Returns a list of registered namespaces
+	/// </summary>
+	IEnumerable<string> Spaces();
+
+	/// <summary>
+	/// Get or set a namespace default item
+	/// </summary>
+	/// <param name="namespace">The namespace of the item/param>
+	/// <param name="name">The name of the item to make the default (set)</param>
+	/// <returns>The name of the default item (get)</returns>
+	public string Default(string @namespace, string name = null);
 }
 
 //TODO docs

@@ -34,4 +34,11 @@ public interface IRegistrant<T>
 	/// </summary>
 	/// <returns></returns>
 	IEnumerable<string> All();
+
+	/// <summary>
+	/// Gets or Sets a default item
+	/// </summary>
+	/// <param name="name">Optionally set the name of the default</param>
+	/// <returns>The name of the default (get)</returns>
+	string Default(string @name = null);
 }

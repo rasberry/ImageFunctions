@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.LogicalTree;
+using ImageFunctions.Core;
 using ImageFunctions.Gui.Models;
 using ImageFunctions.Gui.ViewModels;
 
@@ -10,51 +11,52 @@ public partial class RegisteredControl : UserControl
 	public RegisteredControl()
 	{
 		InitializeComponent();
-		Initialized += (s, e) => {
-			if(!string.IsNullOrWhiteSpace(SelectItemName)) {
-				SelectItem(SelectItemName);
-			}
-		};
+		// Initialized += (s, e) => {
+		// 	if(!string.IsNullOrWhiteSpace(SelectItemName)) {
+		// 		SelectItem(SelectItemName);
+		// 	}
+		// };
 	}
 
-	//TODO selecting the engine this way feels extremely manual.
-	// seems like there should be a better way
-	void SelectItem(string name)
-	{
-		var expander = this.FindLogicalDescendantOfType<Expander>();
-		var listBox = this.FindLogicalDescendantOfType<ListBox>();
+	// //TODO selecting items this way feels extremely manual.
+	// // seems like there should be a better way
+	// void SelectItem(string name)
+	// {
+	// 	//var expander = this.FindLogicalDescendantOfType<Expander>();
+	// 	var listBox = this.FindLogicalDescendantOfType<ListBox>();
 
-		//have to expand this first or the listBox inside won't initialize
-		expander.Initialized += (s, e) => {
-			var ex = (Expander)s;
-			ex.IsExpanded = true;
-			Model.SelectedText = name;
-		};
+	// 	//have to expand this first or the listBox inside won't initialize
+	// 	// expander.Initialized += (s, e) => {
+	// 	// 	var ex = (Expander)s;
+	// 	// 	ex.IsExpanded = true;
+	// 	// 	Model.Selected = new SelectionItem { Name = name };
+	// 	// };
 
-		listBox.Initialized += (s, e) => {
-			var lb = (ListBox)s;
-			int i = 0;
-			foreach(SelectionItem item in lb.Items) {
-				if(item.Name == name) {
-					lb.SelectedIndex = i;
-					break;
-				}
-				i++;
-			}
-		};
-	}
+	// 	listBox.Initialized += (s, e) => {
+	// 		var lb = (ListBox)s;
+	// 		int i = 0;
+	// 		Log.Debug($"listbox si={lb.SelectedIndex} s={lb.SelectedItem}");
+	// 		// foreach(SelectionItem item in lb.Items) {
+	// 		// 	if(item.Name == name) {
+	// 		// 		lb.SelectedIndex = i;
+	// 		// 		break;
+	// 		// 	}
+	// 		// 	i++;
+	// 		// }
+	// 	};
+	// }
 
 	//Note: always check for null before using this e.g. Model?.
-	SelectionViewModel Model {
-		get {
-			return DataContext as SelectionViewModel;
-		}
-	}
+	// SelectionViewModel Model {
+	// 	get {
+	// 		return DataContext as SelectionViewModel;
+	// 	}
+	// }
 
-	public string SelectItemName { get; set; }
+	//public string SelectItemName { get; set; }
 
-	public void OnItemSelected(object sender, SelectionChangedEventArgs args)
-	{
-		Model?.ItemSelected(sender, args);
-	}
+	// public void OnItemSelected(object sender, SelectionChangedEventArgs args)
+	// {
+	// 	Model?.ItemSelected(sender, args);
+	// }
 }

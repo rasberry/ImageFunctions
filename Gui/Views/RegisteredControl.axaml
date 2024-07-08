@@ -25,11 +25,12 @@
 <Expander>
 	<Expander.Header>
 		<StackPanel Orientation="Horizontal">
-			<TextBlock Text="{Binding Kind}" />
-			<TextBlock Name="ChoosenText" Text="{Binding SelectedText}" />
+			<TextBlock Text="{Binding NameSpace}" />
+			<TextBlock Name="ChoosenText" Text="{Binding Selected.Name, StringFormat='- {0}'}" />
 		</StackPanel>
 	</Expander.Header>
-	<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />
+	<!--<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />-->
+	<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" />
 </Expander>
 
 </UserControl>

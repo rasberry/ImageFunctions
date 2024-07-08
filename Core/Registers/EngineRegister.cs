@@ -9,7 +9,8 @@ public class EngineRegister : AbstractRegistrant<Lazy<IImageEngine>>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Engine"; } }
+	internal const string NS = "Engine";
+	public override string Namespace { get { return NS; } }
 
 
 	[InternalRegister]
@@ -17,6 +18,7 @@ public class EngineRegister : AbstractRegistrant<Lazy<IImageEngine>>
 	{
 		var er = new EngineRegister(register);
 		er.Add(SixLaborsString, new Lazy<IImageEngine>(() => new Engines.SixLaborsEngine()));
+		er.Default(SixLaborsString);
 	}
 
 	internal const string SixLaborsString = "SixLabors";

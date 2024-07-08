@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -40,53 +39,99 @@ public class MainWindowViewModel : ViewModelBase
 
 	void LoadData()
 	{
-		var functionReg = new FunctionRegister(Program.Register);
-		RegFunctionItems = AddTreeNodeFromRegistered(SelectionKind.Functions, functionReg, (reg, name) => {
-			return new SelectionItem { Name = name };
-		}, OnFunctionSelected);
+		RegisteredControlList = new();
+		var reg = Program.Register;
+		foreach(var ns in reg.Spaces()) {
+			var svm = GetSelectionViewModelForNameSpace(ns);
+			RegisteredControlList.Add(svm);
+		}
 
-		var colorReg = new ColorRegister(Program.Register);
-		RegColorItems = AddTreeNodeFromRegistered(SelectionKind.Colors, colorReg, (reg, name) => {
-			return new SelectionItemColor {
-				Name = name,
-				Color = ConvertColor(name, colorReg)
-			};
-		}, OnSomethingSelected);
+		// var functionReg = new FunctionRegister(Program.Register);
+		// RegFunctionItems = AddTreeNodeFromRegistered(SelectionKind.Functions, functionReg, (reg, name) => {
+		// 	return new SelectionItem { Name = name };
+		// }, OnFunctionSelected);
 
-		var engineReg = new EngineRegister(Program.Register);
-		RegEngineItems = AddTreeNodeFromRegistered(SelectionKind.Engines, engineReg, (reg, name) => {
-			return new SelectionItem { Name = name };
-		}, OnEngineSelected);
+		// var colorReg = new ColorRegister(Program.Register);
+		// RegColorItems = AddTreeNodeFromRegistered(SelectionKind.Colors, colorReg, (reg, name) => {
+		// 	return new SelectionItemColor {
+		// 		Name = name,
+		// 		Color = ConvertColor(name, colorReg)
+		// 	};
+		// }, OnSomethingSelected);
 
-		var metricReg = new MetricRegister(Program.Register);
-		RegMetricItems = AddTreeNodeFromRegistered(SelectionKind.Metrics, metricReg, (reg, name) => {
-			return new SelectionItem { Name = name };
-		}, OnSomethingSelected);
+		// var engineReg = new EngineRegister(Program.Register);
+		// RegEngineItems = AddTreeNodeFromRegistered(SelectionKind.Engines, engineReg, (reg, name) => {
+		// 	return new SelectionItem { Name = name };
+		// }, OnEngineSelected);
 
-		var samplerReg = new SamplerRegister(Program.Register);
-		RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
-			return new SelectionItem { Name = name };
-		}, OnSomethingSelected);
+		// var metricReg = new MetricRegister(Program.Register);
+		// RegMetricItems = AddTreeNodeFromRegistered(SelectionKind.Metrics, metricReg, (reg, name) => {
+		// 	return new SelectionItem { Name = name };
+		// }, OnSomethingSelected);
+
+		// var samplerReg = new SamplerRegister(Program.Register);
+		// RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
+		// 	return new SelectionItem { Name = name };
+		// }, OnSomethingSelected);
+	}
+
+	SelectionViewModel GetSelectionViewModelForNameSpace(string ns)
+	{
+		var svm = ns switch {
+
+			FunctionRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
+				return new SelectionItem { Name = item.Name, NameSpace = ns };
+			}, OnFunctionSelected),
+
+			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
+				var colorItem = reg.Get<ColorRGBA>(ns, item.Name);
+				return new SelectionItemColor {
+					Name = item.Name,
+					NameSpace = ns,
+					Color = ConvertColor(colorItem)
+				};
+			}, OnSomethingSelected),
+
+			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
+				return new SelectionItem { Name = item.Name, NameSpace = ns };
+			}, OnEngineSelected),
+
+			_ => AddTreeNodeFromRegistered(ns, (reg, item) => {
+				return new SelectionItem { Name = item.Name, NameSpace = ns };
+			}, OnSomethingSelected),
+		};
+
+		return svm;
 	}
 
 	public ILayers Layers { get; init; }
 	public ObservableStackList<LayersImageData> LayersImageList { get; init; }
 
-	SelectionViewModel AddTreeNodeFromRegistered<T>(SelectionKind Kind,
-		AbstractRegistrant<T> reg,
-		Func<AbstractRegistrant<T>, string, SelectionItem> filler,
+	SelectionViewModel AddTreeNodeFromRegistered(string @namespace,
+		Func<IRegister, INameSpaceName, SelectionItem> filler,
 		Action<SelectionItem> selectionHandler
 	)
 	{
+		var reg = Program.Register;
 		var items = new ObservableCollection<SelectionItem>();
-		foreach(var c in reg.All().OrderBy(n => n)) {
-			var item = filler(reg, c);
+		var nsItems = reg.All(@namespace).OrderBy(n => n.Name);
+		var def = reg.Default(@namespace);
+
+		SelectionItem selected = null;
+		foreach(var c in nsItems) {
+			var item = filler(Program.Register, c);
 			items.Add(item);
+			if (def != null && item.Name.EqualsIC(def)) {
+				selected = item;
+			}
 		}
 		var sel = new SelectionViewModel {
-			Kind = Kind,
+			NameSpace = @namespace,
 			Items = items
 		};
+		if (selected != null) {
+			sel.Selected = selected;
+		}
 
 		sel.WhenAnyValue(p => p.Selected)
 			.Subscribe(selectionHandler);
@@ -94,11 +139,7 @@ public class MainWindowViewModel : ViewModelBase
 		return sel;
 	}
 
-	public SelectionViewModel RegColorItems { get; private set; }
-	public SelectionViewModel RegEngineItems { get; private set; }
-	public SelectionViewModel RegFunctionItems { get; private set; }
-	public SelectionViewModel RegMetricItems { get; private set; }
-	public SelectionViewModel RegSamplerItems { get; private set; }
+	public ObservableCollection<SelectionViewModel> RegisteredControlList { get; private set; }
 
 	IRegisteredItem<FunctionSpawner> RegFunction;
 	void OnFunctionSelected(SelectionItem item)
@@ -182,12 +223,12 @@ public class MainWindowViewModel : ViewModelBase
 
 	void OnSomethingSelected(SelectionItem item)
 	{
-		//Trace.WriteLine($"Something selected {item?.Name}");
+		Log.Debug($"Something selected {item?.Name}");
 	}
 
-	static Avalonia.Media.SolidColorBrush ConvertColor(string key, ColorRegister reg)
+	static Avalonia.Media.SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
 	{
-		var c = reg.Get(key).Item;
+		var c = item.Item;
 		var ac = Avalonia.Media.Color.FromArgb(
 			(byte)(c.A * 255.0),
 			(byte)(c.R * 255.0),
@@ -463,10 +504,12 @@ public class MainWindowViewModel : ViewModelBase
 		var it = iup.InputType.UnWrapNullable();
 
 		if (iup is UsageRegistered ur) {
-			IEnumerable<string> names = Program.Register.All()
-				.Where(i => i.NameSpace == ur.NameSpace)
+			IEnumerable<string> names = Program.Register.All(ur.NameSpace)
 				.Select(i => i.Name)
 			;
+			// TODO make a regiered item specific model
+			// and change mechanism to use side bar
+			// include toggle 'sync' button so we can defaults don't immediately dissapear
 			return new InputItemDropDown(iup, names);
 		}
 		else if (it.IsBool()) {

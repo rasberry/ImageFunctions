@@ -11,7 +11,8 @@ public class FunctionRegister : AbstractRegistrant<FunctionSpawner>
 		//Nothing to do
 	}
 
-	public override string Namespace { get { return "Function"; } }
+	internal const string NS = "Function";
+	public override string Namespace { get { return NS; } }
 
 	[InternalRegister]
 	internal static void Register(IRegister register)
