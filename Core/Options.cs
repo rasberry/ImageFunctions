@@ -272,9 +272,8 @@ internal class Options : ICoreOptions
 				sb.WT(0,$"{k.NameSpace}:");
 				currentSpace = k.NameSpace;
 			}
-			if (!Register.TryPrintCustomHelp(sb,k)) {
-				sb.WT(1, $"{k.Name}");
-			}
+			var desc = Register.GetNameSpaceItemHelp(k);
+			sb.ND(1, k.Name, desc);
 		}
 	}
 

@@ -74,6 +74,9 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+		<DataTemplate DataType="{x:Type vm:InputItemInfo}">
+			<TextBlock Classes="InputItem" Text="{Binding CombinedInfo}" xml:space="preserve" TextWrapping="Wrap" />
+		</DataTemplate>
 		<DataTemplate DataType="{x:Type vm:InputItem}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto">

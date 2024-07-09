@@ -207,7 +207,7 @@ public static class Tools
 	}
 
 	//TODO docs
-	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister,StringBuilder,INameSpaceName,bool> printer)
+	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister,INameSpaceName,string> printer)
 	{
 		if (reg == null) {
 			throw Squeal.ArgumentNull(nameof(reg));
@@ -223,22 +223,20 @@ public static class Tools
 		PrinterMap.Add(@namespace,printer);
 	}
 
-	//TODO docs
-	public static bool TryPrintCustomHelp(this IRegister reg, StringBuilder sb, INameSpaceName item)
+	public static string GetNameSpaceItemHelp(this IRegister reg, INameSpaceName item)
 	{
 		if (reg == null) {
 			throw Squeal.ArgumentNull(nameof(reg));
 		}
 		if (item == null) {
-			return false;
+			return null;
 		}
-
 		if (!PrinterMap.TryGetValue(item.NameSpace, out var func)) {
-			return false;
+			return null;
 		}
-
-		return func(reg,sb,item);
+		var desc = func(reg,item);
+		return desc;
 	}
 
-	static readonly Dictionary<string, Func<IRegister,StringBuilder,INameSpaceName,bool>> PrinterMap = new();
+	static readonly Dictionary<string, Func<IRegister,INameSpaceName,string>> PrinterMap = new();
 }

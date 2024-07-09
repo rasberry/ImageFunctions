@@ -5,16 +5,12 @@ using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using ImageFunctions.Core;
-using ImageFunctions.Core.Metrics;
-using ImageFunctions.Core.Samplers;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Text;
 
 namespace ImageFunctions.Gui.ViewModels;
@@ -45,34 +41,6 @@ public class MainWindowViewModel : ViewModelBase
 			var svm = GetSelectionViewModelForNameSpace(ns);
 			RegisteredControlList.Add(svm);
 		}
-
-		// var functionReg = new FunctionRegister(Program.Register);
-		// RegFunctionItems = AddTreeNodeFromRegistered(SelectionKind.Functions, functionReg, (reg, name) => {
-		// 	return new SelectionItem { Name = name };
-		// }, OnFunctionSelected);
-
-		// var colorReg = new ColorRegister(Program.Register);
-		// RegColorItems = AddTreeNodeFromRegistered(SelectionKind.Colors, colorReg, (reg, name) => {
-		// 	return new SelectionItemColor {
-		// 		Name = name,
-		// 		Color = ConvertColor(name, colorReg)
-		// 	};
-		// }, OnSomethingSelected);
-
-		// var engineReg = new EngineRegister(Program.Register);
-		// RegEngineItems = AddTreeNodeFromRegistered(SelectionKind.Engines, engineReg, (reg, name) => {
-		// 	return new SelectionItem { Name = name };
-		// }, OnEngineSelected);
-
-		// var metricReg = new MetricRegister(Program.Register);
-		// RegMetricItems = AddTreeNodeFromRegistered(SelectionKind.Metrics, metricReg, (reg, name) => {
-		// 	return new SelectionItem { Name = name };
-		// }, OnSomethingSelected);
-
-		// var samplerReg = new SamplerRegister(Program.Register);
-		// RegSamplerItems = AddTreeNodeFromRegistered(SelectionKind.Samplers, samplerReg, (reg, name) => {
-		// 	return new SelectionItem { Name = name };
-		// }, OnSomethingSelected);
 	}
 
 	SelectionViewModel GetSelectionViewModelForNameSpace(string ns)
@@ -93,11 +61,13 @@ public class MainWindowViewModel : ViewModelBase
 			}, OnSomethingSelected),
 
 			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
-				return new SelectionItem { Name = item.Name, NameSpace = ns };
+				string tag = reg.GetNameSpaceItemHelp(item);
+				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
 			}, OnEngineSelected),
 
 			_ => AddTreeNodeFromRegistered(ns, (reg, item) => {
-				return new SelectionItem { Name = item.Name, NameSpace = ns };
+				string tag = reg.GetNameSpaceItemHelp(item);
+				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
 			}, OnSomethingSelected),
 		};
 
@@ -435,7 +405,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void RunCommand()
 	{
-		Trace.WriteLine(nameof(RunCommand));
+		//Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
 			UpdateStatusText(txt, true, WarningTimeout);
@@ -447,7 +417,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(RunCommand)} 2");
+		//Trace.WriteLine($"{nameof(RunCommand)} 2");
 		var task = SingleTasks.GetOrMake(nameof(RunCommand), job, CommandTimeout);
 		_ = task.Run();
 
@@ -464,7 +434,7 @@ public class MainWindowViewModel : ViewModelBase
 			var func = RegFunction?.Item.Invoke(Program.Register, Layers, options);
 			//Trace.WriteLine($"{nameof(RunCommand)} 4.5");
 			func.Run(new string[0]); //TODO fix args
-									 //Trace.WriteLine($"{nameof(RunCommand)} 5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
@@ -484,8 +454,14 @@ public class MainWindowViewModel : ViewModelBase
 	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
 	{
 		InputsList.Clear();
-
 		var usage = provider.GetUsageInfo();
+
+		var ud = usage.Description;
+		if ((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
+			var iii = new InputItemInfo(new UsageText(1,"",""), usage.Description.Descriptions);
+			InputsList.Add(iii);
+		}
+
 		foreach(var p in usage.Parameters) {
 			if (p is IUsageParameter iup) {
 				var input = DetermineInputControl(usage, iup);

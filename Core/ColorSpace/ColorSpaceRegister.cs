@@ -37,7 +37,7 @@ public class Color3SpaceRegister : AbstractRegistrant<IColor3Space>
 		reg.Add("YuvBT709", new ColorSpaceYuvBT709());
 		reg.Default("Rgb");
 
-		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.TryPrintColorSpace);
+		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.GetColorSpaceHelp);
 	}
 }
 
@@ -58,6 +58,6 @@ public class Color4SpaceRegister : AbstractRegistrant<IColor4Space>
 		reg.Add("Cmyk", new ColorSpaceCmyk());
 		reg.Default("Cmyk");
 
-		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.TryPrintColorSpace);
+		register.SetCustomHelpPrinter(NS,ColorSpaceHelpers.GetColorSpaceHelp);
 	}
 }

@@ -2,7 +2,7 @@ using Avalonia.Controls;
 
 namespace ImageFunctions.Gui.Helpers;
 
-public static class Adom
+public static class AvaloniaTools
 {
 	public static Control FindControlByNameFromTop(this Control parent, string name)
 	{
@@ -12,13 +12,6 @@ public static class Adom
 
 	public static Control FindControlByName(this Control parent, string name)
 	{
-		//var found = parent.FindControl<Control>(name);
-		//Core.Log.Debug($"Found {found?.GetType().Name} : {found?.Name}");
-		//return found;
-
-		//var indent = new String('|',level).Replace("|"," |");
-		//Core.Log.Debug($"Find{indent}{parent?.GetType().Name} : {parent?.Name}");
-
 		if (parent == null) {
 			return null;
 		}

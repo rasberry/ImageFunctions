@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media;
+using Avalonia.Media.TextFormatting;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
@@ -135,9 +136,9 @@ public class InputItemSlider : InputItem
 			throw Squeal.NotSupported($"Type {NumberType.Name}");
 		}
 
-		Log.Debug($"{input?.Name} {input?.Default?.GetType()?.Name} {input?.Default}");
+		//Log.Debug($"{input?.Name} {input?.Default?.GetType()?.Name} {input?.Default}");
 		Value = input.Default == null ? 0.0 : Convert.ToDouble(input.Default);
-		Log.Debug($"{input?.Name} val={Value}");
+		//Log.Debug($"{input?.Name} val={Value}");
 	}
 }
 
@@ -200,8 +201,6 @@ public class InputItemSync : InputItem
 		NameSpace = @namespace;
 		var defName = reg.Default(@namespace);
 		if (!String.IsNullOrEmpty(defName)) {
-			//TODO this should come from the selection items model..
-			// not sure how to find that
 			Item = new SelectionItem { Name = defName, NameSpace = @namespace };
 		}
 		SetSyncIcon();
@@ -254,4 +253,14 @@ public class InputItemText : InputItem
 		get => _text ?? "";
 		set => this.RaiseAndSetIfChanged(ref _text, value);
 	}
+}
+
+public class InputItemInfo : InputItem
+{
+	public InputItemInfo(IUsageText input, IEnumerable<string> lines) : base(input)
+	{
+		CombinedInfo = String.Join('\n', lines);
+	}
+
+	public string CombinedInfo { get; init; }
 }

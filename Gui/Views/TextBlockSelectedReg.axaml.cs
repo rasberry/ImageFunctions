@@ -38,40 +38,6 @@ public partial class TextBlockSelectedReg : TextBlock
 
 		this.WhenAnyValue(v => v.IsConnected)
 			.Subscribe(v => SetTextWhenConnected(context.Selected?.Name));
-
-		//this.Bind(context, vm => vm.Selected.Name, v => v.Text);
-		//this.Bind(context.Selected.Name, v => this.Text);
-
-		// var top = TopLevel.GetTopLevel(this);
-		// Core.Log.Debug($"{top.GetType().FullName} - {top.Content?.GetType()?.FullName}");
-		// //var ex = top.FindControl<Expander>($"Reg{NameSpace}");
-		// //var rr = top.FindNameScope().Find($"Reg{NameSpace}");
-		// var topPanel = top.Content as Panel;
-		// var cc = FindControlByName(topPanel,$"Reg{NameSpace}");
-		// //Core.Log.Debug($"Expander ex={(ex==null?"null":"good")} cc={(cc==null?"null":"good")} rr={(rr==null?"null":"good")}");
-		// Core.Log.Debug($"Expander cc={(cc==null?"null":"good")} {cc?.GetType().Name}");
-
-		// var dc = cc.DataContext as SelectionViewModel;
-		// Core.Log.Debug($"sel {dc?.Selected?.Name}");
-
-		// //Expander uL = this.FindNameScope().Find<Expander>($"Reg{NameSpace}");
-		// //Core.Log.Debug($"Expander Reg{NameSpace} - {uL?.Name} isnull={(uL==null?"null":"good")}");
-
-		// //complex bind.. as far as I can tell not possible with normal bind syntax.
-		// string bind = $"#Reg{NameSpace}.(({nameof(SelectionViewModel)})DataContext).Selected.Name";
-		// //Log.Debug($"{nameof(TextBlockSelectedReg)} - {bind}");
-
-		// var b = new Binding(bind) {
-		// 	NameScope = new WeakReference<INameScope>(cc.FindNameScope())
-		// };
-		// b.TypeResolver += (ns,name) => {
-		// 	if (name == nameof(SelectionViewModel)) {
-		// 		return typeof(SelectionViewModel);
-		// 	}
-		// 	throw new NotSupportedException(name);
-		// };
-		// b.WhenAnyValue(v => v).Subscribe(v => Core.Log.Debug(v.ToString()));
-		// this.Bind(TextProperty, b);
 	}
 
 	void SetTextWhenConnected(string text)

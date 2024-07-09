@@ -4,16 +4,13 @@ namespace ImageFunctions.Core.ColorSpace;
 
 public static class ColorSpaceHelpers
 {
-	internal static bool TryPrintColorSpace(IRegister register, StringBuilder sb, INameSpaceName item)
+	internal static string GetColorSpaceHelp(IRegister register, INameSpaceName item)
 	{
 		if (item == null) {
-			return false;
+			return null;
 		}
 		if (register == null) {
 			Squeal.ArgumentNull(nameof(register));
-		}
-		if (sb == null) {
-			Squeal.ArgumentNull(nameof(sb));
 		}
 
 		ColorSpaceInfo info;
@@ -29,15 +26,15 @@ public static class ColorSpaceHelpers
 			info = space.Item.Info;
 		}
 		else {
-			return false;
+			return null;
 		}
 
 		var desc = info.Description;
 		if(!String.IsNullOrWhiteSpace(desc)) {
 			desc = $" - {desc}";
 		}
-		sb.ND(1, $"{item.Name}", $"[{String.Join(',', info.ComponentNames)}]{desc}");
-		return true;
+
+		return $"[{String.Join(',', info.ComponentNames)}]{desc}";
 	}
 
 	const string Default3 = "Rgb";

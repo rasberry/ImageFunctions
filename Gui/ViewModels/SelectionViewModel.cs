@@ -16,23 +16,4 @@ public partial class SelectionViewModel : ViewModelBase
 		get => _selected;
 		set => this.RaiseAndSetIfChanged(ref _selected, value);
 	}
-
-	// public void ItemSelected(object sender, SelectionChangedEventArgs args)
-	// {
-	// 	args.Handled = true;
-	// 	var addedRaw = GetFirst(args.AddedItems);
-	// 	if(addedRaw is SelectionItem added) {
-	// 		// System.Diagnostics.Trace.WriteLine($"Selected {Kind} {added.Name}");
-	// 		Selected = added;
-	// 	}
-	// }
-
-	// //no (direct) linq way of doing this ..?
-	// static object GetFirst(IList list)
-	// {
-	// 	if(list != null && list.Count > 0) {
-	// 		return list[0];
-	// 	}
-	// 	return null;
-	// }
 }
