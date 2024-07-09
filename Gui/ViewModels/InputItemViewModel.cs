@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Media;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
@@ -186,23 +188,49 @@ public class InputItemDropDown : InputItem
 
 public class InputItemSync : InputItem
 {
+	static InputItemSync()
+	{
+		IconSyncData = Application.Current.Resources.TryGetResource("IconSync", null, out var icon) ? (StreamGeometry)icon : null;
+		IconSyncOffData = Application.Current.Resources.TryGetResource("IconSyncOff", null, out var iconoff) ? (StreamGeometry)iconoff : null;
+	}
+
 	public InputItemSync(IUsageParameter input, string @namespace) : base(input)
 	{
 		var reg = Program.Register;
 		NameSpace = @namespace;
 		var defName = reg.Default(@namespace);
 		if (!String.IsNullOrEmpty(defName)) {
+			//TODO this should come from the selection items model..
+			// not sure how to find that
 			Item = new SelectionItem { Name = defName, NameSpace = @namespace };
 		}
+		SetSyncIcon();
 	}
 
 	public string NameSpace { get; private set; }
 	public string Tag { get { return $"Synchronize with {NameSpace}"; }}
 
+	StreamGeometry _syncIcon;
+	public StreamGeometry SyncIcon {
+		get => _syncIcon;
+		set => this.RaiseAndSetIfChanged(ref _syncIcon, value);
+	}
+
+	static readonly StreamGeometry IconSyncData;
+	static readonly StreamGeometry IconSyncOffData;
+
+	void SetSyncIcon()
+	{
+		SyncIcon = IsSyncEnabled ? IconSyncData : IconSyncOffData;
+	}
+
 	bool _isSyncEnabled;
 	public bool IsSyncEnabled {
-		get => _isSyncEnabled;
-		set => this.RaiseAndSetIfChanged(ref _isSyncEnabled, value);
+		get { return _isSyncEnabled; }
+		set {
+			this.RaiseAndSetIfChanged(ref _isSyncEnabled, value);
+			SetSyncIcon();
+		}
 	}
 
 	SelectionItem _item;

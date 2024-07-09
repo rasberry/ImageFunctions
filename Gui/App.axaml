@@ -4,6 +4,7 @@
 	xmlns:local="using:ImageFunctions.Gui"
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:mo="using:ImageFunctions.Gui.Models"
+	xmlns:v="using:ImageFunctions.Gui.Views"
 	RequestedThemeVariant="Default"
 >
 	<!-- Note: templates are checked in order, so put the most specific first -->
@@ -27,7 +28,7 @@
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
 						Text="{Binding Display}" HorizontalContentAlignment="Left"/>
 					<CheckBox Grid.Row="0" Grid.Column="2" IsVisible="{Binding IsNumberPct}" IsChecked="{Binding ShowAsPct}"
-						Theme="{DynamicResource PureCardCheckBox}" Padding="16,0">%</CheckBox>
+						Theme="{DynamicResource PureCardCheckBox}" Classes="InnerCheckBox">%</CheckBox>
 					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
 						Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
 					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
@@ -50,14 +51,13 @@
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
-					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Padding="16,8"
+					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
 						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
-						<Panel>
-							<PathIcon Width="16" Height="16" Data="{StaticResource IconSyncOff}" IsVisible="{Binding !IsSyncEnabled}"/>
-							<PathIcon Width="16" Height="16" Data="{StaticResource IconSync}" IsVisible="{Binding IsSyncEnabled}"/>
-						</Panel>
+						<PathIcon Width="16" Height="16" Data="{Binding SyncIcon}"/>
 					</CheckBox>
-					<TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Item.Name}" TextAlignment="Right"/>
+					<!-- <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Item.Name}" TextAlignment="Right" /> -->
+					<v:TextBlockSelectedReg Grid.Row="0" Grid.Column="2" TextAlignment="Right"
+						NameSpace="{Binding NameSpace}" IsConnected="{Binding IsSyncEnabled}"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
 						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
@@ -101,6 +101,9 @@
 		</Style>
 		<Style Selector="CheckBox.InputItem Slider">
 			<Setter Property="Margin" Value="0,8,0,0" />
+		</Style>
+		<Style Selector="CheckBox.InnerCheckBox">
+			<Setter Property="Padding" Value="16,0" />
 		</Style>
 	</Application.Styles>
 

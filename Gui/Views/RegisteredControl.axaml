@@ -15,7 +15,7 @@
 </Design.DataContext>
 
 <UserControl.Styles>
-	<Style Selector="TextBlock#ChoosenText">
+	<Style Selector="TextBlock.ChoosenText">
 		<Setter Property="Margin" Value="8,0,0,0"/>
 		<Setter Property="FontWeight" Value="Normal"/>
 		<Setter Property="Opacity" Value="0.6"/>
@@ -26,11 +26,11 @@
 	<Expander.Header>
 		<StackPanel Orientation="Horizontal">
 			<TextBlock Text="{Binding NameSpace}" />
-			<TextBlock Name="ChoosenText" Text="{Binding Selected.Name, StringFormat='- {0}'}" />
+			<TextBlock Classes="ChoosenText" Text="{Binding Selected.Name, StringFormat='- {0}'}" />
 		</StackPanel>
 	</Expander.Header>
 	<!--<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />-->
-	<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" />
+	<ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" />
 </Expander>
 
 </UserControl>
