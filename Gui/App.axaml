@@ -12,7 +12,7 @@
 		<!-- SelectionItem -->
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">
-				<PathIcon Width="16" Height="16" Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
+				<PathIcon Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
 				<TextBlock Text="{Binding Name}" />
 			</StackPanel>
 		</DataTemplate>
@@ -53,9 +53,8 @@
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
 					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
 						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
-						<PathIcon Width="16" Height="16" Data="{Binding SyncIcon}"/>
+						<PathIcon Data="{Binding SyncIcon}"/>
 					</CheckBox>
-					<!-- <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding Item.Name}" TextAlignment="Right" /> -->
 					<v:TextBlockSelectedReg Grid.Row="0" Grid.Column="2" TextAlignment="Right"
 						NameSpace="{Binding NameSpace}" IsConnected="{Binding IsSyncEnabled}"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
@@ -107,6 +106,10 @@
 		</Style>
 		<Style Selector="CheckBox.InnerCheckBox">
 			<Setter Property="Padding" Value="16,0" />
+		</Style>
+		<Style Selector="PathIcon">
+			<Setter Property="Width" Value="16" />
+			<Setter Property="Height" Value="16" />
 		</Style>
 	</Application.Styles>
 

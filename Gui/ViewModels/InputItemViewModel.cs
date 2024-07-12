@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Media;
-using Avalonia.Media.TextFormatting;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
@@ -154,7 +153,7 @@ public class InputItemDropDown : InputItem
 			var name = @enum.NameMap != null ? @enum.NameMap(item) : item.ToString();
 			var	tag = @enum.DescriptionMap != null ? @enum.DescriptionMap(item) : null;
 
-			var sel = new SelectionItem() { Name = $"{num}. {name}", Tag = tag };
+			var sel = new SelectionItem() { Name = $"{num}. {name}", Tag = tag, Value = item };
 			Choices.Add(sel);
 
 			if (input.Default != null && input.Default.Equals(item)) {
@@ -168,7 +167,7 @@ public class InputItemDropDown : InputItem
 	{
 		int index = 0;
 		foreach(var name in @enum) {
-			var sel = new SelectionItem() { Name = name };
+			var sel = new SelectionItem() { Name = name, Value = name };
 			Choices.Add(sel);
 
 			if (input.Default != null && input.Default.Equals(name)) {
@@ -201,7 +200,7 @@ public class InputItemSync : InputItem
 		NameSpace = @namespace;
 		var defName = reg.Default(@namespace);
 		if (!String.IsNullOrEmpty(defName)) {
-			Item = new SelectionItem { Name = defName, NameSpace = @namespace };
+			Item = new SelectionItem { Name = defName, NameSpace = @namespace, Value = defName };
 		}
 		SetSyncIcon();
 	}

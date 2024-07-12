@@ -10,7 +10,9 @@ using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace ImageFunctions.Gui.ViewModels;
@@ -25,6 +27,9 @@ public class MainWindowViewModel : ViewModelBase
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 		LayersImageList.CollectionChanged += OnLayersCollectionChange;
+
+		//Don't know how to 'subscribe' to all child prop changes so just using a wrapper
+		InputsList.WatchChildProperties(OnInputListChanged);
 	}
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
@@ -529,4 +534,71 @@ public class MainWindowViewModel : ViewModelBase
 	// 	if (sender is not CheckBox box) { return; }
 	// 	Log.Debug($"model click {box.Name} {box.IsChecked}");
 	// }
+
+	public void OnInputListChanged(object sender, PropertyChangedEventArgs args)
+	{
+		string extra = "";
+		string value = "";
+		if (sender is InputItemSync iisync) {
+			var sel = iisync.Item;
+			extra = $"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
+			value = sel?.Value.ToString();
+		}
+		else if (sender is InputItemSlider iislider) {
+			extra = $"InputItemSlider Value={iislider.Value}";
+			value = iislider.Value.ToString();
+		}
+		else if (sender is InputItemText iitext) {
+			extra = $"InputItemInfo Text={iitext.Text}";
+			value = iitext.Text;
+		}
+		else if (sender is InputItemDropDown iidrop) {
+			var sel = iidrop.SelectedIndex >= 0 ? iidrop.Choices[iidrop.SelectedIndex] : null;
+			extra = $"InputItemDropDown SelectedIndex={iidrop.SelectedIndex} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
+			value = sel?.Value.ToString();
+		}
+
+		if (sender is InputItem ii) {
+			Log.Debug($"{(ii.Enabled?"✔":"❌")} [{ii.Name}] {extra}");
+			if (ii.Enabled) {
+				CommandLineArgCache[ii.Name] = value;
+			}
+			else {
+				CommandLineArgCache.Remove(ii.Name);
+			}
+		}
+		else {
+			Log.Debug($"?? {sender.GetType().FullName}");
+		}
+
+		RenderCommandLineFromWidgets();
+	}
+
+	public void OnCommandTextChanged(string text)
+	{
+		Log.Debug($"OnCommandTextChanged text={text}");
+	}
+
+	Dictionary<string,string> CommandLineArgCache = new();
+
+	bool commandLineIsRendering = false;
+	void RenderCommandLineFromWidgets()
+	{
+		if (commandLineIsRendering) { return; }
+		commandLineIsRendering = true;
+
+		bool isFirst = true;
+		StringBuilder sb = new();
+		foreach(var kvp in CommandLineArgCache) {
+			sb.Append($"{(isFirst?"":" ")}{kvp.Key} {kvp.Value}");
+			isFirst = false;
+		}
+
+		CommandText = sb.ToString();
+		commandLineIsRendering = false;
+	}
+
+	void UpdateWidgetsFromCommandLine()
+	{
+	}
 }
