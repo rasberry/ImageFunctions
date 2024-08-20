@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
 

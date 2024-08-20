@@ -22,7 +22,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -49,7 +49,7 @@ public class Function : IFunction
 	readonly Options Options = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }
 ```
 

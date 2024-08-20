@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -11,7 +13,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -35,9 +37,9 @@ public class Function : IFunction
 
 		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
-		using var canvas = Core.Engine.Item.Value.NewCanvasFromLayers(Layers);
-		var maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		Tools.ThreadPixels(frame, (x, y) => {
+		using var canvas = CoreOptions.Engine.Item.Value.NewCanvasFromLayers(Layers);
+		var maxThreads = CoreOptions.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		frame.ThreadPixels((x, y) => {
 			var nc = SmoothPixel(frame, x, y);
 			canvas[x, y] = nc;
 		}, maxThreads, progress);
@@ -70,8 +72,8 @@ public class Function : IFunction
 				if(len < bestlen) {
 					bestang = a;
 					bestlen = len;
-					bestfc = PlugTools.BetweenColor(fc, start, 0.5);
-					bestbc = PlugTools.BetweenColor(bc, start, 0.5);
+					bestfc = ColorAide.BetweenColor(fc, start, 0.5);
+					bestbc = ColorAide.BetweenColor(bc, start, 0.5);
 					double flen = O.Measurer.Value.Measure(px, py, fp.X, fp.Y);
 					bestratio = flen / len;
 					//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
@@ -83,7 +85,7 @@ public class Function : IFunction
 		}
 
 		if(O.DrawRatio) {
-			return PlugTools.BetweenColor(PlugColors.Black, PlugColors.White, bestratio);
+			return ColorAide.BetweenColor(ColorAide.Black, ColorAide.White, bestratio);
 		}
 
 		ColorRGBA final;
@@ -92,10 +94,10 @@ public class Function : IFunction
 			final = start;
 		}
 		else if(bestratio > 0.5) {
-			final = PlugTools.BetweenColor(start, bestbc, (bestratio - 0.5) * 2);
+			final = ColorAide.BetweenColor(start, bestbc, (bestratio - 0.5) * 2);
 		}
 		else {
-			final = PlugTools.BetweenColor(bestfc, start, bestratio * 2);
+			final = ColorAide.BetweenColor(bestfc, start, bestratio * 2);
 		}
 		return final;
 	}
@@ -138,6 +140,6 @@ public class Function : IFunction
 
 	readonly Options O = new();
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 	IRegister Register;
 }

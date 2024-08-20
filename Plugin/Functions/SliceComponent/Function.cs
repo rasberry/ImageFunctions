@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using Rasberry.Cli;
 
@@ -45,7 +46,7 @@ public class Function : IFunction
 			Layers.Push(slices[s]);
 		}
 
-		Tools.ThreadPixels(original, (x, y) => {
+		ImageAide.ThreadPixels(original, (x, y) => {
 			var c = O.Space.ToSpace(original[x, y]);
 			var ord = c.GetOrdinal(O.ComponentName);
 			double v = GetValue(ord, c);

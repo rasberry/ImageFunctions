@@ -68,7 +68,7 @@ public class Encryptor
 	public static byte[] GetIVBytesFromPassword(byte[] pBytes)
 	{
 		if(pBytes == null || pBytes.Length < 1) {
-			Core.Squeal.ArgumentNullOrEmpty(nameof(pBytes));
+			Squeal.ArgumentNullOrEmpty(nameof(pBytes));
 		}
 
 		//this is used a buffer to store the final bytes

@@ -1,6 +1,9 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 
@@ -15,7 +18,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -35,14 +38,14 @@ public class Function : IFunction
 		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
-		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
+		var engine = CoreOptions.Engine.Item.Value;
+		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
 		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if(O.UseOriginalCode) {
-			DrawOriginal.Draw(image, Core.MaxDegreeOfParallelism, O);
+			DrawOriginal.Draw(image, CoreOptions.MaxDegreeOfParallelism, O);
 		}
 		else {
 			Draw(image);
@@ -55,7 +58,7 @@ public class Function : IFunction
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 
 	internal const int NumberOfColors = 16777216;
 	//there doesn't seem to be a sort with progress so take a guess
@@ -81,14 +84,14 @@ public class Function : IFunction
 			int coff = y * image.Height + x;
 			var nc = coff < colorList.Count
 				? colorList[coff]
-				: PlugColors.Transparent;
+				: ColorAide.Transparent;
 			//Trace.WriteLine($"{nameof(AllColors)} copyColors {x},{y}");
 			image[x, y] = nc;
 		}
 
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 2");
 		progress.Prefix = "Rendering... ";
-		Tools.ThreadPixels(image, copyColors, Core.MaxDegreeOfParallelism, progress);
+		image.ThreadPixels(copyColors, CoreOptions.MaxDegreeOfParallelism, progress);
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 3");
 	}
 
@@ -201,7 +204,7 @@ public class Function : IFunction
 
 			int sx = x % 16 + x / 16;
 			int sy = y % 16 + y / 16;
-			long ib = 255 - PlugTools.XYToSpiralSquare(sx, sy, x / 16 + 7, y / 16 + 8);
+			long ib = 255 - PlugMath.XYToSpiralSquare(sx, sy, x / 16 + 7, y / 16 + 8);
 			double r = ir / 255.0, g = ig / 255.0, b = ib / 255.0;
 
 			if(O.Order != null) {
@@ -232,7 +235,7 @@ public class Function : IFunction
 
 			int sx = ic % 4096;
 			int sy = ic / 4096;
-			long pos = PlugTools.XYToSpiralSquare(sx, sy, cx, cy);
+			long pos = PlugMath.XYToSpiralSquare(sx, sy, cx, cy);
 
 			int index = (int)(pos / 65536);
 			uint count = bucket[index];
@@ -267,7 +270,7 @@ public class Function : IFunction
 
 			int sx = ic % 4096;
 			int sy = ic / 4096;
-			long pos = PlugTools.XYToSpiralSquare(sx, sy, cx, cy);
+			long pos = PlugMath.XYToSpiralSquare(sx, sy, cx, cy);
 
 			double r = ((pos >> 00) & 255) / 255.0;
 			double g = ((pos >> 08) & 255) / 255.0;
@@ -355,7 +358,7 @@ public class Function : IFunction
 					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			PlugTools.ParallelSort(tempList, comp, progress, Core.MaxDegreeOfParallelism);
+			MoreAide.ParallelSort(tempList, comp, progress, CoreOptions.MaxDegreeOfParallelism);
 		}
 		else {
 			//seems to be a lot faster than Array.Sort(key,collection)

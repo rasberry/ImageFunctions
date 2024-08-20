@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.Life;
@@ -34,8 +36,8 @@ public class Function : IFunction
 
 		ICanvas canvas;
 		if(O.MakeNewLayer) {
-			canvas = Tools.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
-			PlugTools.CopyFrom(canvas, Layers.First().Canvas);
+			canvas = ImageFunctions.Core.Aides.ImageAide.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
+			canvas.CopyFrom(Layers.First().Canvas);
 		}
 		else {
 			canvas = Layers.First().Canvas;
@@ -74,10 +76,10 @@ public class Function : IFunction
 
 		DoSimulation(canvas.Width, canvas.Height, last, history);
 
-		Tools.ThreadPixels(canvas, (x, y) => {
+		canvas.ThreadPixels((x, y) => {
 			var p = new Point(x, y);
 			if(last.Contains(p)) {
-				UpdatePixel(canvas, x, y, PlugColors.White, channel);
+				UpdatePixel(canvas, x, y, ColorAide.White, channel);
 			}
 			else if(history != null && history.TryGetValue(p, out ulong count)) {
 				double pct = (double)count / O.IterationMax;
@@ -86,7 +88,7 @@ public class Function : IFunction
 				UpdatePixel(canvas, x, y, c, channel);
 			}
 			else {
-				UpdatePixel(canvas, x, y, PlugColors.Black, channel);
+				UpdatePixel(canvas, x, y, ColorAide.Black, channel);
 			}
 		});
 	}

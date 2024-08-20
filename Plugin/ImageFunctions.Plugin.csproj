@@ -3,7 +3,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- <Nullable>enable</Nullable> -->
-    <OutputPath>../build</OutputPath>
+    <OutputPath>../artifacts/build</OutputPath>
+    <!--<UseCommonOutputDirectory>true</UseCommonOutputDirectory>-->
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
   </PropertyGroup>

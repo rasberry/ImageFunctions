@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Collections;
 using System.Drawing;

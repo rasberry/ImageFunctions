@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Logging;
 using System.Drawing;
 using static ImageFunctions.Plugin.ImageComparer;
 

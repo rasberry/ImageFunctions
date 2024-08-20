@@ -1,7 +1,11 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
+using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -12,7 +16,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -29,14 +33,14 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(UlamSpiral.Options.DefaultWidth, UlamSpiral.Options.DefaultHeight);
+		var engine = CoreOptions.Engine.Item.Value;
+		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(UlamSpiral.Options.DefaultWidth, UlamSpiral.Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
 		var bounds = source.Bounds();
 
 		Init(Register);
-		PlugTools.FillWithColor(source, GetColor(PickColor.Back), bounds);
+		PlugImage.FillWithColor(source, GetColor(PickColor.Back), bounds);
 
 		var srect = GetSpacedRectangle(bounds);
 		int maxFactor = O.ColorComposites ? FindMaxFactor(bounds) : 1;
@@ -106,7 +110,7 @@ public class Function : IFunction
 		else {
 			srect.ThreadPixels((x, y) => {
 				drawOne(x, y);
-			}, Core.MaxDegreeOfParallelism, pb2);
+			}, CoreOptions.MaxDegreeOfParallelism, pb2);
 		}
 
 		return true;
@@ -118,7 +122,7 @@ public class Function : IFunction
 	{
 		var bg = GetColor(PickColor.Back);
 		var fg = GetColor(PickColor.Comp);
-		var color = PlugTools.BetweenColor(bg, fg, amount);
+		var color = ColorAide.BetweenColor(bg, fg, amount);
 		drawFunc(frame, x, y, color, amount);
 	}
 
@@ -145,7 +149,7 @@ public class Function : IFunction
 					if(count > maxFactor) { maxFactor = count; }
 				}
 			}
-		}, Core.MaxDegreeOfParallelism, pb1);
+		}, CoreOptions.MaxDegreeOfParallelism, pb1);
 
 		return maxFactor;
 	}
@@ -185,11 +189,11 @@ public class Function : IFunction
 				//these are all 1+ since ulams spiral starts at 1 not 0
 		switch(O.Mapping) {
 		case PickMapping.Linear:
-			return 1 + PlugTools.XYToLinear(x, y, w, cx, cy);
+			return 1 + PlugMath.XYToLinear(x, y, w, cx, cy);
 		case PickMapping.Diagonal:
-			return 1 + PlugTools.XYToDiagonal(x, y, cx, cy);
+			return 1 + PlugMath.XYToDiagonal(x, y, cx, cy);
 		case PickMapping.Spiral:
-			return 1 + PlugTools.XYToSpiralSquare(x, y, cx, cy);
+			return 1 + PlugMath.XYToSpiralSquare(x, y, cx, cy);
 		}
 		return -1;
 	}
@@ -256,7 +260,7 @@ public class Function : IFunction
 				case PickDot.Blob: {
 					double ratio = Metric.Value.Measure(dx, dy, x, y) * 2.0 / d;
 					var ec = frame[dx, dy]; //merge with background
-					var c = PlugTools.BetweenColor(color, ec, ratio);
+					var c = ColorAide.BetweenColor(color, ec, ratio);
 					frame[dx, dy] = c;
 					break;
 				}
@@ -265,20 +269,20 @@ public class Function : IFunction
 		}
 	}
 
-	ColorRGBA[] c_color = new ColorRGBA[4];
+	readonly ColorRGBA[] c_color = new ColorRGBA[4];
 	Lazy<IMetric> Metric;
 	readonly Options O = new();
 	IRegister Register;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 	ILayers Layers;
 
 	void Init(IRegister register)
 	{
 		var def = O.Color1.Value;
 		c_color[0] = def;
-		c_color[1] = O.Color2.HasValue ? O.Color2.Value : def;
-		c_color[2] = O.Color3.HasValue ? O.Color3.Value : def;
-		c_color[3] = O.Color4.HasValue ? O.Color4.Value : def;
+		c_color[1] = O.Color2 ?? def;
+		c_color[2] = O.Color3 ?? def;
+		c_color[3] = O.Color4 ?? def;
 
 		var mr = new MetricRegister(register);
 		var m = mr.Get("Euclidean");

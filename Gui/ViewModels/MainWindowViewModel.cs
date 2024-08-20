@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -573,7 +574,7 @@ public class MainWindowViewModel : ViewModelBase
 			return new InputItemSlider(iup);
 		}
 
-		throw Core.Squeal.NotSupported($"Type {it}");
+		throw Squeal.NotSupported($"Type {it}");
 	}
 
 	public ObservableCollection<InputItem> InputsList { get; init; } = new();

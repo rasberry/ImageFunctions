@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
@@ -10,7 +12,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -27,8 +29,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(Functions.Maze.Options.DefaultWidth, Functions.Maze.Options.DefaultHeight);
+		var engine = CoreOptions.Engine.Item.Value;
+		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(Functions.Maze.Options.DefaultWidth, Functions.Maze.Options.DefaultHeight);
 		canvas = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(canvas);
 
@@ -54,7 +56,7 @@ public class Function : IFunction
 			BasicMaze = Maze;
 		}
 
-		PlugTools.FillWithColor(canvas, O.WallColor);
+		Plugin.Aides.ImageAide.FillWithColor(canvas, O.WallColor);
 		using var progress = new ProgressBar();
 		BasicMaze.DrawMaze(progress);
 
@@ -120,5 +122,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	ILayers Layers;
 	IRegister Register;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

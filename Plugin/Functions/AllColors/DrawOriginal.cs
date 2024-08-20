@@ -1,5 +1,7 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -30,7 +32,7 @@ public static class DrawOriginal
 
 		using var progress = new ProgressBar();
 		progress.Prefix = "Rendering...";
-		Tools.ThreadPixels(bounds, work, maxThreads, progress);
+		bounds.ThreadPixels(work, maxThreads, progress);
 	}
 
 	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int? maxThreads, Options O)
@@ -160,7 +162,7 @@ public static class DrawOriginal
 						return MultiSort(compList, a.Item2, b.Item2);
 					})
 				);
-				PlugTools.ParallelSort(tempList, comp, progress, maxThreads);
+				MoreAide.ParallelSort(tempList, comp, progress, maxThreads);
 			}
 			else {
 				//seems to be a lot faster than Array.Sort(key,collection)

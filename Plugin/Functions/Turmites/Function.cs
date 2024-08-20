@@ -1,5 +1,8 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
 
@@ -10,7 +13,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -27,8 +30,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(Turmites.Options.DefaultWidth, Turmites.Options.DefaultHeight);
+		var engine = CoreOptions.Engine.Item.Value;
+		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(Turmites.Options.DefaultWidth, Turmites.Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
 
@@ -116,7 +119,7 @@ public class Function : IFunction
 
 	readonly Options O = new();
 	IRegister Register;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 	ILayers Layers;
 
 	enum Direction : int

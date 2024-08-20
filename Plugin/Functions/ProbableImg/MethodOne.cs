@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Plugin.Aides;
 
 namespace ImageFunctions.Plugin.Functions.ProbableImg;
 

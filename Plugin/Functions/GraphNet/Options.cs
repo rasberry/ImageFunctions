@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.GraphNet;

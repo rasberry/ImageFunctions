@@ -1,5 +1,7 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -29,7 +31,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Fills area(s) of color with another color"),
 			Parameters = [
-				new UsageOne<ColorRGBA>(1, "-c", "Fill color (default white)") { Default = PlugColors.White },
+				new UsageOne<ColorRGBA>(1, "-c", "Fill color (default white)") { Default = ColorAide.White },
 				new UsageOne<Point>(1, "-p", "Pick starting coordinate (can be specified multiple times)"),
 				new UsageOne<bool>(1, "-i", "Replace pixels with ones taken the second layer"),
 				new UsageOne<ColorRGBA>(1, "-r", "Treat all pixels of given color as starting points"),
@@ -59,7 +61,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
 		});
 
-		if(p.Scan("-c", PlugColors.White, parseColor)
+		if(p.Scan("-c", ColorAide.White, parseColor)
 			.WhenGoodOrMissing(r => { FillColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -111,7 +113,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		bool done = false;
 		do {
-			if(p.Scan("-p", Point.Empty, PlugTools.ParsePoint)
+			if(p.Scan("-p", Point.Empty, Plugin.Aides.OptionsAide.ParsePoint)
 				.WhenMissing(r => { done = true; return r; })
 				.WhenGood(r => {
 					StartPoints ??= new();

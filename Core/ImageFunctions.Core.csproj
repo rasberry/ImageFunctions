@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <OutputPath>../build</OutputPath>
+    <OutputPath>../artifacts/build</OutputPath>
+    <!--<UseCommonOutputDirectory>true</UseCommonOutputDirectory>-->
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>

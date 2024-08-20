@@ -1,3 +1,4 @@
+using ImageFunctions.Core.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Core;

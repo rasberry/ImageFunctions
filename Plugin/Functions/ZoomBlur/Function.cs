@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -11,7 +13,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -33,7 +35,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
+		var engine = CoreOptions.Engine.Item.Value;
 
 		var source = Layers.First().Canvas;
 		using var progress = new ProgressBar();
@@ -52,7 +54,7 @@ public class Function : IFunction
 			h2 = bounds.Height * O.CenterRt.Value.Y;
 		}
 
-		Tools.ThreadPixels(bounds, (x, y) => {
+		Core.Aides.ImageAide.ThreadPixels(bounds, (x, y) => {
 			var d = source[x, y];
 			//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
 			ColorRGBA nc = ZoomPixel(source, bounds, x, y, w2, h2);
@@ -60,7 +62,7 @@ public class Function : IFunction
 			int cx = x - bounds.Left;
 			//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 			canvas[cx, cy] = nc;
-		}, Core.MaxDegreeOfParallelism, progress);
+		}, CoreOptions.MaxDegreeOfParallelism, progress);
 
 		source.CopyFrom(canvas, bounds);
 		return true;
@@ -111,5 +113,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

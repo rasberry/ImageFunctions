@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
@@ -11,7 +13,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -28,8 +30,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
-		var (dfw, dfh) = Core.GetDefaultWidthHeight(SpearGraphic.Options.DefaultWidth, SpearGraphic.Options.DefaultHeight);
+		var engine = CoreOptions.Engine.Item.Value;
+		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(SpearGraphic.Options.DefaultWidth, SpearGraphic.Options.DefaultHeight);
 		var img = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(img);
 
@@ -63,5 +65,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	ILayers Layers;
 	IRegister Register;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

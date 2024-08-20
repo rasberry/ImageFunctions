@@ -1,4 +1,6 @@
+#pragma warning disable CA1711 //Diabling warning about naming things with 'Enum' at the end
 using Rasberry.Cli;
+using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Core;
 

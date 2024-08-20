@@ -1,3 +1,5 @@
+using ImageFunctions.Core.Aides;
+
 namespace ImageFunctions.Core;
 
 internal class Register : IRegister, IDisposable

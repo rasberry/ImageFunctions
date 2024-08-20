@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Deform;
@@ -10,7 +12,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -31,7 +33,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
+		var engine = CoreOptions.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers); //temporary canvas
 		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
@@ -46,8 +48,8 @@ public class Function : IFunction
 			ccy = frame.Height * (O.CenterPp == null ? 0.5 : O.CenterPp.Value.Y);
 		}
 
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		Tools.ThreadPixels(frame, (x, y) => {
+		int maxThreads = CoreOptions.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		frame.ThreadPixels((x, y) => {
 			var nc = ProjectPixel(frame, x, y, ccx, ccy, O.Power);
 			canvas[x, y] = nc;
 		}, maxThreads, progress);
@@ -95,5 +97,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

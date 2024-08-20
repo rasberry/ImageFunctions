@@ -1,6 +1,10 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
+using PlugOptions = ImageFunctions.Plugin.Aides.OptionsAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -77,8 +81,8 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var pointParser = new ParseParams.Parser<Point>(PlugTools.ParsePoint);
-		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
+		var pointParser = new ParseParams.Parser<Point>(PlugOptions.ParsePoint);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugOptions.ParseColor);
 
 		if(p.Has("-f").IsGood()) {
 			ColorComposites = true;

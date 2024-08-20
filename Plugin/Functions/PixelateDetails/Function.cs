@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.PixelateDetails;
@@ -11,7 +12,7 @@ public class Function : IFunction
 		var f = new Function {
 			Register = register,
 			Layers = layers
-			// Core = core - not used
+			// CoreOptions = core - not used
 		};
 		return f;
 	}
@@ -220,12 +221,10 @@ public class Function : IFunction
 			};
 		}
 
-		public int CompareTo(object obj)
+		public readonly int CompareTo(object obj)
 		{
 			var sub = (SortPair)obj;
 			return -1 * Value.CompareTo(sub.Value);
 		}
 	}
-
-
 }

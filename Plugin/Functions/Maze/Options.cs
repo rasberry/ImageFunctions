@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
@@ -26,8 +28,8 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Draws one of several mazes"),
 			Parameters = [
 				new UsageOne<PickMaze>(1, "-m", "Choose a maze (default prims)") { Default = PickMaze.Prims, TypeText = "Maze" },
-				new UsageOne<ColorRGBA>(1, "-cc", "Change cell color (default black)") { Default = PlugColors.Black },
-				new UsageOne<ColorRGBA>(1, "-wc", "Change wall color (default white)") { Default = PlugColors.White },
+				new UsageOne<ColorRGBA>(1, "-cc", "Change cell color (default black)") { Default = ColorAide.Black },
+				new UsageOne<ColorRGBA>(1, "-wc", "Change wall color (default white)") { Default = ColorAide.White },
 				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
 				new UsageOne<string>(1, "-sq", "Growing Tree cell picking sequence (default 'N')") { TypeText = "s,s,..." },
 				new UsageOne<bool>(1, "-sr", "Randomly pick between sequence options"),
@@ -97,7 +99,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugTools.ParseColor);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(Plugin.Aides.OptionsAide.ParseColor);
 
 		if(p.Scan("-m", PickMaze.Prims)
 			.WhenGoodOrMissing(r => { Which = r.Value; return r; })
@@ -107,7 +109,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan("-cc", PlugColors.Black, colorParser)
+		if(p.Scan("-cc", ColorAide.Black, colorParser)
 			.WhenGoodOrMissing(r => { CellColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -115,7 +117,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan("-wc", PlugColors.White, colorParser)
+		if(p.Scan("-wc", ColorAide.White, colorParser)
 			.WhenGoodOrMissing(r => { WallColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()

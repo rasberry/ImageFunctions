@@ -1,3 +1,5 @@
+using ImageFunctions.Core.Aides;
+
 namespace ImageFunctions.Core.Samplers;
 
 //https://github.com/ImageMagick/ImageMagick/blob/f775a5cf27a95c42bb6d19b50f4869db265fdaa9/MagickCore/resize.c
@@ -186,7 +188,7 @@ abstract class AbstractSampler : ISampler
 	{
 		if(x < 0.0) { x = -x; }
 		if(x < rad) {
-			return Tools.SinC(x) * Tools.SinC(x / rad);
+			return MathAide.SinC(x) * MathAide.SinC(x / rad);
 		}
 		return 0.0;
 	}

@@ -5,6 +5,7 @@ using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Numerics;
+using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Gui.ViewModels;
 

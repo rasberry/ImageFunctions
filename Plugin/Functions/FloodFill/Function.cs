@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.FloodFill;
@@ -56,7 +57,7 @@ public class Function : IFunction
 		MaxDist = ImageComparer.Max(O.Metric?.Value);
 		ICanvas surface;
 		if(O.MakeNewLayer) {
-			surface = Tools.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
+			surface = Core.Engine.Item.Value.NewCanvasFromLayers(Layers);
 		}
 		else {
 			surface = Layers.First().Canvas;
@@ -76,7 +77,7 @@ public class Function : IFunction
 
 		//find and add replaceColor pixel coordinates
 		if(O.ReplaceColor.HasValue) {
-			Tools.ThreadPixels(surface, (x, y) => {
+			surface.ThreadPixels((x, y) => {
 				var c = surface[x, y];
 				if(IsSimilar(O.ReplaceColor.Value, c)) {
 					Storage.Stow((new Point(x, y), c));

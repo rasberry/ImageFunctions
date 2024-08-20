@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.AutoWhiteBalance;
@@ -10,7 +11,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -37,9 +38,9 @@ public class Function : IFunction
 		var hist = CalcHistorgram(progress, source, O.BucketCount);
 		var factors = CalcStretchFactors(hist, source.Width, source.Height, O.DiscardRatio);
 
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		int maxThreads = CoreOptions.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		progress.Prefix = "Modifying Colors ";
-		Tools.ThreadPixels(source, (int x, int y) => {
+		source.ThreadPixels((int x, int y) => {
 			Core.ColorSpace.IColor3 orig = source[x, y];
 			var c1 = Math.Clamp((orig.C1 - factors.C1Shift) * factors.C1Stretch, 0.0, 1.0);
 			var c2 = Math.Clamp((orig.C2 - factors.C2Shift) * factors.C2Stretch, 0.0, 1.0);
@@ -131,7 +132,7 @@ public class Function : IFunction
 
 	readonly Options O = new();
 	IRegister Register;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 	ILayers Layers;
 
 	class Histogram3Data

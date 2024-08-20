@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -11,7 +13,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -39,7 +41,7 @@ public class Function : IFunction
 		var srcImg = Layers[topIx].Canvas;
 		var compareImg = Layers[nextIx].Canvas;
 		ICanvas frame = O.MakeThirdLayer
-			? Core.Engine.Item.Value.NewCanvasFromLayers(Layers)
+			? CoreOptions.Engine.Item.Value.NewCanvasFromLayers(Layers)
 			: srcImg;
 
 		InitMetric();
@@ -60,13 +62,13 @@ public class Function : IFunction
 	double ProcessDiff(ICanvas frame, ICanvas srcImg, ICanvas compareImg)
 	{
 		var minimum = Rectangle.Intersect(frame.Bounds(), compareImg.Bounds());
-		var colorWhite = PlugColors.White;
+		var colorWhite = ColorAide.White;
 		var colorHilight = O.HilightColor;
-		var colorTransp = PlugColors.Transparent;
+		var colorTransp = ColorAide.Transparent;
 		double totalDist = 0.0;
 		var progress = new ProgressBar();
 
-		Tools.ThreadPixels(minimum, (x, y) => {
+		minimum.ThreadPixels((x, y) => {
 			var one = srcImg[x, y];
 			var two = compareImg[x, y];
 			bool areSame = one.Equals(two);
@@ -93,11 +95,11 @@ public class Function : IFunction
 					ec = colorHilight;
 				}
 				totalDist += dist;
-				var overlay = PlugTools.BetweenColor(sc, ec, dist);
+				var overlay = ColorAide.BetweenColor(sc, ec, dist);
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		}, Core.MaxDegreeOfParallelism, progress);
+		}, CoreOptions.MaxDegreeOfParallelism, progress);
 
 		return totalDist;
 	}
@@ -118,5 +120,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

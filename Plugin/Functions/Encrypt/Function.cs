@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Encrypt;
@@ -10,7 +12,7 @@ public class Function : IFunction
 	{
 		var f = new Function {
 			Register = register,
-			Core = core,
+			CoreOptions = core,
 			Layers = layers
 		};
 		return f;
@@ -32,7 +34,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
+		var engine = CoreOptions.Engine.Item.Value;
 		var frame = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
@@ -56,5 +58,5 @@ public class Function : IFunction
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
-	ICoreOptions Core;
+	ICoreOptions CoreOptions;
 }

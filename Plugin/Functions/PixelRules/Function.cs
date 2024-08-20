@@ -1,4 +1,6 @@
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 
@@ -42,7 +44,7 @@ public class Function : IFunction
 
 		for(int p = 0; p < O.Passes; p++) {
 			progress.Prefix = "Pass " + (p + 1) + "/" + O.Passes + " ";
-			Tools.ThreadPixels(canvas, (x, y) => {
+			canvas.ThreadPixels((x, y) => {
 				ColorRGBA nc = RunRule(source, rect, x, y);
 				canvas[x, y] = nc;
 			}, maxThreads, progress);
@@ -148,7 +150,7 @@ public class Function : IFunction
 			if(O.WhichMode == Mode.StairCaseAscend
 				|| O.WhichMode == Mode.StairCaseDescend) {
 				//only follow darker colors
-				ColorRGBA white = PlugColors.White;
+				ColorRGBA white = ColorAide.White;
 				double bdw = Dist(best.Value, white);
 				double ddw = Dist(bid.Value, white);
 				if(bdw > ddw) { return false; }
