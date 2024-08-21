@@ -1,5 +1,4 @@
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using static Rasberry.Cli.ParseParams;
 
 namespace ImageFunctions.Test;

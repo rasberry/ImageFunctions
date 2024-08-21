@@ -39,40 +39,83 @@ public class Function : IFunction
 		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(image);
 
+		var bounds = image.Bounds();
+		if (O.Sweep == FibSquares.Options.SweepKind.Split) {
+			var (one,two) = SplitSquare(bounds);
+			DrawSpiral(image, one);
+			DrawSpiral(image, two);
+		}
+		else if (O.Sweep == FibSquares.Options.SweepKind.Resize) {
+			var resized = GetOptimalRatio(bounds);
+			DrawSpiral(image, resized);
+		}
+		else { //SweepKind.Nothing
+			DrawSpiral(image, bounds);
+		}
+
+		return true;
+	}
+
+	Rectangle GetOptimalRatio(Rectangle bounds)
+	{
+		int a = (int)Math.Round(bounds.Height / Phi - bounds.Width); //close ratio adjust width
+		int b = (int)Math.Round(bounds.Width / Phi - bounds.Height); //close ratio adjust height
+		int c = (int)Math.Round(bounds.Height * Phi - bounds.Width); //far ratio adjust width
+		int d = (int)Math.Round(bounds.Width * Phi - bounds.Height); //far ratio adjust height
+		//Log.Debug($"{nameof(GetOptimal)} {a} {b} {c} {d}");
+
+		//pick the least negative value below zero
+		//only have 4 values to check so doing this manually
+		int z = int.MinValue, which = -1;
+		if (a < 0 && a > z) { z = a; which = 0; }
+		if (b < 0 && b > z) { z = b; which = 1; }
+		if (c < 0 && c > z) { z = c; which = 2; }
+		if (d < 0 && d > z) { z = d; which = 3; }
+
+		switch(which) {
+		case 0: return new Rectangle(bounds.Left, bounds.Top, bounds.Width + z, bounds.Height);
+		case 1: return new Rectangle(bounds.Left, bounds.Top, bounds.Width, bounds.Height + z);
+		case 2: return new Rectangle(bounds.Left, bounds.Top, bounds.Width + z, bounds.Height);
+		case 3: return new Rectangle(bounds.Left, bounds.Top, bounds.Width, bounds.Height + z);
+		}
+		return bounds;
+	}
+
+	void DrawSpiral(ICanvas image, Rectangle bounds)
+	{
 		//calculate boxes and remainders (splits)
-		List<(Rectangle Square,Rectangle Split)> splitList = new();
-		var area = image.Bounds();
+		List<(Rectangle Square,Rectangle Split)> shapeList = new ();
+		var area = bounds;
 		int seq = 0;
+		
 		while(true) {
 			var (square,split) = SplitRectangle(area, seq++);
-			// Log.Debug($"split = {split}");
 			if (split.Width <= 0 || split.Height <= 0) { break; }
-			splitList.Add((square,split));
+			shapeList.Add((square,split));
 			area = split;
 		}
 
 		//pre-select colors since gradients need two colors each iteration
-		List<ColorRGBA> colorList = new(splitList.Count + 1);
-		for(int c = 0; c < splitList.Count + 1; c++) {
+		List<ColorRGBA> colorList = new(shapeList.Count + 1);
+		for(int c = 0; c < shapeList.Count + 1; c++) {
 			colorList.Add(RandomColor());
 		}
 
 		switch(O.DraMode) {
 		case FibSquares.Options.DrawModeKind.Plain:
-			DrawSimpleBoxes(image, splitList, colorList); break;
+			DrawSimpleBoxes(image, shapeList, colorList); break;
 		case FibSquares.Options.DrawModeKind.Gradient:
-			DrawGradients(image, splitList, colorList); break;
+			DrawGradients(image, shapeList, colorList); break;
 		case FibSquares.Options.DrawModeKind.Drag:
-			DrawDrag(image, splitList, colorList); break;
+			DrawDrag(image, shapeList, colorList); break;
 		}
 
 		if (O.DrawBorders) {
-			for(int c = 0; c < splitList.Count - 1; c++) {
-				var b = splitList[c].Square;
+			for(int c = 0; c < shapeList.Count - 1; c++) {
+				var b = shapeList[c].Square;
 				DrawBorder(image,b,colorList[c]);
 			}
 		}
-		return true;
 	}
 
 	(Rectangle Sqaure, Rectangle Split) SplitRectangle(Rectangle bounds, int seq = 0)
@@ -106,14 +149,45 @@ public class Function : IFunction
 		return (square,split);
 	}
 
+	(Rectangle One, Rectangle Two) SplitSquare(Rectangle bounds)
+	{
+		var values = Enum.GetValues<Direction>();
+		var dir = (Direction)values.GetValue(Rnd.Next(values.Length));
+		Rectangle one, two;
+		double len = dir == Direction.Up || dir == Direction.Down ? bounds.Height : bounds.Width;
+		double big = len * Phi / (Phi + 1);
+		double sma = len / (Phi + 1);
+
+		switch(dir) {
+		case Direction.Up: default:
+			one = new Rectangle(bounds.Left, bounds.Top, bounds.Width, (int)sma);
+			two = new Rectangle(bounds.Left, (int)sma, bounds.Width, bounds.Height - (int)sma);
+			break;
+		case Direction.Down:
+			one = new Rectangle(bounds.Left, bounds.Top, bounds.Width, (int)big);
+			two = new Rectangle(bounds.Left, (int)big, bounds.Width, bounds.Height - (int)big);
+			break;
+		case Direction.Left:
+			one = new Rectangle(bounds.Left, bounds.Top, (int)sma, bounds.Height);
+			two = new Rectangle((int)sma, bounds.Top, bounds.Width - (int)sma, bounds.Height);
+			break;
+		case Direction.Right:
+			one = new Rectangle(bounds.Left, bounds.Top, (int)big, bounds.Height);
+			two = new Rectangle((int)big, bounds.Top, bounds.Width - (int)big, bounds.Height);
+			break;
+		}
+		return (one,two);
+	}
+
 	void DrawSimpleBoxes(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
 	{
 		int c = 0;
-		DrawArea(image, image.Bounds(), colorList[c]);
 		foreach(var item in list) {
 			var color = RandomColor();
-			DrawArea(image, item.Split, colorList[++c]);
+			DrawArea(image, item.Square, colorList[c++]);
 		}
+		DrawArea(image, list[^1].Split, colorList[c++]);
+
 	}
 
 	void DrawGradients(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
@@ -266,8 +340,8 @@ public class Function : IFunction
 		return new ColorRGBA(r,g,b,1.0);
 	}
 
-	enum Direction { Up, Down, Left, Right }
-	//const double Phi = 1.618033988749895; //(Math.Sqrt(5) + 1) / 2;
+	enum Direction { Up = 0, Down = 1, Left, Right }
+	const double Phi = 1.618033988749895; //(Math.Sqrt(5) + 1) / 2;
 	readonly Options O = new();
 	public IOptions Options { get { return O; }}
 
