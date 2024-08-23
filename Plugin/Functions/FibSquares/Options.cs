@@ -4,7 +4,7 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.FibSquares;
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public const int PhiWidth = 1597; //F17
 	public const int PhiHeight = 987; //F16
@@ -17,21 +17,32 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Divides the canvas into squares and remainders consecutively which creates a Fibonacci-like sequence");
-		sb.ND(1,"-m (mode)", "Choose drawing mode (default Plain)");
-		sb.ND(1,"-s","Use spiral sequence ordering instead or random");
-		sb.ND(1,"-b","Also draw borders around each square");
-		sb.ND(1,"-rs (number)","Set the random number seed to produce consistent imges");
-		sb.ND(1,"-w (sweep)","Tweak the processing to avoid getting stuck at a dead-end (default Resize)");
-		sb.WT();
-		sb.WT(1,"Available Modes:");
-		sb.PrintEnum<DrawModeKind>(1, descriptionMap: DrawModeDescription);
-		sb.WT();
-		sb.WT(1,"Available Sweep types:");
-		sb.PrintEnum<SweepKind>(1, descriptionMap: SweepDescription);
+		sb.RenderUsage(this);
 	}
 
-	string SweepDescription(SweepKind k)
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1,
+				"Divides the canvas into squares and remainders consecutively which creates a Fibonacci-like sequence"
+			),
+			Parameters = [
+				new UsageOne<DrawModeKind>(1,"-m (mode)", "Choose drawing mode (default Plain)") { Default = DrawModeKind.Plain },
+				new UsageOne<bool>(1,"-s","Use spiral sequence ordering instead or random"),
+				new UsageOne<bool>(1,"-b","Also draw borders around each square"),
+				new UsageOne<int>(1,"-rs (number)","Set the random number seed to produce consistent imges"),
+				new UsageOne<SweepKind>(1,"-w (sweep)","Tweak the processing to avoid getting stuck at a dead-end (default Resize)") { Default = SweepKind.Resize }
+			],
+			EnumParameters = [
+				new UsageEnum<DrawModeKind>(1, "Available Modes:") { DescriptionMap = DrawModeDescription },
+				new UsageEnum<SweepKind>(1, "Available Sweep types:") { DescriptionMap = SweepDescription },
+			]
+		};
+
+		return u;
+	}
+
+	string SweepDescription(object k)
 	{
 		return k switch {
 			SweepKind.Nothing => "Don't tweak the image; may run into dead-ends",
@@ -41,7 +52,7 @@ public sealed class Options : IOptions
 		};
 	}
 
-	string DrawModeDescription(DrawModeKind k)
+	string DrawModeDescription(object k)
 	{
 		return k switch {
 			DrawModeKind.Nothing => "Don't draw boxes - combine with '-b' to draw only borders",

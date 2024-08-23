@@ -286,6 +286,7 @@ public class Function : IFunction
 			if (dt > steps) { steps = dt; d = Direction.Up; }
 			if (dr > steps) { steps = dr; d = Direction.Right; }
 			if (db > steps) { steps = db; d = Direction.Down; }
+			Log.Debug($"d={d}");
 
 			for(int s = 0; s < steps; s++) {
 				double ratio = s / (double)steps;
