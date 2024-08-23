@@ -62,16 +62,16 @@ public class Function : IFunction
 		int b = (int)Math.Round(bounds.Width / Phi - bounds.Height); //close ratio adjust height
 		int c = (int)Math.Round(bounds.Height * Phi - bounds.Width); //far ratio adjust width
 		int d = (int)Math.Round(bounds.Width * Phi - bounds.Height); //far ratio adjust height
-		//Log.Debug($"{nameof(GetOptimal)} {a} {b} {c} {d}");
 
 		//pick the least negative value below zero
 		//only have 4 values to check so doing this manually
 		int z = int.MinValue, which = -1;
-		if (a < 0 && a > z) { z = a; which = 0; }
-		if (b < 0 && b > z) { z = b; which = 1; }
-		if (c < 0 && c > z) { z = c; which = 2; }
-		if (d < 0 && d > z) { z = d; which = 3; }
+		if (a <= 0 && a > z) { z = a; which = 0; }
+		if (b <= 0 && b > z) { z = b; which = 1; }
+		if (c <= 0 && c > z) { z = c; which = 2; }
+		if (d <= 0 && d > z) { z = d; which = 3; }
 
+		//Log.Debug($"{nameof(GetOptimalRatio)} {a} {b} {c} {d} [{z}]");
 		switch(which) {
 		case 0: return new Rectangle(bounds.Left, bounds.Top, bounds.Width + z, bounds.Height);
 		case 1: return new Rectangle(bounds.Left, bounds.Top, bounds.Width, bounds.Height + z);
@@ -84,7 +84,7 @@ public class Function : IFunction
 	void DrawSpiral(ICanvas image, Rectangle bounds)
 	{
 		//calculate boxes and remainders (splits)
-		List<(Rectangle Square,Rectangle Split)> shapeList = new ();
+		List<(Rectangle Square,Rectangle Split)> shapeList = new();
 		var area = bounds;
 		int seq = 0;
 		
@@ -108,6 +108,9 @@ public class Function : IFunction
 			DrawGradients(image, shapeList, colorList); break;
 		case FibSquares.Options.DrawModeKind.Drag:
 			DrawDrag(image, shapeList, colorList); break;
+		//case FibSquares.Options.DrawModeKind.LineDrag:
+		//	DrawLinePath(image, shapeList, colorList); break;
+
 		}
 
 		if (O.DrawBorders) {
@@ -146,6 +149,7 @@ public class Function : IFunction
 			split = new Rectangle(L, T, W - H, H);
 			square = new Rectangle(L + W - H, T, H, H);
 		}
+		//Log.Debug($"{nameof(SplitRectangle)} b={bounds} q={square} s={split}");
 		return (square,split);
 	}
 
@@ -231,6 +235,13 @@ public class Function : IFunction
 			int dr = Math.Abs(beg.Right - end.Right);
 			int db = Math.Abs(beg.Bottom - end.Bottom);
 
+			// Direction? d = null;
+			// int steps = int.MinValue;
+			// if (dl > steps) { steps = dl; d = Direction.Left; }
+			// if (dt > steps) { steps = dt; d = Direction.Up; }
+			// if (dr > steps) { steps = dr; d = Direction.Right; }
+			// if (db > steps) { steps = db; d = Direction.Down; }
+
 			int steps = Plugin.Aides.MathAide.Max(dl, dt, dr, db);
 			//Log.Debug($"steps={steps} beg={beg} end={end}");
 
@@ -240,7 +251,7 @@ public class Function : IFunction
 				double t = Plugin.Aides.MathAide.Between(beg.Top, end.Top, ratio);
 				double r = Plugin.Aides.MathAide.Between(beg.Right, end.Right, ratio);
 				double b = Plugin.Aides.MathAide.Between(beg.Bottom, end.Bottom, ratio);
-				var color = ColorAide.BetweenColor(cb,ce, ratio);
+				var color = ColorAide.BetweenColor(cb, ce, ratio);
 
 				var rect = Rectangle.FromLTRB(
 					(int)Math.Round(l),
@@ -251,6 +262,103 @@ public class Function : IFunction
 
 				DrawBorder(image, rect, color);
 			}
+		}
+	}
+
+	//TODO needs work
+	void DrawLinePath(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
+	{
+		for(int c = 0; c < list.Count - 1; c++) {
+			var cb = colorList[c];
+			var ce = colorList[c + 1];
+			var beg = list[c].Square;
+			var end = list[c + 1].Square;
+
+			//calculate the steps
+			int dl = Math.Abs(beg.Left - end.Left);
+			int dt = Math.Abs(beg.Top - end.Top);
+			int dr = Math.Abs(beg.Right - end.Right);
+			int db = Math.Abs(beg.Bottom - end.Bottom);
+
+			Direction d = Direction.Up;
+			int steps = int.MinValue;
+			if (dl > steps) { steps = dl; d = Direction.Left; }
+			if (dt > steps) { steps = dt; d = Direction.Up; }
+			if (dr > steps) { steps = dr; d = Direction.Right; }
+			if (db > steps) { steps = db; d = Direction.Down; }
+
+			for(int s = 0; s < steps; s++) {
+				double ratio = s / (double)steps;
+				var color = ColorAide.BetweenColor(cb, ce, ratio);
+
+				double l = Plugin.Aides.MathAide.Between(beg.Left, end.Left, ratio);
+				double t = Plugin.Aides.MathAide.Between(beg.Top, end.Top, ratio);
+				double r = Plugin.Aides.MathAide.Between(beg.Right, end.Right, ratio);
+				double b = Plugin.Aides.MathAide.Between(beg.Bottom, end.Bottom, ratio);
+
+				int x = (int)Math.Round(l + Math.Abs(l - r) / 2.0);
+				int y = (int)Math.Round(t + Math.Abs(t - b) / 2.0);
+				image[x,y] = color;
+				//Log.Debug($"[{x},{y}] b={beg} e={end}");
+			}
+
+			//Point bp1 = Point.Empty, bp2 = Point.Empty;
+			//Point ep1 = Point.Empty, ep2 = Point.Empty;
+
+			// switch(d) {
+			// case Direction.Right:
+			// 	bp1 = new Point(beg.Left, beg.Top); bp2 = new Point(beg.Left, beg.Bottom - 1);
+			// 	ep1 = new Point(end.Left, end.Top); ep2 = new Point(end.Left, end.Bottom - 1);
+			// 	break;
+			// case Direction.Left:
+			// 	bp1 = new Point(beg.Right - 1, beg.Top); bp2 = new Point(beg.Right - 1, beg.Bottom - 1);
+			// 	ep1 = new Point(end.Right - 1, end.Top); ep2 = new Point(end.Right - 1, end.Bottom - 1);
+			// 	break;
+			// case Direction.Up:
+			// 	bp1 = new Point(beg.Left, beg.Bottom - 1); bp2 = new Point(beg.Right - 1, beg.Bottom - 1);
+			// 	ep1 = new Point(end.Left, end.Bottom - 1); ep2 = new Point(end.Right - 1, end.Bottom - 1);
+			// 	break;
+			// case Direction.Down:
+			// 	bp1 = new Point(beg.Left, beg.Top); bp2 = new Point(beg.Right - 1, beg.Top);
+			// 	ep1 = new Point(end.Left, end.Top); ep2 = new Point(end.Right - 1, end.Top);
+			// 	break;
+			// }
+
+			// //Log.Debug($"{nameof(DrawLinePath)} d={d} steps={steps} p1={p1} p2={p2}");
+			// for(int s = 0; s < steps; s++) {
+			// 	double ratio = s / (double)steps;
+			// 	var color = ColorAide.BetweenColor(cb, ce, ratio);
+
+			// 	if (d == Direction.Up || d == Direction.Down) {
+			// 		int x = (int)Math.Round(Plugin.Aides.MathAide.Between(bp1.X, ep1.X, ratio));
+			// 		int by = (int)Math.Round(Plugin.Aides.MathAide.Between(bp1.Y, bp2.Y, ratio));
+			// 		int ey = (int)Math.Round(Plugin.Aides.MathAide.Between(ep1.Y, ep2.Y, ratio));
+
+			// 		int dy = Math.Abs(by - ey);
+			// 		// Log.Debug($"x={x} dby={by} ey={ey} dy={dy}");
+			// 		//for(int i = 0; i < dy; i++) {
+			// 			//int y = (int)Math.Round(Plugin.Aides.MathAide.Between(by, ey, (double)i / dy));
+			// 			int y = (int)Math.Round(Plugin.Aides.MathAide.Between(by, ey, ratio));
+			// 			image[x,y] = color;
+			// 		//}
+			// 	}
+			// 	else {
+			// 		int y = (int)Math.Round(Plugin.Aides.MathAide.Between(bp1.Y, ep1.Y, ratio));
+			// 		int bx = (int)Math.Round(Plugin.Aides.MathAide.Between(bp1.X, bp2.X, ratio));
+			// 		int ex = (int)Math.Round(Plugin.Aides.MathAide.Between(ep1.X, ep2.X, ratio));
+
+			// 		int dx = Math.Abs(bx - ex);
+			// 		// Log.Debug($"x={x} dby={by} ey={ey} dy={dy}");
+			// 		//for(int i = 0; i < dx; i++) {
+			// 			//int x = (int)Math.Round(Plugin.Aides.MathAide.Between(bx, ex, (double)i / dx));
+			// 			int x = (int)Math.Round(Plugin.Aides.MathAide.Between(bx, ex, ratio));
+			// 			image[x,y] = color;
+			// 		//}
+			// 	}
+			//}
+
+			//int steps = Plugin.Aides.MathAide.Max(dl, dt, dr, db);
+			//Log.Debug($"steps={steps} beg={beg} end={end}");
 		}
 	}
 
@@ -301,7 +409,7 @@ public class Function : IFunction
 		return true;
 	}
 
-	bool DrawBorder(ICanvas canvas, Rectangle rect, ColorRGBA color)
+	bool DrawBorder(ICanvas canvas, Rectangle rect, ColorRGBA color, Direction? d = null)
 	{
 		var inside = canvas.Bounds();
 		inside.Intersect(rect);
@@ -311,15 +419,25 @@ public class Function : IFunction
 		}
 
 		//Log.Debug($"{nameof(DrawBorder)} {rect} -> {inside}");
-		for(int x = inside.Left; x < inside.Right; x++) {
-			// Log.Debug($"set {canvas.Bounds()} [{x},{inside.Bottom - 1}]\t[{x},{inside.Top}]");
-			canvas[x, inside.Top] = color;
-			canvas[x, inside.Bottom - 1] = color;
+		if (d == null || d.Value == Direction.Up || d.Value == Direction.Down) {
+			for(int x = inside.Left; x < inside.Right; x++) {
+				if (d == null || d.Value == Direction.Up) {
+					canvas[x, inside.Top] = color;
+				}
+				if (d == null || d.Value == Direction.Down) {
+					canvas[x, inside.Bottom - 1] = color;
+				}
+			}
 		}
-		for(int y = inside.Top; y < inside.Bottom; y++) {
-			//Log.Debug($"set {canvas.Bounds()} [{inside.Right - 1},{y}]\t[{inside.Left},{y}]");
-			canvas[inside.Left, y] = color;
-			canvas[inside.Right - 1, y] = color;
+		if (d == null || d.Value == Direction.Left || d.Value == Direction.Right) {
+			for(int y = inside.Top; y < inside.Bottom; y++) {
+				if (d == null || d.Value == Direction.Left) {
+					canvas[inside.Left, y] = color;
+				}
+				if (d == null || d.Value == Direction.Right) {
+					canvas[inside.Right - 1, y] = color;
+				}
+			}
 		}
 		return true;
 	}

@@ -95,7 +95,8 @@ public sealed class Options : IOptions
 		Nothing = 0,
 		Plain = 1,
 		Gradient = 2,
-		Drag = 3
+		Drag = 3,
+		//LineDrag = 4
 	}
 
 	public enum SweepKind
