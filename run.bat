@@ -61,6 +61,10 @@ goto :EOF
 dotnet run --project Gui %*
 goto :EOF
 
+:comfiui
+dotnet run --project ComfiUINodes %*
+goto :EOF
+
 ENDOFBATCH
 
 function getmnt {
