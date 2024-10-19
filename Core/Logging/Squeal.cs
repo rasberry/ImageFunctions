@@ -71,4 +71,12 @@ public static class Squeal
 	{
 		return new NotSupportedException(Note.NotSupported("CMYK"));
 	}
+	public static Exception SequenceMustContain(int num = 1)
+	{
+		return new ArgumentException(Note.SequenceMustContain(num));
+	}
+	public static Exception SequenceMustContainOr(int num1, int num2)
+	{
+		return new ArgumentException(Note.SequenceMustContainOr(num1, num2));
+	}
 }

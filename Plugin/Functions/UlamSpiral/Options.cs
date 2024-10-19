@@ -4,7 +4,8 @@ using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
-using PlugOptions = ImageFunctions.Plugin.Aides.OptionsAide;
+using CoreOptions = ImageFunctions.Core.Aides.OptionsAide;
+using CoreColor = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -81,8 +82,8 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var pointParser = new ParseParams.Parser<Point>(PlugOptions.ParsePoint);
-		var colorParser = new ParseParams.Parser<ColorRGBA>(PlugOptions.ParseColor);
+		var pointParser = new ParseParams.Parser<Point>(CoreOptions.ParsePoint);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(CoreOptions.ParseColor);
 
 		if(p.Has("-f").IsGood()) {
 			ColorComposites = true;
@@ -179,10 +180,10 @@ public sealed class Options : IOptions, IUsageProvider
 			if(!Color4.HasValue) { Color4 = PlugColors.IndianRed; }
 		}
 		if(ColorComposites) {
-			if(!Color3.HasValue) { Color3 = PlugColors.White; }
+			if(!Color3.HasValue) { Color3 = CoreColor.White; }
 		}
-		if(!Color1.HasValue) { Color1 = PlugColors.Black; }
-		if(!Color2.HasValue) { Color2 = PlugColors.White; }
+		if(!Color1.HasValue) { Color1 = CoreColor.Black; }
+		if(!Color2.HasValue) { Color2 = CoreColor.White; }
 
 		return true;
 	}

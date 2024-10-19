@@ -42,15 +42,4 @@ public static class PlugNote
 	{
 		return "Each priority must be a number";
 	}
-	public static string SequenceMustContain(int num = 1)
-	{
-		var snum = MathAide.NumberToWord(num);
-		return $"Sequence must contain {snum} element{(num == 1 ? "" : "s")}";
-	}
-	public static string SequenceMustContainOr(int num1, int num2)
-	{
-		var snum1 = MathAide.NumberToWord(num1);
-		var snum2 = MathAide.NumberToWord(num2);
-		return $"Sequence must contain {snum1} or {num2} elements";
-	}
 }

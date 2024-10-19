@@ -17,6 +17,6 @@ public class FunctionRegister : AbstractRegistrant<FunctionSpawner>
 	[InternalRegister]
 	internal static void Register(IRegister register)
 	{
-		//TODO register Functions here
+		register.Add(NS, nameof(Functions.Line), new FunctionSpawner(Functions.Line.Function.Create));
 	}
 }

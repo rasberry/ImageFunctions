@@ -3,6 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
@@ -62,9 +63,9 @@ public class Function : IFunction
 	double ProcessDiff(ICanvas frame, ICanvas srcImg, ICanvas compareImg)
 	{
 		var minimum = Rectangle.Intersect(frame.Bounds(), compareImg.Bounds());
-		var colorWhite = ColorAide.White;
+		var colorWhite = CoreColors.White;
 		var colorHilight = O.HilightColor;
-		var colorTransp = ColorAide.Transparent;
+		var colorTransp = CoreColors.Transparent;
 		double totalDist = 0.0;
 		var progress = new ProgressBar();
 
@@ -95,7 +96,7 @@ public class Function : IFunction
 					ec = colorHilight;
 				}
 				totalDist += dist;
-				var overlay = ColorAide.BetweenColor(sc, ec, dist);
+				var overlay = CoreColors.BetweenColor(sc, ec, dist);
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty

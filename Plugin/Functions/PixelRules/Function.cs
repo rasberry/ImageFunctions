@@ -150,7 +150,7 @@ public class Function : IFunction
 			if(O.WhichMode == Mode.StairCaseAscend
 				|| O.WhichMode == Mode.StairCaseDescend) {
 				//only follow darker colors
-				ColorRGBA white = ColorAide.White;
+				ColorRGBA white = ImageFunctions.Core.Aides.ColorAide.White;
 				double bdw = Dist(best.Value, white);
 				double ddw = Dist(bid.Value, white);
 				if(bdw > ddw) { return false; }

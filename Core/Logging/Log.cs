@@ -4,6 +4,7 @@ public static class Log
 {
 	public static void Message(string m)
 	{
+		Console.ResetColor();
 		Console.WriteLine(m);
 	}
 

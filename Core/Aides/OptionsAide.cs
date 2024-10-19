@@ -1,4 +1,5 @@
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Core.Aides;
 
@@ -51,4 +52,64 @@ public static class OptionsAide
 	}
 
 	static readonly Dictionary<string, Func<IRegister,INameSpaceName,string>> PrinterMap = new();
+
+	static char[] RectPointDelims = new char[] { ' ', ',', 'x' };
+
+	/// <summary>
+	/// Parse a sequence of numbers into a point object
+	/// Sequence may be seperated by space, comma or 'x'
+	/// </summary>
+	/// <param name="arg">argument value</param>
+	/// <returns>A Point</returns>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="OverflowException"></exception>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="FormatException"></exception>
+	public static Point ParsePoint(string arg)
+	{
+		var parser = new ParseParams.Parser<int>(int.Parse);
+		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
+		if(list.Count != 2) { //must be two elements x,y
+			throw Squeal.SequenceMustContain(2);
+		}
+		return new Point(list[0], list[1]);
+	}
+
+	/// <summary>
+	/// Parse a sequence of numbers into a rectangle object
+	/// Sequence may be seperated by space, comma or 'x'
+	/// </summary>
+	/// <param name="arg">argument value</param>
+	/// <returns>A Rectangle</returns>
+	/// <exception cref="ArgumentException"></exception>
+	/// <exception cref="OverflowException"></exception>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="FormatException"></exception>
+	public static Rectangle ParseRectangle(string arg)
+	{
+		var parser = new ParseParams.Parser<int>(int.Parse);
+		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
+		if(list.Count != 2 && list.Count != 4) { //must be two or four elements w,h / x,y,w,h
+			throw Squeal.SequenceMustContainOr(2, 4);
+		}
+		if(list.Count == 2) {
+			//assume width / height for 2 elements
+			return new Rectangle(0, 0, list[0], list[1]);
+		}
+		else {
+			//x, y, w, h
+			return new Rectangle(list[0], list[1], list[2], list[3]);
+		}
+	}
+
+	/// <summary>
+	/// Attempts to parse a color from name for hex value. for example 'red' or '#FF0000'
+	/// </summary>
+	/// <param name="arg">input string</param>
+	/// <returns>ColorRGBA object</returns>
+	public static ColorRGBA ParseColor(string arg)
+	{
+		var sdc = ExtraParsers.ParseColor(arg);
+		return ColorRGBA.FromRGBA255(sdc.R, sdc.G, sdc.B, sdc.A);
+	}
 }

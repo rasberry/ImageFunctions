@@ -27,11 +27,11 @@ public sealed class Options : IOptions, IUsageProvider
 				"Divides the canvas into squares and remainders consecutively which creates a Fibonacci-like sequence"
 			),
 			Parameters = [
-				new UsageOne<DrawModeKind>(1,"-m (mode)", "Choose drawing mode (default Plain)") { Default = DrawModeKind.Plain },
+				new UsageOne<DrawModeKind>(1,"-m", "Choose drawing mode (default Plain)") { Default = DrawModeKind.Plain, Name = "Mode" },
 				new UsageOne<bool>(1,"-s","Use spiral sequence ordering instead or random"),
 				new UsageOne<bool>(1,"-b","Also draw borders around each square"),
-				new UsageOne<int>(1,"-rs (number)","Set the random number seed to produce consistent imges"),
-				new UsageOne<SweepKind>(1,"-w (sweep)","Tweak the processing to avoid getting stuck at a dead-end (default Resize)") { Default = SweepKind.Resize }
+				new UsageOne<int>(1,"-rs","Set the random number seed to produce consistent imges"),
+				new UsageOne<SweepKind>(1,"-w","Tweak the processing to avoid getting stuck at a dead-end (default Resize)") { Default = SweepKind.Resize, Name = "Sweep" }
 			],
 			EnumParameters = [
 				new UsageEnum<DrawModeKind>(1, "Available Modes:") { DescriptionMap = DrawModeDescription },

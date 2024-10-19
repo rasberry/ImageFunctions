@@ -2,7 +2,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
-using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
 
@@ -112,7 +112,7 @@ public class Function : IFunction
 		for(int iy = 0; iy < height; iy++) {
 			for(int ix = 0; ix < width; ix++) {
 				bool yn = state[ix, iy] % 2 == 0;
-				source[ix, iy] = yn ? PlugColors.White : PlugColors.Black;
+				source[ix, iy] = yn ? CoreColors.White : CoreColors.Black;
 			}
 		}
 	}

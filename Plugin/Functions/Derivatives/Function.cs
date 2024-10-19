@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Plugin.Aides;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Derivatives;
 
@@ -79,7 +80,7 @@ public class Function : IFunction
 		ColorRGBA? n, ColorRGBA? e, ColorRGBA? s, ColorRGBA? w,
 		bool abs)
 	{
-		if(!src.HasValue) { return ColorAide.Transparent; }
+		if(!src.HasValue) { return CoreColors.Transparent; }
 		var rgbaSrc = GetColor(src);
 		var rgbaN = GetColor(n);
 		var rgbaE = GetColor(e);
@@ -135,7 +136,7 @@ public class Function : IFunction
 		if(px.HasValue) {
 			return px.Value;
 		}
-		return ColorAide.Transparent;
+		return CoreColors.Transparent;
 	}
 
 	struct QueueItem

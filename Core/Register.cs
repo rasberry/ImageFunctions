@@ -49,12 +49,17 @@ internal class Register : IRegister, IDisposable
 		bool wasFound = Store.TryGetValue(full, out object o);
 
 		//must be found and be of the correct type
-		if(wasFound && o is T inst) {
-			item = new NameWithItem<T> {
-				Id = full,
-				Item = inst
-			};
-			return true;
+		if (wasFound) {
+			if (o is T inst) {
+				item = new NameWithItem<T> {
+					Id = full,
+					Item = inst
+				};
+				return true;
+			}
+			else {
+				Log.Warning(Note.ItemFoundWithWrongType(@namespace,name,typeof(T).Name,o.GetType().Name));
+			}
 		}
 
 		item = default;

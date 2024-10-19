@@ -135,4 +135,30 @@ public static class ImageAide
 
 		artist.DrawLine(canvas, color, start, end, width);
 	}
+
+	/// <summary>
+	/// Sets a pixel only if within the bounds of the canvas
+	/// </summary>
+	/// <param name="canvas">The canvas</param>
+	/// <param name="x">The x coordinate</param>
+	/// <param name="y">The y coordinate</param>
+	/// <param name="color">The color to set</param>
+	public static void SetPixelSafe(this ICanvas canvas, int x, int y, ColorRGBA color)
+	{
+		if (canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return; }
+		canvas[x,y] = color;
+	}
+
+	/// <summary>
+	/// Gets the color of a pixel if within the bounds of the canvas, otherwise returns default
+	/// </summary>
+	/// <param name="canvas">The canvas</param>
+	/// <param name="x">The x coordinate</param>
+	/// <param name="y">The y coordinate</param>
+	/// <returns>The color at the requested coordinate or default</returns>
+	public static ColorRGBA GetPixelSafe(this ICanvas canvas, int x, int y)
+	{
+		if (canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return default; }
+		return canvas[x,y];
+	}
 }

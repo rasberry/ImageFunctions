@@ -25,14 +25,6 @@ public static class PlugSqueal
 	{
 		return new ArgumentOutOfRangeException(PlugNote.PatternNumberGtrZero());
 	}
-	public static Exception SequenceMustContain(int num = 1)
-	{
-		return new ArgumentException(PlugNote.SequenceMustContain(num));
-	}
-	public static Exception SequenceMustContainOr(int num1, int num2)
-	{
-		return new ArgumentException(PlugNote.SequenceMustContainOr(num1, num2));
-	}
 	public static Exception MustProvideAtLeast(string item, int num)
 	{
 		return new ArgumentException(PlugNote.MustProvideAtLeast(item, num));

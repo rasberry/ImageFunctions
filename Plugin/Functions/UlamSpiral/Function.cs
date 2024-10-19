@@ -6,6 +6,7 @@ using Rasberry.Cli;
 using System.Drawing;
 using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
+using CoreColor = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -122,7 +123,7 @@ public class Function : IFunction
 	{
 		var bg = GetColor(PickColor.Back);
 		var fg = GetColor(PickColor.Comp);
-		var color = ColorAide.BetweenColor(bg, fg, amount);
+		var color = CoreColor.BetweenColor(bg, fg, amount);
 		drawFunc(frame, x, y, color, amount);
 	}
 
@@ -260,7 +261,7 @@ public class Function : IFunction
 				case PickDot.Blob: {
 					double ratio = Metric.Value.Measure(dx, dy, x, y) * 2.0 / d;
 					var ec = frame[dx, dy]; //merge with background
-					var c = ColorAide.BetweenColor(color, ec, ratio);
+					var c = CoreColor.BetweenColor(color, ec, ratio);
 					frame[dx, dy] = c;
 					break;
 				}

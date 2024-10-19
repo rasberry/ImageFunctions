@@ -3,6 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.AreaSmoother;
 
@@ -72,8 +73,8 @@ public class Function : IFunction
 				if(len < bestlen) {
 					bestang = a;
 					bestlen = len;
-					bestfc = ColorAide.BetweenColor(fc, start, 0.5);
-					bestbc = ColorAide.BetweenColor(bc, start, 0.5);
+					bestfc = CoreColors.BetweenColor(fc, start, 0.5);
+					bestbc = CoreColors.BetweenColor(bc, start, 0.5);
 					double flen = O.Measurer.Value.Measure(px, py, fp.X, fp.Y);
 					bestratio = flen / len;
 					//Log.Debug("bestratio="+bestratio+" bestfc = "+bestfc+" bestbc="+bestbc);
@@ -85,7 +86,7 @@ public class Function : IFunction
 		}
 
 		if(O.DrawRatio) {
-			return ColorAide.BetweenColor(ColorAide.Black, ColorAide.White, bestratio);
+			return CoreColors.BetweenColor(CoreColors.Black, CoreColors.White, bestratio);
 		}
 
 		ColorRGBA final;
@@ -94,10 +95,10 @@ public class Function : IFunction
 			final = start;
 		}
 		else if(bestratio > 0.5) {
-			final = ColorAide.BetweenColor(start, bestbc, (bestratio - 0.5) * 2);
+			final = CoreColors.BetweenColor(start, bestbc, (bestratio - 0.5) * 2);
 		}
 		else {
-			final = ColorAide.BetweenColor(bestfc, start, bestratio * 2);
+			final = CoreColors.BetweenColor(bestfc, start, bestratio * 2);
 		}
 		return final;
 	}

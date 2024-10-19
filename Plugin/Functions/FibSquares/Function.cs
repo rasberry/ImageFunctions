@@ -2,6 +2,8 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using System.Drawing;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.FibSquares;
 
@@ -247,11 +249,11 @@ public class Function : IFunction
 
 			for(int s = 0; s < steps; s++) {
 				double ratio = s / (double)steps;
-				double l = Plugin.Aides.MathAide.Between(beg.Left, end.Left, ratio);
-				double t = Plugin.Aides.MathAide.Between(beg.Top, end.Top, ratio);
-				double r = Plugin.Aides.MathAide.Between(beg.Right, end.Right, ratio);
-				double b = Plugin.Aides.MathAide.Between(beg.Bottom, end.Bottom, ratio);
-				var color = ColorAide.BetweenColor(cb, ce, ratio);
+				double l = PlugMath.Between(beg.Left, end.Left, ratio);
+				double t = PlugMath.Between(beg.Top, end.Top, ratio);
+				double r = PlugMath.Between(beg.Right, end.Right, ratio);
+				double b = PlugMath.Between(beg.Bottom, end.Bottom, ratio);
+				var color = CoreColors.BetweenColor(cb, ce, ratio);
 
 				var rect = Rectangle.FromLTRB(
 					(int)Math.Round(l),
@@ -290,12 +292,12 @@ public class Function : IFunction
 
 			for(int s = 0; s < steps; s++) {
 				double ratio = s / (double)steps;
-				var color = ColorAide.BetweenColor(cb, ce, ratio);
+				var color = CoreColors.BetweenColor(cb, ce, ratio);
 
-				double l = Plugin.Aides.MathAide.Between(beg.Left, end.Left, ratio);
-				double t = Plugin.Aides.MathAide.Between(beg.Top, end.Top, ratio);
-				double r = Plugin.Aides.MathAide.Between(beg.Right, end.Right, ratio);
-				double b = Plugin.Aides.MathAide.Between(beg.Bottom, end.Bottom, ratio);
+				double l = PlugMath.Between(beg.Left, end.Left, ratio);
+				double t = PlugMath.Between(beg.Top, end.Top, ratio);
+				double r = PlugMath.Between(beg.Right, end.Right, ratio);
+				double b = PlugMath.Between(beg.Bottom, end.Bottom, ratio);
 
 				int x = (int)Math.Round(l + Math.Abs(l - r) / 2.0);
 				int y = (int)Math.Round(t + Math.Abs(t - b) / 2.0);
@@ -404,7 +406,7 @@ public class Function : IFunction
 				offset = (inside.Bottom - py) / (double)inside.Height;
 			}
 
-			var color = ColorAide.BetweenColor(start, end, offset);
+			var color = CoreColors.BetweenColor(start, end, offset);
 			canvas[px,py] = color;
 		},CoreOptions.MaxDegreeOfParallelism);
 		return true;

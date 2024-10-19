@@ -2,6 +2,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
 
@@ -86,17 +87,17 @@ public class Function : IFunction
 			return;
 		}
 
-		var lColor = ColorAide.BetweenColor(origCanvas[lx, y], seed, 0.5);
-		var rColor = ColorAide.BetweenColor(origCanvas[rx, y], seed, 0.5);
+		var lColor = CoreColors.BetweenColor(origCanvas[lx, y], seed, 0.5);
+		var rColor = CoreColors.BetweenColor(origCanvas[rx, y], seed, 0.5);
 
 		for(int gi = 0; gi <= len; gi++) {
 			double ratio = (gi + 1) / (double)len;
 			ColorRGBA nc;
 			if(ratio > 0.5) {
-				nc = ColorAide.BetweenColor(seed, rColor, (ratio - 0.5) * 2.0);
+				nc = CoreColors.BetweenColor(seed, rColor, (ratio - 0.5) * 2.0);
 			}
 			else {
-				nc = ColorAide.BetweenColor(lColor, seed, ratio * 2.0);
+				nc = CoreColors.BetweenColor(lColor, seed, ratio * 2.0);
 			}
 			int gx = lx + gi;
 			canvas[gx, y] = nc;
@@ -122,25 +123,25 @@ public class Function : IFunction
 		if(len <= 2) {
 			// color span is to small so just use colors as-is
 			visited.Add(y);
-			var fc = blend ? ColorAide.BetweenColor(seed, canvas[x, y], 0.5) : seed;
+			var fc = blend ? CoreColors.BetweenColor(seed, canvas[x, y], 0.5) : seed;
 			canvas[x, y] = fc;
 			return;
 		}
 
-		var tColor = ColorAide.BetweenColor(frame[x, ty], seed, 0.5);
-		var bColor = ColorAide.BetweenColor(frame[x, by], seed, 0.5);
+		var tColor = CoreColors.BetweenColor(frame[x, ty], seed, 0.5);
+		var bColor = CoreColors.BetweenColor(frame[x, by], seed, 0.5);
 
 		for(int gi = 0; gi <= len; gi++) {
 			double ratio = (gi + 1) / (double)len;
 			ColorRGBA nc;
 			if(ratio > 0.5) {
-				nc = ColorAide.BetweenColor(seed, bColor, (ratio - 0.5) * 2.0);
+				nc = CoreColors.BetweenColor(seed, bColor, (ratio - 0.5) * 2.0);
 			}
 			else {
-				nc = ColorAide.BetweenColor(tColor, seed, ratio * 2.0);
+				nc = CoreColors.BetweenColor(tColor, seed, ratio * 2.0);
 			}
 			int gy = ty + gi;
-			var fc = blend ? ColorAide.BetweenColor(nc, canvas[x, gy], 0.5) : nc;
+			var fc = blend ? CoreColors.BetweenColor(nc, canvas[x, gy], 0.5) : nc;
 			canvas[x, gy] = fc;
 			visited.Add(gy);
 		}

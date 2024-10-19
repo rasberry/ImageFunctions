@@ -2,6 +2,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using System.Drawing;
+using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Life;
 
@@ -79,7 +80,7 @@ public class Function : IFunction
 		canvas.ThreadPixels((x, y) => {
 			var p = new Point(x, y);
 			if(last.Contains(p)) {
-				UpdatePixel(canvas, x, y, ColorAide.White, channel);
+				UpdatePixel(canvas, x, y, CoreColors.White, channel);
 			}
 			else if(history != null && history.TryGetValue(p, out ulong count)) {
 				double pct = (double)count / O.IterationMax;
@@ -88,7 +89,7 @@ public class Function : IFunction
 				UpdatePixel(canvas, x, y, c, channel);
 			}
 			else {
-				UpdatePixel(canvas, x, y, ColorAide.Black, channel);
+				UpdatePixel(canvas, x, y, CoreColors.Black, channel);
 			}
 		});
 	}

@@ -3,6 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 
@@ -32,7 +33,7 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<double>(1, "-o", "Overlay highlight color at given opacity") { IsNumberPct = true },
 				new UsageOne<bool>(1, "-i", "Match identical pixels instead of differences"),
 				new UsageOne<bool>(1, "-x", "Output original pixels instead of highlighting them"),
-				new UsageOne<ColorRGBA>(1, "-c", "Change highlight color (default is magenta)") { Default = ColorAide.Magenta },
+				new UsageOne<ColorRGBA>(1, "-c", "Change highlight color (default is magenta)") { Default = PlugColors.Magenta },
 				new UsageOne<bool>(1, "-nl", "Create a third layer instead of replacing two with one"),
 				MetricHelpers.MetricUsageParameter()
 			],
@@ -48,7 +49,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(s);
 		});
 
-		var colorParser = new ParseParams.Parser<ColorRGBA>(Plugin.Aides.OptionsAide.ParseColor);
+		var colorParser = new ParseParams.Parser<ColorRGBA>(Core.Aides.OptionsAide.ParseColor);
 
 		if(p.Has("-i").IsGood()) {
 			MatchSamePixels = true;
@@ -68,7 +69,7 @@ public sealed class Options : IOptions, IUsageProvider
 		) {
 			return false;
 		}
-		if(p.Scan<ColorRGBA>("-c", ColorAide.Magenta, colorParser)
+		if(p.Scan<ColorRGBA>("-c", PlugColors.Magenta, colorParser)
 			.WhenGoodOrMissing(r => { HilightColor = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()

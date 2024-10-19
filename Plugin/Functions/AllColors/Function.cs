@@ -84,7 +84,7 @@ public class Function : IFunction
 			int coff = y * image.Height + x;
 			var nc = coff < colorList.Count
 				? colorList[coff]
-				: ColorAide.Transparent;
+				: Core.Aides.ColorAide.Transparent;
 			//Trace.WriteLine($"{nameof(AllColors)} copyColors {x},{y}");
 			image[x, y] = nc;
 		}
