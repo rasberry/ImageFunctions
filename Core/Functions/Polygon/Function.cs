@@ -1,6 +1,3 @@
-using ImageFunctions.Core.Aides;
-using System.Drawing;
-
 namespace ImageFunctions.Core.Functions.Polygon;
 
 public class Function : IFunction

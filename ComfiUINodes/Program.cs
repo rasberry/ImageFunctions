@@ -1,48 +1,44 @@
-﻿using ImageFunctions.Core.Samplers;
+﻿using System.Net;
 
 namespace ImageFunctions.ComfiUINodes;
 
-// https://github.com/alekshura/Compentio.Pipes/tree/main
-
-//TODO switch to http port 41414
-//named pipes seems too much of hassle
-// cool but windows only tho.. https://andrewlock.net/using-named-pipes-with-aspnetcore-and-httpclient/
-
 internal class Program
 {
-	const string PipeName = "IF3b17977d-b150-4e57-8ad9-ad6520f54ba3";
+	const int DefaultPort = 41414;
 
 	static void Main(string[] args)
 	{
-		var pipeServer = new PipeServer(PipeName, 1);
-		pipeServer.ClientConnectedEvent += OnConnect;
-		pipeServer.ClientDisconnectedEvent += OnDisconnect;
-		pipeServer.MessageReceivedEvent += OnMessage;
+		Console.CancelKeyPress += ShutDown;
+		Server = new HttpServer(DefaultPort);
+		Server.AddRoute("/test", TestHandler);
 
+		var task = new Task(Server.Start, TaskCreationOptions.LongRunning);
+		Core.Logging.Log.Message($"Starting server on http://localhost:{DefaultPort}");
 		try {
-			pipeServer.Start();
-			Core.Logging.Log.Message("Press any key to stop server");
-			Console.ReadKey(true); //block
+			task.Start();
+
+			Core.Logging.Log.Message("Press any key to stop ...");
+			Console.ReadKey(false);
 		}
 		finally {
-			pipeServer.Stop();
+			ShutDown();
 		}
 	}
 
-	static void OnConnect(object sender, ClientConnectedEventArgs args)
+	static void ShutDown(object sender = null, ConsoleCancelEventArgs args = null)
 	{
-		Core.Logging.Log.Message($"OnConnect {args.ClientId}");
+		Core.Logging.Log.Message("Shutting down ...");
+		Server?.Dispose();
 	}
 
-	static void OnDisconnect(object sender, ClientDisconnectedEventArgs args)
-	{
-		Core.Logging.Log.Message($"OnDisconnect {args.ClientId}");
-	}
+	static HttpServer Server;
 
-	static void OnMessage(object sender, MessageReceivedEventArgs args)
+	static void TestHandler(HttpListenerContext ctx)
 	{
-		var m = BitConverter.ToString(args.Message);
-		Core.Logging.Log.Message($"OnMessage {m}");
-		((PipeServer)sender).Write("OK"u8.ToArray());
+		ctx.Response.StatusCode = (int)HttpStatusCode.OK;
+		Core.Logging.Log.Message($"TestHandler {ctx.Request.Url?.LocalPath}");
+		Thread.Sleep(10000);
+		using var resp = ctx.Response;
+		resp.WriteText("this is a test");
 	}
 }
