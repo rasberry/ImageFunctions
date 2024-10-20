@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using Rasberry.Cli;
-using System.Drawing;
 using System.Globalization;
 
 namespace ImageFunctions.Plugin.Aides;

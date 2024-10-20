@@ -1,5 +1,4 @@
 using ImageFunctions.Core;
-using ImageFunctions.Plugin.Aides;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Derivatives;
