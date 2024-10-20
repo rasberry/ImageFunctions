@@ -29,8 +29,8 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1,"Smears pixels in a circle around a point"),
 			Parameters = [
-				new UsageTwo<int>(1, "-cx", "Swirl center X and Y coordinate in pixels") { Min = 0 },
-				new UsageTwo<double>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<Point>(1, "-cx", "Swirl center X and Y coordinate in pixels"),
+				new UsageOne<PointF>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = 0.5, IsNumberPct = true },
 				new UsageOne<int>(1, "-rx", "Swirl radius in pixels") { Min = 0, Max = 9999 },
 				new UsageOne<double>(1, "-rp", "Swirl radius proportional to smallest image dimension (default 90%)") { Default = 0.9, IsNumberPct = true },
 				new UsageOne<double>(1, "-s", "Number of rotations (default 0.9)") { Min = 0.01, Default = 0.9, Max = 99 },
@@ -51,24 +51,16 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(s);
 		});
 
-		if(p.Scan<int, int>("-cx")
-			.WhenGood(r => {
-				var (cx, cy) = r.Value;
-				CenterPx = new Point(cx, cy);
-				return r;
-			})
+		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePoint<PointF>)
+			.WhenGood(r => { CenterPp = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.Scan<double, double>("-cp", leftPar: parser, rightPar: parser)
-			.WhenGood(r => {
-				var (ppx, ppy) = r.Value;
-				CenterPp = new PointF((float)ppx, (float)ppy);
-				return r;
-			})
+		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePoint<Point>)
+			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

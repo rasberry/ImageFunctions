@@ -10,6 +10,11 @@ public static class TypeAide
 		typeof(uint), typeof(float)
 	};
 
+	/// <summary>
+	/// Gets the underlying type for a nullable
+	/// </summary>
+	/// <param name="t">the Type to unwrap</param>
+	/// <returns>the underlying Type</returns>
 	public static Type UnWrapNullable(this Type t)
 	{
 		var nullType = Nullable.GetUnderlyingType(t);
@@ -19,44 +24,21 @@ public static class TypeAide
 		return t;
 	}
 
+	/// <summary>
+	/// Determines if type is numerical. Only includes built-in types
+	/// </summary>
 	public static bool IsNumeric(this Type t)
 	{
+		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
 		return NumericTypes.Contains(Nullable.GetUnderlyingType(t) ?? t);
 	}
 
-	public static bool IsBool(this Type t)
+	/// <summary>
+	/// Determines if type is 'T'.
+	/// </summary>
+	public static bool Is<T>(this Type t)
 	{
 		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(bool));
-	}
-
-	public static bool IsColorRGBA(this Type t)
-	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(Core.ColorRGBA));
-	}
-
-	public static bool IsColor(this Type t)
-	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(System.Drawing.Color));
-	}
-
-	public static bool IsPoint(this Type t)
-	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(System.Drawing.Point));
-	}
-
-	public static bool IsString(this Type t)
-	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(string));
-	}
-
-	public static bool IsDouble(this Type t)
-	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
-		return t.Equals(typeof(double));
+		return t.Equals(typeof(T));
 	}
 }

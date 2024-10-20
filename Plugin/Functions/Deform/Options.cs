@@ -24,8 +24,8 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Warps an image using a mapping function"),
 			Parameters = [
-				new UsageTwo<int>(1, "-cx", "Coordinates of center in pixels") { Min = 0 },
-				new UsageTwo<double>(1, "-cp", "Coordinates of center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<Point>(1, "-cx", "Coordinates of center in pixels"),
+				new UsageOne<PointF>(1, "-cp", "Coordinates of center by proportion (default 50% 50%)") { Default = 0.5f, IsNumberPct = true },
 				new UsageOne<double>(1, "-e", "(e) Power Exponent (default 2.0)") { Default = 2.0, Min = -20.0, Max = 20 },
 				new UsageOne<Mode>(1, "-m", "Choose mode (default Polynomial)") { Default = Mode.Polynomial },
 				SamplerHelpers.SamplerUsageParameter()
@@ -53,24 +53,16 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if(p.Scan<double, double>("-cp", leftPar: parser, rightPar: parser)
-			.WhenGood(r => {
-				var (ppx, ppy) = r.Value;
-				CenterPp = new PointF((float)ppx, (float)ppy);
-				return r;
-			})
+		if(p.Scan<PointF>("-cp", par: OptionsAide.ParsePoint<PointF>)
+			.WhenGood(r => { CenterPp = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.Scan<int, int>("-cx")
-			.WhenGood(r => {
-				var (cx, cy) = r.Value;
-				CenterPx = new Point(cx, cy);
-				return r;
-			})
+		if(p.Scan<Point>("-cx", par: OptionsAide.ParsePoint<Point>)
+			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

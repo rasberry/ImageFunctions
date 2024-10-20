@@ -3,6 +3,8 @@ using System.Drawing;
 
 namespace ImageFunctions.Core.Aides;
 
+#pragma warning disable CA1715 // Prefix generic type parameter name with 'T'
+
 public static class OptionsAide
 {
 	/// <summary>
@@ -19,7 +21,14 @@ public static class OptionsAide
 		return result;
 	}
 
-	//TODO docs
+	/// <summary>
+	/// Assign a function to print a custom help message for items in a namespace
+	/// </summary>
+	/// <param name="reg">Register instance</param>
+	/// <param name="namespace">namespace of item</param>
+	/// <param name="printer">function which returns a custom help message for a given item</param>
+	/// <exception cref="ArgumentNullException"></exception>
+	/// <exception cref="ArgumentException">if the namespace is already mapped</exception>
 	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister,INameSpaceName,string> printer)
 	{
 		if (reg == null) {
@@ -52,27 +61,47 @@ public static class OptionsAide
 	}
 
 	static readonly Dictionary<string, Func<IRegister,INameSpaceName,string>> PrinterMap = new();
-
-	static char[] RectPointDelims = new char[] { ' ', ',', 'x' };
+	static readonly char[] RectPointDelims = new char[] { ' ', ',', 'x' };
 
 	/// <summary>
 	/// Parse a sequence of numbers into a point object
 	/// Sequence may be seperated by space, comma or 'x'
 	/// </summary>
+	/// <typeparam name="P">Point, PointF, or PointD</typeparam>
 	/// <param name="arg">argument value</param>
 	/// <returns>A Point</returns>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="OverflowException"></exception>
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="FormatException"></exception>
-	public static Point ParsePoint(string arg)
+	/// <exception cref="NotSupportedException"></exception>
+	public static P ParsePoint<P>(string arg) where P : struct
 	{
-		var parser = new ParseParams.Parser<int>(int.Parse);
+		var pt = typeof(P);
+
+		if (pt == typeof(Point)) {
+			return (P)(object)ParsePointInternal<Point,int>(arg, (a,b) => { return new Point(a,b); });
+		}
+		else if (pt == typeof(PointF)) {
+			return (P)(object)ParsePointInternal<PointF,float>(arg, (a,b) => { return new PointF(a,b); });
+		}
+		else if (pt == typeof(PointD)) {
+			return (P)(object)ParsePointInternal<PointD,double>(arg, (a,b) => { return new PointD(a,b); });
+		}
+		else {
+			throw Squeal.NotSupported($"Type {pt.FullName}");
+		}
+	}
+
+	static P ParsePointInternal<P,T>(string arg, Func<T,T,P> allocator) where T : IParsable<T>
+	{
+		//TODO maybe change ParseParams.Parser definition to match IParsable so we don't need a lambda
+		var parser = new ParseParams.Parser<T>((string s) => T.Parse(s,null));
 		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
 		if(list.Count != 2) { //must be two elements x,y
 			throw Squeal.SequenceMustContain(2);
 		}
-		return new Point(list[0], list[1]);
+		return allocator(list[0], list[1]);
 	}
 
 	/// <summary>

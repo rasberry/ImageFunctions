@@ -2,6 +2,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.ProbableImg;
 
@@ -24,8 +25,8 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)") { Min = 1, Default = 1, Max = 999 },
 				new UsageOne<int>(1, "-rs", "Options number seed for the random number generator") { TypeText = "seed" },
-				new UsageTwo<int>(1, "-xy", "Add a start node (in pixels) - multiple allowed") { Min = 0 },
-				new UsageTwo<double>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true },
+				new UsageOne<Point>(1, "-xy", "Add a start node (in pixels) - multiple allowed"),
+				new UsageOne<PointF>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true },
 				new UsageOne<bool>(1, "-alt", "Use alternate rendering uses slightly less memory"),
 			],
 		};

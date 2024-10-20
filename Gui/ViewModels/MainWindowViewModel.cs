@@ -534,7 +534,7 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			return new InputItemSync(iup, ur.NameSpace);
 		}
-		else if (it.IsBool())
+		else if (it.Is<bool>())
 		{
 			return new InputItem(iup);
 		}
@@ -550,21 +550,16 @@ public class MainWindowViewModel : ViewModelBase
 			}
 			return new InputItemDropDown(iup, iue);
 		}
-		else if (it.IsString())
+		else if (it.Is<string>())
 		{
 			return new InputItemText(iup);
 		}
-		else if (it.IsColorRGBA())
+		else if (it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>())
 		{
 			//TODO color picker ?
 			return null;
 		}
-		else if (it.IsColor())
-		{
-			//TODO color picker ?
-			return null;
-		}
-		else if (it.IsPoint())
+		else if (it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>())
 		{
 			//TODO point picker .. ?
 			return null;

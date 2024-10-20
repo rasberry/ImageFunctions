@@ -77,7 +77,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		bool done = false;
 		do {
-			if(p.Scan("-p", Point.Empty, OptionsAide.ParsePoint)
+			if(p.Scan("-p", Point.Empty, OptionsAide.ParsePoint<Point>)
 				.WhenMissing(r => { done = true; return r; })
 				.WhenGood(r => {
 					PointList ??= new();

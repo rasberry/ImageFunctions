@@ -27,8 +27,8 @@ public class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1,"Blends rays of pixels to produce a 'zoom' effect"),
 			Parameters = [
 				new UsageOne<double>(1, "-z", "Zoom amount (default 1.1)") { Max = 200.0, Default = 1.1, IsNumberPct = true },
-				new UsageTwo<int>(1, "-cc", "Coordinates of zoom center in pixels") { Min = 0 },
-				new UsageTwo<double>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<Point>(1, "-cx", "Coordinates of zoom center in pixels"),
+				new UsageOne<PointF>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
 				//new UsageOne<>(" -oh", "Only zoom horizontally");
 				//new UsageOne<>(" -ov", "Only zoom vertically");
 				SamplerHelpers.SamplerUsageParameter(),
@@ -54,31 +54,23 @@ public class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<int, int>("-cc")
-			.WhenGood(r => {
-				var (cx, cy) = r.Value;
-				CenterPx = new Point(cx, cy);
-				return r;
-			})
+		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePoint<PointF>)
+			.WhenGood(r => { CenterRt = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.Scan<double, double>("-cp", leftPar: parser, rightPar: parser)
-			.WhenGood(r => {
-				var (px, py) = r.Value;
-				CenterRt = new PointF((float)px, (float)py);
-				return r;
-			})
+		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePoint<Point>)
+			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		//-cc / -cp are either/or options. if neither are specified set the default
+		//-cx / -cp are either/or options. if neither are specified set the default
 		if(CenterPx == null && CenterRt == null) {
 			CenterRt = new PointF(0.5f, 0.5f);
 		}

@@ -1,6 +1,7 @@
 #pragma warning disable CA1711 //Diabling warning about naming things with 'Enum' at the end
 using Rasberry.Cli;
 using ImageFunctions.Core.Aides;
+using System.Drawing;
 
 namespace ImageFunctions.Core;
 
@@ -50,13 +51,13 @@ public static class UsageRenderer
 
 	public static string GetUsageLabel(IUsageText p)
 	{
-		if (p is IUsageParameterTwo iup2) {
-			var tt = iup2.TypeText ?? MapTypeToText(iup2.InputType, iup2.IsNumberPct);
-			var suffix = String.IsNullOrEmpty(tt) ? "" : $" ({tt})";
-			var label = p.Name + suffix + suffix;
-			return label;
-		}
-		else if (p is IUsageParameter iup) {
+		// if (p is IUsageParameterTwo iup2) {
+		// 	var tt = iup2.TypeText ?? MapTypeToText(iup2.InputType, iup2.IsNumberPct);
+		// 	var suffix = String.IsNullOrEmpty(tt) ? "" : $" ({tt})";
+		// 	var label = p.Name + suffix + suffix;
+		// 	return label;
+		// }
+		if (p is IUsageParameter iup) {
 			var tt = iup.TypeText ?? MapTypeToText(iup.InputType, iup.IsNumberPct);
 			var label = p.Name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
 			return label;
@@ -77,13 +78,13 @@ public static class UsageRenderer
 		if (t.IsEnum) {
 			return t.Name;
 		}
-		if (t.IsBool()) {
+		if (t.Is<bool>()) {
 			return "";
 		}
-		else if (t.IsColorRGBA() || t.IsColor()) {
+		else if (t.Is<ColorRGBA>() || t.Is<Color>()) {
 			return "color";
 		}
-		else if (t.IsPoint()) {
+		else if (t.Is<Point>()) {
 			return "x,y";
 		}
 		if (t.IsNumeric()) {
@@ -174,28 +175,28 @@ public record UsageRegistered : UsageOne
 	public string NameSpace { get; init; }
 }
 
-public interface IUsageParameterTwo : IUsageParameter
-{
-	object DefaultTwo { get; }
-}
+// public interface IUsageParameterTwo : IUsageParameter
+// {
+// 	object DefaultTwo { get; }
+// }
 
-public record UsageTwo : UsageOne, IUsageParameterTwo
-{
-	public UsageTwo(int indention, Type inputType, string name, string description)
-		: base(indention, inputType, name, description)
-	{
-	}
+// public record UsageTwo : UsageOne, IUsageParameterTwo
+// {
+// 	public UsageTwo(int indention, Type inputType, string name, string description)
+// 		: base(indention, inputType, name, description)
+// 	{
+// 	}
 
-	public object DefaultTwo { get; init; }
-}
+// 	public object DefaultTwo { get; init; }
+// }
 
-public record UsageTwo<T> : UsageTwo
-{
-	public UsageTwo(int indention, string name, string description)
-		: base(indention, typeof(T), name, description)
-	{
-	}
-}
+// public record UsageTwo<T> : UsageTwo
+// {
+// 	public UsageTwo(int indention, string name, string description)
+// 		: base(indention, typeof(T), name, description)
+// 	{
+// 	}
+// }
 
 public interface IUsageEnum
 {

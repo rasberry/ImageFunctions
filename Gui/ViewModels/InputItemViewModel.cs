@@ -118,7 +118,7 @@ public class InputItemSlider : InputItem
 				defMin = 0.0;
 				defMax = 1.0;
 			}
-			else if (NumberType.IsDouble()) {
+			else if (NumberType.Is<double>()) {
 				//using the full double min max breaks the slider
 				defMin = float.MinValue;
 				defMax = float.MaxValue;

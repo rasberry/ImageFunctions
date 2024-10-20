@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
-using ImageMagick;
+using System.Drawing;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -120,14 +120,14 @@ internal static class Handlers
 
 	static UsageParam DetermineParamList(Usage usage, IUsageParameter iup)
 	{
-		bool isTwo = iup is IUsageParameterTwo; //TODO
+		//bool isTwo = iup is IUsageParameterTwo; //TODO
 		var it = iup.InputType.UnWrapNullable();
 
 		if (iup is UsageRegistered ur) {
-			return new UsageParamSync(iup, ur.NameSpace) { Type = "Register", IsTwo = isTwo };
+			return new UsageParamSync(iup, ur.NameSpace) { Type = "Register" };
 		}
-		else if (it.IsBool()) {
-			return new UsageParam(iup) { Type = typeof(bool).Name, IsTwo = isTwo };
+		else if (it.Is<bool>()) {
+			return new UsageParam(iup) { Type = typeof(bool).Name };
 		}
 		else if (it.IsEnum) {
 			IUsageEnum iue = null;
@@ -136,29 +136,24 @@ internal static class Handlers
 					iue = i; break;
 				}
 			}
-			return new UsageSelection(iup, iue) { Type = "Enum", IsTwo = isTwo };
+			return new UsageSelection(iup, iue) { Type = "Enum" };
 		}
-		else if (it.IsString()) {
-			return new UsageParamText(iup) { Type = typeof(string).Name, IsTwo = isTwo };
+		else if (it.Is<string>()) {
+			return new UsageParamText(iup) { Type = typeof(string).Name };
 		}
-		else if (it.IsColorRGBA())
+		else if (it.Is<ColorRGBA>() || it.Is<Color>())
 		{
 			//TODO color picker ?
 			return null;
 		}
-		else if (it.IsColor())
-		{
-			//TODO color picker ?
-			return null;
-		}
-		else if (it.IsPoint())
+		else if (it.Is<Point>() || it.Is<PointF>() || it.Is<Core.PointD>())
 		{
 			//TODO point picker .. ?
 			return null;
 		}
 		else if (it.IsNumeric())
 		{
-			return new UsageParamNumeric(iup){ IsTwo = isTwo };
+			return new UsageParamNumeric(iup);
 		}
 
 		throw Core.Logging.Squeal.NotSupported($"Type {it}");
@@ -178,7 +173,6 @@ internal static class Handlers
 		public string Name;
 		public string Desc;
 		public string Type;
-		public bool IsTwo;
 	}
 
 	class UsageParamSync : UsageParam
@@ -263,7 +257,7 @@ internal static class Handlers
 					defMin = 0.0;
 					defMax = 1.0;
 				}
-				else if (NumberType.IsDouble()) {
+				else if (NumberType.Is<double>()) {
 					//using the full double min max breaks the slider
 					defMin = float.MinValue;
 					defMax = float.MaxValue;
