@@ -18,7 +18,7 @@ public static class OptionsAide
 	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
 		where T : IComparable
 	{
-		return BeGreaterThan<T>(r,default,includeZero);
+		return BeGreaterThan<T>(r, default, includeZero);
 	}
 
 	/// <summary>

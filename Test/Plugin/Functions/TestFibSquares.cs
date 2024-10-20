@@ -37,7 +37,7 @@ public class TestFibSquares : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
 		yield return CreateTestInfo(0, new string[] { "-rs", "0" });
-		yield return CreateTestInfo(1, new string[] { "-rs", "0", "-m", "2"});
+		yield return CreateTestInfo(1, new string[] { "-rs", "0", "-m", "2" });
 		yield return CreateTestInfo(2, new string[] { "-rs", "0", "-s", "-m", "3" });
 		yield return CreateTestInfo(3, new string[] { "-rs", "0", "-s", "-m", "0", "-b" });
 	}

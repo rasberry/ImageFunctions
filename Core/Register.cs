@@ -49,8 +49,8 @@ internal class Register : IRegister, IDisposable
 		bool wasFound = Store.TryGetValue(full, out object o);
 
 		//must be found and be of the correct type
-		if (wasFound) {
-			if (o is T inst) {
+		if(wasFound) {
+			if(o is T inst) {
 				item = new NameWithItem<T> {
 					Id = full,
 					Item = inst
@@ -58,7 +58,7 @@ internal class Register : IRegister, IDisposable
 				return true;
 			}
 			else {
-				Log.Warning(Note.ItemFoundWithWrongType(@namespace,name,typeof(T).Name,o.GetType().Name));
+				Log.Warning(Note.ItemFoundWithWrongType(@namespace, name, typeof(T).Name, o.GetType().Name));
 			}
 		}
 
@@ -69,7 +69,7 @@ internal class Register : IRegister, IDisposable
 	public IEnumerable<INameSpaceName> All(string @namespace = null)
 	{
 		var all = Store.Keys.Cast<INameSpaceName>();
-		if (@namespace != null) {
+		if(@namespace != null) {
 			return all.Where(n => n.NameSpace.EqualsIC(@namespace));
 		}
 		else {
@@ -84,11 +84,11 @@ internal class Register : IRegister, IDisposable
 
 	public string Default(string @namespace, string name = null)
 	{
-		if (@name != null) {
+		if(@name != null) {
 			Defaults[@namespace] = name;
 		}
 
-		if (Defaults.TryGetValue(@namespace, out var def)) {
+		if(Defaults.TryGetValue(@namespace, out var def)) {
 			return def;
 		}
 

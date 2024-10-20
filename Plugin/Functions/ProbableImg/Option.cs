@@ -21,7 +21,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Generate a new image using a probability profile based on the input image"),
+			Description = new UsageDescription(1, "Generate a new image using a probability profile based on the input image"),
 			Parameters = [
 				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)") { Min = 1, Default = 1, Max = 999 },
 				new UsageOne<int>(1, "-rs", "Options number seed for the random number generator") { TypeText = "seed" },
@@ -48,7 +48,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-n")
 			.WhenGood(r => { TotalNodes = r.Value; return r; })
-			.BeGreaterThan(1,true)
+			.BeGreaterThan(1, true)
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

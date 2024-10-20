@@ -23,7 +23,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Creates a plot of a boolean-like network with a random starring state."),
+			Description = new UsageDescription(1, "Creates a plot of a boolean-like network with a random starring state."),
 			Parameters = [
 				new UsageOne<int>(1, "-b", "Number of states (default 2)") { Default = 2, Min = 1, Max = 999 },
 				new UsageOne<int?>(1, "-n", "Number of nodes in the network (defaults to width of image)") { Min = 1 },
@@ -45,7 +45,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-b", 2)
 			.WhenGoodOrMissing(r => { States = r.Value; return r; })
-			.BeGreaterThan(1,true)
+			.BeGreaterThan(1, true)
 			.WhenInvalidTellDefault()
 			.IsInvalid()
 		) {

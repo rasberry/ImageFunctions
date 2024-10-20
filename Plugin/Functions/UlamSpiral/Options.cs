@@ -3,9 +3,9 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
-using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
-using CoreOptions = ImageFunctions.Core.Aides.OptionsAide;
 using CoreColor = ImageFunctions.Core.Aides.ColorAide;
+using CoreOptions = ImageFunctions.Core.Aides.OptionsAide;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -35,14 +35,14 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Creates an Ulam spiral graphic"),
+			Description = new UsageDescription(1, "Creates an Ulam spiral graphic"),
 			Parameters = [
 				new UsageOne<bool>(1, "-p", "Color pixel if prime (true if -f not specified)"),
 				new UsageOne<bool>(1, "-f", "Color pixel based on number of divisors; dot size is proportional to divisor count"),
 				new UsageOne<bool>(1, "-6m", "Color primes depending on if they are 6*m+1 or 6*m-1"),
 				new UsageOne<Point>(1, "-c", "Center x,y coordinate (default 0,0)"),
 				new UsageOne<PickMapping>(1, "-m", "Mapping used to translate x,y into an index number (default spiral)") { TypeText = "Mapping" },
-				new UsageOne<int>(1, "-s", "Spacing between points (default 1)") {Min = 0, Default = 1, Max = 999 },
+				new UsageOne<int>(1, "-s", "Spacing between points (default 1)") { Min = 0, Default = 1, Max = 999 },
 				new UsageOne<double>(1, "-ds", "Maximum dot size in pixels; decimals allowed (default 1.0)") { Min = 0.01, Default = 1.0, Max = 99 },
 				new UsageOne<PickDot>(1, "-dt", "Dot used for drawing (default circle)") { TypeText = "Dot" },
 				new UsageOne<ColorRGBA>(1, "-c(1,2,3,4)", "Colors to be used depending on mode. (setting any of the colors is optional)"),

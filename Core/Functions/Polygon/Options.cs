@@ -17,7 +17,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1, "Draws a polygon"),
 			Parameters = [
 				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.DDA, Name = "Type" },
-				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times" ),
+				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times"),
 				new UsageOne<ColorRGBA>(1, "-c", "Color for the polygon (default black)"),
 			],
 			EnumParameters = [
@@ -52,7 +52,7 @@ public sealed class Options : IOptions, IUsageProvider
 		// 	return false;
 		// }
 
-		if (p.Scan<LineKind>("-m", LineKind.Bresenham)
+		if(p.Scan<LineKind>("-m", LineKind.Bresenham)
 			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -60,7 +60,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<ColorRGBA>("-c", ColorAide.Black, OptionsAide.ParseColor)
+		if(p.Scan<ColorRGBA>("-c", ColorAide.Black, OptionsAide.ParseColor)
 			.WhenGoodOrMissing(r => { Color = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -84,7 +84,7 @@ public sealed class Options : IOptions, IUsageProvider
 			};
 		} while(!done);
 
-		if (PointList == null || PointList.Count < 2) {
+		if(PointList == null || PointList.Count < 2) {
 			Log.Error(Note.MissingArgument($"-p. drawing a line requires at least two points"));
 			return false;
 		}

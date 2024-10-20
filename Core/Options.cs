@@ -251,7 +251,8 @@ internal class Options : ICoreOptions
 		//Log.Debug($"UsageFlags={UsageFlags}");
 		var ns = hasPickShow && String.IsNullOrWhiteSpace(HelpNameSpace) ? "all" : HelpNameSpace;
 
-		bool joinFilters(INameSpaceName k) {
+		bool joinFilters(INameSpaceName k)
+		{
 			bool show = (hasPickShow && k.NameSpace.StartsWithIC(ns)) || IsNameSpaceFlagged(k);
 			//Log.Debug($"{k.NameSpace} {show}");
 			return show;
@@ -268,9 +269,9 @@ internal class Options : ICoreOptions
 		sb.WT();
 		sb.WT(0, $"Registered Items:");
 		foreach(var k in keyList) {
-			if (k.NameSpace != currentSpace) {
+			if(k.NameSpace != currentSpace) {
 				sb.WT();
-				sb.WT(0,$"{k.NameSpace}:");
+				sb.WT(0, $"{k.NameSpace}:");
 				currentSpace = k.NameSpace;
 			}
 			var desc = Register.GetNameSpaceItemHelp(k);
@@ -280,7 +281,7 @@ internal class Options : ICoreOptions
 
 	bool IsNameSpaceFlagged(INameSpaceName n)
 	{
-		if (NameSpaceList == null) {
+		if(NameSpaceList == null) {
 			return false;
 		}
 
@@ -310,7 +311,7 @@ internal class Options : ICoreOptions
 			sb.WT(0, $"Function {key}:");
 			var inst = funcItem.Item.Invoke(Register, null, this);
 			var opts = inst.Options;
-			if (opts is IUsageProvider uip) {
+			if(opts is IUsageProvider uip) {
 				NameSpaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 			}
 			inst.Options.Usage(sb, Register);
@@ -323,7 +324,7 @@ internal class Options : ICoreOptions
 	{
 		List<string> nameSpaceList = new();
 		foreach(var p in info.Parameters) {
-			if (p is UsageRegistered ur) {
+			if(p is UsageRegistered ur) {
 				nameSpaceList.Add(ur.NameSpace);
 			}
 		}

@@ -21,14 +21,14 @@ public partial class TextBlockSelectedReg : TextBlock
 
 	void Init(object sender, EventArgs args)
 	{
-		if (String.IsNullOrWhiteSpace(NameSpace)) {
+		if(String.IsNullOrWhiteSpace(NameSpace)) {
 			throw new ArgumentNullException(nameof(NameSpace));
 		}
 
 		Text = Program.Register.Default(NameSpace);
 
 		var regControl = this.FindControlByNameFromTop($"Reg{NameSpace}");
-		if (regControl == null) {
+		if(regControl == null) {
 			throw new ArgumentNullException($"Reg{NameSpace}");
 		}
 
@@ -42,19 +42,17 @@ public partial class TextBlockSelectedReg : TextBlock
 
 	void SetTextWhenConnected(string text)
 	{
-		if (this.IsConnected) {
+		if(this.IsConnected) {
 			this.Text = text;
 		}
 	}
 
-	public string NameSpace
-	{
+	public string NameSpace {
 		get => GetValue(NameSpaceProperty);
 		set => SetValue(NameSpaceProperty, value);
 	}
 
-	public bool IsConnected
-	{
+	public bool IsConnected {
 		get => GetValue(IsConnectedProperty);
 		set => SetValue(IsConnectedProperty, value);
 	}

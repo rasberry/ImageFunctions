@@ -1,6 +1,6 @@
 #pragma warning disable CA1711 //Diabling warning about naming things with 'Enum' at the end
-using Rasberry.Cli;
 using ImageFunctions.Core.Aides;
+using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Core;
@@ -23,7 +23,7 @@ public static class UsageRenderer
 		var pList = info.Parameters;
 		if(pList != null) {
 			foreach(var p in pList) {
-				if (p.AddNewLineBefore) { sb.WT(); }
+				if(p.AddNewLineBefore) { sb.WT(); }
 				var label = GetUsageLabel(p);
 				sb.ND(p.Indention, label, p.Description);
 			}
@@ -39,9 +39,9 @@ public static class UsageRenderer
 		}
 
 		var sList = info.SuffixParameters;
-		if (sList != null) {
+		if(sList != null) {
 			foreach(var p in sList) {
-				if (p.AddNewLineBefore) { sb.WT(); }
+				if(p.AddNewLineBefore) { sb.WT(); }
 				sb.ND(p.Indention, p.Name, p.Description);
 			}
 		}
@@ -51,7 +51,7 @@ public static class UsageRenderer
 
 	public static string GetUsageLabel(IUsageText p)
 	{
-		if (p is IUsageParameter iup) {
+		if(p is IUsageParameter iup) {
 			var tt = iup.TypeText ?? MapTypeToText(iup.InputType, iup.IsNumberPct);
 			var label = p.Name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
 			return label;
@@ -63,25 +63,25 @@ public static class UsageRenderer
 
 	public static string MapTypeToText(Type t, bool isNumPct)
 	{
-		if (t == null) {
+		if(t == null) {
 			throw Squeal.ArgumentNull(nameof(t));
 		}
 
 		t = t.UnWrapNullable();
 
-		if (t.IsEnum) {
+		if(t.IsEnum) {
 			return t.Name;
 		}
-		if (t.Is<bool>()) {
+		if(t.Is<bool>()) {
 			return "";
 		}
-		else if (t.Is<ColorRGBA>() || t.Is<Color>()) {
+		else if(t.Is<ColorRGBA>() || t.Is<Color>()) {
 			return "color";
 		}
-		else if (t.Is<Point>()) {
+		else if(t.Is<Point>()) {
 			return "x,y";
 		}
-		if (t.IsNumeric()) {
+		if(t.IsNumeric()) {
 			return isNumPct ? "number[%]" : "number";
 		}
 		else {

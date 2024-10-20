@@ -145,8 +145,8 @@ public static class ImageAide
 	/// <param name="color">The color to set</param>
 	public static void SetPixelSafe(this ICanvas canvas, int x, int y, ColorRGBA color)
 	{
-		if (canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return; }
-		canvas[x,y] = color;
+		if(canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return; }
+		canvas[x, y] = color;
 	}
 
 	/// <summary>
@@ -158,7 +158,7 @@ public static class ImageAide
 	/// <returns>The color at the requested coordinate or default</returns>
 	public static ColorRGBA GetPixelSafe(this ICanvas canvas, int x, int y)
 	{
-		if (canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return default; }
-		return canvas[x,y];
+		if(canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return default; }
+		return canvas[x, y];
 	}
 }

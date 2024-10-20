@@ -17,7 +17,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Slices an image component into multiple layers."),
+			Description = new UsageDescription(1, "Slices an image component into multiple layers."),
 			Parameters = [
 				ColorSpaceHelpers.Color3SpaceUsageParameter(1),
 				new UsageOne<string>(1, "-c", "Component to slice (default R)") { TypeText = "component" },
@@ -37,7 +37,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (ColorSpaceHelpers.ScanColor3Space(p,register)
+		if(ColorSpaceHelpers.ScanColor3Space(p, register)
 			.WhenGoodOrMissing(r => { Space = r.Value; return r; })
 			.IsInvalid()
 		) {

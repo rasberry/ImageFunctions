@@ -20,7 +20,7 @@ public class Function : IFunction
 		Options.Usage(sb, Register);
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
@@ -28,15 +28,15 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Register)) {
 			return false;
 		}
 
 		var canvas = Layers.First().Canvas;
-		if (O.PointList == null || O.PointList.Count < 2) {
+		if(O.PointList == null || O.PointList.Count < 2) {
 			return true; //nothing to do
 		}
 
@@ -52,7 +52,7 @@ public class Function : IFunction
 		// draw lines until we run out of points
 		int pCount = O.PointList.Count;
 		for(int p = 1; p < pCount; p++) {
-			var sp = O.PointList[p-1];
+			var sp = O.PointList[p - 1];
 			var ep = O.PointList[p];
 			DrawMethod(canvas, O.Color, sp, ep);
 		}
@@ -75,11 +75,11 @@ public class Function : IFunction
 		double mb = b; //keep track of the other dimension accurately
 		for(int a = s; a <= e; a++) {
 			b = (int)Math.Round(mb);
-			if (swap) {
-				ImgAide.SetPixelSafe(canvas,b,a,color);
+			if(swap) {
+				ImgAide.SetPixelSafe(canvas, b, a, color);
 			}
 			else {
-				ImgAide.SetPixelSafe(canvas,a,b,color);
+				ImgAide.SetPixelSafe(canvas, a, b, color);
 			}
 			//Log.Debug($"[{a},{b}] mb={mb} m={m}");
 			mb += m;
@@ -97,17 +97,17 @@ public class Function : IFunction
 		int error = dx + dy;
 		int x = p1.X, y = p1.Y;
 		while(true) {
-			ImgAide.SetPixelSafe(canvas,x,y,color);
+			ImgAide.SetPixelSafe(canvas, x, y, color);
 			//Log.Debug($"[{x},{y}] err={error}");
-			if (x == p2.X && y == p2.Y) { break; }
+			if(x == p2.X && y == p2.Y) { break; }
 			int e2 = 2 * error;
-			if (e2 >= dy) {
-				if (x == p2.X) { break; }
+			if(e2 >= dy) {
+				if(x == p2.X) { break; }
 				error += dy;
 				x += sx;
 			}
-			if (e2 <= dx) {
-				if (y == p2.Y) { break; }
+			if(e2 <= dx) {
+				if(y == p2.Y) { break; }
 				error += dx;
 				y += sy;
 			}
@@ -118,47 +118,50 @@ public class Function : IFunction
 	void DrawXiaolinWu(ICanvas canvas, ColorRGBA color, Point p1, Point p2)
 	{
 		//c is the pixel brightness [0.0,1.0]
-		void plot(double x, double y, double c) {
-			var cc = ImgAide.GetPixelSafe(canvas,(int)x,(int)y);
+		void plot(double x, double y, double c)
+		{
+			var cc = ImgAide.GetPixelSafe(canvas, (int)x, (int)y);
 			var bc = ColorAide.BetweenColor(cc, color, c);
-			ImgAide.SetPixelSafe(canvas,(int)x,(int)y,bc);
+			ImgAide.SetPixelSafe(canvas, (int)x, (int)y, bc);
 		}
-		double fpart(double n) {
+		double fpart(double n)
+		{
 			return n - Math.Floor(n);
 		}
-		double rfpart(double n) {
+		double rfpart(double n)
+		{
 			return 1.0 - fpart(n);
 		}
 
 		double x0 = p1.X, x1 = p2.X;
 		double y0 = p1.Y, y1 = p2.Y;
 		bool steep = Math.Abs(y1 - y0) > Math.Abs(x1 - x0);
-		if (steep) {
-			(x0,y0) = (y0,x0);
-			(x1,y1) = (y1,x1);
+		if(steep) {
+			(x0, y0) = (y0, x0);
+			(x1, y1) = (y1, x1);
 		}
-		if (x0 > x1) {
-			(x0,x1) = (x1,x0);
-			(y0,y1) = (y1,y0);
+		if(x0 > x1) {
+			(x0, x1) = (x1, x0);
+			(y0, y1) = (y1, y0);
 		}
 
 		double dx = x1 - x0;
 		double dy = y1 - y0;
 		double gradient = dx == 0.0 ? 1.0 : dy / dx;
-		
+
 		// handle first endpoint
 		double xend = Math.Round(x0);
 		double yend = y0 + gradient * (xend - x0);
 		double xgap = rfpart(x0 + 0.5);
 		double xpxl1 = xend; // this will be used in the main loop
 		double ypxl1 = Math.Floor(yend);
-		if (steep) {
-			plot(ypxl1,   xpxl1, rfpart(yend) * xgap);
-			plot(ypxl1+1, xpxl1,  fpart(yend) * xgap);
+		if(steep) {
+			plot(ypxl1, xpxl1, rfpart(yend) * xgap);
+			plot(ypxl1 + 1, xpxl1, fpart(yend) * xgap);
 		}
 		else {
-			plot(xpxl1, ypxl1  , rfpart(yend) * xgap);
-			plot(xpxl1, ypxl1+1,  fpart(yend) * xgap);
+			plot(xpxl1, ypxl1, rfpart(yend) * xgap);
+			plot(xpxl1, ypxl1 + 1, fpart(yend) * xgap);
 		}
 		double intery = yend + gradient; // first y-intersection for the main loop
 
@@ -168,27 +171,27 @@ public class Function : IFunction
 		xgap = fpart(x1 + 0.5);
 		double xpxl2 = xend; // this will be used in the main loop
 		double ypxl2 = Math.Floor(yend);
-		if (steep) {
-			plot(ypxl2  , xpxl2, rfpart(yend) * xgap);
-			plot(ypxl2+1, xpxl2,  fpart(yend) * xgap);
+		if(steep) {
+			plot(ypxl2, xpxl2, rfpart(yend) * xgap);
+			plot(ypxl2 + 1, xpxl2, fpart(yend) * xgap);
 		}
 		else {
-			plot(xpxl2, ypxl2,  rfpart(yend) * xgap);
-			plot(xpxl2, ypxl2+1, fpart(yend) * xgap);
+			plot(xpxl2, ypxl2, rfpart(yend) * xgap);
+			plot(xpxl2, ypxl2 + 1, fpart(yend) * xgap);
 		}
 
 		// main loop
-		if (steep) {
+		if(steep) {
 			for(double x = xpxl1 + 1; x <= xpxl2 - 1; x++) {
-				plot(Math.Floor(intery)  , x, rfpart(intery));
-				plot(Math.Floor(intery)+1, x,  fpart(intery));
+				plot(Math.Floor(intery), x, rfpart(intery));
+				plot(Math.Floor(intery) + 1, x, fpart(intery));
 				intery += gradient;
 			}
 		}
 		else {
 			for(double x = xpxl1 + 1; x <= xpxl2 - 1; x++) {
-				plot(x, Math.Floor(intery),  rfpart(intery));
-				plot(x, Math.Floor(intery)+1, fpart(intery));
+				plot(x, Math.Floor(intery), rfpart(intery));
+				plot(x, Math.Floor(intery) + 1, fpart(intery));
 				intery += gradient;
 			}
 		}
@@ -201,14 +204,14 @@ public class Function : IFunction
 		int adjUp, adjDown, errorTerm, xAdvance, xDelta, yDelta;
 		int wholeStep, initialPixelCount, finalPixelCount, runLength;
 
-		if (y > yEnd) {
-			(y,yEnd) = (yEnd,y);
-			(x,xEnd) = (xEnd,x);
+		if(y > yEnd) {
+			(y, yEnd) = (yEnd, y);
+			(x, xEnd) = (xEnd, x);
 		}
-		
+
 		// Figure out whether we’re going left or right, and how far we’re going horizontally
 		xDelta = xEnd - x;
-		if (xDelta < 0) {
+		if(xDelta < 0) {
 			xAdvance = -1;
 			xDelta = -xDelta;
 		}
@@ -221,23 +224,23 @@ public class Function : IFunction
 
 		//Special-case horizontal, vertical, and diagonal lines, for speed
 		// and to avoid nasty boundary conditions and division by 0
-		if (xDelta == 0) { // Vertical line
+		if(xDelta == 0) { // Vertical line
 			for(int i = 0; i <= yDelta; i++) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 				y++;
 			}
 			return;
 		}
-		if (yDelta == 0) { // Horizontal line
+		if(yDelta == 0) { // Horizontal line
 			for(int i = 0; i <= xDelta; i++) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 				x += xAdvance;
 			}
 			return;
 		}
-		if (xDelta == yDelta) { // Diagonal line
+		if(xDelta == yDelta) { // Diagonal line
 			for(int i = 0; i <= xDelta; i++) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 				x += xAdvance;
 				y++;
 			}
@@ -248,7 +251,7 @@ public class Function : IFunction
 		void DrawHorizontalRun(int runLengthH)
 		{
 			for(int i = 0; i < runLengthH; i++) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 				x += xAdvance;
 			}
 			// Advance to the next scan line
@@ -256,9 +259,10 @@ public class Function : IFunction
 		}
 
 		// Draws a vertical run of pixels, then advances the bitmap pointer to the first pixel of the next run. 
-		void DrawVerticalRun(int runLengthV) {
+		void DrawVerticalRun(int runLengthV)
+		{
 			for(int i = 0; i < runLengthV; i++) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 				y++;
 			}
 			// Advance to the next column 
@@ -266,7 +270,7 @@ public class Function : IFunction
 		}
 
 		// Determine whether the line is X or Y major, and handle accordingly
-		if (xDelta >= yDelta) {
+		if(xDelta >= yDelta) {
 			// X major line
 			// Minimum # of pixels in a run in this line 
 			wholeStep = xDelta / yDelta;
@@ -288,13 +292,13 @@ public class Function : IFunction
 			// advance, we have one pixel that could go to either the initial
 			// or last partial run, which we’ll arbitrarily allocate to the
 			// last run
-			if (adjUp == 0 && (wholeStep & 0x01) == 0) {
+			if(adjUp == 0 && (wholeStep & 0x01) == 0) {
 				initialPixelCount--;
 			}
 			// If there’re an odd number of pixels per run, we have 1 pixel that can’t
 			// be allocated to either the initial or last partial run, so we’ll add 0.5
 			// to error term so this pixel will be handled by the normal full-run loop
-			if ((wholeStep & 0x01) != 0) {
+			if((wholeStep & 0x01) != 0) {
 				errorTerm += yDelta;
 			}
 			// Draw the first, partial run of pixels
@@ -302,9 +306,9 @@ public class Function : IFunction
 			// Draw all full runs 
 			for(int i = 0; i < yDelta - 1; i++) {
 				runLength = wholeStep; // run is at least this long
-				// Advance the error term and add an extra pixel if the error term so indicates 
+									   // Advance the error term and add an extra pixel if the error term so indicates 
 				errorTerm += adjUp;
-				if (errorTerm > 0) {
+				if(errorTerm > 0) {
 					runLength++;
 					errorTerm -= adjDown; //reset the error term 
 				}
@@ -336,24 +340,24 @@ public class Function : IFunction
 			// If the basic run length is even and there’s no fractional advance, we
 			// have 1 pixel that could go to either the initial or last partial run,
 			// which we’ll arbitrarily allocate to the last run
-			if (adjUp == 0 && ((wholeStep & 0x01) == 0)) {
+			if(adjUp == 0 && ((wholeStep & 0x01) == 0)) {
 				initialPixelCount--;
 			}
 			// If there are an odd number of pixels per run, we have one pixel
 			// that can’t be allocated to either the initial or last partial
 			// run, so we’ll add 0.5 to the error term so this pixel will be
 			// handled by the normal full-run loop
-			if ((wholeStep & 0x01) != 0) {
+			if((wholeStep & 0x01) != 0) {
 				errorTerm += xDelta;
 			}
 			// Draw the first, partial run of pixels
 			DrawVerticalRun(initialPixelCount);
 			// Draw all full runs
-			for (int i = 0; i < xDelta - 1; i++) {
+			for(int i = 0; i < xDelta - 1; i++) {
 				runLength = wholeStep; // run is at least this long
-				// Advance the error term and add an extra pixel if the error term so indicates 
+									   // Advance the error term and add an extra pixel if the error term so indicates 
 				errorTerm += adjUp;
-				if (errorTerm > 0) {
+				if(errorTerm > 0) {
 					runLength++;
 					errorTerm -= adjDown; // reset the error term
 				}
@@ -372,16 +376,17 @@ public class Function : IFunction
 		int numLevels = 256;
 		int intensityBits = 8;
 
-		void DrawPixel(int x, int y, int shift) {
+		void DrawPixel(int x, int y, int shift)
+		{
 			//Log.Debug($"{x} {y} {shift}");
-			if (shift < 1) {
-				ImgAide.SetPixelSafe(canvas,x,y,color);
+			if(shift < 1) {
+				ImgAide.SetPixelSafe(canvas, x, y, color);
 			}
 			else {
 				double pct = (numLevels - shift) / (double)numLevels;
-				var cc = ImgAide.GetPixelSafe(canvas,x,y);
+				var cc = ImgAide.GetPixelSafe(canvas, x, y);
 				var bc = ColorAide.BetweenColor(cc, color, pct);
-				ImgAide.SetPixelSafe(canvas,x,y,bc);
+				ImgAide.SetPixelSafe(canvas, x, y, bc);
 			}
 		}
 
@@ -394,18 +399,19 @@ public class Function : IFunction
 		int intensityShift, deltaX, deltaY, xDir, baseColor = 0;
 
 		// Make sure the line runs top to bottom
-		if (y0 > y1) {
-			(y0,y1) = (y1,y0);
-			(x0,x1) = (x1,x0);
+		if(y0 > y1) {
+			(y0, y1) = (y1, y0);
+			(x0, x1) = (x1, x0);
 		}
 		// Draw the initial pixel, which is always exactly intersected by
 		// the line and so needs no weighting
 		DrawPixel(x0, y0, baseColor);
 
 		deltaX = x1 - x0;
-		if (deltaX >= 0) {
+		if(deltaX >= 0) {
 			xDir = 1;
-		} else {
+		}
+		else {
 			xDir = -1;
 			deltaX = -deltaX; // make DeltaX positive
 		}
@@ -413,59 +419,59 @@ public class Function : IFunction
 		// require no weighting because they go right through the center of
 		// every pixel
 		deltaY = y1 - y0;
-		if (deltaY == 0) {
+		if(deltaY == 0) {
 			// Horizontal line
-			while (deltaX-- != 0) {
+			while(deltaX-- != 0) {
 				x0 += xDir;
 				DrawPixel(x0, y0, baseColor);
 			}
 			return;
 		}
-		if (deltaX == 0) {
+		if(deltaX == 0) {
 			// Vertical line
 			do {
 				y0++;
 				DrawPixel(x0, y0, baseColor);
-			} while (--deltaY != 0);
+			} while(--deltaY != 0);
 			return;
 		}
-		if (deltaX == deltaY) {
+		if(deltaX == deltaY) {
 			// Diagonal line
 			do {
 				x0 += xDir;
 				y0++;
 				DrawPixel(x0, y0, baseColor);
-			} while (--deltaY != 0);
+			} while(--deltaY != 0);
 			return;
 		}
 		// line is not horizontal, diagonal, or vertical
 		errorAcc = 0;  // initialize the line error accumulator to 0
-		// # of bits by which to shift ErrorAcc to get intensity level
+					   // # of bits by which to shift ErrorAcc to get intensity level
 		intensityShift = 16 - intensityBits;
 		// Mask used to flip all bits in an intensity weighting, producing the
 		// result (1 - intensity weighting)
 		weightingComplementMask = (ushort)(numLevels - 1);
 		// Is this an X-major or Y-major line?
-		if (deltaY > deltaX) {
+		if(deltaY > deltaX) {
 			// Y-major line; calculate 16-bit fixed-point fractional part of a
 			// pixel that X advances each time Y advances 1 pixel, truncating the
 			// result so that we won't overrun the endpoint along the X axis
 			errorAdj = (ushort)((deltaX << 16) / deltaY);
 			// Draw all pixels other than the first and last
-			while (--deltaY != 0) {
+			while(--deltaY != 0) {
 				errorAccTemp = errorAcc; // remember currrent accumulated error
 				errorAcc += errorAdj; // calculate error for next pixel
-				if (errorAcc <= errorAccTemp) {
+				if(errorAcc <= errorAccTemp) {
 					// The error accumulator turned over, so advance the X coord
 					x0 += xDir;
 				}
 				y0++; // Y-major, so always advance Y
-				// The IntensityBits most significant bits of ErrorAcc give us the
-				// intensity weighting for this pixel, and the complement of the
-				// weighting for the paired pixel
+					  // The IntensityBits most significant bits of ErrorAcc give us the
+					  // intensity weighting for this pixel, and the complement of the
+					  // weighting for the paired pixel
 				weighting = (ushort)(errorAcc >> intensityShift);
 				DrawPixel(x0, y0, (int)(baseColor + weighting));
-				DrawPixel(x0 + xDir, y0,(int)(baseColor + (weighting ^ weightingComplementMask)));
+				DrawPixel(x0 + xDir, y0, (int)(baseColor + (weighting ^ weightingComplementMask)));
 			}
 		}
 		else {
@@ -474,17 +480,17 @@ public class Function : IFunction
 			// result to avoid overrunning the endpoint along the X axis */
 			errorAdj = (ushort)((deltaY << 16) / deltaX);
 			/* Draw all pixels other than the first and last */
-			while (--deltaX != 0) {
+			while(--deltaX != 0) {
 				errorAccTemp = errorAcc; // remember currrent accumulated error
 				errorAcc += errorAdj; // calculate error for next pixel
-				if (errorAcc <= errorAccTemp) {
+				if(errorAcc <= errorAccTemp) {
 					// The error accumulator turned over, so advance the Y coord
 					y0++;
 				}
 				x0 += xDir; // X-major, so always advance X
-				// The IntensityBits most significant bits of ErrorAcc give us the
-				// intensity weighting for this pixel, and the complement of the
-				// weighting for the paired pixel
+							// The IntensityBits most significant bits of ErrorAcc give us the
+							// intensity weighting for this pixel, and the complement of the
+							// weighting for the paired pixel
 				weighting = (ushort)(errorAcc >> intensityShift);
 				DrawPixel(x0, y0, baseColor + weighting);
 				DrawPixel(x0, y0 + 1, baseColor + (weighting ^ weightingComplementMask));

@@ -15,7 +15,7 @@ public class ViewLocator : IDataTemplate
 		if(data is LayersImageData) {
 			return new LayersImageControl() { DataContext = data };
 		}
-		else if (data is SelectionViewModel svm) {
+		else if(data is SelectionViewModel svm) {
 			var svmName = $"Reg{svm.NameSpace}";
 			return new RegisteredControl { Name = svmName, DataContext = svm };
 		}

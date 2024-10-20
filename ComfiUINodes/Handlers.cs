@@ -22,7 +22,7 @@ internal static class Handlers
 
 	public static void ShowRegister(HttpListenerContext ctx)
 	{
-		if (!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
+		if(!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
 
 		var reg = Program.Register;
 		var keyList = reg.All().OrderBy(n => $"{n.NameSpace}.{n.Name}");
@@ -32,14 +32,14 @@ internal static class Handlers
 		resp.ContentType = "application/json";
 		resp.StatusCode = (int)HttpStatusCode.OK;
 
-		Dictionary<string,List<object>> output = new();
+		Dictionary<string, List<object>> output = new();
 		string currentSpace = "";
 		foreach(var k in keyList) {
-			if (k.NameSpace != currentSpace) {
+			if(k.NameSpace != currentSpace) {
 				currentSpace = k.NameSpace;
 			}
 			var desc = reg.GetNameSpaceItemHelp(k);
-			if (!output.TryGetValue(currentSpace, out var list)) {
+			if(!output.TryGetValue(currentSpace, out var list)) {
 				list = new List<object>();
 				output.Add(currentSpace, list);
 			}
@@ -58,7 +58,7 @@ internal static class Handlers
 		var req = ctx.Request;
 		var resp = ctx.Response;
 
-		if (!ctx.EnsureMethodIs(HttpMethod.Post)) { return; }
+		if(!ctx.EnsureMethodIs(HttpMethod.Post)) { return; }
 
 		resp.StatusCode = (int)HttpStatusCode.OK;
 		resp.WriteText("");
@@ -66,28 +66,28 @@ internal static class Handlers
 
 	public static void FunctionInfo(HttpListenerContext ctx)
 	{
-		if (!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
+		if(!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
 
 		var reg = Program.Register;
 		var fn = new FunctionRegister(reg);
 		var list = fn.All().Order();
 
-		var data = new Dictionary<string,List<UsageParam>>();
-		
+		var data = new Dictionary<string, List<UsageParam>>();
+
 		foreach(string key in list) {
 			var funcItem = fn.Get(key);
 			var inst = funcItem.Item.Invoke(reg, null, null);
 			var opts = inst.Options;
-			if (opts is IUsageProvider uip) {
+			if(opts is IUsageProvider uip) {
 				//var namespaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 				//var controls = GetControlParameters(uip);
 
 				var usage = uip.GetUsageInfo();
 				var paramsList = new List<UsageParam>();
-				foreach (var p in usage.Parameters) {
-					if (p is IUsageParameter iup) {
+				foreach(var p in usage.Parameters) {
+					if(p is IUsageParameter iup) {
 						var param = DetermineParamList(usage, iup);
-						if (param != null) {
+						if(param != null) {
 							paramsList.Add(param);
 						}
 					}
@@ -110,7 +110,7 @@ internal static class Handlers
 		var ud = usage.Description;
 
 		StringBuilder description = new();
-		if ((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
+		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
 			foreach(var txt in usage.Description.Descriptions) {
 				description.AppendLine(txt);
 			}
@@ -123,36 +123,33 @@ internal static class Handlers
 		//bool isTwo = iup is IUsageParameterTwo; //TODO
 		var it = iup.InputType.UnWrapNullable();
 
-		if (iup is UsageRegistered ur) {
+		if(iup is UsageRegistered ur) {
 			return new UsageParamSync(iup, ur.NameSpace) { Type = "Register" };
 		}
-		else if (it.Is<bool>()) {
+		else if(it.Is<bool>()) {
 			return new UsageParam(iup) { Type = typeof(bool).Name };
 		}
-		else if (it.IsEnum) {
+		else if(it.IsEnum) {
 			IUsageEnum iue = null;
-			foreach (var i in usage.EnumParameters) {
-				if (i.EnumType.Equals(iup.InputType)) {
+			foreach(var i in usage.EnumParameters) {
+				if(i.EnumType.Equals(iup.InputType)) {
 					iue = i; break;
 				}
 			}
 			return new UsageSelection(iup, iue) { Type = "Enum" };
 		}
-		else if (it.Is<string>()) {
+		else if(it.Is<string>()) {
 			return new UsageParamText(iup) { Type = typeof(string).Name };
 		}
-		else if (it.Is<ColorRGBA>() || it.Is<Color>())
-		{
+		else if(it.Is<ColorRGBA>() || it.Is<Color>()) {
 			//TODO color picker ?
 			return null;
 		}
-		else if (it.Is<Point>() || it.Is<PointF>() || it.Is<Core.PointD>())
-		{
+		else if(it.Is<Point>() || it.Is<PointF>() || it.Is<Core.PointD>()) {
 			//TODO point picker .. ?
 			return null;
 		}
-		else if (it.IsNumeric())
-		{
+		else if(it.IsNumeric()) {
 			return new UsageParamNumeric(iup);
 		}
 
@@ -165,7 +162,8 @@ internal static class Handlers
 	[JsonDerivedType(typeof(UsageParamNumeric))]
 	class UsageParam
 	{
-		public UsageParam(IUsageParameter input) {
+		public UsageParam(IUsageParameter input)
+		{
 			Name = input.Name;
 			Desc = input.Description;
 		}
@@ -193,11 +191,11 @@ internal static class Handlers
 			var valsList = Rasberry.Cli.PrintHelper.EnumAll(@enum.EnumType, @enum.ExcludeZero);
 			foreach(var item in valsList) {
 				var name = @enum.NameMap != null ? @enum.NameMap(item) : item.ToString();
-				var	desc = @enum.DescriptionMap != null ? @enum.DescriptionMap(item) : null;
+				var desc = @enum.DescriptionMap != null ? @enum.DescriptionMap(item) : null;
 				var sel = new OneSelection { Name = name, Desc = desc, Value = item };
 				Choices.Add(sel);
 
-				if (input.Default != null && input.Default.Equals(item)) {
+				if(input.Default != null && input.Default.Equals(item)) {
 					SelectedIndex = index;
 				}
 				index++;
@@ -219,7 +217,7 @@ internal static class Handlers
 	{
 		public UsageParamText(IUsageParameter input) : base(input)
 		{
-			if (input.Default != null) {
+			if(input.Default != null) {
 				Text = input.Default.ToString();
 			}
 		}
@@ -251,13 +249,13 @@ internal static class Handlers
 				x.GetGenericTypeDefinition() == typeof(System.Numerics.IMinMaxValue<>)
 			);
 
-			if (isMinMax) {
+			if(isMinMax) {
 				double defMin, defMax;
-				if (IsNumberPct) {
+				if(IsNumberPct) {
 					defMin = 0.0;
 					defMax = 1.0;
 				}
-				else if (NumberType.Is<double>()) {
+				else if(NumberType.Is<double>()) {
 					//using the full double min max breaks the slider
 					defMin = float.MinValue;
 					defMax = float.MaxValue;
@@ -283,7 +281,7 @@ internal static class Handlers
 	{
 		List<string> nameSpaceList = new();
 		foreach(var p in info.Parameters) {
-			if (p is UsageRegistered ur) {
+			if(p is UsageRegistered ur) {
 				nameSpaceList.Add(ur.NameSpace);
 			}
 		}

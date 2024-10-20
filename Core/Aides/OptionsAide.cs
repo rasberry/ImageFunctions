@@ -29,38 +29,38 @@ public static class OptionsAide
 	/// <param name="printer">function which returns a custom help message for a given item</param>
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="ArgumentException">if the namespace is already mapped</exception>
-	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister,INameSpaceName,string> printer)
+	public static void SetCustomHelpPrinter(this IRegister reg, string @namespace, Func<IRegister, INameSpaceName, string> printer)
 	{
-		if (reg == null) {
+		if(reg == null) {
 			throw Squeal.ArgumentNull(nameof(reg));
 		}
-		if (printer == null) {
+		if(printer == null) {
 			throw Squeal.ArgumentNull(nameof(printer));
 		}
 
-		if (PrinterMap.ContainsKey(@namespace)) {
+		if(PrinterMap.ContainsKey(@namespace)) {
 			throw Squeal.AlreadyMapped($"Printer for {@namespace}");
 		}
 
-		PrinterMap.Add(@namespace,printer);
+		PrinterMap.Add(@namespace, printer);
 	}
 
 	public static string GetNameSpaceItemHelp(this IRegister reg, INameSpaceName item)
 	{
-		if (reg == null) {
+		if(reg == null) {
 			throw Squeal.ArgumentNull(nameof(reg));
 		}
-		if (item == null) {
+		if(item == null) {
 			return null;
 		}
-		if (!PrinterMap.TryGetValue(item.NameSpace, out var func)) {
+		if(!PrinterMap.TryGetValue(item.NameSpace, out var func)) {
 			return null;
 		}
-		var desc = func(reg,item);
+		var desc = func(reg, item);
 		return desc;
 	}
 
-	static readonly Dictionary<string, Func<IRegister,INameSpaceName,string>> PrinterMap = new();
+	static readonly Dictionary<string, Func<IRegister, INameSpaceName, string>> PrinterMap = new();
 	static readonly char[] RectPointDelims = new char[] { ' ', ',', 'x' };
 
 	/// <summary>
@@ -79,24 +79,24 @@ public static class OptionsAide
 	{
 		var pt = typeof(P);
 
-		if (pt == typeof(Point)) {
-			return (P)(object)ParsePointInternal<Point,int>(arg, (a,b) => { return new Point(a,b); });
+		if(pt == typeof(Point)) {
+			return (P)(object)ParsePointInternal<Point, int>(arg, (a, b) => { return new Point(a, b); });
 		}
-		else if (pt == typeof(PointF)) {
-			return (P)(object)ParsePointInternal<PointF,float>(arg, (a,b) => { return new PointF(a,b); });
+		else if(pt == typeof(PointF)) {
+			return (P)(object)ParsePointInternal<PointF, float>(arg, (a, b) => { return new PointF(a, b); });
 		}
-		else if (pt == typeof(PointD)) {
-			return (P)(object)ParsePointInternal<PointD,double>(arg, (a,b) => { return new PointD(a,b); });
+		else if(pt == typeof(PointD)) {
+			return (P)(object)ParsePointInternal<PointD, double>(arg, (a, b) => { return new PointD(a, b); });
 		}
 		else {
 			throw Squeal.NotSupported($"Type {pt.FullName}");
 		}
 	}
 
-	static P ParsePointInternal<P,T>(string arg, Func<T,T,P> allocator) where T : IParsable<T>
+	static P ParsePointInternal<P, T>(string arg, Func<T, T, P> allocator) where T : IParsable<T>
 	{
 		//TODO maybe change ParseParams.Parser definition to match IParsable so we don't need a lambda
-		var parser = new ParseParams.Parser<T>((string s) => T.Parse(s,null));
+		var parser = new ParseParams.Parser<T>((string s) => T.Parse(s, null));
 		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
 		if(list.Count != 2) { //must be two elements x,y
 			throw Squeal.SequenceMustContain(2);

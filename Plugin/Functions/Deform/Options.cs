@@ -41,8 +41,8 @@ public sealed class Options : IOptions, IUsageProvider
 	static string ModeDesc(object mode)
 	{
 		Mode m = (Mode)mode;
-		if (m == Mode.Polynomial) { return "x^e/w, y^e/h"; }
-		if (m == Mode.Inverted) { return "n/x, n/y; n = (x^e + y^e)"; }
+		if(m == Mode.Polynomial) { return "x^e/w, y^e/h"; }
+		if(m == Mode.Inverted) { return "n/x, n/y; n = (x^e + y^e)"; }
 		return "";
 	}
 

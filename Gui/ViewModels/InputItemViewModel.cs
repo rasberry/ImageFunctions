@@ -1,11 +1,11 @@
 using Avalonia;
 using Avalonia.Media;
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Numerics;
-using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -17,8 +17,8 @@ public class InputItem : ViewModelBase
 	}
 	public IUsageText Input { get; init; }
 
-	public string Name { get { return Input.Name; }}
-	public string Description { get { return Input.Description; }}
+	public string Name { get { return Input.Name; } }
+	public string Description { get { return Input.Description; } }
 
 	bool _enabled;
 	public bool Enabled {
@@ -35,7 +35,7 @@ public class InputItemSlider : InputItem
 		NumberType = input.InputType.UnWrapNullable();
 		IsNumberPct = input.IsNumberPct;
 		SetDefaultsFromType(input);
-		if (IsNumberPct) { ShowAsPct = true; }
+		if(IsNumberPct) { ShowAsPct = true; }
 	}
 
 	public double Min { get; private set; }
@@ -89,7 +89,7 @@ public class InputItemSlider : InputItem
 
 	double FormatDisplayForValue(string display)
 	{
-		if (!double.TryParse(display,System.Globalization.NumberStyles.Any, null, out var val)) {
+		if(!double.TryParse(display, System.Globalization.NumberStyles.Any, null, out var val)) {
 			val = _value;
 			//TODO error handle ?
 		}
@@ -112,13 +112,13 @@ public class InputItemSlider : InputItem
 			x.GetGenericTypeDefinition() == typeof(IMinMaxValue<>)
 		);
 
-		if (isMinMax) {
+		if(isMinMax) {
 			double defMin, defMax;
-			if (IsNumberPct) {
+			if(IsNumberPct) {
 				defMin = 0.0;
 				defMax = 1.0;
 			}
-			else if (NumberType.Is<double>()) {
+			else if(NumberType.Is<double>()) {
 				//using the full double min max breaks the slider
 				defMin = float.MinValue;
 				defMax = float.MaxValue;
@@ -152,12 +152,12 @@ public class InputItemDropDown : InputItem
 		foreach(var item in valsList) {
 			string num = ((int)item).ToString();
 			var name = @enum.NameMap != null ? @enum.NameMap(item) : item.ToString();
-			var	tag = @enum.DescriptionMap != null ? @enum.DescriptionMap(item) : null;
+			var tag = @enum.DescriptionMap != null ? @enum.DescriptionMap(item) : null;
 
 			var sel = new SelectionItem() { Name = $"{num}. {name}", Tag = tag, Value = item };
 			Choices.Add(sel);
 
-			if (input.Default != null && input.Default.Equals(item)) {
+			if(input.Default != null && input.Default.Equals(item)) {
 				SelectedIndex = index;
 			}
 			index++;
@@ -171,7 +171,7 @@ public class InputItemDropDown : InputItem
 			var sel = new SelectionItem() { Name = name, Value = name };
 			Choices.Add(sel);
 
-			if (input.Default != null && input.Default.Equals(name)) {
+			if(input.Default != null && input.Default.Equals(name)) {
 				SelectedIndex = index;
 			}
 			index++;
@@ -200,14 +200,14 @@ public class InputItemSync : InputItem
 		var reg = Program.Register;
 		NameSpace = @namespace;
 		var defName = reg.Default(@namespace);
-		if (!String.IsNullOrEmpty(defName)) {
+		if(!String.IsNullOrEmpty(defName)) {
 			Item = new SelectionItem { Name = defName, NameSpace = @namespace, Value = defName };
 		}
 		SetSyncIcon();
 	}
 
 	public string NameSpace { get; private set; }
-	public string Tag { get { return $"Synchronize with {NameSpace}"; }}
+	public string Tag { get { return $"Synchronize with {NameSpace}"; } }
 
 	StreamGeometry _syncIcon;
 	public StreamGeometry SyncIcon {
@@ -243,7 +243,7 @@ public class InputItemText : InputItem
 {
 	public InputItemText(IUsageParameter input) : base(input)
 	{
-		if (input.Default != null) {
+		if(input.Default != null) {
 			Text = input.Default.ToString();
 		}
 	}

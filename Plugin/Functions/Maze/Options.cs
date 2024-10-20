@@ -25,7 +25,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Draws one of several mazes"),
+			Description = new UsageDescription(1, "Draws one of several mazes"),
 			Parameters = [
 				new UsageOne<PickMaze>(1, "-m", "Choose a maze (default prims)") { Default = PickMaze.Prims, TypeText = "Maze" },
 				new UsageOne<ColorRGBA>(1, "-cc", "Change cell color (default black)") { Default = CoreColors.Black },

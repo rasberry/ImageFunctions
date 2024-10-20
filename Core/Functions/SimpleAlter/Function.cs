@@ -18,10 +18,10 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Register)) {
 			return false;
 		}
 
@@ -30,7 +30,7 @@ public class Function : IFunction
 		return true;
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;

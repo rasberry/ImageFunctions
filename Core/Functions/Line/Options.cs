@@ -18,7 +18,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.RunLengthSlice, Name = "Type" },
 				//new UsageOne<double>(1, "-w", "Line width in pixels. Partial pixels are ok (defaults to 1.0)") { Default = 1.0, Max = 1024.0, Min = 0.0 },
-				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times" ),
+				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times"),
 				new UsageOne<ColorRGBA>(1, "-c", "Color for the line (default black)"),
 			],
 			EnumParameters = [
@@ -59,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 		// 	return false;
 		// }
 
-		if (p.Scan<LineKind>("-m", LineKind.RunLengthSlice)
+		if(p.Scan<LineKind>("-m", LineKind.RunLengthSlice)
 			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -67,7 +67,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<ColorRGBA>("-c", ColorAide.Black, OptionsAide.ParseColor)
+		if(p.Scan<ColorRGBA>("-c", ColorAide.Black, OptionsAide.ParseColor)
 			.WhenGoodOrMissing(r => { Color = r.Value; return r; })
 			.WhenInvalidTellDefault()
 			.IsInvalid()
@@ -91,7 +91,7 @@ public sealed class Options : IOptions, IUsageProvider
 			};
 		} while(!done);
 
-		if (PointList == null || PointList.Count < 2) {
+		if(PointList == null || PointList.Count < 2) {
 			Log.Error(Note.MissingArgument($"-p. drawing a line requires at least two points"));
 			return false;
 		}

@@ -6,21 +6,21 @@ public static class ColorSpaceHelpers
 {
 	internal static string GetColorSpaceHelp(IRegister register, INameSpaceName item)
 	{
-		if (item == null) {
+		if(item == null) {
 			return null;
 		}
-		if (register == null) {
+		if(register == null) {
 			Squeal.ArgumentNull(nameof(register));
 		}
 
 		ColorSpaceInfo info;
 
-		if (item.NameSpace == Color3SpaceRegister.NS) {
+		if(item.NameSpace == Color3SpaceRegister.NS) {
 			var reg = new Color3SpaceRegister(register);
 			var space = reg.Get(item.Name);
 			info = space.Item.Info;
 		}
-		else if (item.NameSpace == Color4SpaceRegister.NS) {
+		else if(item.NameSpace == Color4SpaceRegister.NS) {
 			var reg = new Color4SpaceRegister(register);
 			var space = reg.Get(item.Name);
 			info = space.Item.Info;

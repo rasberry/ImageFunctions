@@ -23,7 +23,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Average a set of pixels by following a minimaztion function"),
+			Description = new UsageDescription(1, "Average a set of pixels by following a minimaztion function"),
 			Parameters = [
 				new UsageOne<Mode>(1, "-m", "Which mode to use (default StairCaseDescend)") { Default = Mode.StairCaseDescend },
 				new UsageOne<int>(1, "-n", "Number of times to apply operation (default 1)") { Min = 0, Default = 1, Max = 99 },

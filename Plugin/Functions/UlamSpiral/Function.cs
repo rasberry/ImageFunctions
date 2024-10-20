@@ -4,9 +4,9 @@ using ImageFunctions.Core.Metrics;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
-using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
-using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
 using CoreColor = ImageFunctions.Core.Aides.ColorAide;
+using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 
@@ -23,7 +23,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 
 	public bool Run(string[] args)
 	{

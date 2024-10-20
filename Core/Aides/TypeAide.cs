@@ -29,7 +29,7 @@ public static class TypeAide
 	/// </summary>
 	public static bool IsNumeric(this Type t)
 	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
+		if(t == null) { throw Squeal.ArgumentNull(nameof(t)); }
 		return NumericTypes.Contains(Nullable.GetUnderlyingType(t) ?? t);
 	}
 
@@ -38,7 +38,7 @@ public static class TypeAide
 	/// </summary>
 	public static bool Is<T>(this Type t)
 	{
-		if (t == null) { throw Squeal.ArgumentNull(nameof(t)); }
+		if(t == null) { throw Squeal.ArgumentNull(nameof(t)); }
 		return t.Equals(typeof(T));
 	}
 }

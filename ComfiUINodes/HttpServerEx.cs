@@ -25,7 +25,7 @@ public static class HttpServerEx
 		var req = ctx.Request;
 		var resp = ctx.Response;
 		var httpMethod = HttpMethod.Parse(req.HttpMethod);
-		if (httpMethod != expectedMethod) {
+		if(httpMethod != expectedMethod) {
 			resp.End(HttpStatusCode.MethodNotAllowed);
 			return false;
 		}

@@ -77,7 +77,7 @@ public static class Note
 	}
 	public static string MustBeGreaterThan<T>(string name, T number, bool inclusive = false)
 	{
-		if (number == null) {
+		if(number == null) {
 			throw Squeal.ArgumentNull(nameof(number));
 		}
 		var c = System.Globalization.CultureInfo.InvariantCulture;

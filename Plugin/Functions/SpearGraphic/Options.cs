@@ -22,7 +22,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Creates a spear graphic"),
+			Description = new UsageDescription(1, "Creates a spear graphic"),
 			Parameters = [
 				new UsageOne<Graphic>(1, "-g", "Choose which graphic to create"),
 				new UsageOne<Color>(1, "-bg", "Change Background color (default transparent)") { Default = Color.Transparent },

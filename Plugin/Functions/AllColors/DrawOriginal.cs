@@ -50,7 +50,7 @@ public static class DrawOriginal
 		case Pattern.SMPTE240M: converter = ConvertSmpte1999; break;
 		}
 
-		if (converter == null) {
+		if(converter == null) {
 			throw Squeal.NotSupported($"Pattern {p}");
 		}
 

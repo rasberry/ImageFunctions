@@ -18,7 +18,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 
 	public bool Run(string[] args)
 	{

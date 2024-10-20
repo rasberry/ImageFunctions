@@ -23,7 +23,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite"),
+			Description = new UsageDescription(1, "Turing machine mites/ants. see https://en.wikipedia.org/wiki/Turmite"),
 			Parameters = [
 				new UsageOne<string>(1, "-p", "LR pattern string. See below for full language (default 'LR')") { TypeText = "Pattern", Default = "LR" },
 				new UsageOne<PickEdgeRule>(1, "-e", "Change edge handling rule (default Wrap)") { Default = PickEdgeRule.Wrap, TypeText = "EdgeRule" },
@@ -31,7 +31,7 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<ulong>(1, "-i", "Number of iterations (default 1000)") { Min = 1, Max = 999999, Default = 1000 },
 			],
 			EnumParameters = [
-				new UsageEnum<PickEdgeRule>(1,"Available Edge Rules:") { DescriptionMap = EdgeRuleDesc }
+				new UsageEnum<PickEdgeRule>(1, "Available Edge Rules:") { DescriptionMap = EdgeRuleDesc }
 			],
 			SuffixParameters = [
 				new UsageText(1, "Pattern language:") { AddNewLineBefore = true },

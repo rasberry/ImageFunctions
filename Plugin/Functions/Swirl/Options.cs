@@ -27,7 +27,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Smears pixels in a circle around a point"),
+			Description = new UsageDescription(1, "Smears pixels in a circle around a point"),
 			Parameters = [
 				new UsageOne<Point>(1, "-cx", "Swirl center X and Y coordinate in pixels"),
 				new UsageOne<PointF>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = 0.5, IsNumberPct = true },

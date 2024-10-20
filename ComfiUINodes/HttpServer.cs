@@ -16,12 +16,12 @@ public sealed class HttpServer : IDisposable
 
 	public void AddRoute(string path, Action<HttpListenerContext> handler)
 	{
-		Routes.Add(path,handler);
+		Routes.Add(path, handler);
 	}
 
 	public void Start()
 	{
-		if (IsStarted) { return; }
+		if(IsStarted) { return; }
 		IsStarted = true;
 		Listener.Start();
 		var res = Listener.BeginGetContext(RequestCallback, Listener);
@@ -29,7 +29,7 @@ public sealed class HttpServer : IDisposable
 
 	void RequestCallback(IAsyncResult res)
 	{
-		if (Listener == null) { return; }
+		if(Listener == null) { return; }
 		HttpListenerContext ctx = null;
 
 		//capture the incoming request
@@ -47,9 +47,9 @@ public sealed class HttpServer : IDisposable
 		//handle the request as usuall
 		HttpListenerRequest req = ctx.Request;
 		string path = ctx.Request.Url?.LocalPath;
-		if (string.IsNullOrWhiteSpace(path)) { return; }
+		if(string.IsNullOrWhiteSpace(path)) { return; }
 
-		if (Routes.TryGetValue(path, out var handler)) {
+		if(Routes.TryGetValue(path, out var handler)) {
 			handler(ctx);
 		}
 		else {
@@ -60,7 +60,7 @@ public sealed class HttpServer : IDisposable
 	public void Dispose()
 	{
 		IsStarted = false;
-		if (Listener != null) {
+		if(Listener != null) {
 			Listener.Stop();
 			((IDisposable)Listener).Dispose();
 		}

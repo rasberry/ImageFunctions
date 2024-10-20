@@ -26,10 +26,10 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Register)) {
 			return false;
 		}
 
@@ -42,12 +42,12 @@ public class Function : IFunction
 		Layers.Push(image);
 
 		var bounds = image.Bounds();
-		if (O.Sweep == FibSquares.Options.SweepKind.Split) {
-			var (one,two) = SplitSquare(bounds);
+		if(O.Sweep == FibSquares.Options.SweepKind.Split) {
+			var (one, two) = SplitSquare(bounds);
 			DrawSpiral(image, one);
 			DrawSpiral(image, two);
 		}
-		else if (O.Sweep == FibSquares.Options.SweepKind.Resize) {
+		else if(O.Sweep == FibSquares.Options.SweepKind.Resize) {
 			var resized = GetOptimalRatio(bounds);
 			DrawSpiral(image, resized);
 		}
@@ -68,10 +68,10 @@ public class Function : IFunction
 		//pick the least negative value below zero
 		//only have 4 values to check so doing this manually
 		int z = int.MinValue, which = -1;
-		if (a <= 0 && a > z) { z = a; which = 0; }
-		if (b <= 0 && b > z) { z = b; which = 1; }
-		if (c <= 0 && c > z) { z = c; which = 2; }
-		if (d <= 0 && d > z) { z = d; which = 3; }
+		if(a <= 0 && a > z) { z = a; which = 0; }
+		if(b <= 0 && b > z) { z = b; which = 1; }
+		if(c <= 0 && c > z) { z = c; which = 2; }
+		if(d <= 0 && d > z) { z = d; which = 3; }
 
 		//Log.Debug($"{nameof(GetOptimalRatio)} {a} {b} {c} {d} [{z}]");
 		switch(which) {
@@ -86,14 +86,14 @@ public class Function : IFunction
 	void DrawSpiral(ICanvas image, Rectangle bounds)
 	{
 		//calculate boxes and remainders (splits)
-		List<(Rectangle Square,Rectangle Split)> shapeList = new();
+		List<(Rectangle Square, Rectangle Split)> shapeList = new();
 		var area = bounds;
 		int seq = 0;
-		
+
 		while(true) {
-			var (square,split) = SplitRectangle(area, seq++);
-			if (split.Width <= 0 || split.Height <= 0) { break; }
-			shapeList.Add((square,split));
+			var (square, split) = SplitRectangle(area, seq++);
+			if(split.Width <= 0 || split.Height <= 0) { break; }
+			shapeList.Add((square, split));
 			area = split;
 		}
 
@@ -110,15 +110,15 @@ public class Function : IFunction
 			DrawGradients(image, shapeList, colorList); break;
 		case FibSquares.Options.DrawModeKind.Drag:
 			DrawDrag(image, shapeList, colorList); break;
-		//case FibSquares.Options.DrawModeKind.LineDrag:
-		//	DrawLinePath(image, shapeList, colorList); break;
+			//case FibSquares.Options.DrawModeKind.LineDrag:
+			//	DrawLinePath(image, shapeList, colorList); break;
 
 		}
 
-		if (O.DrawBorders) {
+		if(O.DrawBorders) {
 			for(int c = 0; c < shapeList.Count - 1; c++) {
 				var b = shapeList[c].Square;
-				DrawBorder(image,b,colorList[c]);
+				DrawBorder(image, b, colorList[c]);
 			}
 		}
 	}
@@ -135,15 +135,15 @@ public class Function : IFunction
 		Rectangle square;
 		Rectangle split;
 
-		if (!landscape && !side) {
+		if(!landscape && !side) {
 			split = new Rectangle(L, T + W, W, H - W);
 			square = new Rectangle(L, T, W, W);
 		}
-		else if (landscape && !side) {
+		else if(landscape && !side) {
 			split = new Rectangle(L + H, T, W - H, H);
 			square = new Rectangle(L, T, H, H);
 		}
-		else if (!landscape && side) {
+		else if(!landscape && side) {
 			split = new Rectangle(L, T, W, H - W);
 			square = new Rectangle(L, T + H - W, W, W);
 		}
@@ -152,7 +152,7 @@ public class Function : IFunction
 			square = new Rectangle(L + W - H, T, H, H);
 		}
 		//Log.Debug($"{nameof(SplitRectangle)} b={bounds} q={square} s={split}");
-		return (square,split);
+		return (square, split);
 	}
 
 	(Rectangle One, Rectangle Two) SplitSquare(Rectangle bounds)
@@ -165,7 +165,8 @@ public class Function : IFunction
 		double sma = len / (Phi + 1);
 
 		switch(dir) {
-		case Direction.Up: default:
+		case Direction.Up:
+		default:
 			one = new Rectangle(bounds.Left, bounds.Top, bounds.Width, (int)sma);
 			two = new Rectangle(bounds.Left, (int)sma, bounds.Width, bounds.Height - (int)sma);
 			break;
@@ -182,10 +183,10 @@ public class Function : IFunction
 			two = new Rectangle((int)big, bounds.Top, bounds.Width - (int)big, bounds.Height);
 			break;
 		}
-		return (one,two);
+		return (one, two);
 	}
 
-	void DrawSimpleBoxes(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
+	void DrawSimpleBoxes(ICanvas image, List<(Rectangle Square, Rectangle Split)> list, List<ColorRGBA> colorList)
 	{
 		int c = 0;
 		foreach(var item in list) {
@@ -196,24 +197,24 @@ public class Function : IFunction
 
 	}
 
-	void DrawGradients(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
+	void DrawGradients(ICanvas image, List<(Rectangle Square, Rectangle Split)> list, List<ColorRGBA> colorList)
 	{
 		for(int c = 0; c < list.Count - 1; c++) {
 			var c1 = colorList[c];
 			var c2 = colorList[c + 1];
 			var rect = list[c].Square;
 			var next = list[c + 1].Square;
-			
+
 			int dx = Math.Abs(rect.X - next.X);
 			int dy = Math.Abs(rect.Y - next.Y);
 			Direction d;
-			if (dx > dy && rect.Left < next.Left) {
+			if(dx > dy && rect.Left < next.Left) {
 				d = Direction.Right;
 			}
-			else if (dx > dy && rect.Left > next.Left) {
+			else if(dx > dy && rect.Left > next.Left) {
 				d = Direction.Left;
 			}
-			else if (dy > dx && rect.Top < next.Top) {
+			else if(dy > dx && rect.Top < next.Top) {
 				d = Direction.Down;
 			}
 			else {
@@ -223,7 +224,7 @@ public class Function : IFunction
 		}
 	}
 
-	void DrawDrag(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
+	void DrawDrag(ICanvas image, List<(Rectangle Square, Rectangle Split)> list, List<ColorRGBA> colorList)
 	{
 		for(int c = 0; c < list.Count - 1; c++) {
 			var cb = colorList[c];
@@ -268,7 +269,7 @@ public class Function : IFunction
 	}
 
 	//TODO needs work
-	void DrawLinePath(ICanvas image, List<(Rectangle Square,Rectangle Split)> list, List<ColorRGBA> colorList)
+	void DrawLinePath(ICanvas image, List<(Rectangle Square, Rectangle Split)> list, List<ColorRGBA> colorList)
 	{
 		for(int c = 0; c < list.Count - 1; c++) {
 			var cb = colorList[c];
@@ -284,10 +285,10 @@ public class Function : IFunction
 
 			Direction d = Direction.Up;
 			int steps = int.MinValue;
-			if (dl > steps) { steps = dl; d = Direction.Left; }
-			if (dt > steps) { steps = dt; d = Direction.Up; }
-			if (dr > steps) { steps = dr; d = Direction.Right; }
-			if (db > steps) { steps = db; d = Direction.Down; }
+			if(dl > steps) { steps = dl; d = Direction.Left; }
+			if(dt > steps) { steps = dt; d = Direction.Up; }
+			if(dr > steps) { steps = dr; d = Direction.Right; }
+			if(db > steps) { steps = db; d = Direction.Down; }
 			Log.Debug($"d={d}");
 
 			for(int s = 0; s < steps; s++) {
@@ -301,7 +302,7 @@ public class Function : IFunction
 
 				int x = (int)Math.Round(l + Math.Abs(l - r) / 2.0);
 				int y = (int)Math.Round(t + Math.Abs(t - b) / 2.0);
-				image[x,y] = color;
+				image[x, y] = color;
 				//Log.Debug($"[{x},{y}] b={beg} e={end}");
 			}
 
@@ -370,13 +371,13 @@ public class Function : IFunction
 		var inside = canvas.Bounds();
 		inside.Intersect(rect);
 
-		if (inside.Width <= 0 || inside.Height <= 0) {
+		if(inside.Width <= 0 || inside.Height <= 0) {
 			return false;
 		}
 
-		inside.ThreadPixels((px,py) => {
-			canvas[px,py] = color;
-		},CoreOptions.MaxDegreeOfParallelism);
+		inside.ThreadPixels((px, py) => {
+			canvas[px, py] = color;
+		}, CoreOptions.MaxDegreeOfParallelism);
 
 		return true;
 	}
@@ -387,19 +388,19 @@ public class Function : IFunction
 		var inside = canvas.Bounds();
 		inside.Intersect(rect);
 
-		if (inside.Width <= 0 || inside.Height <= 0) {
+		if(inside.Width <= 0 || inside.Height <= 0) {
 			return false;
 		}
 
-		inside.ThreadPixels((px,py) => {
+		inside.ThreadPixels((px, py) => {
 			double offset;
-			if (d == Direction.Right) {
+			if(d == Direction.Right) {
 				offset = (px - inside.Left) / (double)inside.Width;
 			}
-			else if (d == Direction.Left) {
+			else if(d == Direction.Left) {
 				offset = (inside.Right - px) / (double)inside.Width;
 			}
-			else if (d == Direction.Down) {
+			else if(d == Direction.Down) {
 				offset = (py - inside.Top) / (double)inside.Height;
 			}
 			else { //Direction.Up
@@ -407,8 +408,8 @@ public class Function : IFunction
 			}
 
 			var color = CoreColors.BetweenColor(start, end, offset);
-			canvas[px,py] = color;
-		},CoreOptions.MaxDegreeOfParallelism);
+			canvas[px, py] = color;
+		}, CoreOptions.MaxDegreeOfParallelism);
 		return true;
 	}
 
@@ -417,27 +418,27 @@ public class Function : IFunction
 		var inside = canvas.Bounds();
 		inside.Intersect(rect);
 
-		if (inside.Width < 2 || inside.Height < 2) {
+		if(inside.Width < 2 || inside.Height < 2) {
 			return false;
 		}
 
 		//Log.Debug($"{nameof(DrawBorder)} {rect} -> {inside}");
-		if (d == null || d.Value == Direction.Up || d.Value == Direction.Down) {
+		if(d == null || d.Value == Direction.Up || d.Value == Direction.Down) {
 			for(int x = inside.Left; x < inside.Right; x++) {
-				if (d == null || d.Value == Direction.Up) {
+				if(d == null || d.Value == Direction.Up) {
 					canvas[x, inside.Top] = color;
 				}
-				if (d == null || d.Value == Direction.Down) {
+				if(d == null || d.Value == Direction.Down) {
 					canvas[x, inside.Bottom - 1] = color;
 				}
 			}
 		}
-		if (d == null || d.Value == Direction.Left || d.Value == Direction.Right) {
+		if(d == null || d.Value == Direction.Left || d.Value == Direction.Right) {
 			for(int y = inside.Top; y < inside.Bottom; y++) {
-				if (d == null || d.Value == Direction.Left) {
+				if(d == null || d.Value == Direction.Left) {
 					canvas[inside.Left, y] = color;
 				}
-				if (d == null || d.Value == Direction.Right) {
+				if(d == null || d.Value == Direction.Right) {
 					canvas[inside.Right - 1, y] = color;
 				}
 			}
@@ -458,13 +459,13 @@ public class Function : IFunction
 		double r = 1.0 - Rnd.NextDouble();
 		double g = 1.0 - Rnd.NextDouble();
 		double b = 1.0 - Rnd.NextDouble();
-		return new ColorRGBA(r,g,b,1.0);
+		return new ColorRGBA(r, g, b, 1.0);
 	}
 
 	enum Direction { Up = 0, Down = 1, Left, Right }
 	const double Phi = 1.618033988749895; //(Math.Sqrt(5) + 1) / 2;
 	readonly Options O = new();
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 
 	IRegister Register;
 	ILayers Layers;

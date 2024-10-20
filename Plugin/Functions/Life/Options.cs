@@ -25,7 +25,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Runs the Game of Life simulation and captures the state in various ways - The given starting image is turned into black/white"),
+			Description = new UsageDescription(1, "Runs the Game of Life simulation and captures the state in various ways - The given starting image is turned into black/white"),
 			Parameters = [
 				new UsageOne<ulong>(1, "-i", "maximum number of iterations (default 10000)") { Min = 1, Default = 10000, Max = 1E+12 },
 				//TODO new UsageOne<>(1, "-t (name)", "start with a template instead of using the first layer"),

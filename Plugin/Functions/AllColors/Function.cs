@@ -24,7 +24,7 @@ public class Function : IFunction
 		return f;
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 
 	public bool Run(string[] args)
 	{
@@ -116,7 +116,7 @@ public class Function : IFunction
 		case Pattern.SMPTE240M: converter = ConvertSmpte1999; break;
 		}
 
-		if (converter == null) {
+		if(converter == null) {
 			throw Squeal.NotSupported($"Pattern {p}");
 		}
 
@@ -303,7 +303,7 @@ public class Function : IFunction
 			int x = ic % image.Width;
 			int y = ic / image.Width;
 
-			int ib = 16 * (y / 256) + (x /256);
+			int ib = 16 * (y / 256) + (x / 256);
 			int ir = ic % 256;
 			int ig = ic / 4096 % 256;
 

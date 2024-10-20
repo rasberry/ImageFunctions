@@ -19,7 +19,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Creates areas of flat color by recursively splitting high detail chunks"),
+			Description = new UsageDescription(1, "Creates areas of flat color by recursively splitting high detail chunks"),
 			Parameters = [
 				new UsageOne<bool>(1, "-p", "Use proportianally sized sections (default is square sized sections)"),
 				new UsageOne<double>(1, "-s", "Multiple or percent of image dimension used for splitting (default 2.0)") { IsNumberPct = true, Max = 200.0 },

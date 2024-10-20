@@ -29,7 +29,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public Usage GetUsageInfo()
 	{
 		var u = new Usage {
-			Description = new UsageDescription(1,"Fills area(s) of color with another color"),
+			Description = new UsageDescription(1, "Fills area(s) of color with another color"),
 			Parameters = [
 				new UsageOne<ColorRGBA>(1, "-c", "Fill color (default white)") { Default = CoreColors.White },
 				new UsageOne<Point>(1, "-p", "Pick starting coordinate (can be specified multiple times)"),

@@ -14,17 +14,17 @@ public static class AvaloniaTools
 
 	public static Control FindControlByName(this Control parent, string name)
 	{
-		if (parent == null) {
+		if(parent == null) {
 			return null;
 		}
-		if (parent.Name == name) {
+		if(parent.Name == name) {
 			return parent;
 		}
-		if (parent is Avalonia.LogicalTree.ILogical il) {
+		if(parent is Avalonia.LogicalTree.ILogical il) {
 			foreach(var child in il.LogicalChildren) {
-				if (child is Control cc) {
+				if(child is Control cc) {
 					var c = FindControlByName(cc, name);
-					if (c != null) { return c; }
+					if(c != null) { return c; }
 				}
 			}
 		}
@@ -34,14 +34,14 @@ public static class AvaloniaTools
 
 	public static void WatchChildProperties<T>(this IReadOnlyCollection<T> sender, PropertyChangedEventHandler handler)
 	{
-		if (sender is not INotifyCollectionChanged incc) {
+		if(sender is not INotifyCollectionChanged incc) {
 			throw new ArgumentException($"{typeof(T).FullName} is not an observable collection");
 		}
 
 		incc.CollectionChanged += (sender, args) => {
-			if (args.NewItems != null) {
+			if(args.NewItems != null) {
 				foreach(T item in args?.NewItems) {
-					if (item is INotifyPropertyChanged inpc) {
+					if(item is INotifyPropertyChanged inpc) {
 						inpc.PropertyChanged += handler;
 					}
 				}

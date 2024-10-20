@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
@@ -14,7 +15,6 @@ using System.ComponentModel;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
-using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -46,8 +46,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		RegisteredControlList = new();
 		var reg = Program.Register;
-		foreach (var ns in reg.Spaces())
-		{
+		foreach(var ns in reg.Spaces()) {
 			var svm = GetSelectionViewModelForNameSpace(ns);
 			RegisteredControlList.Add(svm);
 		}
@@ -55,33 +54,27 @@ public class MainWindowViewModel : ViewModelBase
 
 	SelectionViewModel GetSelectionViewModelForNameSpace(string ns)
 	{
-		var svm = ns switch
-		{
+		var svm = ns switch {
 
-			FunctionRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) =>
-			{
+			FunctionRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				return new SelectionItem { Name = item.Name, NameSpace = ns };
 			}, OnFunctionSelected),
 
-			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) =>
-			{
+			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				var colorItem = reg.Get<ColorRGBA>(ns, item.Name);
-				return new SelectionItemColor
-				{
+				return new SelectionItemColor {
 					Name = item.Name,
 					NameSpace = ns,
 					Color = ConvertColor(colorItem)
 				};
 			}, OnSomethingSelected),
 
-			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) =>
-			{
+			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
 				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
 			}, OnEngineSelected),
 
-			_ => AddTreeNodeFromRegistered(ns, (reg, item) =>
-			{
+			_ => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
 				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
 			}, OnSomethingSelected),
@@ -104,22 +97,18 @@ public class MainWindowViewModel : ViewModelBase
 		var def = reg.Default(@namespace);
 
 		SelectionItem selected = null;
-		foreach (var c in nsItems)
-		{
+		foreach(var c in nsItems) {
 			var item = filler(Program.Register, c);
 			items.Add(item);
-			if (def != null && item.Name.EqualsIC(def))
-			{
+			if(def != null && item.Name.EqualsIC(def)) {
 				selected = item;
 			}
 		}
-		var sel = new SelectionViewModel
-		{
+		var sel = new SelectionViewModel {
 			NameSpace = @namespace,
 			Items = items
 		};
-		if (selected != null)
-		{
+		if(selected != null) {
 			sel.Selected = selected;
 		}
 
@@ -134,10 +123,9 @@ public class MainWindowViewModel : ViewModelBase
 	IRegisteredItem<FunctionSpawner> RegFunction;
 	void OnFunctionSelected(SelectionItem item)
 	{
-		if (item == null) { return; }
+		if(item == null) { return; }
 		var reg = new FunctionRegister(Program.Register);
-		if (!reg.Try(item.Name, out RegFunction))
-		{
+		if(!reg.Try(item.Name, out RegFunction)) {
 			//Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
@@ -155,11 +143,9 @@ public class MainWindowViewModel : ViewModelBase
 			func?.Options.Usage(sb, Program.Register);
 			token.ThrowIfCancellationRequested();
 
-			Dispatcher.UIThread.Post(() =>
-			{
+			Dispatcher.UIThread.Post(() => {
 				UsageText = sb.ToString();
-				if (opts is IUsageProvider iup)
-				{
+				if(opts is IUsageProvider iup) {
 					RePopulateInputControls(iup, token);
 				}
 			});
@@ -169,10 +155,9 @@ public class MainWindowViewModel : ViewModelBase
 	EngineWrapper RegEngine;
 	void OnEngineSelected(SelectionItem item)
 	{
-		if (item == null) { return; }
+		if(item == null) { return; }
 		var reg = new EngineRegister(Program.Register);
-		if (!reg.Try(item.Name, out var engItem))
-		{
+		if(!reg.Try(item.Name, out var engItem)) {
 			//Trace.WriteLine(GuiNote.RegisteredItemWasNotFound(item.Name));
 			return;
 		}
@@ -184,7 +169,7 @@ public class MainWindowViewModel : ViewModelBase
 		void job(CancellationToken token)
 		{
 			var eng = RegEngine;
-			if (eng == null) { return; }
+			if(eng == null) { return; }
 
 			var list = eng.Formats();
 			token.ThrowIfCancellationRequested();
@@ -195,23 +180,20 @@ public class MainWindowViewModel : ViewModelBase
 			var writeMime = new List<string>();
 			//TODO apple formats.. https://developer.apple.com/documentation/uniformtypeidentifiers/system-declared_uniform_type_identifiers
 
-			foreach (var f in list)
-			{
+			foreach(var f in list) {
 				token.ThrowIfCancellationRequested();
 				bool r = f.CanRead, w = f.CanWrite;
 				bool m = string.IsNullOrEmpty(f.MimeType);
-				if (r) { readPatterns.Add("*" + f.BestExtension); }
-				if (r & m) { readMime.Add(f.MimeType); }
-				if (w) { writePatterns.Add("*" + f.BestExtension); }
-				if (w & m) { writeMime.Add(f.MimeType); }
+				if(r) { readPatterns.Add("*" + f.BestExtension); }
+				if(r & m) { readMime.Add(f.MimeType); }
+				if(w) { writePatterns.Add("*" + f.BestExtension); }
+				if(w & m) { writeMime.Add(f.MimeType); }
 			}
-			SupportedReadTypes = new FilePickerFileType("Readable Formats")
-			{
+			SupportedReadTypes = new FilePickerFileType("Readable Formats") {
 				Patterns = readPatterns,
 				MimeTypes = readMime
 			};
-			SupportedWriteTypes = new FilePickerFileType("Writeable Formats")
-			{
+			SupportedWriteTypes = new FilePickerFileType("Writeable Formats") {
 				Patterns = writePatterns,
 				MimeTypes = writeMime
 			};
@@ -239,22 +221,19 @@ public class MainWindowViewModel : ViewModelBase
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
 
 	string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
-	public string StatusText
-	{
+	public string StatusText {
 		get => _statusText;
 		set => this.RaiseAndSetIfChanged(ref _statusText, value);
 	}
 
 	string _commandText = "";
-	public string CommandText
-	{
+	public string CommandText {
 		get => _commandText;
 		set => this.RaiseAndSetIfChanged(ref _commandText, value);
 	}
 
 	string _usageText = "";
-	public string UsageText
-	{
+	public string UsageText {
 		get => _usageText;
 		set => this.RaiseAndSetIfChanged(ref _usageText, value);
 	}
@@ -262,8 +241,7 @@ public class MainWindowViewModel : ViewModelBase
 	public void ToggleThemeClick()
 	{
 		var app = Application.Current;
-		if (app is not null)
-		{
+		if(app is not null) {
 			var theme = app.ActualThemeVariant;
 			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
 		}
@@ -274,10 +252,8 @@ public class MainWindowViewModel : ViewModelBase
 	public void UpdateStatusText(string text, bool startTimer, TimeSpan? timeout = null)
 	{
 		//Trace.WriteLine($"UpdateStatusText T:'{text}' E:{(startTimer?"Y":"N")} T:{timeout.GetValueOrDefault().TotalMilliseconds}");
-		if (StatusTextTimer == null)
-		{
-			StatusTextTimer = new()
-			{
+		if(StatusTextTimer == null) {
+			StatusTextTimer = new() {
 				AutoReset = false,
 				Interval = StatusTextTimeout.TotalMilliseconds
 			};
@@ -287,17 +263,14 @@ public class MainWindowViewModel : ViewModelBase
 
 		StatusText = text;
 
-		if (startTimer)
-		{
-			if (timeout != null)
-			{
+		if(startTimer) {
+			if(timeout != null) {
 				//Trace.WriteLine($"{nameof(UpdateStatusText)} timeout set {timeout.Value.TotalMilliseconds}");
 				StatusTextTimer.Interval = timeout.Value.TotalMilliseconds;
 			}
 			StatusTextTimer.Start();
 		}
-		else
-		{
+		else {
 			StatusTextTimer.Stop();
 			StatusTextTimer.Interval = StatusTextTimeout.TotalMilliseconds;
 		}
@@ -315,14 +288,12 @@ public class MainWindowViewModel : ViewModelBase
 
 	void UpdateLayerImageButtonsAddIndex(int ix)
 	{
-		if (ix < 0 || ix >= Layers.Count) { return; }
+		if(ix < 0 || ix >= Layers.Count) { return; }
 		LayersImageList[ix].CheckUpDownEnabled();
-		if (ix - 1 >= 0)
-		{
+		if(ix - 1 >= 0) {
 			LayersImageList[ix - 1].CheckUpDownEnabled();
 		}
-		if (ix + 1 < Layers.Count)
-		{
+		if(ix + 1 < Layers.Count) {
 			LayersImageList[ix + 1].CheckUpDownEnabled();
 		}
 	}
@@ -375,8 +346,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void LoadAndShowImage(string fileName)
 	{
-		if (RegEngine == null)
-		{
+		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
 			UpdateStatusText(txt, true, WarningTimeout);
 			return;
@@ -393,8 +363,7 @@ public class MainWindowViewModel : ViewModelBase
 		var workBounds = imgBounds.Intersect(previewBounds);
 
 		//Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
-		if (workBounds.Width < 1 || workBounds.Height < 1)
-		{
+		if(workBounds.Width < 1 || workBounds.Height < 1) {
 			return null;
 		}
 
@@ -409,10 +378,8 @@ public class MainWindowViewModel : ViewModelBase
 
 		//Trace.WriteLine($"Rgba8888 {wWidth} {wHeight} {wTop} {wBottom} {wLeft} {wRight}");
 		int dataOffset = 0;
-		for (int y = wTop; y < wBottom; y++)
-		{
-			for (int x = wLeft; x < wRight; x++)
-			{
+		for(int y = wTop; y < wBottom; y++) {
+			for(int x = wLeft; x < wRight; x++) {
 				var pix = canvas[x, y];
 				data[dataOffset + 0] = (byte)(pix.R * 255.0);
 				data[dataOffset + 1] = (byte)(pix.G * 255.0);
@@ -429,8 +396,7 @@ public class MainWindowViewModel : ViewModelBase
 			AlphaFormat.Unpremul
 		);
 
-		using (var buffer = bitmap.Lock())
-		{
+		using(var buffer = bitmap.Lock()) {
 			System.Runtime.InteropServices.Marshal.Copy(data, 0, buffer.Address, data.Length);
 		}
 
@@ -449,14 +415,12 @@ public class MainWindowViewModel : ViewModelBase
 	public void RunCommand()
 	{
 		//Trace.WriteLine(nameof(RunCommand));
-		if (RegFunction == null)
-		{
+		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
 			UpdateStatusText(txt, true, WarningTimeout);
 			return;
 		}
-		if (RegEngine == null)
-		{
+		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
 			UpdateStatusText(txt, true, WarningTimeout);
 			return;
@@ -471,8 +435,7 @@ public class MainWindowViewModel : ViewModelBase
 			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
 			var reg = new FunctionRegister(Program.Register);
-			var options = new Core.Options(Program.Register)
-			{
+			var options = new Core.Options(Program.Register) {
 				Engine = RegEngine.AsRegisteredItem
 			};
 
@@ -482,8 +445,7 @@ public class MainWindowViewModel : ViewModelBase
 			func.Run(new string[0]); //TODO fix args
 									 //Trace.WriteLine($"{nameof(RunCommand)} 5");
 
-			Dispatcher.UIThread.Post(() =>
-			{
+			Dispatcher.UIThread.Post(() => {
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
 				((ImageStorage.LayersInside)Layers).RefreshAll(); //TODO this still doesn't seem to work..
 			});
@@ -504,21 +466,17 @@ public class MainWindowViewModel : ViewModelBase
 		var usage = provider.GetUsageInfo();
 
 		var ud = usage.Description;
-		if ((ud?.Descriptions?.Any()).GetValueOrDefault(false))
-		{
+		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
 			var iii = new InputItemInfo(new UsageText(1, "", ""), usage.Description.Descriptions);
 			InputsList.Add(iii);
 		}
 
-		foreach (var p in usage.Parameters)
-		{
-			if (p is IUsageParameter iup)
-			{
+		foreach(var p in usage.Parameters) {
+			if(p is IUsageParameter iup) {
 				var input = DetermineInputControl(usage, iup);
-				if (input != null) { InputsList.Add(input); }
+				if(input != null) { InputsList.Add(input); }
 			}
-			else
-			{
+			else {
 				//just text so skip
 			}
 			token.ThrowIfCancellationRequested();
@@ -530,42 +488,33 @@ public class MainWindowViewModel : ViewModelBase
 		//bool isTwo = p is IUsageParameterTwo; //TODO
 		var it = iup.InputType.UnWrapNullable();
 
-		if (iup is UsageRegistered ur)
-		{
+		if(iup is UsageRegistered ur) {
 			return new InputItemSync(iup, ur.NameSpace);
 		}
-		else if (it.Is<bool>())
-		{
+		else if(it.Is<bool>()) {
 			return new InputItem(iup);
 		}
-		else if (it.IsEnum)
-		{
+		else if(it.IsEnum) {
 			IUsageEnum iue = null;
-			foreach (var i in usage.EnumParameters)
-			{
-				if (i.EnumType.Equals(iup.InputType))
-				{
+			foreach(var i in usage.EnumParameters) {
+				if(i.EnumType.Equals(iup.InputType)) {
 					iue = i; break;
 				}
 			}
 			return new InputItemDropDown(iup, iue);
 		}
-		else if (it.Is<string>())
-		{
+		else if(it.Is<string>()) {
 			return new InputItemText(iup);
 		}
-		else if (it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>())
-		{
+		else if(it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>()) {
 			//TODO color picker ?
 			return null;
 		}
-		else if (it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>())
-		{
+		else if(it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>()) {
 			//TODO point picker .. ?
 			return null;
 		}
-		else if (it.IsNumeric())
-		{
+		else if(it.IsNumeric()) {
 			return new InputItemSlider(iup);
 		}
 
@@ -575,8 +524,7 @@ public class MainWindowViewModel : ViewModelBase
 	public ObservableCollection<InputItem> InputsList { get; init; } = new();
 
 	string _showCommandUsageText = "";
-	public string ShowCommandUsageText
-	{
+	public string ShowCommandUsageText {
 		get => _showCommandUsageText;
 		set => this.RaiseAndSetIfChanged(ref _showCommandUsageText, value);
 	}
@@ -591,43 +539,35 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		//string extra = "";
 		string value = "";
-		if (sender is InputItemSync iisync)
-		{
+		if(sender is InputItemSync iisync) {
 			var sel = iisync.Item;
 			//extra = $"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
 			value = sel?.Value.ToString();
 		}
-		else if (sender is InputItemSlider iislider)
-		{
+		else if(sender is InputItemSlider iislider) {
 			//extra = $"InputItemSlider Value={iislider.Value}";
 			value = iislider.Value.ToString();
 		}
-		else if (sender is InputItemText iitext)
-		{
+		else if(sender is InputItemText iitext) {
 			//extra = $"InputItemInfo Text={iitext.Text}";
 			value = iitext.Text;
 		}
-		else if (sender is InputItemDropDown iidrop)
-		{
+		else if(sender is InputItemDropDown iidrop) {
 			var sel = iidrop.SelectedIndex >= 0 ? iidrop.Choices[iidrop.SelectedIndex] : null;
 			//extra = $"InputItemDropDown SelectedIndex={iidrop.SelectedIndex} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
 			value = sel?.Value.ToString();
 		}
 
-		if (sender is InputItem ii)
-		{
+		if(sender is InputItem ii) {
 			//Log.Debug($"{(ii.Enabled?"✔":"❌")} [{ii.Name}] {extra}");
-			if (ii.Enabled)
-			{
+			if(ii.Enabled) {
 				CommandLineArgCache[ii.Name] = value;
 			}
-			else
-			{
+			else {
 				CommandLineArgCache.Remove(ii.Name);
 			}
 		}
-		else
-		{
+		else {
 			Log.Debug($"?? {sender.GetType().FullName}");
 		}
 
@@ -639,13 +579,12 @@ public class MainWindowViewModel : ViewModelBase
 	bool commandLineIsRendering = false;
 	void RenderCommandLineFromWidgets()
 	{
-		if (commandLineIsRendering) { return; }
+		if(commandLineIsRendering) { return; }
 		commandLineIsRendering = true;
 
 		bool isFirst = true;
 		StringBuilder sb = new();
-		foreach (var kvp in CommandLineArgCache)
-		{
+		foreach(var kvp in CommandLineArgCache) {
 			sb.Append($"{(isFirst ? "" : " ")}{kvp.Key} {kvp.Value}");
 			isFirst = false;
 		}
@@ -656,8 +595,8 @@ public class MainWindowViewModel : ViewModelBase
 
 	void UpdateWidgetsFromCommandLine(string text)
 	{
-		if (String.IsNullOrWhiteSpace(text)) { return; }
-		if (commandLineIsRendering) { return; }
+		if(String.IsNullOrWhiteSpace(text)) { return; }
+		if(commandLineIsRendering) { return; }
 		commandLineIsRendering = true;
 
 		//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);

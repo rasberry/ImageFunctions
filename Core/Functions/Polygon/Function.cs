@@ -16,7 +16,7 @@ public class Function : IFunction
 		Options.Usage(sb, Register);
 	}
 
-	public IOptions Options { get { return O; }}
+	public IOptions Options { get { return O; } }
 	readonly Options O = new();
 	IRegister Register;
 	ILayers Layers;
@@ -24,15 +24,15 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Register)) {
 			return false;
 		}
 
 		var canvas = Layers.First().Canvas;
-		if (O.PointList == null || O.PointList.Count < 2) {
+		if(O.PointList == null || O.PointList.Count < 2) {
 			return true; //nothing to do
 		}
 
