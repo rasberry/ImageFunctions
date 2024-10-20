@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
 using ImageFunctions.Gui.Views;
 

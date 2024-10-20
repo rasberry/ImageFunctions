@@ -1,9 +1,6 @@
 using Avalonia.Controls;
-using ReactiveUI;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq.Expressions;
 
 namespace ImageFunctions.Gui.Helpers;
 

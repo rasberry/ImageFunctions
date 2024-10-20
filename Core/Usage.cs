@@ -51,12 +51,6 @@ public static class UsageRenderer
 
 	public static string GetUsageLabel(IUsageText p)
 	{
-		// if (p is IUsageParameterTwo iup2) {
-		// 	var tt = iup2.TypeText ?? MapTypeToText(iup2.InputType, iup2.IsNumberPct);
-		// 	var suffix = String.IsNullOrEmpty(tt) ? "" : $" ({tt})";
-		// 	var label = p.Name + suffix + suffix;
-		// 	return label;
-		// }
 		if (p is IUsageParameter iup) {
 			var tt = iup.TypeText ?? MapTypeToText(iup.InputType, iup.IsNumberPct);
 			var label = p.Name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
@@ -175,29 +169,6 @@ public record UsageRegistered : UsageOne
 	public string NameSpace { get; init; }
 }
 
-// public interface IUsageParameterTwo : IUsageParameter
-// {
-// 	object DefaultTwo { get; }
-// }
-
-// public record UsageTwo : UsageOne, IUsageParameterTwo
-// {
-// 	public UsageTwo(int indention, Type inputType, string name, string description)
-// 		: base(indention, inputType, name, description)
-// 	{
-// 	}
-
-// 	public object DefaultTwo { get; init; }
-// }
-
-// public record UsageTwo<T> : UsageTwo
-// {
-// 	public UsageTwo(int indention, string name, string description)
-// 		: base(indention, typeof(T), name, description)
-// 	{
-// 	}
-// }
-
 public interface IUsageEnum
 {
 	int Indention { get; init; }
@@ -206,7 +177,6 @@ public interface IUsageEnum
 	Func<object, string> NameMap { get; init; }
 	bool ExcludeZero { get; init; }
 	Type EnumType { get; init; }
-
 }
 
 public record UsageEnum : IUsageEnum

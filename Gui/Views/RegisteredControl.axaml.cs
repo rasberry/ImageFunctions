@@ -1,8 +1,4 @@
 using Avalonia.Controls;
-using Avalonia.LogicalTree;
-using ImageFunctions.Core;
-using ImageFunctions.Gui.Models;
-using ImageFunctions.Gui.ViewModels;
 
 namespace ImageFunctions.Gui.Views;
 

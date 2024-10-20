@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
-using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
 using System.Drawing;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;

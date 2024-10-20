@@ -1,7 +1,5 @@
-using Avalonia.Controls;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
-using System.Collections;
 using System.Collections.ObjectModel;
 
 namespace ImageFunctions.Gui.ViewModels;
