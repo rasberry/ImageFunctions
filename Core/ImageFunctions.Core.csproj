@@ -37,6 +37,8 @@
   <InternalsVisibleTo Include="ImageFunctions.Gui" />
   <InternalsVisibleTo Include="ImageFunctions.Test" />
   <InternalsVisibleTo Include="ImageFunctions.Writer" />
+  <InternalsVisibleTo Include="ImageFunctions.ComfiUINodes" />
 </ItemGroup>
 
 </Project>
+

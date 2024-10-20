@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Writer", "Writer\ImageFunct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gui", "Gui\ImageFunctions.Gui.csproj", "{2D2ACD10-879A-4E8B-B814-91E89DD2DD8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComfiUINodes", "ComfiUINodes\ComfiUINodes.csproj", "{BFECCEAF-C61A-4490-ABD4-93E55FB278CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComfiUINodes", "ComfiUINodes\ImageFunctions.ComfiUINodes.csproj", "{BFECCEAF-C61A-4490-ABD4-93E55FB278CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

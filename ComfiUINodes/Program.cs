@@ -1,4 +1,4 @@
-﻿using System.Net;
+﻿using ImageFunctions.Core;
 
 namespace ImageFunctions.ComfiUINodes;
 
@@ -8,15 +8,21 @@ internal class Program
 
 	static void Main(string[] args)
 	{
+		PluginSetup();
+		RunServer();
+	}
+
+	static void RunServer()
+	{
 		Console.CancelKeyPress += ShutDown;
 		Server = new HttpServer(DefaultPort);
-		Server.AddRoute("/test", TestHandler);
+		Server.AddRoute("/register", Handlers.ShowRegister);
+		Server.AddRoute("/function", Handlers.RunFunction);
+		Server.AddRoute("/functioninfo", Handlers.FunctionInfo);
 
-		var task = new Task(Server.Start, TaskCreationOptions.LongRunning);
 		Core.Logging.Log.Message($"Starting server on http://localhost:{DefaultPort}");
 		try {
-			task.Start();
-
+			Server.Start();
 			Core.Logging.Log.Message("Press any key to stop ...");
 			Console.ReadKey(false);
 		}
@@ -29,16 +35,15 @@ internal class Program
 	{
 		Core.Logging.Log.Message("Shutting down ...");
 		Server?.Dispose();
+		Register?.Dispose();
 	}
 
-	static HttpServer Server;
-
-	static void TestHandler(HttpListenerContext ctx)
+	static void PluginSetup()
 	{
-		ctx.Response.StatusCode = (int)HttpStatusCode.OK;
-		Core.Logging.Log.Message($"TestHandler {ctx.Request.Url?.LocalPath}");
-		Thread.Sleep(10000);
-		using var resp = ctx.Response;
-		resp.WriteText("this is a test");
+		Register = new Register();
+		PluginLoader.LoadAllPlugins(Register);
 	}
+
+	internal static Register Register;
+	static HttpServer Server;
 }

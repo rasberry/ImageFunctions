@@ -11,8 +11,8 @@ public sealed class HttpServer : IDisposable
 	}
 
 	readonly HttpListener Listener;
-	bool KeepRunning = true;
 	Dictionary<string, Action<HttpListenerContext>> Routes = new(StringComparer.OrdinalIgnoreCase);
+	bool IsStarted = false;
 
 	public void AddRoute(string path, Action<HttpListenerContext> handler)
 	{
@@ -21,37 +21,48 @@ public sealed class HttpServer : IDisposable
 
 	public void Start()
 	{
+		if (IsStarted) { return; }
+		IsStarted = true;
 		Listener.Start();
-		while(KeepRunning) {
-			HttpListenerContext ctx = Listener.GetContext(); //blocks
-			HttpListenerRequest req = ctx.Request;
-
-			string path = ctx.Request.Url?.LocalPath;
-			if (string.IsNullOrWhiteSpace(path)) { continue; }
-
-			if (Routes.TryGetValue(path, out var handler)) {
-				handler(ctx);
-			}
-			else {
-				HandleNotFound(ctx);
-			}
-		}
+		var res = Listener.BeginGetContext(RequestCallback, Listener);
 	}
 
-	void HandleNotFound(HttpListenerContext ctx)
+	void RequestCallback(IAsyncResult res)
 	{
-		using HttpListenerResponse resp = ctx.Response;
-		resp.Headers.Set("Content-Type", "text/plain");
-		resp.StatusCode = (int)HttpStatusCode.NotFound;
+		if (Listener == null) { return; }
+		HttpListenerContext ctx = null;
 
-		string err = $"404 - Not Found '{ctx.Request.Url?.LocalPath}'";
-		resp.WriteText(err);
+		//capture the incoming request
+		try {
+			ctx = Listener.EndGetContext(res);
+		}
+		catch(HttpListenerException) {
+			//if we're shutting the server down EndGetContext throws an exception so just exit
+			return;
+		}
+
+		//immediately setup a new context for the next request
+		Listener.BeginGetContext(RequestCallback, Listener);
+
+		//handle the request as usuall
+		HttpListenerRequest req = ctx.Request;
+		string path = ctx.Request.Url?.LocalPath;
+		if (string.IsNullOrWhiteSpace(path)) { return; }
+
+		if (Routes.TryGetValue(path, out var handler)) {
+			handler(ctx);
+		}
+		else {
+			Handlers.HandleNotFound(ctx);
+		}
 	}
 
 	public void Dispose()
 	{
-		KeepRunning = false;
-		Listener.Stop();
-		((IDisposable)Listener).Dispose();
+		IsStarted = false;
+		if (Listener != null) {
+			Listener.Stop();
+			((IDisposable)Listener).Dispose();
+		}
 	}
 }
