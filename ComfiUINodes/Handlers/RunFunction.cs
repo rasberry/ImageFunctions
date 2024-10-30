@@ -60,10 +60,7 @@ internal static partial class Handlers
 		//var content = new MultipartContent("form-data", contentType.Boundary);
 		//var multiData = new MultipartFormDataContent(contentType.Boundary);
 		//multiData.
-		// TODO create job
-		// ughh.. logging is not going to work as is.. 
-		// maybe change IFunction to have an IFunctionContext object with all of the bits attached
-		// (basically the Job object) and include logging
+		TODO create job
 		// fs.Write(sep,0,sep.Length);
 		// var help = $"{contentType.Name} {contentType.MediaType} {contentType.Boundary}";
 		// var ct = Encoding.UTF8.GetBytes(help + "\r\n");
