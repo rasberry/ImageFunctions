@@ -9,9 +9,9 @@ public class LoggerForJob : ICoreLog
 
 	public void Debug(string m)
 	{
-		#if DEBUG
+#if DEBUG
 		LogMessages.Add($"D: {m}");
-		#endif
+#endif
 	}
 
 	public void Error(string m, Exception e = null)
@@ -22,7 +22,7 @@ public class LoggerForJob : ICoreLog
 
 	public void Info(string m)
 	{
-		if (BeVerbose) {
+		if(BeVerbose) {
 			LogMessages.Add($"I: {m}");
 		}
 	}

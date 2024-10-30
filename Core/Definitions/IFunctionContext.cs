@@ -9,7 +9,7 @@ public interface IFunctionContext
 	/// global item registration object
 	/// </summary>
 	IRegister Register { get; }
-	
+
 	/// <summary>
 	/// image layers given to the function (may be empty)
 	/// </summary>

@@ -16,7 +16,7 @@ public static class PluginLoader
 	/// <param name="register">an instance of IRegister</param>
 	public static void LoadAllPlugins(IRegister register, ICoreLog log)
 	{
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		var list = GetFilesWithPlugins(log);
 
 		foreach(string f in list) {
@@ -58,7 +58,7 @@ public static class PluginLoader
 
 	internal static bool RegisterPlugin(ICoreLog log, Assembly plugin, IRegister register)
 	{
-		if (plugin == null) {
+		if(plugin == null) {
 			throw Squeal.ArgumentNull(nameof(plugin));
 		}
 

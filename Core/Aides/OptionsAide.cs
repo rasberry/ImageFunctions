@@ -15,7 +15,7 @@ public static class OptionsAide
 	/// <returns>The result</returns>
 	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result, ICoreLog log)
 	{
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		if(result.IsInvalid()) {
 			log.Error(Note.CouldNotParse(result.Name, result.Value), result.Error);
 		}
@@ -152,7 +152,7 @@ public static class OptionsAide
 	/// <param name="errHandler">optional error handler Action</param>
 	/// <returns>true if the engine was found otherwise false</returns>
 	public static bool TrySelectEngine(
-		this IRegister register, string engineName,[NotNull] ICoreLog log, out IRegisteredItem<Lazy<IImageEngine>> engine)
+		this IRegister register, string engineName, [NotNull] ICoreLog log, out IRegisteredItem<Lazy<IImageEngine>> engine)
 	{
 		engine = null;
 		var er = new EngineRegister(register);
@@ -183,8 +183,8 @@ public static class OptionsAide
 	/// <returns>true if the format was found</returns>
 	public static bool TryDetermineImageFormat(this IImageEngine engine, string imageFormat, ICoreLog log, out ImageFormat? format)
 	{
-		if (engine == null) { throw Squeal.ArgumentNull(nameof(engine)); }
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(engine == null) { throw Squeal.ArgumentNull(nameof(engine)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		format = null;
 		bool formatGiven = !String.IsNullOrWhiteSpace(imageFormat);

@@ -59,7 +59,7 @@ public static class ColorSpaceHelpers
 	public static ParseResult<IColor3Space> ScanColor3Space(this ParseParams p, ICoreLog log, IRegister register)
 	{
 		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new Color3SpaceRegister(register);
 		IColor3Space space = null;
@@ -88,7 +88,7 @@ public static class ColorSpaceHelpers
 	public static ParseResult<IColor4Space> ScanColor4Space(this ParseParams p, IRegister register, ICoreLog log)
 	{
 		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new Color4SpaceRegister(register);
 		IColor4Space space = null;

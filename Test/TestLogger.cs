@@ -14,9 +14,9 @@ public sealed class TestLogger : ICoreLog
 
 	public void Debug(string m)
 	{
-		#if DEBUG
+#if DEBUG
 		Context.WriteLine($"D: {m}");
-		#endif
+#endif
 	}
 
 	public void Error(string m, Exception e = null)
@@ -27,7 +27,7 @@ public sealed class TestLogger : ICoreLog
 
 	public void Info(string m)
 	{
-		if (BeVerbose) {
+		if(BeVerbose) {
 			Context.WriteLine($"I: {m}");
 		}
 	}

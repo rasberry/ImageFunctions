@@ -18,7 +18,7 @@ internal static partial class Handlers
 		var req = ctx.Request;
 		var contentType = new ContentType(req.ContentType);
 
-		if (!contentType.MediaType.EqualsIC("multipart/form-data")) {
+		if(!contentType.MediaType.EqualsIC("multipart/form-data")) {
 			resp.StatusCode = (int)HttpStatusCode.UnprocessableContent;
 			resp.WriteText($"422 - Only Content-Type: multipart/form-data is supported");
 			return;
@@ -26,18 +26,18 @@ internal static partial class Handlers
 
 		List<string> argsList = new();
 		List<MemoryStream> binList = new();
-		
+
 		// https://stackoverflow.com/questions/20968492/reading-multipart-content-from-raw-http-request
 		using var readStream = req.InputStream;
 		var content = new StreamContent(readStream);
 		content.Headers.ContentType = MediaTypeHeaderValue.Parse(req.ContentType);
 		var outerMultipart = content.ReadAsMultipartAsync().GetAwaiter().GetResult();
 
-		foreach (var outerPart in outerMultipart.Contents) {
+		foreach(var outerPart in outerMultipart.Contents) {
 			string name = outerPart.Headers.ContentDisposition.Name;
 			var memoryData = new MemoryStream();
 			outerPart.CopyTo(memoryData, ctx.Request.TransportContext, CancellationToken.None);
-			if (TryGetUtf8String(memoryData,out string stringData)) {
+			if(TryGetUtf8String(memoryData, out string stringData)) {
 				argsList.Add(name);
 				argsList.Add(stringData);
 			}
@@ -48,7 +48,7 @@ internal static partial class Handlers
 		}
 
 		var options = new ComfiCoreOptions();
-		
+
 		var job = new Job {
 			Register = Program.Register,
 			Layers = new Layers(),
@@ -61,7 +61,7 @@ internal static partial class Handlers
 		//var multiData = new MultipartFormDataContent(contentType.Boundary);
 		//multiData.
 		// TODO create job
-	 	// ughh.. logging is not going to work as is.. 
+		// ughh.. logging is not going to work as is.. 
 		// maybe change IFunction to have an IFunctionContext object with all of the bits attached
 		// (basically the Job object) and include logging
 		// fs.Write(sep,0,sep.Length);
@@ -79,10 +79,10 @@ internal static partial class Handlers
 	static bool TryGetUtf8String(MemoryStream stream, out string data)
 	{
 		data = null;
-		if (stream.Length > MaxNonBinarySize) { return false; }
+		if(stream.Length > MaxNonBinarySize) { return false; }
 		var streamArr = stream.ToArray();
 		var chars = new char[1024];
-		if (!Encoding.UTF8.TryGetChars(streamArr, chars, out int _)) { return false; }
+		if(!Encoding.UTF8.TryGetChars(streamArr, chars, out int _)) { return false; }
 		data = new string(chars);
 		return true;
 	}
@@ -97,12 +97,12 @@ internal static partial class Handlers
 		public FunctionSpawner GetFunction(string name)
 		{
 			var reg = new FunctionRegister(Program.Register);
-			if (!reg.Try(name, out var regFunction)) {
+			if(!reg.Try(name, out var regFunction)) {
 				return null;
 			}
 			return regFunction?.Item;
 		}
-		
+
 		public bool Run(FunctionSpawner spawner, string[] args, out LoggerForJob log)
 		{
 			log = new LoggerForJob();
@@ -120,7 +120,7 @@ internal static partial class Handlers
 	class ComfiCoreOptions : ICoreOptions
 	{
 		public int? MaxDegreeOfParallelism { get; internal set; }
-		public IRegisteredItem<Lazy<IImageEngine>> Engine  { get; internal set; }
+		public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }
 		public int? DefaultWidth { get; internal set; }
 		public int? DefaultHeight { get; internal set; }
 		public string ImageFormat;
@@ -182,20 +182,20 @@ internal static partial class Handlers
 				.WhenGood(r => { FunctionName = r.Value; return r; })
 			;
 
-			 if (!ProcessOptions(register)) {
+			if(!ProcessOptions(register)) {
 				return false;
-			 }
+			}
 
 			return true;
 		}
 
 		internal bool ProcessOptions(IRegister register)
 		{
-			if (!register.TrySelectEngine(EngineName, Log, out var engineEntry)) {
+			if(!register.TrySelectEngine(EngineName, Log, out var engineEntry)) {
 				return false;
 			}
 
-			if (!engineEntry.Item.Value.TryDetermineImageFormat(ImageFormat, Log, out _)) {
+			if(!engineEntry.Item.Value.TryDetermineImageFormat(ImageFormat, Log, out _)) {
 				return false;
 			}
 

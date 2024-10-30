@@ -11,7 +11,7 @@ public class Function : IFunction
 {
 	public static IFunction Create(IFunctionContext context)
 	{
-		if (context == null) {
+		if(context == null) {
 			throw Squeal.ArgumentNull(nameof(context));
 		}
 
@@ -29,8 +29,8 @@ public class Function : IFunction
 	public IOptions Options { get { return O; } }
 	IFunctionContext Context;
 	Options O;
-	ILayers Layers { get { return Context.Layers; }}
-	ICoreLog Log { get { return Context.Log; }}
+	ILayers Layers { get { return Context.Layers; } }
+	ICoreLog Log { get { return Context.Log; } }
 
 	public bool Run(string[] args)
 	{

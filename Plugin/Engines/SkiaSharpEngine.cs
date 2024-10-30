@@ -85,7 +85,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
-		if (clerk == null) {
+		if(clerk == null) {
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
@@ -140,7 +140,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		if(layers.Count < 1) {
 			throw Squeal.NoLayers();
 		}
-		if (clerk == null) {
+		if(clerk == null) {
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
@@ -165,7 +165,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			int count = 1;
 			foreach(var lay in layers) {
 				var canvas = (InSkiaCanvas)lay.Canvas;
-				var stream = clerk.WriteStream(ext,count.ToString());
+				var stream = clerk.WriteStream(ext, count.ToString());
 				WriteImage(canvas.Bitmap, stream, skFormat);
 				count++;
 			}

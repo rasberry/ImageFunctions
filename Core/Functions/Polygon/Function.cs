@@ -4,7 +4,7 @@ public class Function : IFunction
 {
 	public static IFunction Create(IFunctionContext context)
 	{
-		if (context == null) {
+		if(context == null) {
 			throw Squeal.ArgumentNull(nameof(context));
 		}
 

@@ -6,9 +6,9 @@ namespace ImageFunctions.Core.Functions.Line;
 
 public sealed class Options : IOptions, IUsageProvider
 {
-	public Options( IFunctionContext context)
+	public Options(IFunctionContext context)
 	{
-		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		if(context == null) { throw Squeal.ArgumentNull(nameof(context)); }
 		Log = context.Log;
 	}
 

@@ -15,7 +15,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 
 	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
 	{
-		if (clerk == null) {
+		if(clerk == null) {
 			Squeal.ArgumentNull(nameof(clerk));
 		}
 
@@ -41,7 +41,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		if(layers.Count == 0) {
 			throw Squeal.NoLayers();
 		}
-		if (clerk == null) {
+		if(clerk == null) {
 			Squeal.ArgumentNull(nameof(clerk));
 		}
 

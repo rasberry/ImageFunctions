@@ -21,7 +21,7 @@ public static class MetricHelpers
 	public static ParseResult<Lazy<IMetric>> ScanMetric(this ParseParams p, ICoreLog log, IRegister register)
 	{
 		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new MetricRegister(register);
 		Lazy<IMetric> metric = null;

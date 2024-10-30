@@ -30,7 +30,7 @@ public static class OptionsAide
 	public static ParseResult<T> BeGreaterThan<T>(this ParseResult<T> r, ICoreLog log, T minimum, bool inclusive = false)
 		where T : IComparable
 	{
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		if(r.IsBad()) { return r; }
 
 		var t = typeof(T).UnWrapNullable();

@@ -20,7 +20,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 	public Options(IFunctionContext context)
 	{
-		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		if(context == null) { throw Squeal.ArgumentNull(nameof(context)); }
 		Log = context.Log;
 	}
 

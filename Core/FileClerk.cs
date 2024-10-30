@@ -10,9 +10,9 @@ public sealed class FileClerk : IFileClerk
 
 	public void Dispose()
 	{
-		if (Watcher == null) { return; }
+		if(Watcher == null) { return; }
 		foreach(var w in Watcher) {
-			if (w != null && !w.IsDisposed) {
+			if(w != null && !w.IsDisposed) {
 				w.Dispose();
 			}
 		}
@@ -23,11 +23,11 @@ public sealed class FileClerk : IFileClerk
 	public Stream ReadStream(string ext = null, string tag = null)
 	{
 		WatchedStream watched;
-		if (Source != null) {
+		if(Source != null) {
 			watched = new WatchedStream(Source, Progress);
 		}
 		else {
-			var loc = GetFinal(ext,tag);
+			var loc = GetFinal(ext, tag);
 			var fs = File.Open(loc, FileMode.Open, FileAccess.Read, FileShare.Read);
 			watched = new WatchedStream(fs, Progress);
 		}
@@ -39,11 +39,11 @@ public sealed class FileClerk : IFileClerk
 	public Stream WriteStream(string ext = null, string tag = null)
 	{
 		WatchedStream watched;
-		if (Source != null) {
+		if(Source != null) {
 			watched = new WatchedStream(Source, Progress);
 		}
 		else {
-			var loc = GetFinal(ext,tag);
+			var loc = GetFinal(ext, tag);
 			var fs = File.Open(loc, FileMode.Create, FileAccess.Write, FileShare.Read);
 			watched = new WatchedStream(fs, Progress);
 		}
@@ -54,13 +54,13 @@ public sealed class FileClerk : IFileClerk
 	string GetFinal(string ext = null, string tag = null)
 	{
 		string loc = Location;
-		if (String.IsNullOrWhiteSpace(loc)) {
+		if(String.IsNullOrWhiteSpace(loc)) {
 			Squeal.ArgumentNullOrEmpty(nameof(Location));
 		}
-		if (!String.IsNullOrWhiteSpace(ext)) {
+		if(!String.IsNullOrWhiteSpace(ext)) {
 			loc = Path.ChangeExtension(loc, ext);
 		}
-		if (!string.IsNullOrWhiteSpace(tag)) {
+		if(!string.IsNullOrWhiteSpace(tag)) {
 			var xt = Path.GetExtension(loc);
 			var name = Path.GetFileNameWithoutExtension(loc);
 			loc = $"{name}{tag}{xt}";
@@ -91,25 +91,30 @@ public sealed class FileClerk : IFileClerk
 			set => InnerStream.Position = value;
 		}
 
-		public override void Flush() {
+		public override void Flush()
+		{
 			InnerStream.Flush();
 			UpdateProgress();
 		}
-		public override int Read(byte[] buffer, int offset, int count) {
+		public override int Read(byte[] buffer, int offset, int count)
+		{
 			var r = InnerStream.Read(buffer, offset, count);
 			UpdateProgress();
 			return r;
 		}
-		public override long Seek(long offset, SeekOrigin origin) {
+		public override long Seek(long offset, SeekOrigin origin)
+		{
 			var l = InnerStream.Seek(offset, origin);
 			UpdateProgress();
 			return l;
 		}
-		public override void SetLength(long value) {
+		public override void SetLength(long value)
+		{
 			InnerStream.SetLength(value);
 			UpdateProgress();
 		}
-		public override void Write(byte[] buffer, int offset, int count) {
+		public override void Write(byte[] buffer, int offset, int count)
+		{
 			InnerStream.Write(buffer, offset, count);
 			UpdateProgress();
 		}
@@ -117,7 +122,7 @@ public sealed class FileClerk : IFileClerk
 		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
-			if (!IsDisposed) {
+			if(!IsDisposed) {
 				InnerStream.Dispose();
 				IsDisposed = true;
 			}
@@ -125,7 +130,7 @@ public sealed class FileClerk : IFileClerk
 
 		void UpdateProgress()
 		{
-			if (Progress == null) { return; }
+			if(Progress == null) { return; }
 			double pct = (double)InnerStream.Position / InnerStream.Length;
 			Progress.Report(pct);
 		}

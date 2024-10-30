@@ -1,4 +1,4 @@
-# if false
+#if false
 namespace ImageFunctions.Core.Functions.SimpleAlter;
 
 public class Function : IFunction

@@ -25,7 +25,7 @@ internal static partial class Handlers
 		var data = new Dictionary<string, List<UsageParam>>();
 
 		foreach(string key in list) {
-			if (qsName != null && !qsName.EqualsIC(key)) { continue; }
+			if(qsName != null && !qsName.EqualsIC(key)) { continue; }
 
 			var context = new FunctionContext {
 				Register = reg

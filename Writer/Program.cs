@@ -191,7 +191,7 @@ class Program
 			return RootFolder;
 		}
 	}
-	
+
 	static string RootFolder;
 	static string ProjectFolder { get { return Path.Combine(ProjectRoot, "Writer"); } }
 	static string ViewFolder { get { return Path.Combine(ProjectRoot, "Writer", "Views"); } }

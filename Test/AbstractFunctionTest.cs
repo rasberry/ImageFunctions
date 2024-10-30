@@ -1,6 +1,6 @@
+using ImageFunctions.Cli;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Logging;
-using ImageFunctions.Cli;
 using System.Drawing;
 using static ImageFunctions.Plugin.ImageComparer;
 
@@ -76,7 +76,7 @@ public abstract class AbstractFunctionTest
 		}
 		info.Options = options;
 
-		if (info.Clerk == null) {
+		if(info.Clerk == null) {
 			info.Clerk = new FileClerk();
 		}
 

@@ -195,7 +195,7 @@ internal sealed class Options : ICoreOptions
 		}
 
 		//need to select the engine so we can show formats
-		if (!Register.TrySelectEngine(EngineName, Log, out var _engine)) {
+		if(!Register.TrySelectEngine(EngineName, Log, out var _engine)) {
 			return false;
 		}
 		else {
@@ -214,7 +214,7 @@ internal sealed class Options : ICoreOptions
 			return false;
 		}
 
-		if (!Engine.Item.Value.TryDetermineImageFormat(_imageFormat, Log, out _)) {
+		if(!Engine.Item.Value.TryDetermineImageFormat(_imageFormat, Log, out _)) {
 			return false;
 		}
 

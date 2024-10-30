@@ -17,7 +17,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
-		if (clerk == null) {
+		if(clerk == null) {
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
@@ -61,7 +61,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		if(layers.Count == 0) {
 			throw Squeal.NoLayers();
 		}
-		if (clerk == null) {
+		if(clerk == null) {
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
@@ -108,7 +108,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
-				var stream = clerk.WriteStream(ext,count.ToString());
+				var stream = clerk.WriteStream(ext, count.ToString());
 				img.Save(stream, enc);
 				count++;
 			}

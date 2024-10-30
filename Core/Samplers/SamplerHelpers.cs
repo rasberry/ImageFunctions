@@ -16,7 +16,7 @@ public static class SamplerHelpers
 	public static ParseResult<Lazy<ISampler>> ScanSampler(this ParseParams p, ICoreLog log, IRegister register)
 	{
 		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
-		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new SamplerRegister(register);
 		ParseParams.Result result;
