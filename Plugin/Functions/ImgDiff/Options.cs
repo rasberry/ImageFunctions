@@ -16,6 +16,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public ColorRGBA HilightColor;
 	public string MetricName;
 	internal Lazy<IMetric> MetricInstance;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -63,21 +70,21 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<double>("-o", par: parser)
 			.WhenGood(r => { HilightOpacity = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero(true)
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log, true)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan<ColorRGBA>("-c", PlugColors.Magenta, colorParser)
 			.WhenGoodOrMissing(r => { HilightColor = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { MetricInstance = r.Value; return r; })
 			.IsInvalid()
 		) {

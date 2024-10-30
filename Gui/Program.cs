@@ -53,8 +53,8 @@ internal sealed class Program
 	static void PluginSetup()
 	{
 		Trace.WriteLine("PluginSetup");
-		Register = new Register();
-		PluginLoader.LoadAllPlugins(Register);
+		Register = new CoreRegister(Log);
+		PluginLoader.LoadAllPlugins(Register, Log);
 	}
 
 	static void Cleanup()
@@ -65,5 +65,6 @@ internal sealed class Program
 		}
 	}
 
-	public static Register Register { get; private set; }
+	internal static CoreRegister Register { get; private set; }
+	internal static LogToConsole Log = new();
 }

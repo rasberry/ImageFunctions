@@ -10,9 +10,16 @@ public sealed class Options : IOptions, IUsageProvider
 	public Graphic Spear;
 	public ColorRGBA BackgroundColor;
 	public int? RandomSeed;
+	readonly ICoreLog Log;
 
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -46,7 +53,7 @@ public sealed class Options : IOptions, IUsageProvider
 				BackgroundColor = ColorRGBA.FromRGBA255(c.R, c.G, c.B, c.A);
 				return r;
 			})
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -54,7 +61,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RandomSeed = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -62,7 +69,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Graphic>("-g")
 			.WhenGoodOrMissing(r => { Spear = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenMissing(r => { Log.Error(Note.MustProvideInput(r.Name)); return r; })
 			.IsBad() //option is required
 		) {

@@ -7,29 +7,39 @@ namespace ImageFunctions.Plugin.Functions.PixelateDetails;
 [InternalRegisterFunction(nameof(PixelateDetails))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Layers = layers
-			// CoreOptions = core - not used
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	public ILayers Layers { get { return Context.Layers; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
@@ -193,10 +203,6 @@ public class Function : IFunction
 		//Log.Debug("GetPixelValue val="+val+" r="+c.R+" g="+c.G+" b="+c.B);
 		return val;
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
 
 	struct SortPair : IComparable
 	{

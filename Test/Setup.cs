@@ -9,12 +9,13 @@ public class Setup
 	[AssemblyInitialize]
 	public static void Init(TestContext ctx)
 	{
+		var log = new TestLogger(ctx);
 		var cp = System.Diagnostics.Process.GetCurrentProcess();
 		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
 
-		Register = new Register();
-		PluginLoader.RegisterPlugin(typeof(Core.Adapter).Assembly, Register);
-		PluginLoader.RegisterPlugin(typeof(Plugin.Adapter).Assembly, Register);
+		Register = new CoreRegister(log);
+		PluginLoader.RegisterPlugin(log, typeof(Core.Adapter).Assembly, Register);
+		PluginLoader.RegisterPlugin(log, typeof(Plugin.Adapter).Assembly, Register);
 	}
 
 	[AssemblyCleanup]
@@ -27,7 +28,7 @@ public class Setup
 	}
 
 	//internal static Program Instance;
-	internal static Register Register;
+	internal static CoreRegister Register;
 
 	// https://stackoverflow.com/questions/816566/how-do-you-get-the-current-project-directory-from-c-sharp-code-when-creating-a-c
 	internal static string ProjectRootPath { get { return runTimePath ??= CalculatePath(); } }

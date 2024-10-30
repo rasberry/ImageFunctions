@@ -14,10 +14,10 @@ public static class OptionsAide
 	/// <param name="r">The result of the parameter parsing</param>
 	/// <param name="includeZero">whether to include zero as a valid option or not</param>
 	/// <returns>An updated result</returns>
-	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, bool includeZero = false)
+	public static ParseResult<T> BeGreaterThanZero<T>(this ParseResult<T> r, ICoreLog log, bool includeZero = false)
 		where T : IComparable
 	{
-		return BeGreaterThan<T>(r, default, includeZero);
+		return BeGreaterThan<T>(r, log, default, includeZero);
 	}
 
 	/// <summary>
@@ -27,9 +27,10 @@ public static class OptionsAide
 	/// <param name="r">The result of the parameter parsing</param>
 	/// <param name="inclusive">whether to include the minimum as valid option or not</param>
 	/// <returns>An updated result</returns>
-	public static ParseResult<T> BeGreaterThan<T>(this ParseResult<T> r, T minimum, bool inclusive = false)
+	public static ParseResult<T> BeGreaterThan<T>(this ParseResult<T> r, ICoreLog log, T minimum, bool inclusive = false)
 		where T : IComparable
 	{
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		if(r.IsBad()) { return r; }
 
 		var t = typeof(T).UnWrapNullable();
@@ -53,7 +54,7 @@ public static class OptionsAide
 		}
 
 		if(isInvalid) {
-			Log.Error(Note.MustBeGreaterThan(r.Name, minimum, inclusive));
+			log.Error(Note.MustBeGreaterThan(r.Name, minimum, inclusive));
 			return r with { Result = ParseParams.Result.UnParsable };
 		}
 		else {
@@ -71,7 +72,7 @@ public static class OptionsAide
 	/// <param name="lowInclusive">Whether to allow the value itself</param>
 	/// <param name="highInclusive">Whether to allow the value itself</param>
 	/// <returns>An updated result</returns>
-	public static ParseResult<T> BeBetween<T>(this ParseResult<T> r, T low, T high,
+	public static ParseResult<T> BeBetween<T>(this ParseResult<T> r, ICoreLog log, T low, T high,
 		bool lowInclusive = true, bool highInclusive = true) where T : IComparable
 	{
 		if(r.IsBad()) { return r; }
@@ -84,7 +85,7 @@ public static class OptionsAide
 			return r with { Result = ParseParams.Result.Good };
 		}
 
-		Log.Error(PlugNote.MustBeInRange(r.Name, low, high, lowInclusive, highInclusive));
+		log.Error(PlugNote.MustBeInRange(r.Name, low, high, lowInclusive, highInclusive));
 		return r with { Result = ParseParams.Result.UnParsable };
 	}
 

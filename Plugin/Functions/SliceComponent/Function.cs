@@ -8,34 +8,45 @@ namespace ImageFunctions.Plugin.Functions.SliceComponent;
 [InternalRegisterFunction(nameof(SliceComponent))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	ILayers Layers { get { return Context.Layers; }}
+	ICoreOptions CoreOptions { get { return Context.Options; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
 		using var progress = new ProgressBar();
-		var engine = Core.Engine.Item.Value;
+		var engine = CoreOptions.Engine.Item.Value;
 		int numSlices = O.WhichSlice.HasValue ? 1 : O.Slices;
 
 		//pull out the original which we'll replace with slices
@@ -62,7 +73,7 @@ public class Function : IFunction
 				: c
 			;
 			slices[index][x, y] = O.Space.ToNative(mc);
-		}, Core.MaxDegreeOfParallelism, progress);
+		}, CoreOptions.MaxDegreeOfParallelism, progress);
 
 		return true;
 	}
@@ -89,9 +100,4 @@ public class Function : IFunction
 			_ => new ColorRGBA(c.C1, c.C2, c.C3, c.A),
 		};
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions Core;
 }

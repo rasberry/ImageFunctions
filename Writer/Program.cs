@@ -25,9 +25,9 @@ class Program
 		var cp = System.Diagnostics.Process.GetCurrentProcess();
 		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
 
-		Register = new Register();
-		PluginLoader.RegisterPlugin(typeof(Core.Adapter).Assembly, Register);
-		PluginLoader.RegisterPlugin(typeof(Plugin.Adapter).Assembly, Register);
+		Register = new CoreRegister(Log);
+		PluginLoader.RegisterPlugin(Log, typeof(Core.Adapter).Assembly, Register);
+		PluginLoader.RegisterPlugin(Log, typeof(Plugin.Adapter).Assembly, Register);
 
 		Engine = new();
 	}
@@ -39,8 +39,9 @@ class Program
 			Register = null;
 		}
 	}
-	static Register Register;
+	static CoreRegister Register;
 	static RazorEngine Engine;
+	static readonly LogToConsole Log = new();
 
 	static void DrawRazor()
 	{
@@ -83,7 +84,8 @@ class Program
 		var model = new WikiModel();
 		StringBuilder sb = new();
 		var reg = funReg.Get(name);
-		var fun = reg.Item.Invoke(Register, null, null);
+		var context = new FunctionContext { Register = Register, Log = Log };
+		var fun = reg.Item.Invoke(context);
 
 		fun.Options.Usage(sb, Register);
 		model.Usage = sb.ToString();
@@ -189,8 +191,8 @@ class Program
 			return RootFolder;
 		}
 	}
+	
 	static string RootFolder;
-
 	static string ProjectFolder { get { return Path.Combine(ProjectRoot, "Writer"); } }
 	static string ViewFolder { get { return Path.Combine(ProjectRoot, "Writer", "Views"); } }
 	static string WikiFolder { get { return Path.Combine(ProjectRoot, "wiki"); } }

@@ -1,4 +1,4 @@
-namespace ImageFunctions.Core;
+namespace ImageFunctions.Cli;
 
 static class ExitCode
 {

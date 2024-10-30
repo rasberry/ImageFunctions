@@ -12,6 +12,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool DrawRatio;
 	public Lazy<ISampler> Sampler;
 	public Lazy<IMetric> Measurer;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -38,7 +45,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var p = new ParseParams(args);
 
 		if(p.Scan<int>("-t", 7)
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenGoodOrMissing(r => {
 				if(r.Value < 1) {
 					Log.Error(Note.MustBeGreaterThan(r.Name, 0));
@@ -55,14 +62,14 @@ public sealed class Options : IOptions, IUsageProvider
 			DrawRatio = true;
 		}
 
-		if(p.ScanSampler(register)
+		if(p.ScanSampler(Log, register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { Measurer = r.Value; return r; })
 			.IsInvalid()
 		) {

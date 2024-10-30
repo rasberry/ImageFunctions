@@ -14,6 +14,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public ulong Iterations = 0;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -57,7 +64,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-p", DefaultSeq(), ParsePattern)
 			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -79,7 +86,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-i", 1000ul)
 			.WhenGoodOrMissing(r => { Iterations = r.Value; return r; })
-			.BeGreaterThan(1ul, true)
+			.BeGreaterThan(Log, 1ul, true)
 			.IsInvalid()
 		) {
 			return false;

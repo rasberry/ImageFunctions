@@ -1,7 +1,10 @@
+using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Core.Logging;
 using Rasberry.Cli;
+using System.Text;
 
-namespace ImageFunctions.Core;
+namespace ImageFunctions.Cli;
 
 /*
 sr - show registered
@@ -29,11 +32,12 @@ gf - given function name == -h && gf
  1   1   1  1 |  1  1  1  1
 */
 #pragma warning disable CA1861 //Avoid constant arrays as arguments - There's little to no performance gain for doing this here
-internal class Options : ICoreOptions
+internal sealed class Options : ICoreOptions
 {
-	public Options(IRegister register)
+	public Options(IRegister register, ICoreLog log)
 	{
 		Register = register;
+		Log = log;
 	}
 
 	public void Usage(StringBuilder sb, IRegister _)
@@ -92,7 +96,7 @@ internal class Options : ICoreOptions
 				Show |= PickShow.Registered;
 				return r;
 			})
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -100,14 +104,14 @@ internal class Options : ICoreOptions
 
 		if(p.Scan<string>(new[] { "--engine", "-e" })
 			.WhenGood(r => { EngineName = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
 		if(p.Scan<int>(new[] { "--max-threads", "-x" })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenGood(r => {
 				if(r.Value < 1) {
 					Log.Error(Note.MustBeGreaterThan(r.Name, 0));
@@ -122,7 +126,7 @@ internal class Options : ICoreOptions
 
 		if(p.Scan<string>(new[] { "--format", "-f" })
 			.WhenGood(r => { _imageFormat = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -130,7 +134,7 @@ internal class Options : ICoreOptions
 
 		if(p.Scan<string>(new[] { "--output", "-o" })
 			.WhenGood(r => { _outputName = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -138,7 +142,7 @@ internal class Options : ICoreOptions
 
 		if(p.Scan<int?, int?>(new[] { "--size", "-#" })
 			.WhenGood(r => { (_defaultWidth, _defaultHeight) = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -191,17 +195,11 @@ internal class Options : ICoreOptions
 		}
 
 		//need to select the engine so we can show formats
-		var er = new EngineRegister(Register);
-		if(!String.IsNullOrWhiteSpace(EngineName)) {
-			if(!er.Try(EngineName, out var engineEntry)) {
-				Log.Error(Note.NotRegistered(engineEntry.NameSpace, engineEntry.Name));
-				return false;
-			}
-			Engine = engineEntry;
+		if (!Register.TrySelectEngine(EngineName, Log, out var _engine)) {
+			return false;
 		}
 		else {
-			EngineName = EngineRegister.SixLaborsString;
-			Engine = er.Get(EngineName);
+			Engine = _engine;
 		}
 
 		//show formats
@@ -216,7 +214,7 @@ internal class Options : ICoreOptions
 			return false;
 		}
 
-		if(!DetermineImageFormat()) {
+		if (!Engine.Item.Value.TryDetermineImageFormat(_imageFormat, Log, out _)) {
 			return false;
 		}
 
@@ -305,11 +303,18 @@ internal class Options : ICoreOptions
 			list = fn.All().Order();
 		}
 
+		//Usage only relies on register and log and possibly options
+		var context = new FunctionContext {
+			Register = Register,
+			Log = Log,
+			Options = this
+		};
+
 		foreach(string key in list) {
 			var funcItem = fn.Get(key);
 			sb.WT();
 			sb.WT(0, $"Function {key}:");
-			var inst = funcItem.Item.Invoke(Register, null, this);
+			var inst = funcItem.Item.Invoke(context);
 			var opts = inst.Options;
 			if(opts is IUsageProvider uip) {
 				NameSpaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
@@ -343,28 +348,6 @@ internal class Options : ICoreOptions
 		}
 	}
 
-	bool DetermineImageFormat()
-	{
-		var eng = Engine.Item.Value;
-		bool formatGiven = !String.IsNullOrWhiteSpace(_imageFormat);
-		ImageFormat? found = null;
-		foreach(var f in eng.Formats()) {
-			if(formatGiven && f.Name.EqualsIC(_imageFormat)) {
-				found = f;
-			}
-			else if(f.Name.EqualsIC("png")) {
-				found = f;
-			}
-		}
-
-		if(found == null) {
-			Log.Error(Note.NoImageFormatFound(_imageFormat));
-			return false;
-		}
-
-		return true;
-	}
-
 	bool EnumerateInputImages(ParseParams p)
 	{
 		bool found = true;
@@ -393,10 +376,11 @@ internal class Options : ICoreOptions
 	string _functionName;
 	string _imageFormat;
 	string _outputName;
-	readonly IRegister Register;
 	int? _defaultWidth;
 	int? _defaultHeight;
+	readonly IRegister Register;
 	List<string> NameSpaceList;
+	internal ICoreLog Log;
 
 	//Global options
 	public IRegisteredItem<Lazy<IImageEngine>> Engine { get; internal set; }
@@ -420,4 +404,3 @@ internal class Options : ICoreOptions
 		All = 8 + 4 + 2 + 1
 	}
 }
-#pragma warning restore CA1861

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj" />
     <ProjectReference Include="..\Plugin\ImageFunctions.Plugin.csproj" />
+    <ProjectReference Include="..\Cli\ImageFunctions.Cli.csproj" />
   </ItemGroup>
 
 </Project>

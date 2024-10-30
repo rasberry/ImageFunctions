@@ -2,8 +2,16 @@ using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Core;
 
-internal class Register : IRegister, IDisposable
+public sealed class CoreRegister : IRegister, IDisposable
 {
+	public CoreRegister(ICoreLog log)
+	{
+		Log = log;
+	}
+
+	readonly ICoreLog Log;
+
+	/// <inheritdoc />
 	public void Add<T>(string @namespace, string name, T item)
 	{
 		EnsureNameIsNotNull(@namespace, name);
@@ -22,6 +30,7 @@ internal class Register : IRegister, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public IRegisteredItem<T> Get<T>(string @namespace, string name)
 	{
 		EnsureNameIsNotNull(@namespace, name);
@@ -37,6 +46,7 @@ internal class Register : IRegister, IDisposable
 		return item;
 	}
 
+	/// <inheritdoc />
 	public bool Try<T>(string @namespace, string name, out IRegisteredItem<T> item)
 	{
 		//return TryGet($"{@namespace}.{name}", out item);
@@ -66,6 +76,7 @@ internal class Register : IRegister, IDisposable
 		return false;
 	}
 
+	/// <inheritdoc />
 	public IEnumerable<INameSpaceName> All(string @namespace = null)
 	{
 		var all = Store.Keys.Cast<INameSpaceName>();
@@ -77,11 +88,13 @@ internal class Register : IRegister, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public IEnumerable<string> Spaces()
 	{
 		return All().Select(k => k.NameSpace).Distinct().Order();
 	}
 
+	/// <inheritdoc />
 	public string Default(string @namespace, string name = null)
 	{
 		if(@name != null) {
@@ -106,6 +119,7 @@ internal class Register : IRegister, IDisposable
 		}
 	}
 
+	/// <inheritdoc />
 	public void Dispose()
 	{
 		foreach(var kvp in Store) {

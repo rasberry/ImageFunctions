@@ -8,36 +8,45 @@ namespace ImageFunctions.Plugin.Functions.Encrypt;
 [InternalRegisterFunction(nameof(Encrypt))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+		if(Context.Layers.Count < 1) {
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
-		var frame = Layers.First().Canvas;
+		var engine = Context.Options.Engine.Item.Value;
+		var frame = Context.Layers.First().Canvas;
 		using var progress = new ProgressBar();
-		using var canvas = engine.NewCanvasFromLayers(Layers);
+		using var canvas = engine.NewCanvasFromLayers(Context.Layers);
 		Encryptor processor = new Encryptor() { IVBytes = O.IVBytes };
 
 		//make a copy of the original
@@ -54,9 +63,4 @@ public class Function : IFunction
 
 		return true;
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 }

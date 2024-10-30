@@ -7,6 +7,13 @@ public sealed class Options : IOptions, IUsageProvider
 {
 	public bool HOnly = false;
 	public bool VOnly = false;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{

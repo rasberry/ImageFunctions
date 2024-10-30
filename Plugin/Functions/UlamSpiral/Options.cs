@@ -26,6 +26,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public ColorRGBA? Color4;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -101,7 +108,7 @@ public sealed class Options : IOptions, IUsageProvider
 				CenterY = r.Value.Y;
 				return r;
 			})
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -109,7 +116,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-m", PickMapping.Spiral)
 			.WhenGoodOrMissing(r => { Mapping = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -119,28 +126,28 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-c1", par: colorParser)
 			.WhenGood(r => { Color1 = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan("-c2", par: colorParser)
 			.WhenGood(r => { Color2 = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan("-c3", par: colorParser)
 			.WhenGood(r => { Color3 = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan("-c4", par: colorParser)
 			.WhenGood(r => { Color4 = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -148,16 +155,16 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-s", 1)
 			.WhenGoodOrMissing(r => { Spacing = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan("-ds", 1.0)
 			.WhenGoodOrMissing(r => { DotSize = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -165,7 +172,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-dt", PickDot.Circle)
 			.WhenGoodOrMissing(r => { WhichDot = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return true;

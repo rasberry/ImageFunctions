@@ -80,19 +80,23 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		return null;
 	}
 
-	public void LoadImage(ILayers layers, string path, string name = null)
+	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
 	{
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
-		var fileStream = File.OpenRead(path);
-		using var skStream = new SKManagedStream(fileStream);
-		using var codec = SKCodec.Create(skStream, out var result);
-		if(result != SKCodecResult.Success) {
-			throw Squeal.CouldNotLoadFile(path, result.ToString());
+		if (clerk == null) {
+			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		name ??= Path.GetFileName(path);
+		//var fileStream = File.OpenRead(fileStream);
+		using var skStream = new SKManagedStream(clerk.ReadStream());
+		using var codec = SKCodec.Create(skStream, out var result);
+		if(result != SKCodecResult.Success) {
+			throw Squeal.CouldNotLoadFile("", result.ToString());
+		}
+
+		name ??= Path.GetFileName(clerk.Location);
 
 		//images with no frames are normal images with one layer
 		if(codec.FrameCount == 0) {
@@ -104,7 +108,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		//handle multilayer images (only gif ?)
 		// https://learn.microsoft.com/en-us/xamarin/xamarin-forms/user-interface/graphics/skiasharp/bitmaps/animating
 		int FrameCount = codec.FrameCount;
-		string ext = Path.GetExtension(path);
+		// string ext = Path.GetExtension(fileStream);
 		for(int frame = 0; frame < FrameCount; frame++) {
 			// Create a full-color bitmap for each frame
 			SKImageInfo imageInfo = new SKImageInfo(codec.Info.Width, codec.Info.Height);
@@ -128,13 +132,16 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		return new InSkiaCanvas(width, height);
 	}
 
-	public void SaveImage(ILayers layers, string path, string format = null)
+	public void SaveImage(ILayers layers, IFileClerk clerk, string format = null)
 	{
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
 		if(layers.Count < 1) {
 			throw Squeal.NoLayers();
+		}
+		if (clerk == null) {
+			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
 		SKEncodedImageFormat skFormat;
@@ -147,34 +154,33 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			}
 		}
 
-		//make sure the output file has the right extension
-		path = Path.ChangeExtension(path, GetExtension(skFormat));
+		string ext = GetExtension(skFormat);
 
 		if(layers.Count == 1) {
 			var canvas = (InSkiaCanvas)layers.First().Canvas;
-			WriteImage(canvas.Bitmap, path, skFormat);
+			var stream = clerk.WriteStream(ext);
+			WriteImage(canvas.Bitmap, stream, skFormat);
 		}
 		else {
-			string ext = Path.GetExtension(path);
-
 			int count = 1;
 			foreach(var lay in layers) {
 				var canvas = (InSkiaCanvas)lay.Canvas;
-				string name = Path.ChangeExtension(path, $"{count}{ext}");
-				WriteImage(canvas.Bitmap, name, skFormat);
+				var stream = clerk.WriteStream(ext,count.ToString());
+				WriteImage(canvas.Bitmap, stream, skFormat);
+				count++;
 			}
 		}
 	}
 
 	const int SkiaMaxQuality = 100;
-	static void WriteImage(SKBitmap bitmap, string path, SKEncodedImageFormat format)
+	static void WriteImage(SKBitmap bitmap, Stream fileStream, SKEncodedImageFormat format)
 	{
 		using var bufferStream = new MemoryStream();
 		using var imageStream = new SKManagedWStream(bufferStream);
 
 		bitmap.Encode(imageStream, format, SkiaMaxQuality);
 
-		using var fileStream = File.Create(path);
+		//using var fileStream = File.Create(fileStream);
 		bufferStream.Seek(0, SeekOrigin.Begin);
 		bufferStream.CopyTo(fileStream);
 	}

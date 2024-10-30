@@ -16,6 +16,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool UseLog;
 	public bool StopWhenStable;
 	public bool Wrap;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -52,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<ulong>("-i", 10000ul)
 			.WhenGoodOrMissing(r => { IterationMax = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -60,8 +67,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-th", 0.5, parser)
 			.WhenGoodOrMissing(r => { Threshhold = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeBetween(0.0, 1.0)
+			.WhenInvalidTellDefault(Log)
+			.BeBetween(Log, 0.0, 1.0)
 			.IsInvalid()
 		) {
 			return false;
@@ -70,9 +77,9 @@ public sealed class Options : IOptions, IUsageProvider
 		if(p.Scan<double>("-b", par: parser)
 			.WhenGood(r => {
 				Brighten = r.Value;
-				return r.BeBetween(0.0, 1.0);
+				return r.BeBetween(Log, 0.0, 1.0);
 			})
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

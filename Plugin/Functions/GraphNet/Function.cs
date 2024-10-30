@@ -8,41 +8,50 @@ namespace ImageFunctions.Plugin.Functions.GraphNet;
 [InternalRegisterFunction(nameof(GraphNet))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
-		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(GraphNet.Options.DefaultWidth, GraphNet.Options.DefaultHeight);
-		var canvas = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
-		Layers.Push(canvas);
+		var engine = Context.Options.Engine.Item.Value;
+		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(GraphNet.Options.DefaultWidth, GraphNet.Options.DefaultHeight);
+		var canvas = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
+		Context.Layers.Push(canvas);
 
 		if(O.NodeCount.HasValue) {
 			if(O.NodeCount < 1 || O.NodeCount > canvas.Width) {
-				Log.Error(Note.MustBeBetween("-n", "1", $"{canvas.Width} (inclusive)"));
+				Context.Log.Error(Note.MustBeBetween("-n", "1", $"{canvas.Width} (inclusive)"));
 				return false;
 			}
 		}
 		int nodeCount = O.NodeCount.GetValueOrDefault(canvas.Width);
 
-		Log.Debug($"nodecount = {nodeCount}");
+		Context.Log.Debug($"nodecount = {nodeCount}");
 		Node[] state = new Node[nodeCount];
 		InitState(state, nodeCount);
 		//PrintState(state);
@@ -124,9 +133,9 @@ public class Function : IFunction
 		var sb = new StringBuilder();
 		for(int n = 0; n < state.Length; n++) {
 			var sn = state[n];
-			Log.Message($"{n} Value={sn.Value}");
-			Log.Message(PrintArray(sn.Connection));
-			Log.Message(PrintArray(sn.Op));
+			Context.Log.Message($"{n} Value={sn.Value}");
+			Context.Log.Message(PrintArray(sn.Connection));
+			Context.Log.Message(PrintArray(sn.Op));
 		}
 	}
 
@@ -197,8 +206,4 @@ public class Function : IFunction
 	}
 
 	Random Rnd = null;
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 }

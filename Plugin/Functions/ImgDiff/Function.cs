@@ -10,29 +10,39 @@ namespace ImageFunctions.Plugin.Functions.ImgDiff;
 [InternalRegisterFunction(nameof(ImgDiff))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	ILayers Layers { get { return Context.Layers; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		if(Layers.Count < 2) {
-			Log.Error(Note.LayerMustHaveAtLeast(2));
+			Context.Log.Error(Note.LayerMustHaveAtLeast(2));
 			return false;
 		}
 
@@ -42,13 +52,13 @@ public class Function : IFunction
 		var srcImg = Layers[topIx].Canvas;
 		var compareImg = Layers[nextIx].Canvas;
 		ICanvas frame = O.MakeThirdLayer
-			? CoreOptions.Engine.Item.Value.NewCanvasFromLayers(Layers)
+			? Context.Options.Engine.Item.Value.NewCanvasFromLayers(Layers)
 			: srcImg;
 
 		InitMetric();
 
 		var totalDist = ProcessDiff(frame, srcImg, compareImg);
-		Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
+		Context.Log.Message($"{nameof(ImgDiff)} - total distance = {totalDist}");
 
 		if(O.MakeThirdLayer) {
 			Layers.Push(frame);
@@ -100,7 +110,7 @@ public class Function : IFunction
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		}, CoreOptions.MaxDegreeOfParallelism, progress);
+		}, Context.Options.MaxDegreeOfParallelism, progress);
 
 		return totalDist;
 	}
@@ -117,9 +127,4 @@ public class Function : IFunction
 	{
 		DistanceMax = ImageComparer.Max(O.MetricInstance.Value);
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 }

@@ -56,15 +56,15 @@ public class Prims : IMaze
 		}
 	}
 
-	void PrintQueue()
-	{
-		var sb = new StringBuilder();
-		int i = 0;
-		foreach(var c in Walls) {
-			sb.Append($" #{i++} {c}");
-		}
-		Log.Debug(sb.ToString());
-	}
+	// void PrintQueue(ICoreLog log)
+	// {
+	// 	var sb = new StringBuilder();
+	// 	int i = 0;
+	// 	foreach(var c in Walls) {
+	// 		sb.Append($" #{i++} {c}");
+	// 	}
+	// 	log.Debug(sb.ToString());
+	// }
 
 	Point FindCell()
 	{

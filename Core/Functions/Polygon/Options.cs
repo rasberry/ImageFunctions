@@ -6,6 +6,12 @@ namespace ImageFunctions.Core.Functions.Polygon;
 
 public sealed class Options : IOptions, IUsageProvider
 {
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
+
 	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.RenderUsage(this);
@@ -54,7 +60,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<LineKind>("-m", LineKind.Bresenham)
 			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -62,7 +68,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<ColorRGBA>("-c", ColorAide.Black, OptionsAide.ParseColor)
 			.WhenGoodOrMissing(r => { Color = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -77,7 +83,7 @@ public sealed class Options : IOptions, IUsageProvider
 					PointList.Add(r.Value);
 					return r;
 				})
-				.WhenInvalidTellDefault()
+				.WhenInvalidTellDefault(Log)
 				.IsInvalid()
 			) {
 				return false;
@@ -103,4 +109,5 @@ public sealed class Options : IOptions, IUsageProvider
 	internal ColorRGBA Color;
 	internal List<Point> PointList;
 	internal LineKind Kind;
+	readonly ICoreLog Log;
 }

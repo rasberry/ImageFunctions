@@ -10,36 +10,43 @@ namespace ImageFunctions.Plugin.Functions.FibSquares;
 [InternalRegisterFunction(nameof(FibSquares))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Register);
+		Options.Usage(sb, Context.Register);
 	}
+
+	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		Rnd = O.Seed == null ? new Random() : new Random(O.Seed.Value);
 
 		//since we're rendering pixels make a new layer each time
-		var engine = CoreOptions.Engine.Item.Value;
-		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(FibSquares.Options.PhiWidth, FibSquares.Options.PhiHeight);
-		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
-		Layers.Push(image);
+		var engine = Context.Options.Engine.Item.Value;
+		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(FibSquares.Options.PhiWidth, FibSquares.Options.PhiHeight);
+		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
+		Context.Layers.Push(image);
 
 		var bounds = image.Bounds();
 		if(O.Sweep == FibSquares.Options.SweepKind.Split) {
@@ -283,13 +290,13 @@ public class Function : IFunction
 			int dr = Math.Abs(beg.Right - end.Right);
 			int db = Math.Abs(beg.Bottom - end.Bottom);
 
-			Direction d = Direction.Up;
+			// Direction d;
 			int steps = int.MinValue;
-			if(dl > steps) { steps = dl; d = Direction.Left; }
-			if(dt > steps) { steps = dt; d = Direction.Up; }
-			if(dr > steps) { steps = dr; d = Direction.Right; }
-			if(db > steps) { steps = db; d = Direction.Down; }
-			Log.Debug($"d={d}");
+			// if(dl > steps) { steps = dl; d = Direction.Left; }
+			// if(dt > steps) { steps = dt; d = Direction.Up; }
+			// if(dr > steps) { steps = dr; d = Direction.Right; }
+			// if(db > steps) { steps = db; d = Direction.Down; }
+			// //Context.Log.Debug($"d={d}");
 
 			for(int s = 0; s < steps; s++) {
 				double ratio = s / (double)steps;
@@ -377,7 +384,7 @@ public class Function : IFunction
 
 		inside.ThreadPixels((px, py) => {
 			canvas[px, py] = color;
-		}, CoreOptions.MaxDegreeOfParallelism);
+		}, Context.Options.MaxDegreeOfParallelism);
 
 		return true;
 	}
@@ -409,7 +416,7 @@ public class Function : IFunction
 
 			var color = CoreColors.BetweenColor(start, end, offset);
 			canvas[px, py] = color;
-		}, CoreOptions.MaxDegreeOfParallelism);
+		}, Context.Options.MaxDegreeOfParallelism);
 		return true;
 	}
 
@@ -464,11 +471,5 @@ public class Function : IFunction
 
 	enum Direction { Up = 0, Down = 1, Left, Right }
 	const double Phi = 1.618033988749895; //(Math.Sqrt(5) + 1) / 2;
-	readonly Options O = new();
-	public IOptions Options { get { return O; } }
-
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 	Random Rnd;
 }

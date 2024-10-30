@@ -17,19 +17,19 @@ public static class Squeal
 	}
 	public static Exception ArgumentNull(string argName)
 	{
-		throw new ArgumentNullException(argName);
+		return new ArgumentNullException(argName);
 	}
 	public static Exception ArgumentNullOrEmpty(string argName)
 	{
-		throw new ArgumentException(Note.MustNotBeNullOrEmpty(), argName);
+		return new ArgumentException(Note.MustNotBeNullOrEmpty(), argName);
 	}
 	public static Exception ArgumentOutOfRange(string argName)
 	{
-		throw new ArgumentOutOfRangeException(argName);
+		return new ArgumentOutOfRangeException(argName);
 	}
 	public static Exception CouldNotLoadFile(string file, string extra)
 	{
-		throw new FileLoadException(Note.CouldNotLoadFile(extra), file);
+		return new FileLoadException(Note.CouldNotLoadFile(extra), file);
 	}
 	public static Exception EngineCannotDrawLines(string name)
 	{
@@ -41,11 +41,11 @@ public static class Squeal
 	}
 	public static Exception IndexOutOfRange(string argName)
 	{
-		throw new ArgumentOutOfRangeException(argName);
+		return new ArgumentOutOfRangeException(argName);
 	}
 	public static Exception InvalidArgument(string argName)
 	{
-		throw new ArgumentException(Note.InvalidArgument(), argName);
+		return new ArgumentException(Note.InvalidArgument(), argName);
 	}
 	public static Exception LayerMustHaveAtLeast(int count = 1)
 	{
@@ -57,15 +57,15 @@ public static class Squeal
 	}
 	public static Exception NotMapped(string name)
 	{
-		throw new KeyNotFoundException(Note.NotMapped(name));
+		return new KeyNotFoundException(Note.NotMapped(name));
 	}
 	public static Exception NotSupported(string prefix)
 	{
-		throw new NotSupportedException(Note.NotSupported(prefix));
+		return new NotSupportedException(Note.NotSupported(prefix));
 	}
 	public static Exception NotSupportedChannelCount(int channelCount)
 	{
-		throw new NotSupportedException(Note.ChannelCountNotSupported(channelCount));
+		return new NotSupportedException(Note.ChannelCountNotSupported(channelCount));
 	}
 	public static Exception NotSupportedCMYK()
 	{
@@ -78,5 +78,9 @@ public static class Squeal
 	public static Exception SequenceMustContainOr(int num1, int num2)
 	{
 		return new ArgumentException(Note.SequenceMustContainOr(num1, num2));
+	}
+	public static Exception LoggerAlreadyRegistered(int id)
+	{
+		return new ArgumentException(Note.LoggerAlreadyRegistered(id));
 	}
 }

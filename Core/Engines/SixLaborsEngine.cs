@@ -7,17 +7,22 @@ using System.Numerics;
 
 namespace ImageFunctions.Core.Engines;
 
+#pragma warning disable CA2000 //Dispose objects before losing scope - dispose is handeled by layers
+
 public class SixLaborsEngine : IImageEngine, IDrawEngine
 {
-#pragma warning disable CA2000 //Dispose objects before losing scope - dispose is handeled by layers
-	public void LoadImage(ILayers layers, string filePath, string name = null)
+	/// <inheritdoc/>
+	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
 	{
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
+		if (clerk == null) {
+			throw Squeal.ArgumentNull(nameof(clerk));
+		}
 
-		var image = Image.Load<RgbaD>(filePath);
-		name ??= Path.GetFileName(filePath);
+		name ??= Path.GetFileName(clerk.Location);
+		var image = Image.Load<RgbaD>(clerk.ReadStream());
 
 		//for images with one frame just use the original
 		if(image.Frames.Count == 1) {
@@ -46,15 +51,18 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			}
 		}
 	}
-#pragma warning restore CA2000
 
-	public void SaveImage(ILayers layers, string filePath, string format = null)
+	/// <inheritdoc/>
+	public void SaveImage(ILayers layers, IFileClerk clerk, string format = null)
 	{
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
 		}
 		if(layers.Count == 0) {
 			throw Squeal.NoLayers();
+		}
+		if (clerk == null) {
+			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
 		IImageFormat sixFormat;
@@ -74,7 +82,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		}
 
 		//make sure the output file has the right extension
-		filePath = Path.ChangeExtension(filePath, GetBestExtension(sixFormat));
+		//filePath = Path.ChangeExtension(filePath, GetBestExtension(sixFormat));
 
 		//.. maybe this is trivial but wanted to cover my bases
 		//h = has multiple layers
@@ -87,21 +95,21 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		//1 0 0 1
 		//1 1 1 0
 
+		var ext = GetBestExtension(sixFormat);
 		bool hasMulti = layers.Count > 1;
 		bool canMulti = FormatSupportsFrames(sixFormat);
 
 		if(hasMulti && !canMulti) {
 			//save each frame as it's own image
-			var ext = Path.GetExtension(filePath); //includes '.'
+			string filePath = clerk.Location;
 			var enc = ifm.GetEncoder(sixFormat);
 
 			int count = 1;
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
-				string name = Path.ChangeExtension(filePath, $"{count}{ext}");
-
-				img.Save(name, enc);
+				var stream = clerk.WriteStream(ext,count.ToString());
+				img.Save(stream, enc);
 				count++;
 			}
 		}
@@ -123,10 +131,12 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			final.Frames.RemoveFrame(0);
 
 			var enc = ifm.GetEncoder(sixFormat);
-			final.Save(filePath, enc);
+			var stream = clerk.WriteStream(ext);
+			final.Save(stream, enc);
 		}
 	}
 
+	/// <inheritdoc/>
 	public ICanvas NewCanvas(int width, int height)
 	{
 		var native = new Image<RgbaD>(width, height);
@@ -134,6 +144,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		return img;
 	}
 
+	/// <inheritdoc/>
 	public void DrawLine(ICanvas image, ColorRGBA color, PointD p0, PointD p1, double width = 1.0)
 	{
 		if(image == null) {
@@ -154,6 +165,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		});
 	}
 
+	/// <inheritdoc/>
 	public IEnumerable<ImageFormat> Formats()
 	{
 		var Ifm = Configuration.Default.ImageFormatsManager;

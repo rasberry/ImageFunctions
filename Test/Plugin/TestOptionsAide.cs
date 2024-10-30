@@ -6,6 +6,12 @@ namespace ImageFunctions.Test;
 [TestClass]
 public class TestOptionsAide
 {
+	/// <summary>
+	/// Gets or sets the test context which provides
+	/// information about and functionality for the current test run.
+	/// </summary>
+	public TestContext TestContext { get; set; }
+
 	[TestMethod]
 	[DataRow(0, false, Result.UnParsable)]
 	[DataRow(0, true, Result.Good)]
@@ -13,12 +19,13 @@ public class TestOptionsAide
 	[DataRow(1, true, Result.Good)]
 	public void BeGreaterThanZero(int value, bool includeZero, Result result)
 	{
+		var log = new TestLogger(TestContext);
 		var ti = new Rasberry.Cli.ParseResult<int> {
 			Name = "test",
 			Result = Result.Good,
 			Value = value
 		};
-		var tir = OptionsAide.BeGreaterThanZero(ti, includeZero);
+		var tir = OptionsAide.BeGreaterThanZero(ti, log, includeZero);
 		Assert.AreEqual(result, tir.Result);
 
 		var tl = new Rasberry.Cli.ParseResult<long> {
@@ -26,7 +33,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tlr = OptionsAide.BeGreaterThanZero(tl, includeZero);
+		var tlr = OptionsAide.BeGreaterThanZero(tl, log, includeZero);
 		Assert.AreEqual(result, tlr.Result);
 
 		var td = new Rasberry.Cli.ParseResult<double> {
@@ -34,7 +41,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tdr = OptionsAide.BeGreaterThanZero(td, includeZero);
+		var tdr = OptionsAide.BeGreaterThanZero(td, log, includeZero);
 		Assert.AreEqual(result, tdr.Result);
 	}
 
@@ -48,12 +55,13 @@ public class TestOptionsAide
 	[DataRow(21, 1, 20, true, true, Result.UnParsable)]
 	public void BeBetween(int value, int low, int high, bool lI, bool hI, Result result)
 	{
+		var log = new TestLogger(TestContext);
 		var ti = new Rasberry.Cli.ParseResult<int> {
 			Name = "test",
 			Result = Result.Good,
 			Value = value
 		};
-		var tir = OptionsAide.BeBetween(ti, low, high, lI, hI);
+		var tir = OptionsAide.BeBetween(ti, log, low, high, lI, hI);
 		Assert.AreEqual(result, tir.Result);
 	}
 }

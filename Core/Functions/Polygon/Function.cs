@@ -2,36 +2,37 @@ namespace ImageFunctions.Core.Functions.Polygon;
 
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions options)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			//CoreOptions = options,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Register);
+		Options.Usage(sb, Context.Register);
 	}
 
 	public IOptions Options { get { return O; } }
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	//ICoreOptions CoreOptions;
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Register)) {
+		if(!Options.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		var canvas = Layers.First().Canvas;
+		var canvas = Context.Layers.First().Canvas;
 		if(O.PointList == null || O.PointList.Count < 2) {
 			return true; //nothing to do
 		}

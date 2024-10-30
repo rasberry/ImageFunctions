@@ -16,6 +16,13 @@ public sealed class Options : IOptions, IUsageProvider
 
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -103,7 +110,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-m", PickMaze.Prims)
 			.WhenGoodOrMissing(r => { Which = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -111,7 +118,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-cc", CoreColors.Black, colorParser)
 			.WhenGoodOrMissing(r => { CellColor = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -119,7 +126,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-wc", CoreColors.White, colorParser)
 			.WhenGoodOrMissing(r => { WallColor = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -127,7 +134,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RndSeed = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -135,7 +142,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-sq", DefaultSeq(), SeqParser)
 			.WhenGoodOrMissing(r => { Sequence = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

@@ -9,28 +9,39 @@ namespace ImageFunctions.Plugin.Functions.Swirl;
 [InternalRegisterFunction(nameof(Swirl))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	ILayers Layers { get { return Context.Layers; }}
+	ICoreOptions CoreOptions { get { return Context.Options; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 		var source = Layers.First().Canvas;
@@ -59,7 +70,7 @@ public class Function : IFunction
 			swirly = rect.Height * py + rect.Top;
 		}
 
-		var engine = Core.Engine.Item.Value;
+		var engine = CoreOptions.Engine.Item.Value;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 
@@ -68,7 +79,7 @@ public class Function : IFunction
 			int cx = x - rect.Left;
 			ColorRGBA nc = SwirlPixel(source, x, y, swirlx, swirly, swirlRadius, swirlTwists);
 			canvas[cx, cy] = nc;
-		}, Core.MaxDegreeOfParallelism, progress);
+		}, CoreOptions.MaxDegreeOfParallelism, progress);
 
 		source.CopyFrom(canvas, rect);
 		return true;
@@ -95,9 +106,4 @@ public class Function : IFunction
 			(int)(swirlx + pixelx), (int)(swirly + pixely));
 		return c;
 	}
-
-	readonly Options O = new();
-	ILayers Layers;
-	ICoreOptions Core;
-	IRegister Register;
 }

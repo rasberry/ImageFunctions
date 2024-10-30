@@ -13,11 +13,10 @@ public static class SamplerHelpers
 		};
 	}
 
-	public static ParseResult<Lazy<ISampler>> ScanSampler(this ParseParams p, IRegister register)
+	public static ParseResult<Lazy<ISampler>> ScanSampler(this ParseParams p, ICoreLog log, IRegister register)
 	{
-		if(p == null) {
-			throw Squeal.ArgumentNull(nameof(p));
-		}
+		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new SamplerRegister(register);
 		ParseParams.Result result;
@@ -32,7 +31,7 @@ public static class SamplerHelpers
 		}
 		else if(!reg.Try(r.Value, out var entry)) {
 			sampler = default;
-			Log.Error(Note.NotRegistered(r.Name, r.Value));
+			log.Error(Note.NotRegistered(r.Name, r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {

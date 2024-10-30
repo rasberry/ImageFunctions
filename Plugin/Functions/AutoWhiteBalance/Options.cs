@@ -10,6 +10,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public double DiscardRatio;
 	public int BucketCount;
 	public bool StretchAlpha;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -43,8 +50,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-p", 0.0005, parser)
 			.WhenGoodOrMissing(r => { DiscardRatio = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeBetween(0.0, 1.0)
+			.WhenInvalidTellDefault(Log)
+			.BeBetween(Log, 0.0, 1.0)
 			.IsInvalid()
 		) {
 			return false;
@@ -52,8 +59,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-b", 256)
 			.WhenGoodOrMissing(r => { BucketCount = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThan(1, true)
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThan(Log, 1, true)
 			.IsInvalid()
 		) {
 			return false;

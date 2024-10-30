@@ -8,29 +8,39 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 [InternalRegisterFunction(nameof(Maze))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	public ILayers Layers { get { return Context.Layers; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
-		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(Functions.Maze.Options.DefaultWidth, Functions.Maze.Options.DefaultHeight);
+		var engine = Context.Options.Engine.Item.Value;
+		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(Functions.Maze.Options.DefaultWidth, Functions.Maze.Options.DefaultHeight);
 		canvas = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(canvas);
 
@@ -119,8 +129,4 @@ public class Function : IFunction
 	ICanvas canvas;
 	IBasicMaze BasicMaze = null;
 	IMaze Maze = null;
-	readonly Options O = new();
-	ILayers Layers;
-	IRegister Register;
-	ICoreOptions CoreOptions;
 }

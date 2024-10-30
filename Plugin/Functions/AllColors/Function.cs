@@ -14,38 +14,47 @@ namespace ImageFunctions.Plugin.Functions.AllColors;
 [InternalRegisterFunction(nameof(AllColors))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
 		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
-		var engine = CoreOptions.Engine.Item.Value;
-		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
-		var image = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
-		Layers.Push(image);
+		var engine = Context.Options.Engine.Item.Value;
+		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
+		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
+		Context.Layers.Push(image);
 		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if(O.UseOriginalCode) {
-			DrawOriginal.Draw(image, CoreOptions.MaxDegreeOfParallelism, O);
+			DrawOriginal.Draw(image, Context.Options.MaxDegreeOfParallelism, O);
 		}
 		else {
 			Draw(image);
@@ -54,11 +63,6 @@ public class Function : IFunction
 		//Trace.WriteLine($"{nameof(AllColors)} Run 4");
 		return true;
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 
 	internal const int NumberOfColors = 16777216;
 	//there doesn't seem to be a sort with progress so take a guess
@@ -91,7 +95,7 @@ public class Function : IFunction
 
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 2");
 		progress.Prefix = "Rendering... ";
-		image.ThreadPixels(copyColors, CoreOptions.MaxDegreeOfParallelism, progress);
+		image.ThreadPixels(copyColors, Context.Options.MaxDegreeOfParallelism, progress);
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 3");
 	}
 
@@ -358,7 +362,7 @@ public class Function : IFunction
 					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			MoreAide.ParallelSort(tempList, comp, progress, CoreOptions.MaxDegreeOfParallelism);
+			MoreAide.ParallelSort(tempList, comp, progress, Context.Options.MaxDegreeOfParallelism);
 		}
 		else {
 			//seems to be a lot faster than Array.Sort(key,collection)

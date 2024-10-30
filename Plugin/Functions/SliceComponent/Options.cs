@@ -8,6 +8,13 @@ namespace ImageFunctions.Plugin.Functions.SliceComponent;
 public sealed class Options : IOptions, IUsageProvider
 {
 	public string SomeOption;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -37,7 +44,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if(ColorSpaceHelpers.ScanColor3Space(p, register)
+		if(ColorSpaceHelpers.ScanColor3Space(p, Log, register)
 			.WhenGoodOrMissing(r => { Space = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -46,7 +53,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<string>("-s", "Rgb")
 			.WhenGoodOrMissing(r => { SpaceName = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -54,14 +61,14 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<string>("-c", "R")
 			.WhenGoodOrMissing(r => { ComponentName = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
 		if(p.Scan<int>("-n", 16)
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenGoodOrMissing(r => {
 				if(r.Value < 1) {
 					Log.Error(Note.MustBeGreaterThan(r.Name, 1, true));
@@ -75,7 +82,7 @@ public sealed class Options : IOptions, IUsageProvider
 		}
 
 		if(p.Scan<double>("-r", par: parser)
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenGood(r => {
 				if(r.Value < 0.0 || r.Value > 1.0) {
 					Log.Error(Note.MustBeBetween(r.Name, "0.0, 0%", "1.0, 100%"));
@@ -89,7 +96,7 @@ public sealed class Options : IOptions, IUsageProvider
 		}
 
 		if(p.Scan<int>("-o")
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.WhenGood(r => {
 				if(r.Value < 1 || r.Value > Slices) {
 					Log.Error(Note.MustBeBetween(r.Name, "1", Slices.ToString()));

@@ -19,6 +19,8 @@ public sealed class HttpServer : IDisposable
 		Routes.Add(path, handler);
 	}
 
+	public Action<HttpListenerContext> NotFoundRoute { get; set; }
+
 	public void Start()
 	{
 		if(IsStarted) { return; }
@@ -53,8 +55,15 @@ public sealed class HttpServer : IDisposable
 			handler(ctx);
 		}
 		else {
-			Handlers.HandleNotFound(ctx);
+			var notfound = NotFoundRoute ?? HandleNotFound;
+			notfound(ctx);
 		}
+	}
+
+	static void HandleNotFound(HttpListenerContext ctx)
+	{
+		using HttpListenerResponse resp = ctx.Response;
+		resp.End(HttpStatusCode.NotFound);
 	}
 
 	public void Dispose()

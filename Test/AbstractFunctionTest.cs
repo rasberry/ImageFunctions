@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Logging;
+using ImageFunctions.Cli;
 using System.Drawing;
 using static ImageFunctions.Plugin.ImageComparer;
 
@@ -7,6 +8,12 @@ namespace ImageFunctions.Test;
 
 public abstract class AbstractFunctionTest
 {
+	/// <summary>
+	/// Gets or sets the test context which provides
+	/// information about and functionality for the current test run.
+	/// </summary>
+	public TestContext TestContext { get; set; }
+
 	/// <summary>
 	/// Provides the name of the registered function
 	/// </summary>
@@ -38,6 +45,8 @@ public abstract class AbstractFunctionTest
 	/// <param name="loader">Optional custom image loader</param>
 	public void RunFunction(TestFunctionInfo info, CustomImageLoader loader = null)
 	{
+		var log = new TestLogger(TestContext);
+
 		if(info.Layers == null) {
 			throw Squeal.ArgumentNull("info.Layers - Layers should be managed from the test method");
 		}
@@ -61,12 +70,17 @@ public abstract class AbstractFunctionTest
 		args.AddRange(info.Args);
 
 		//reset the global options and parse test options
-		var options = new Options(Setup.Register);
+		var options = new Options(Setup.Register, log);
 		if(System.Diagnostics.Debugger.IsAttached) {
 			options.MaxDegreeOfParallelism = 1;
 		}
 		info.Options = options;
-		var inst = new Program(Setup.Register, options, info.Layers);
+
+		if (info.Clerk == null) {
+			info.Clerk = new FileClerk();
+		}
+
+		var inst = new Program(Setup.Register, options, info.Layers, info.Clerk, log);
 
 		Assert.IsTrue(options.ParseArgs(args.ToArray(), null));
 		Assert.IsTrue(options.ProcessOptions());
@@ -95,6 +109,7 @@ public abstract class AbstractFunctionTest
 	/// <param name="loader">Optional custom image loader</param>
 	public void RunFunctionAndCompare(TestFunctionInfo info, CustomImageLoader loader = null)
 	{
+		var log = new TestLogger(TestContext);
 		try {
 			RunFunction(info, loader);
 			Assert.AreEqual(true, info.Success);
@@ -103,7 +118,7 @@ public abstract class AbstractFunctionTest
 			loader ??= GetOrLoadResourceImage;
 			loader(info, info.OutName, "control");
 			var dist = CompareTopTwoLayers(info);
-			Log.Debug($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
+			log.Info($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
 			Assert.IsTrue(dist.Total <= info.MaxDiff, $"Name = {info.OutName} Distance = {dist}");
 		}
@@ -114,7 +129,8 @@ public abstract class AbstractFunctionTest
 			}
 			if(info.SaveImage != SaveImageMode.None && info.Layers.Count > 0) {
 				var path = Path.Combine(Setup.ProjectRootPath, "..", info.OutName);
-				info.Options.Engine.Item.Value.SaveImage(info.Layers, path);
+				info.Clerk.Location = path;
+				info.Options.Engine.Item.Value.SaveImage(info.Layers, info.Clerk);
 			}
 		}
 	}
@@ -173,7 +189,8 @@ public abstract class AbstractFunctionTest
 			throw TestSqueal.FileNotFound(path);
 		}
 
-		info.Options.Engine.Item.Value.LoadImage(layers, path, nameWithExt);
+		info.Clerk.Location = path;
+		info.Options.Engine.Item.Value.LoadImage(layers, info.Clerk, nameWithExt);
 	}
 
 	protected string GetResourceImagePath(string name, string folder = null)
@@ -249,4 +266,9 @@ public class TestFunctionInfo
 	/// Optional way to save images to disk. Usefull for debugging
 	/// </summary>
 	public SaveImageMode SaveImage { get; set; }
+
+	/// <summary>
+	/// Reference to the IFileClerk object
+	/// </summary>
+	public IFileClerk Clerk { get; set; }
 }

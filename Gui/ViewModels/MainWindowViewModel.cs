@@ -135,7 +135,8 @@ public class MainWindowViewModel : ViewModelBase
 
 		void job(CancellationToken token)
 		{
-			var func = RegFunction?.Item.Invoke(Program.Register, null, null);
+			var ctx = new FunctionContext { Register = Program.Register, Log = Program.Log };
+			var func = RegFunction?.Item.Invoke(ctx);
 			token.ThrowIfCancellationRequested();
 
 			var opts = func.Options;
@@ -202,7 +203,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	void OnSomethingSelected(SelectionItem item)
 	{
-		Log.Debug($"Something selected {item?.Name}");
+		Program.Log.Debug($"Something selected {item?.Name}");
 	}
 
 	static Avalonia.Media.SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
@@ -353,7 +354,8 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
-		RegEngine.LoadImage(Layers, fileName);
+		var clerk = new FileClerk { Location = fileName };
+		RegEngine.LoadImage(Layers, clerk);
 	}
 
 	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
@@ -434,13 +436,18 @@ public class MainWindowViewModel : ViewModelBase
 		{
 			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
-			var reg = new FunctionRegister(Program.Register);
-			var options = new Core.Options(Program.Register) {
-				Engine = RegEngine.AsRegisteredItem
+			//var reg = new FunctionRegister(Program.Register);
+			var context = new FunctionContext {
+				Register = Program.Register,
+				Log = Program.Log,
+				Options = new BasicOptions {
+					Register = Program.Register,
+					Engine = RegEngine.AsRegisteredItem
+				}
 			};
 
 			//Trace.WriteLine($"{nameof(RunCommand)} 4");
-			var func = RegFunction?.Item.Invoke(Program.Register, Layers, options);
+			var func = RegFunction?.Item.Invoke(context);
 			//Trace.WriteLine($"{nameof(RunCommand)} 4.5");
 			func.Run(new string[0]); //TODO fix args
 									 //Trace.WriteLine($"{nameof(RunCommand)} 5");
@@ -568,7 +575,7 @@ public class MainWindowViewModel : ViewModelBase
 			}
 		}
 		else {
-			Log.Debug($"?? {sender.GetType().FullName}");
+			Program.Log.Debug($"?? {sender.GetType().FullName}");
 		}
 
 		RenderCommandLineFromWidgets();

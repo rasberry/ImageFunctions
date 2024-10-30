@@ -6,12 +6,8 @@ public static class ColorSpaceHelpers
 {
 	internal static string GetColorSpaceHelp(IRegister register, INameSpaceName item)
 	{
-		if(item == null) {
-			return null;
-		}
-		if(register == null) {
-			Squeal.ArgumentNull(nameof(register));
-		}
+		if(item == null) { return null; }
+		if(register == null) { throw Squeal.ArgumentNull(nameof(register)); }
 
 		ColorSpaceInfo info;
 
@@ -60,11 +56,10 @@ public static class ColorSpaceHelpers
 		};
 	}
 
-	public static ParseResult<IColor3Space> ScanColor3Space(this ParseParams p, IRegister register)
+	public static ParseResult<IColor3Space> ScanColor3Space(this ParseParams p, ICoreLog log, IRegister register)
 	{
-		if(p == null) {
-			throw Squeal.ArgumentNull(nameof(p));
-		}
+		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new Color3SpaceRegister(register);
 		IColor3Space space = null;
@@ -79,7 +74,7 @@ public static class ColorSpaceHelpers
 		}
 		else if(!reg.Try(r.Value, out var entry)) {
 			space = default;
-			Log.Error(Note.NotRegistered(reg.Namespace, r.Value));
+			log.Error(Note.NotRegistered(reg.Namespace, r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {
@@ -90,11 +85,10 @@ public static class ColorSpaceHelpers
 		return new ParseResult<IColor3Space>(result, "--space", space);
 	}
 
-	public static ParseResult<IColor4Space> ScanColor4Space(this ParseParams p, IRegister register)
+	public static ParseResult<IColor4Space> ScanColor4Space(this ParseParams p, IRegister register, ICoreLog log)
 	{
-		if(p == null) {
-			throw Squeal.ArgumentNull(nameof(p));
-		}
+		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new Color4SpaceRegister(register);
 		IColor4Space space = null;
@@ -109,7 +103,7 @@ public static class ColorSpaceHelpers
 		}
 		else if(!reg.Try(r.Value, out var entry)) {
 			space = default;
-			Log.Error(Note.NotRegistered(reg.Namespace, r.Value));
+			log.Error(Note.NotRegistered(reg.Namespace, r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {

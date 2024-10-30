@@ -9,34 +9,45 @@ namespace ImageFunctions.Plugin.Functions.PixelRules;
 [InternalRegisterFunction(nameof(PixelRules))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	public ILayers Layers { get { return Context.Layers; }}
+	public ICoreOptions CoreOptions { get { return Context.Options; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
-		var engine = Core.Engine.Item.Value;
-		int maxThreads = Core.MaxDegreeOfParallelism.GetValueOrDefault(1);
+		var engine = CoreOptions.Engine.Item.Value;
+		int maxThreads = CoreOptions.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		var source = Layers.First().Canvas;
 		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
@@ -189,9 +200,4 @@ public class Function : IFunction
 		double dist = O.Metric.Value.Measure(vo, vt);
 		return dist;
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions Core;
 }

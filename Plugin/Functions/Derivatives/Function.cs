@@ -6,33 +6,42 @@ namespace ImageFunctions.Plugin.Functions.Derivatives;
 [InternalRegisterFunction(nameof(Derivatives))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Layers = layers
-			// CoreOptions = core - not used
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+		if(Context.Layers.Count < 1) {
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
-		var frame = Layers.First().Canvas;
+		var frame = Context.Layers.First().Canvas;
 
 		if(frame.Width < 2 || frame.Height < 2) {
 			return true; //nothing to do
@@ -152,8 +161,4 @@ public class Function : IFunction
 		var vGray = new ColorRGBA(val, val, val, c.A);
 		return vGray;
 	}
-
-	readonly Options O = new();
-	ILayers Layers;
-	IRegister Register;
 }

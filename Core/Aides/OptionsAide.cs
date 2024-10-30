@@ -13,10 +13,11 @@ public static class OptionsAide
 	/// <typeparam name="T">Argument Type</typeparam>
 	/// <param name="result">The result of an argument parse function</param>
 	/// <returns>The result</returns>
-	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result)
+	public static ParseResult<T> WhenInvalidTellDefault<T>(this ParseResult<T> result, ICoreLog log)
 	{
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		if(result.IsInvalid()) {
-			Log.Error(Note.CouldNotParse(result.Name, result.Value), result.Error);
+			log.Error(Note.CouldNotParse(result.Name, result.Value), result.Error);
 		}
 		return result;
 	}
@@ -140,5 +141,68 @@ public static class OptionsAide
 	{
 		var sdc = ExtraParsers.ParseColor(arg);
 		return ColorRGBA.FromRGBA255(sdc.R, sdc.G, sdc.B, sdc.A);
+	}
+
+	/// <summary>
+	/// Helper to choose the engine from a name
+	/// </summary>
+	/// <param name="register">IRegister instance</param>
+	/// <param name="engineName">name of the engine to select</param>
+	/// <param name="engine">registered engine entry - will be null if none is found</param>
+	/// <param name="errHandler">optional error handler Action</param>
+	/// <returns>true if the engine was found otherwise false</returns>
+	public static bool TrySelectEngine(
+		this IRegister register, string engineName,[NotNull] ICoreLog log, out IRegisteredItem<Lazy<IImageEngine>> engine)
+	{
+		engine = null;
+		var er = new EngineRegister(register);
+		if(!String.IsNullOrWhiteSpace(engineName)) {
+			if(!er.Try(engineName, out var engineEntry)) {
+				log.Error(Note.NotRegistered(engineEntry.NameSpace, engineEntry.Name), null);
+				return false;
+			}
+			engine = engineEntry;
+		}
+		else {
+			engineName = EngineRegister.SixLaborsString;
+			engine = er.Get(engineName);
+		}
+
+		return true;
+	}
+
+
+	/// <summary>
+	/// Try to find a image format from it's name e.g. 'png', 'jpg'
+	/// Note: formats are engine specific, but are typically the file extension (minus the dot)
+	/// </summary>
+	/// <param name="engine">Instance of IImageEngine</param>
+	/// <param name="imageFormat">the name of the format</param>
+	/// <param name="format">ImageFormat instance if found</param>
+	/// <param name="errHandler">optional error handler Action</param>
+	/// <returns>true if the format was found</returns>
+	public static bool TryDetermineImageFormat(this IImageEngine engine, string imageFormat, ICoreLog log, out ImageFormat? format)
+	{
+		if (engine == null) { throw Squeal.ArgumentNull(nameof(engine)); }
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+
+		format = null;
+		bool formatGiven = !String.IsNullOrWhiteSpace(imageFormat);
+		ImageFormat? found = null;
+		foreach(var f in engine.Formats()) {
+			if(formatGiven && f.Name.EqualsIC(imageFormat)) {
+				found = f;
+			}
+			else if(f.Name.EqualsIC("png")) { //default to png
+				found = f;
+			}
+		}
+
+		if(found == null) {
+			log.Error(Note.NoImageFormatFound(imageFormat), null);
+			return false;
+		}
+
+		return true;
 	}
 }

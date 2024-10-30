@@ -18,11 +18,10 @@ public static class MetricHelpers
 		};
 	}
 
-	public static ParseResult<Lazy<IMetric>> ScanMetric(this ParseParams p, IRegister register)
+	public static ParseResult<Lazy<IMetric>> ScanMetric(this ParseParams p, ICoreLog log, IRegister register)
 	{
-		if(p == null) {
-			throw Squeal.ArgumentNull(nameof(p));
-		}
+		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 
 		var reg = new MetricRegister(register);
 		Lazy<IMetric> metric = null;
@@ -37,7 +36,7 @@ public static class MetricHelpers
 		}
 		else if(!reg.Try(r.Value, out var entry)) {
 			metric = default;
-			Log.Error(Note.NotRegistered(reg.Namespace, r.Value));
+			log.Error(Note.NotRegistered(reg.Namespace, r.Value));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {

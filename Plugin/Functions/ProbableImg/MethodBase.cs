@@ -15,6 +15,8 @@ abstract class MethodBase
 	protected abstract void SetStartColor(ICanvas img, int sx, int sy);
 
 	public Options O { get; set; }
+	public ICoreLog Log { get; set; }
+
 	public void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect)
 	{
 		pbar.Prefix = "Creating Profile ";

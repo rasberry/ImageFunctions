@@ -3,63 +3,71 @@ using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace ImageFunctions.Core;
-
-internal static class PluginLoader
-{
 #pragma warning disable CA1031 // Do not catch general exception types - We want other plugins to load if possible
-	public static void LoadAllPlugins(IRegister register)
+
+/// <summary>
+/// Handles loading plugins
+/// </summary>
+public static class PluginLoader
+{
+	/// <summary>
+	/// Loads any plugins and adds any registrations to the given IRestier instance
+	/// </summary>
+	/// <param name="register">an instance of IRegister</param>
+	public static void LoadAllPlugins(IRegister register, ICoreLog log)
 	{
-		var list = GetFilesWithPlugins();
+		if (log == null) { throw Squeal.ArgumentNull(nameof(log)); }
+		var list = GetFilesWithPlugins(log);
 
 		foreach(string f in list) {
-			Log.Debug($"Loading pluginfile {f}");
+			log.Debug($"Loading pluginfile {f}");
 			//we don't want to re-load the core dll as a plugin
 			var selfAssembly = typeof(IPlugin).Assembly;
 			if(Path.GetFullPath(f) == selfAssembly.Location) {
-				RegisterPlugin(selfAssembly, register);
+				RegisterPlugin(log, selfAssembly, register);
 				continue;
 			}
 
 			Assembly plugin = null;
 			try {
-				Log.Info($"Looking for plugins in assembly '{f}'");
+				log.Info($"Looking for plugins in assembly '{f}'");
 				var context = new PluginLoadContext(f);
 				plugin = context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(f));
 			}
 			catch(Exception e) {
-				Log.Warning(Note.PluginFileWarnLoading(f, e));
+				log.Warning(Note.PluginFileWarnLoading(f, e));
 				continue;
 			}
 
 			if(plugin != null) {
-				bool found = RegisterPlugin(plugin, register);
+				bool found = RegisterPlugin(log, plugin, register);
 				if(!found) {
-					Log.Error(Note.PluginNotFound(plugin.Location, f));
+					log.Error(Note.PluginNotFound(plugin.Location, f));
 				}
 			}
 		}
 	}
-#pragma warning restore CA1031
 
 	static string GetPluginsFolder()
 	{
-		var root = typeof(Program).Assembly.Location;
+		//just keeping this simple for now - assume all plugins are in the same folder
+		// as the main program
+		var root = typeof(PluginLoader).Assembly.Location;
 		return Path.GetDirectoryName(root);
-		//var pluginsPath = Path.Combine(root,"plugins");
-		//return pluginsPath;
-		//return root;
 	}
 
-#pragma warning disable CA1031 // Do not catch general exception types - We want to continue registering other plugins
-	// returns true if any plugin types were found in the assembly
-	public static bool RegisterPlugin(Assembly plugin, IRegister register)
+	internal static bool RegisterPlugin(ICoreLog log, Assembly plugin, IRegister register)
 	{
+		if (plugin == null) {
+			throw Squeal.ArgumentNull(nameof(plugin));
+		}
+
 		var plugTypes = plugin.GetTypes();
 		bool pluginFound = false;
 
 		foreach(Type t in plugTypes) {
 			if(!IsIPlugin(t)) { continue; }
-			Log.Info(Note.PluginFound(plugin.Location, t.FullName));
+			log.Info(Note.PluginFound(plugin.Location, t.FullName));
 			pluginFound = true;
 
 			IPlugin pluginInst = null;
@@ -67,27 +75,26 @@ internal static class PluginLoader
 				pluginInst = (IPlugin)Activator.CreateInstance(t);
 			}
 			catch(Exception e) {
-				Log.Warning(Note.PluginTypeWarnLoading(t, e));
+				log.Warning(Note.PluginTypeWarnLoading(t, e));
 				continue;
 			}
 
-			Log.Info(Note.InitializingPlugin(t));
+			log.Info(Note.InitializingPlugin(t));
 			//plugins register things themselves
 			try {
 				pluginInst.Init(register);
 			}
 			catch(Exception e) {
-				Log.Warning(Note.PluginInitFailed(t, e));
+				log.Warning(Note.PluginInitFailed(t, e));
 			}
 		}
 		return pluginFound;
 	}
-#pragma warning restore CA1031 // Do not catch general exception types
 
-	static IEnumerable<string> GetFilesWithPlugins()
+	static IEnumerable<string> GetFilesWithPlugins(ICoreLog log)
 	{
 		var pluginsPath = GetPluginsFolder();
-		Log.Info($"Plugin Path is {pluginsPath}");
+		log.Info($"Plugin Path is {pluginsPath}");
 		var plugList = Directory.EnumerateFiles(pluginsPath, "*.dll");
 		var coreList = Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
 		var dllList = coreList.Concat(plugList);
@@ -97,13 +104,13 @@ internal static class PluginLoader
 		using var metadataContext = new MetadataLoadContext(resolver);
 
 		foreach(string dllFile in plugList) {
-			Log.Info($"Looking for plugins in assembly '{dllFile}'");
+			log.Info($"Looking for plugins in assembly '{dllFile}'");
 			Assembly assembly = null;
 			try {
 				assembly = metadataContext.LoadFromAssemblyPath(dllFile);
 			}
 			catch(BadImageFormatException e) {
-				Log.Debug($"Skipping {dllFile} E:{e.Message}");
+				log.Debug($"Skipping {dllFile} E:{e.Message}");
 			}
 
 			if(assembly == null) { continue; }

@@ -10,6 +10,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool UseProportionalSplit = false;
 	public double ImageSplitFactor = 2.0;
 	public double DescentFactor = 0.5;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -40,8 +47,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-s", 2.0)
 			.WhenGoodOrMissing(r => { ImageSplitFactor = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -49,8 +56,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-r", 0.5)
 			.WhenGoodOrMissing(r => { DescentFactor = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;

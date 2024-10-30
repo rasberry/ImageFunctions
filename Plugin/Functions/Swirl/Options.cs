@@ -18,6 +18,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool CounterClockwise;
 	public Lazy<ISampler> Sampler;
 	public Lazy<IMetric> Metric;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -53,7 +60,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePoint<PointF>)
 			.WhenGood(r => { CenterPp = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -61,7 +68,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePoint<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -74,8 +81,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-rx")
 			.WhenGood(r => { RadiusPx = r.Value; return r; })
-			.BeGreaterThanZero()
-			.WhenInvalidTellDefault()
+			.BeGreaterThanZero(Log)
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -83,7 +90,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<double>("-rp", par: parser)
 			.WhenGood(r => { RadiusPp = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -96,8 +103,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-s", 0.9)
 			.WhenGoodOrMissing(r => { Rotations = r.Value; return r; })
-			.BeGreaterThanZero()
-			.WhenInvalidTellDefault()
+			.BeGreaterThanZero(Log)
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -107,14 +114,14 @@ public sealed class Options : IOptions, IUsageProvider
 			CounterClockwise = true;
 		}
 
-		if(p.ScanSampler(register)
+		if(p.ScanSampler(Log, register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {

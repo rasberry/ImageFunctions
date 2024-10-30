@@ -43,6 +43,12 @@ public enum Space
 
 public sealed class Options : IOptions, IUsageProvider
 {
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
+
 	public void Usage(StringBuilder sb, IRegister register)
 	{
 		sb.RenderUsage(this);
@@ -96,7 +102,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Pattern>("-p", Pattern.None)
 			.WhenGoodOrMissing(r => { SortBy = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -104,7 +110,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Space>("-s", Space.None)
 			.WhenGoodOrMissing(r => { WhichSpace = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -123,7 +129,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<double?>("-o", null, parser)
 			.WhenGoodOrMissing(r => { ColorOffsetPct = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -131,7 +137,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int?>("-on", null)
 			.WhenGoodOrMissing(r => { ColorOffsetAbs = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -155,7 +161,7 @@ public sealed class Options : IOptions, IUsageProvider
 				Order = priorities;
 				return r;
 			})
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -207,4 +213,6 @@ public sealed class Options : IOptions, IUsageProvider
 		//must be cloned because Array.Sort modifies the keys each time
 		return (int[])FixedOrder.Clone();
 	}
+
+	readonly ICoreLog Log;
 }

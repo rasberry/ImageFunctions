@@ -7,41 +7,50 @@ namespace ImageFunctions.Plugin.Functions.FloodFill;
 [InternalRegisterFunction(nameof(FloodFill))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 		//Log.Debug($"FillType:{Options.FillType} MapSecondLayer:{Options.MapSecondLayer} MapType:{Options.MapType} Similarity:{Options.Similarity}");
 
-		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast(1));
+		if(Context.Layers.Count < 1) {
+			Context.Log.Error(Note.LayerMustHaveAtLeast(1));
 			return false;
 		}
 
 		ICanvas mapSource = null;
 		if(O.MapSecondLayer) {
-			if(Layers.Count < 2) {
-				Log.Error(PlugNote.MapSeconLayerNeedsTwoLayers());
+			if(Context.Layers.Count < 2) {
+				Context.Log.Error(PlugNote.MapSeconLayerNeedsTwoLayers());
 				return false;
 			}
 			else {
-				var layerTwo = Layers.ElementAt(1);
+				var layerTwo = Context.Layers.ElementAt(1);
 				//Log.Debug($"layerTwo={layerTwo.Name}");
 				mapSource = layerTwo.Canvas;
 			}
@@ -57,10 +66,10 @@ public class Function : IFunction
 		MaxDist = ImageComparer.Max(O.Metric?.Value);
 		ICanvas surface;
 		if(O.MakeNewLayer) {
-			surface = Core.Engine.Item.Value.NewCanvasFromLayers(Layers);
+			surface = Context.Options.Engine.Item.Value.NewCanvasFromLayers(Context.Layers);
 		}
 		else {
-			surface = Layers.First().Canvas;
+			surface = Context.Layers.First().Canvas;
 		}
 
 		//TODO when using similarity we are adding points that then become the new datum colors
@@ -125,7 +134,7 @@ public class Function : IFunction
 
 		if(!O.MakeNewLayer && O.MapSecondLayer) {
 			//remove second layer since we should only be left with one layer
-			Layers.DisposeAt(1);
+			Context.Layers.DisposeAt(1);
 		}
 
 		return true;
@@ -183,10 +192,6 @@ public class Function : IFunction
 		throw Squeal.InvalidArgument("-m");
 	}
 
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions Core;
 	IStowTakeStore<(Point, ColorRGBA)> Storage;
 	double MaxDist;
 }

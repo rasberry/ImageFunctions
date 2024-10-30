@@ -13,6 +13,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public Mode WhichMode;
 	public double Power;
 	public Lazy<ISampler> Sampler;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -55,7 +62,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<PointF>("-cp", par: OptionsAide.ParsePoint<PointF>)
 			.WhenGood(r => { CenterPp = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -63,7 +70,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Point>("-cx", par: OptionsAide.ParsePoint<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -76,7 +83,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-e", 2.0)
 			.WhenGoodOrMissing(r => { Power = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -84,13 +91,13 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-m", Mode.Polynomial)
 			.WhenGoodOrMissing(r => { WhichMode = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanSampler(register)
+		if(p.ScanSampler(Log, register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {

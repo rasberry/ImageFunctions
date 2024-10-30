@@ -13,17 +13,29 @@ namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 [InternalRegisterFunction(nameof(UlamSpiral))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	ILayers Layers { get { return Context.Layers; }}
+	IRegister Register { get { return Context.Register; }}
+	ICoreOptions CoreOptions { get { return Context.Options; }}
 
 	public bool Run(string[] args)
 	{
@@ -272,10 +284,6 @@ public class Function : IFunction
 
 	readonly ColorRGBA[] c_color = new ColorRGBA[4];
 	Lazy<IMetric> Metric;
-	readonly Options O = new();
-	IRegister Register;
-	ICoreOptions CoreOptions;
-	ILayers Layers;
 
 	void Init(IRegister register)
 	{

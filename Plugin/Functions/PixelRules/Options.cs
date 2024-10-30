@@ -14,6 +14,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public int MaxIters = 100;
 	public Lazy<IMetric> Metric;
 	public Lazy<ISampler> Sampler;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -45,8 +52,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-n", 1)
 			.WhenGoodOrMissing(r => { Passes = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -54,7 +61,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-m", Mode.StairCaseDescend)
 			.WhenGoodOrMissing(r => { WhichMode = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -62,21 +69,21 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-x", 100)
 			.WhenGoodOrMissing(r => { MaxIters = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero()
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanSampler(register)
+		if(p.ScanSampler(Log, register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {

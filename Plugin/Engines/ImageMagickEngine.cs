@@ -13,10 +13,14 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		//Log.Debug($"Quantum = {Quantum.Depth} {Quantum.Max}");
 	}
 
-	public void LoadImage(ILayers layers, string file, string name = null)
+	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
 	{
-		name ??= Path.GetFileName(file);
-		var native = new MagickImageCollection(file);
+		if (clerk == null) {
+			Squeal.ArgumentNull(nameof(clerk));
+		}
+
+		name ??= Path.GetFileName(clerk.Location);
+		var native = new MagickImageCollection(clerk.ReadStream());
 		bool hasOne = native.Count == 1;
 
 		int count = 0;
@@ -32,10 +36,13 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		return wrap;
 	}
 
-	public void SaveImage(ILayers layers, string path, string format = null)
+	public void SaveImage(ILayers layers, IFileClerk clerk, string format = null)
 	{
 		if(layers.Count == 0) {
 			throw Squeal.NoLayers();
+		}
+		if (clerk == null) {
+			Squeal.ArgumentNull(nameof(clerk));
 		}
 
 		MagickFormat mf;
@@ -59,11 +66,11 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 			}
 		}
 
-		//make sure the output file has the right extension
-		path = Path.ChangeExtension(path, mf.ToString());
+		var ext = mf.ToString();
 
 		var image = new MagickImageCollection(UnWrapLayers(layers));
-		image.Write(path, mf);
+		var stream = clerk.WriteStream(ext);
+		image.Write(stream, mf);
 	}
 
 	static IEnumerable<IMagickImage<QType>> UnWrapLayers(ILayers layers)

@@ -60,11 +60,15 @@ public static class Note
 	public static string LayerMustHaveAtLeast(int count = 1)
 	{
 		var word = MathAide.NumberToWord(count);
-		return $"layers collection must contain at least {word} layer{(count > 1 ? "s" : "")}";
+		return $"Layers collection must contain at least {word} layer{(count > 1 ? "s" : "")}";
+	}
+	public static string LoggerAlreadyRegistered(int id)
+	{
+		return $"Logger has already been registered from thread {id}";
 	}
 	public static string MissingArgument(string name)
 	{
-		return $"not enough arguments for '{name}'";
+		return $"Not enough arguments for '{name}'";
 	}
 	public static string MustBeBetween(string name, string low, string high)
 	{

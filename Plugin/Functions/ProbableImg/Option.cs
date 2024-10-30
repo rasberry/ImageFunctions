@@ -12,6 +12,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public int? TotalNodes = null;
 	public List<StartPoint> StartLoc = new List<StartPoint>();
 	public bool UseNonLookup = false;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -40,7 +47,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RandomSeed = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -48,8 +55,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-n")
 			.WhenGood(r => { TotalNodes = r.Value; return r; })
-			.BeGreaterThan(1, true)
-			.WhenInvalidTellDefault()
+			.BeGreaterThan(Log, 1, true)
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

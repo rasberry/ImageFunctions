@@ -8,29 +8,39 @@ namespace ImageFunctions.Plugin.Functions.ProbableImg;
 [InternalRegisterFunction(nameof(ProbableImg))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	public ILayers Layers { get { return Context.Layers; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
 		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
@@ -39,8 +49,8 @@ public class Function : IFunction
 
 		using var progress = new ProgressBar();
 		MethodBase m = O.UseNonLookup
-			? new MethodTwo { O = O }
-			: new MethodOne { O = O }
+			? new MethodTwo { O = O, Log = Context.Log }
+			: new MethodOne { O = O, Log = Context.Log }
 		;
 		m.CreateProfile(progress, source, bounds);
 
@@ -49,20 +59,14 @@ public class Function : IFunction
 		//	Log.Debug(kvp.Value.ToString());
 		//}
 
-		var engine = Core.Engine.Item.Value;
+		var engine = Context.Options.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		m.CreateImage(progress, canvas);
 		source.CopyFrom(canvas);
 
 		return true;
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ICoreOptions Core;
-	ILayers Layers;
 }
-
 
 class ColorProfile<T>
 {

@@ -9,36 +9,45 @@ namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
 [InternalRegisterFunction(nameof(AreaSmoother2))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
 
 	public bool Run(string[] args)
 	{
-		if(Layers == null) {
+		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
-		if(Layers.Count < 1) {
-			Log.Error(Note.LayerMustHaveAtLeast());
+		if(Context.Layers.Count < 1) {
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
-		var origCanvas = Layers.First().Canvas;
+		var engine = Context.Options.Engine.Item.Value;
+		var origCanvas = Context.Layers.First().Canvas;
 		using var progress = new ProgressBar();
-		using var canvas = engine.NewCanvasFromLayers(Layers); //temporary canvas
+		using var canvas = engine.NewCanvasFromLayers(Context.Layers); //temporary canvas
 
 		if(!O.VOnly) {
 			MoreAide.ThreadRun(origCanvas.Height, (int y) => {
@@ -47,7 +56,7 @@ public class Function : IFunction
 					if(visited.Contains(x)) { continue; }
 					DrawGradientH(visited, origCanvas, canvas, x, y);
 				}
-			}, CoreOptions.MaxDegreeOfParallelism, progress);
+			}, Context.Options.MaxDegreeOfParallelism, progress);
 		}
 
 		if(!O.HOnly) {
@@ -57,7 +66,7 @@ public class Function : IFunction
 					if(visited.Contains(y)) { continue; }
 					DrawGradientV(visited, origCanvas, canvas, x, y, !O.VOnly);
 				}
-			}, CoreOptions.MaxDegreeOfParallelism, progress);
+			}, Context.Options.MaxDegreeOfParallelism, progress);
 		}
 
 		origCanvas.CopyFrom(canvas);
@@ -146,9 +155,4 @@ public class Function : IFunction
 			visited.Add(gy);
 		}
 	}
-
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
 }

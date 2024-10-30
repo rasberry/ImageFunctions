@@ -9,24 +9,35 @@ namespace ImageFunctions.Plugin.Functions.Life;
 [InternalRegisterFunction(nameof(Life))]
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			Core = core,
-			Layers = layers
+			Context = context,
+			O = new(context)
 		};
 		return f;
 	}
+	public void Usage(StringBuilder sb)
+	{
+		Options.Usage(sb, Context.Register);
+	}
 
 	public IOptions Options { get { return O; } }
+	IFunctionContext Context;
+	Options O;
+	ILayers Layers { get { return Context.Layers; }}
+	ICoreLog Log { get { return Context.Log; }}
 
 	public bool Run(string[] args)
 	{
 		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!O.ParseArgs(args, Register)) {
+		if(!O.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
@@ -37,7 +48,8 @@ public class Function : IFunction
 
 		ICanvas canvas;
 		if(O.MakeNewLayer) {
-			canvas = ImageFunctions.Core.Aides.ImageAide.NewCanvasFromLayers(Core.Engine.Item.Value, Layers);
+			var engine = Context.Options.Engine.Item.Value;
+			canvas = ImageFunctions.Core.Aides.ImageAide.NewCanvasFromLayers(engine, Layers);
 			canvas.CopyFrom(Layers.First().Canvas);
 		}
 		else {
@@ -234,10 +246,6 @@ public class Function : IFunction
 		};
 	}
 
-	readonly Options O = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions Core;
 	double ProgressRatio;
 	double ProgressOffset;
 }

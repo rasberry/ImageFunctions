@@ -14,6 +14,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public double PerturbationRate;
 	public const int DefaultWidth = 1024;
 	public const int DefaultHeight = 1024;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -45,37 +52,37 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int>("-b", 2)
 			.WhenGoodOrMissing(r => { States = r.Value; return r; })
-			.BeGreaterThan(1, true)
-			.WhenInvalidTellDefault()
+			.BeGreaterThan(Log, 1, true)
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan<int?>("-n")
 			.WhenGood(r => { NodeCount = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan<int>("-c", 3)
 			.WhenGoodOrMissing(r => { Connectivity = r.Value; return r; })
-			.BeGreaterThanZero()
-			.WhenInvalidTellDefault()
+			.BeGreaterThanZero(Log)
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan<int>("-rs")
 			.WhenGood(r => { RandomSeed = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 		if(p.Scan<double>("-p", 0.0, parser)
 			.WhenGoodOrMissing(r => { PerturbationRate = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

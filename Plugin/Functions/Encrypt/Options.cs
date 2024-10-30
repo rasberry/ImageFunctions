@@ -14,6 +14,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool TreatPassAsRaw = false;
 	public bool TestMode = false;
 	//public int PasswordIterations = Encryptor.DefaultIterations;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -56,7 +63,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<byte[]>("-iv", par: Encryptor.StringToBytes)
 			.WhenGood(r => { IVBytes = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

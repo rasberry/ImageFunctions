@@ -15,6 +15,13 @@ public class Options : IOptions, IUsageProvider
 	public Point? CenterPx;
 	public PointF? CenterRt;
 	public double ZoomAmount;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -47,8 +54,8 @@ public class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-z", 1.1)
 			.WhenGoodOrMissing(r => { ZoomAmount = r.Value; return r; })
-			.WhenInvalidTellDefault()
-			.BeGreaterThanZero(true)
+			.WhenInvalidTellDefault(Log)
+			.BeGreaterThanZero(Log, true)
 			.IsInvalid()
 		) {
 			return false;
@@ -56,7 +63,7 @@ public class Options : IOptions, IUsageProvider
 
 		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePoint<PointF>)
 			.WhenGood(r => { CenterRt = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -64,7 +71,7 @@ public class Options : IOptions, IUsageProvider
 
 		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePoint<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -75,13 +82,13 @@ public class Options : IOptions, IUsageProvider
 			CenterRt = new PointF(0.5f, 0.5f);
 		}
 
-		if(p.ScanSampler(register)
+		if(p.ScanSampler(Log, register)
 			.WhenGood(r => { Sampler = r.Value; return r; })
 			.IsInvalid()
 		) {
 			return false;
 		}
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { Measurer = r.Value; return r; })
 			.IsInvalid()
 		) {

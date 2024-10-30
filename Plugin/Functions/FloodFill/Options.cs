@@ -20,6 +20,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool MakeNewLayer;
 
 	internal Random Rnd = new();
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -63,7 +70,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-c", CoreColors.White, parseColor)
 			.WhenGoodOrMissing(r => { FillColor = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -71,7 +78,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-r", par: parseColor)
 			.WhenGood(r => { FillColor = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -79,7 +86,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-f", FillMethodKind.BreadthFirst)
 			.WhenGoodOrMissing(r => { FillType = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -87,7 +94,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-m", PixelMapKind.Coordinate)
 			.WhenGoodOrMissing(r => { MapType = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -98,13 +105,13 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan("-s", 1.0, parserNum)
 			.WhenGoodOrMissing(r => { Similarity = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		if(p.ScanMetric(register)
+		if(p.ScanMetric(Log, register)
 			.WhenGood(r => { Metric = r.Value; return r; })
 			.IsInvalid()
 		) {
@@ -120,7 +127,7 @@ public sealed class Options : IOptions, IUsageProvider
 					StartPoints.Add(r.Value);
 					return r;
 				})
-				.WhenInvalidTellDefault()
+				.WhenInvalidTellDefault(Log)
 				.IsInvalid()
 			) {
 				return false;

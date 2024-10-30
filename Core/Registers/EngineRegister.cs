@@ -21,5 +21,5 @@ public class EngineRegister : AbstractRegistrant<Lazy<IImageEngine>>
 		er.Default(SixLaborsString);
 	}
 
-	internal const string SixLaborsString = "SixLabors";
+	public const string SixLaborsString = "SixLabors";
 }

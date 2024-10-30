@@ -1,13 +1,18 @@
+# if false
 namespace ImageFunctions.Core.Functions.SimpleAlter;
 
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions options)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if (context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = options,
-			Layers = layers
+			Register = context.Register,
+			CoreOptions = context.Options,
+			Layers = context.Layers
 		};
 		return f;
 	}
@@ -36,3 +41,4 @@ public class Function : IFunction
 	ILayers Layers;
 	ICoreOptions CoreOptions;
 }
+#endif

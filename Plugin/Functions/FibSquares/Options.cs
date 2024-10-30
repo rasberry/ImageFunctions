@@ -14,6 +14,13 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool UseSpiralOrder;
 	public bool DrawBorders;
 	public int? Seed;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if (context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
@@ -73,7 +80,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<DrawModeKind>("-m", DrawModeKind.Plain)
 			.WhenGoodOrMissing(r => { DraMode = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -81,7 +88,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<SweepKind>("-w", SweepKind.Resize)
 			.WhenGoodOrMissing(r => { Sweep = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
@@ -89,7 +96,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		if(p.Scan<int?>("-rs", null)
 			.WhenGoodOrMissing(r => { Seed = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
