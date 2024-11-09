@@ -56,7 +56,7 @@ internal class Program
 		foreach(var m in methods) {
 			var routes = m.GetCustomAttributes(typeof(HttpRouteAttribute));
 			foreach(var r in routes.Cast<HttpRouteAttribute>()) {
-				if (String.IsNullOrWhiteSpace(r.Route)) { continue; }
+				if(String.IsNullOrWhiteSpace(r.Route)) { continue; }
 				var d = m.CreateDelegate<Action<System.Net.HttpListenerContext>>();
 				Server.AddRoute(r.Route, d);
 			}

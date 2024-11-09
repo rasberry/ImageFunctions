@@ -36,7 +36,7 @@ internal static partial class Handlers
 		clerk.AqureWrite += (o, e) => {
 			var nm = new NamedMemory {
 				Memory = new MemoryStream(),
-				Name = clerk.GetLabel(e.Name,e.Extension,e.Tag)
+				Name = clerk.GetLabel(e.Name, e.Extension, e.Tag)
 			};
 			binList.Add(nm);
 			e.Source = nm.Memory;

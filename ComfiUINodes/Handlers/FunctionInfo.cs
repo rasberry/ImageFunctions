@@ -2,7 +2,6 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using System.Drawing;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

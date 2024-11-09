@@ -18,14 +18,14 @@ internal static partial class Handlers
 		if(!ctx.EnsureMethodIs(HttpMethod.Post)) { return; }
 		using var resp = ctx.Response;
 		var req = ctx.Request;
-		
+
 		//check for valid content-type
 		bool vaildContentType = false;
-		if (req.ContentType != null) {
+		if(req.ContentType != null) {
 			var contentType = new ContentType(req.ContentType);
 			vaildContentType = contentType.MediaType.EqualsIC("multipart/form-data");
 		}
-		if (!vaildContentType) {
+		if(!vaildContentType) {
 			resp.StatusCode = (int)HttpStatusCode.UnprocessableContent;
 			resp.WritePlainText($"422 - Only Content-Type: multipart/form-data is supported");
 			return;
@@ -37,7 +37,7 @@ internal static partial class Handlers
 		//bucket incoming data into args and binaries
 		List<string> argsList = new();
 		List<NamedMemory> binList = new();
-		if (!BucketRequestData(req, resp, argsList, binList, log)) {
+		if(!BucketRequestData(req, resp, argsList, binList, log)) {
 			ErrorResponse(resp, HttpStatusCode.BadRequest, log);
 			return;
 		}
@@ -101,7 +101,7 @@ internal static partial class Handlers
 			outerMultipart = content.ReadAsMultipartAsync().GetAwaiter().GetResult();
 		}
 		catch(Exception e) {
-			log.Error($"Could not process request",e);
+			log.Error($"Could not process request", e);
 			return false;
 		}
 
