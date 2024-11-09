@@ -1,5 +1,6 @@
 using ImageFunctions.Cli;
 using ImageFunctions.Core;
+using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
 using System.Drawing;
 using static ImageFunctions.Plugin.ImageComparer;
@@ -76,11 +77,7 @@ public abstract class AbstractFunctionTest
 		}
 		info.Options = options;
 
-		if(info.Clerk == null) {
-			info.Clerk = new FileClerk();
-		}
-
-		var inst = new Program(Setup.Register, options, info.Layers, info.Clerk, log);
+		var inst = new Program(Setup.Register, options, info.Layers, log);
 
 		Assert.IsTrue(options.ParseArgs(args.ToArray(), null));
 		Assert.IsTrue(options.ProcessOptions());
@@ -129,11 +126,13 @@ public abstract class AbstractFunctionTest
 			}
 			if(info.SaveImage != SaveImageMode.None && info.Layers.Count > 0) {
 				var path = Path.Combine(Setup.ProjectRootPath, "..", info.OutName);
-				info.Clerk.Location = path;
-				info.Options.Engine.Item.Value.SaveImage(info.Layers, info.Clerk);
+				using var clerk = new FileClerk(FileIO, path);
+				info.Options.Engine.Item.Value.SaveImage(info.Layers, clerk);
 			}
 		}
 	}
+
+	readonly SimpleFileIO FileIO = new();
 
 	/// <summary>
 	/// Compares the top two layers contained in info.Layers
@@ -189,8 +188,8 @@ public abstract class AbstractFunctionTest
 			throw TestSqueal.FileNotFound(path);
 		}
 
-		info.Clerk.Location = path;
-		info.Options.Engine.Item.Value.LoadImage(layers, info.Clerk, nameWithExt);
+		using var clerk = new FileClerk(FileIO, path);
+		info.Options.Engine.Item.Value.LoadImage(layers, clerk, nameWithExt);
 	}
 
 	protected string GetResourceImagePath(string name, string folder = null)
@@ -266,9 +265,4 @@ public class TestFunctionInfo
 	/// Optional way to save images to disk. Usefull for debugging
 	/// </summary>
 	public SaveImageMode SaveImage { get; set; }
-
-	/// <summary>
-	/// Reference to the IFileClerk object
-	/// </summary>
-	public IFileClerk Clerk { get; set; }
 }

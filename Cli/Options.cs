@@ -56,6 +56,7 @@ internal sealed class Options : ICoreOptions
 		sb.ND(1, "-lf / --formats", "List engine supported image formats");
 		sb.ND(1, "-ln / --namespace (name)", "List registered items in given namespace (specify 'all' to list everything)");
 		sb.ND(1, "--", "Pass all remaining options to the function");
+		// sb.ND(1, "-n / --name (name)", "Name of the function to run"); //Note: reserving this in-case it must be a named input
 	}
 
 	public bool ParseArgs(string[] args, IRegister _)

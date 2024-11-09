@@ -22,7 +22,13 @@ public static class Note
 	}
 	public static string CouldNotLoadFile(string extra)
 	{
-		return $"Could not load file ({extra})";
+		var s = String.IsNullOrWhiteSpace(extra) ? "" : $" ({extra})";
+		return $"Could not load file{s}";
+	}
+	public static string CouldNotLoadImage(string extra)
+	{
+		var s = String.IsNullOrWhiteSpace(extra) ? "" : $" ({extra})";
+		return $"Could not load image data{s}";
 	}
 	public static string CouldNotParse(string name, object val = null)
 	{
@@ -37,6 +43,10 @@ public static class Note
 	{
 		return NotSupported($"format {name ?? "?"}");
 	}
+	public static string FunctionFailed(string name)
+	{
+		return $"Function '{name}' Failed";
+	}
 	public static string InitializingPlugin(Type t)
 	{
 		return $"Initializing plugin {t?.FullName}";
@@ -44,6 +54,10 @@ public static class Note
 	public static string InvalidArgument()
 	{
 		return "Invalid argument";
+	}
+	public static string InvalidJobId(string id)
+	{
+		return $"Invalid job id '{id}'";
 	}
 	public static string InvalidPassword()
 	{
@@ -56,6 +70,10 @@ public static class Note
 	public static string ItemFoundWithWrongType(string @namespace, string name, string expectedType, string foundType)
 	{
 		return $"Item {@namespace}.{name} was found but has incorrect type. Expected: '{expectedType}' Found: '{foundType}'";
+	}
+	public static string JobIdNotFound(string id)
+	{
+		return $"Job id '{id}' not found";
 	}
 	public static string LayerMustHaveAtLeast(int count = 1)
 	{
@@ -182,5 +200,9 @@ public static class Note
 		var snum1 = MathAide.NumberToWord(num1);
 		var snum2 = MathAide.NumberToWord(num2);
 		return $"Sequence must contain {snum1} or {num2} elements";
+	}
+	public static string UnableToQueueJob(string name)
+	{
+		return $"Unable to queue job '{name}'";
 	}
 }

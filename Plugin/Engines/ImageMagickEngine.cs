@@ -19,14 +19,14 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 			Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		name ??= Path.GetFileName(clerk.Location);
+		name ??= clerk.GetLabel(name);
 		var native = new MagickImageCollection(clerk.ReadStream());
 		bool hasOne = native.Count == 1;
 
 		int count = 0;
 		foreach(var frame in native) {
 			var wrap = new IMCanvas(frame);
-			layers.Push(wrap, hasOne ? name : $"{name}.{++count}");
+			layers.Push(wrap, hasOne ? name : clerk.GetLabel(name, null, $"{++count}"));
 		}
 	}
 

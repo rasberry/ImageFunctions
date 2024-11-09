@@ -1,4 +1,5 @@
 ﻿using ImageFunctions.Core;
+using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
 using System.Diagnostics;
 
@@ -20,8 +21,7 @@ internal sealed class Program
 			using var register = new CoreRegister(log);
 			var options = new Options(register, log);
 			using var layers = new Layers();
-			using var clerk = new FileClerk();
-			var main = new Program(register, options, layers, clerk, log);
+			var main = new Program(register, options, layers, log);
 			return main.Run(args);
 		}
 		catch(Exception e) {
@@ -35,12 +35,11 @@ internal sealed class Program
 		}
 	}
 
-	internal Program(IRegister register, Options options, ILayers layers, IFileClerk clerk, ICoreLog log)
+	internal Program(IRegister register, Options options, ILayers layers, ICoreLog log)
 	{
 		Register = register;
 		Options = options;
 		Layers = layers;
-		Clerk = clerk;
 		Log = log;
 	}
 
@@ -63,9 +62,9 @@ internal sealed class Program
 
 		//save the layers to one or more images
 		Log.Info($"Saving image {Options.OutputName}");
-		Clerk.Location = Options.OutputName;
+		using var clerk = new FileClerk(FileIO, Options.OutputName);
 		if(Layers.Count > 0) {
-			Options.Engine.Item.Value.SaveImage(Layers, Clerk, Options.ImageFormat);
+			Options.Engine.Item.Value.SaveImage(Layers, clerk, Options.ImageFormat);
 		}
 		else {
 			Log.Warning(Note.NoLayersToSave());
@@ -130,21 +129,21 @@ internal sealed class Program
 		//we're reversing the images since we're using a stack
 		// so the first image specified should stay on top
 		// and the last one on the bottom.
-		foreach(var i in Options.ImageFileNames.Reverse()) {
-			if(!File.Exists(i)) {
-				Log.Error(Note.CannotFindInputImage(i));
+		foreach(var file in Options.ImageFileNames.Reverse()) {
+			using var clerk = new FileClerk(FileIO, file);
+			if(!File.Exists(file)) {
+				Log.Error(Note.CannotFindInputImage(file));
 				return false;
 			}
-			Clerk.Location = i;
-			Options.Engine.Item.Value.LoadImage(Layers, Clerk);
+			Options.Engine.Item.Value.LoadImage(Layers, clerk);
 		}
 
 		return true;
 	}
 
-	readonly IFileClerk Clerk;
 	internal ILayers Layers;
 	internal IRegister Register;
 	internal Options Options; //not using ICoreOptions interface to allow access to extra methods
 	internal ICoreLog Log;
+	readonly SimpleFileIO FileIO = new();
 }

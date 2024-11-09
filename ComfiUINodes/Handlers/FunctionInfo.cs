@@ -10,6 +10,7 @@ namespace ImageFunctions.ComfiUINodes;
 
 internal static partial class Handlers
 {
+	[HttpRoute("/info")]
 	public static void FunctionInfo(HttpListenerContext ctx)
 	{
 		if(!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
@@ -51,27 +52,26 @@ internal static partial class Handlers
 			}
 		}
 
-		var json = JsonSerializer.Serialize(data, data.GetType(), options: JOptions);
-		resp.WriteText(json);
+		resp.WriteJson(data, JOptions);
 	}
 
 	static readonly JsonSerializerOptions JOptions = new() {
 		IncludeFields = true,
 	};
 
-	static string GetParamDescription(IUsageProvider provider)
-	{
-		var usage = provider.GetUsageInfo();
-		var ud = usage.Description;
+	// static string GetParamDescription(IUsageProvider provider)
+	// {
+	// 	var usage = provider.GetUsageInfo();
+	// 	var ud = usage.Description;
 
-		StringBuilder description = new();
-		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
-			foreach(var txt in usage.Description.Descriptions) {
-				description.AppendLine(txt);
-			}
-		}
-		return description.ToString();
-	}
+	// 	StringBuilder description = new();
+	// 	if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
+	// 		foreach(var txt in usage.Description.Descriptions) {
+	// 			description.AppendLine(txt);
+	// 		}
+	// 	}
+	// 	return description.ToString();
+	// }
 
 	static UsageParam DetermineParamList(Usage usage, IUsageParameter iup)
 	{

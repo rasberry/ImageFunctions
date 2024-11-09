@@ -6,6 +6,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Core.FileIO;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
@@ -354,9 +355,11 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
-		var clerk = new FileClerk { Location = fileName };
+		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
+
+	readonly SimpleFileIO FileIO = new();
 
 	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{

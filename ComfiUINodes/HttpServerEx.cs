@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using System.Text.Json;
 
 namespace ImageFunctions.ComfiUINodes;
 
@@ -11,6 +12,25 @@ public static class HttpServerEx
 		byte[] ebuf = Encoding.UTF8.GetBytes(text);
 		resp.ContentLength64 = ebuf.Length;
 		@out.Write(ebuf, 0, ebuf.Length);
+	}
+
+	public static void WriteJson(this HttpListenerResponse resp, object model, JsonSerializerOptions options = null)
+	{
+		//aparently you can't re-use a JsonSerializerOptions object, so making a copy
+		options = options == null
+			? new JsonSerializerOptions()
+			: new JsonSerializerOptions(options)
+		;
+		options.IncludeFields = true;
+		var json = JsonSerializer.Serialize(model, model.GetType(), options);
+		resp.ContentType = "application/json";
+		WriteText(resp, json);
+	}
+
+	public static void WritePlainText(this HttpListenerResponse resp, string text)
+	{
+		resp.ContentType = "text/plain";
+		WriteText(resp, text);
 	}
 
 	public static void End(this HttpListenerResponse resp, HttpStatusCode code)

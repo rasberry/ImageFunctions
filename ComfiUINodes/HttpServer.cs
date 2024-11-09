@@ -19,6 +19,11 @@ public sealed class HttpServer : IDisposable
 		Routes.Add(path, handler);
 	}
 
+	public IEnumerable<string> RoutesList()
+	{
+		return Routes.Keys;
+	}
+
 	public Action<HttpListenerContext> NotFoundRoute { get; set; }
 
 	public void Start()

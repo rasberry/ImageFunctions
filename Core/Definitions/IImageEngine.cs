@@ -18,8 +18,8 @@ public interface IImageEngine
 	/// </summary>
 	/// <param name="layers">ILayers object in which to add one or more ICanvas layers</param>
 	/// <param name="clerk">a clerk for reading image data</param>
-	/// <param name="name">optional name to assign to the layer(s)</param>
-	void LoadImage(ILayers layers, IFileClerk clerk, string name = null);
+	/// <param name="layerName">optional name to assign to the layer(s)</param>
+	void LoadImage(ILayers layers, IFileClerk clerk, string layerName = null);
 
 	/// <summary>
 	/// Creates a new ICanvas object which is not added to the ILayers stack

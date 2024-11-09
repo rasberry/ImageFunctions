@@ -1,5 +1,6 @@
 ﻿using ImageFunctions.Core;
 using ImageFunctions.Core.Logging;
+using System.Reflection;
 
 namespace ImageFunctions.ComfiUINodes;
 
@@ -19,9 +20,10 @@ internal class Program
 		Console.CancelKeyPress += ShutDown;
 		Server = new HttpServer(DefaultPort);
 		Server.NotFoundRoute = Handlers.HandleNotFound;
-		Server.AddRoute("/register", Handlers.ShowRegister);
-		Server.AddRoute("/function", Handlers.RunFunction);
-		Server.AddRoute("/functioninfo", Handlers.FunctionInfo);
+		FindRoutes();
+		//Server.AddRoute("/register", Handlers.ShowRegister);
+		//Server.AddRoute("/function", Handlers.JobRun);
+		//Server.AddRoute("/functioninfo", Handlers.FunctionInfo);
 
 		Log.Message($"Starting server on http://localhost:{DefaultPort}");
 		try {
@@ -47,7 +49,21 @@ internal class Program
 		PluginLoader.LoadAllPlugins(Register, Log);
 	}
 
+	static void FindRoutes()
+	{
+		var handlers = typeof(Handlers);
+		var methods = handlers.GetMethods(BindingFlags.Static | BindingFlags.Public);
+		foreach(var m in methods) {
+			var routes = m.GetCustomAttributes(typeof(HttpRouteAttribute));
+			foreach(var r in routes.Cast<HttpRouteAttribute>()) {
+				if (String.IsNullOrWhiteSpace(r.Route)) { continue; }
+				var d = m.CreateDelegate<Action<System.Net.HttpListenerContext>>();
+				Server.AddRoute(r.Route, d);
+			}
+		}
+	}
+
 	internal static CoreRegister Register;
 	internal static ICoreLog Log;
-	static HttpServer Server;
+	internal static HttpServer Server;
 }

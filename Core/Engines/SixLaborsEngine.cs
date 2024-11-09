@@ -8,11 +8,12 @@ using System.Numerics;
 namespace ImageFunctions.Core.Engines;
 
 #pragma warning disable CA2000 //Dispose objects before losing scope - dispose is handeled by layers
+#pragma warning disable CA1305 // Specify IFormatProvider
 
 public class SixLaborsEngine : IImageEngine, IDrawEngine
 {
 	/// <inheritdoc/>
-	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
+	public void LoadImage(ILayers layers, IFileClerk clerk, string layerName = null)
 	{
 		if(layers == null) {
 			throw Squeal.ArgumentNull(nameof(layers));
@@ -21,13 +22,13 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		name ??= Path.GetFileName(clerk.Location);
+		layerName ??= clerk.GetLabel(layerName);
 		var image = Image.Load<RgbaD>(clerk.ReadStream());
 
 		//for images with one frame just use the original
 		if(image.Frames.Count == 1) {
 			var lay = new SLCanvas(image);
-			layers.Push(lay, name);
+			layers.Push(lay, layerName);
 			// don't dispose of image since were using it directly
 			return;
 		}
@@ -47,7 +48,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				frame.CopyPixelDataTo(span);
 				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
 				var lay = new SLCanvas(copy);
-				layers.Push(lay, $"{name}.{++count}");
+				layers.Push(lay, clerk.GetLabel(layerName, null, $"{++count}"));
 			}
 		}
 	}
@@ -101,7 +102,6 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 
 		if(hasMulti && !canMulti) {
 			//save each frame as it's own image
-			string filePath = clerk.Location;
 			var enc = ifm.GetEncoder(sixFormat);
 
 			int count = 1;
@@ -115,8 +115,9 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		}
 		else {
 			//copy all frames into a single image
-			var first = (SLCanvas)layers.First().Canvas;
-			using var final = new Image<RgbaD>(first.Width, first.Height);
+			var first = layers.First();
+			var firstImg = (SLCanvas)layers.First().Canvas;
+			using var final = new Image<RgbaD>(firstImg.Width, firstImg.Height);
 
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;

@@ -89,14 +89,12 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		//var fileStream = File.OpenRead(fileStream);
+		name ??= clerk.GetLabel(name);
 		using var skStream = new SKManagedStream(clerk.ReadStream());
 		using var codec = SKCodec.Create(skStream, out var result);
 		if(result != SKCodecResult.Success) {
-			throw Squeal.CouldNotLoadFile("", result.ToString());
+			throw Squeal.CouldNotLoadFile(name, result.ToString());
 		}
-
-		name ??= Path.GetFileName(clerk.Location);
 
 		//images with no frames are normal images with one layer
 		if(codec.FrameCount == 0) {
@@ -123,7 +121,8 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			// Copy pixels from the frame into the bitmap
 			codec.GetPixels(imageInfo, pointer, codecOptions);
 
-			layers.Push(new InSkiaCanvas(bitmap), $"{name}.{frame + 1}");
+			var nn = clerk.GetLabel(name, null, $"{frame + 1}");
+			layers.Push(new InSkiaCanvas(bitmap), nn);
 		}
 	}
 
@@ -157,17 +156,17 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		string ext = GetExtension(skFormat);
 
 		if(layers.Count == 1) {
-			var canvas = (InSkiaCanvas)layers.First().Canvas;
+			var layer = layers.First();
+			var canvas = (InSkiaCanvas)layer.Canvas;
 			var stream = clerk.WriteStream(ext);
 			WriteImage(canvas.Bitmap, stream, skFormat);
 		}
 		else {
-			int count = 1;
+			var factory = clerk.WriteFactory(ext);
 			foreach(var lay in layers) {
 				var canvas = (InSkiaCanvas)lay.Canvas;
-				var stream = clerk.WriteStream(ext, count.ToString());
+				var stream = factory();
 				WriteImage(canvas.Bitmap, stream, skFormat);
-				count++;
 			}
 		}
 	}
@@ -179,8 +178,6 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 		using var imageStream = new SKManagedWStream(bufferStream);
 
 		bitmap.Encode(imageStream, format, SkiaMaxQuality);
-
-		//using var fileStream = File.Create(fileStream);
 		bufferStream.Seek(0, SeekOrigin.Begin);
 		bufferStream.CopyTo(fileStream);
 	}

@@ -16,8 +16,8 @@ public class LoggerForJob : ICoreLog
 
 	public void Error(string m, Exception e = null)
 	{
-		var err = e == null ? "" : " " + e.Message;
-		LogMessages.Add($"E: {m}{e}");
+		var err = e == null ? "" : " - " + e.Message;
+		LogMessages.Add($"E: {m}{err}");
 	}
 
 	public void Info(string m)

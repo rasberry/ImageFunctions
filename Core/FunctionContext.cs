@@ -6,4 +6,5 @@ public sealed class FunctionContext : IFunctionContext
 	public ILayers Layers { get; set; }
 	public ICoreOptions Options { get; set; }
 	public ICoreLog Log { get; set; }
+	public IProgress<double> Progress { get; set; }
 }

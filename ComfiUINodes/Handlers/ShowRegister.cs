@@ -1,12 +1,11 @@
 using ImageFunctions.Core.Aides;
 using System.Net;
-using System.Text;
-using System.Text.Json;
 
 namespace ImageFunctions.ComfiUINodes;
 
 internal static partial class Handlers
 {
+	[HttpRoute("/register")]
 	public static void ShowRegister(HttpListenerContext ctx)
 	{
 		if(!ctx.EnsureMethodIs(HttpMethod.Get)) { return; }
@@ -15,8 +14,6 @@ internal static partial class Handlers
 		var keyList = reg.All().OrderBy(n => $"{n.NameSpace}.{n.Name}");
 
 		using var resp = ctx.Response;
-		resp.ContentEncoding = Encoding.UTF8;
-		resp.ContentType = "application/json";
 		resp.StatusCode = (int)HttpStatusCode.OK;
 
 		Dictionary<string, List<object>> output = new();
@@ -36,7 +33,6 @@ internal static partial class Handlers
 			});
 		}
 
-		string json = JsonSerializer.Serialize(output);
-		resp.WriteText(json);
+		resp.WriteJson(output);
 	}
 }
