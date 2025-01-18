@@ -2,6 +2,7 @@ using ImageFunctions.Core;
 using ImageMagick;
 using Point = ImageFunctions.Core.PointD;
 using QType = System.Single;
+using ImageMagick.Drawing;
 
 namespace ImageFunctions.Plugin.Engines;
 
@@ -134,7 +135,7 @@ public class IMCanvas : ICanvas
 
 	public IMCanvas(int w, int h)
 	{
-		var image = new MagickImage(MagickColors.None, w, h);
+		var image = new MagickImage(MagickColors.None, (uint)w, (uint)h);
 		Init(image);
 	}
 
@@ -169,10 +170,10 @@ public class IMCanvas : ICanvas
 	void Init(IMagickImage<QType> image)
 	{
 		NativeImage = image;
-		ChannelCount = image.ChannelCount;
+		ChannelCount = (int)image.ChannelCount;
 		Pixels = image.GetPixels();
-		Width = image.Width;
-		Height = image.Height;
+		Width = (int)image.Width;
+		Height = (int)image.Height;
 	}
 
 	internal int ChannelCount;

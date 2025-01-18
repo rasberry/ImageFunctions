@@ -5,6 +5,7 @@
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:mo="using:ImageFunctions.Gui.Models"
 	xmlns:v="using:ImageFunctions.Gui.Views"
+	xmlns:semi="https://irihi.tech/semi"
 	RequestedThemeVariant="Default"
 >
 	<!-- Note: templates are checked in order, so put the most specific first -->
@@ -91,7 +92,7 @@
 
 	<Application.Styles>
 		<!--<FluentTheme />-->
-		<StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
+		<semi:SemiTheme Locale="en-US" />
 
 		<Style Selector="TextBlock.TextSmall">
 			<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
