@@ -34,6 +34,8 @@ A collection of various image processing functions
 
 # TODO #
 <pre>
+= review https://github.com/DarthAffe/HPPH
+
 https://www.youtube.com/watch?v=WGccIFf6MF8
 = move imagemagick to it's own plugin (to expose more imagemagick stuff)
 = opencv (emgucv) plugin ?
