@@ -38,13 +38,13 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		Trace.WriteLine($"{nameof(AllColors)} Run 1");
+		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
 		if(Context.Layers == null) {
-			Trace.WriteLine($"{nameof(AllColors)} Run 1.2");
+			//Trace.WriteLine($"{nameof(AllColors)} Run 1.2");
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
 		if(!O.ParseArgs(args, Context.Register)) {
-			Trace.WriteLine($"{nameof(AllColors)} Run 1.5");
+			//Trace.WriteLine($"{nameof(AllColors)} Run 1.5");
 			return false;
 		}
 		Trace.WriteLine($"{nameof(AllColors)} Run 2");
@@ -54,7 +54,7 @@ public class Function : IFunction
 		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
 		Context.Layers.Push(image);
-		Trace.WriteLine($"{nameof(AllColors)} Run 3");
+		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if(O.UseOriginalCode) {
 			DrawOriginal.Draw(image, Context.Options.MaxDegreeOfParallelism, O);
@@ -63,7 +63,7 @@ public class Function : IFunction
 			Draw(image);
 		}
 
-		Trace.WriteLine($"{nameof(AllColors)} Run 4");
+		//Trace.WriteLine($"{nameof(AllColors)} Run 4");
 		return true;
 	}
 

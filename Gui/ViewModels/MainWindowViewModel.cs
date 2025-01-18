@@ -355,7 +355,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
@@ -455,7 +455,9 @@ public class MainWindowViewModel : ViewModelBase
 			//Trace.WriteLine($"{nameof(RunCommand)} 4");
 			var func = RegFunction?.Item.Invoke(context);
 			//Trace.WriteLine($"{nameof(RunCommand)} 4.5 {RegFunction?.Name}");
-			func.Run(new string[0]); //TODO fix args
+			var args = AvaloniaTools.SplitCommandLine(this.CommandText).ToArray();
+			//Trace.WriteLine($"{nameof(RunCommand)} '{this.CommandText}' '{String.Join(' ',args)}'");
+			func.Run(args);
 			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
