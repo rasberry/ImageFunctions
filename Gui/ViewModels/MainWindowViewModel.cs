@@ -13,6 +13,7 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
@@ -354,7 +355,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
@@ -419,7 +420,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void RunCommand()
 	{
-		//Trace.WriteLine(nameof(RunCommand));
+		Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
 			UpdateStatusText(txt, true, WarningTimeout);
@@ -431,7 +432,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		//Trace.WriteLine($"{nameof(RunCommand)} 2");
+		Trace.WriteLine($"{nameof(RunCommand)} 2");
 		var task = SingleTasks.GetOrMake(nameof(RunCommand), job, CommandTimeout);
 		_ = task.Run();
 
@@ -446,18 +447,20 @@ public class MainWindowViewModel : ViewModelBase
 				Options = new BasicOptions {
 					Register = Program.Register,
 					Engine = RegEngine.AsRegisteredItem
-				}
+				},
+				Layers = Layers,
+				Progress = null //TODO fix
 			};
 
 			//Trace.WriteLine($"{nameof(RunCommand)} 4");
 			var func = RegFunction?.Item.Invoke(context);
-			//Trace.WriteLine($"{nameof(RunCommand)} 4.5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 4.5 {RegFunction?.Name}");
 			func.Run(new string[0]); //TODO fix args
-									 //Trace.WriteLine($"{nameof(RunCommand)} 5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
-				((ImageStorage.LayersInside)Layers).RefreshAll(); //TODO this still doesn't seem to work..
+				((ImageStorage.LayersInside)Layers).RefreshAll();
 			});
 		}
 	}

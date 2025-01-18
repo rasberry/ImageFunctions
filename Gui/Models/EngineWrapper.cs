@@ -17,7 +17,7 @@ public class EngineWrapper : IImageEngine
 
 	public void LoadImage(ILayers layers, IFileClerk clerk, string name = null)
 	{
-		//Engine.Value.LoadImage(layers, path, name);
+		Engine.Value.LoadImage(layers, clerk, name);
 	}
 
 	public ICanvas NewCanvas(int width, int height)
@@ -28,7 +28,7 @@ public class EngineWrapper : IImageEngine
 
 	public void SaveImage(ILayers layers, IFileClerk clerk, string format = null)
 	{
-		//Engine.Value.SaveImage(layers, path, format);
+		Engine.Value.SaveImage(layers, clerk, format);
 	}
 
 	public IRegisteredItem<Lazy<IImageEngine>> AsRegisteredItem { get; init; }

@@ -2,6 +2,7 @@ using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
 using System.Collections;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -43,6 +44,7 @@ public class ImageStorage
 
 		void Setter(int index, ISingleLayerItem item)
 		{
+			Trace.WriteLine($"ImageStorage.SetterI: {index} id:{item.Id} N:{item.Name}");
 			var orig = Stack[index];
 			if(item.Id == orig.Id) { return; }
 
@@ -120,6 +122,7 @@ public class ImageStorage
 		public ISingleLayerItem Push(ICanvas layer, string name = null) => PushAt(0, layer, name);
 		public ISingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 		{
+			Trace.WriteLine($"ImageStorage.Push: {index} N:{name}");
 			var poco = Make(layer, name);
 			Stack.PushAt(index, poco);
 			Maps.PushAt(index, Make(poco, this));
@@ -128,6 +131,7 @@ public class ImageStorage
 
 		public void AddRange(IEnumerable<ISingleLayerItem> items)
 		{
+			Trace.WriteLine($"ImageStorage.AddRange");
 			var multi = ForEach(items, i => {
 				var poco = Make(i);
 				var loco = Make(poco, this);

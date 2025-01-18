@@ -3,6 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
+using System.Diagnostics;
 using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
@@ -37,21 +38,23 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
+		Trace.WriteLine($"{nameof(AllColors)} Run 1");
 		if(Context.Layers == null) {
+			Trace.WriteLine($"{nameof(AllColors)} Run 1.2");
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
 		if(!O.ParseArgs(args, Context.Register)) {
+			Trace.WriteLine($"{nameof(AllColors)} Run 1.5");
 			return false;
 		}
-		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
+		Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
 		var engine = Context.Options.Engine.Item.Value;
 		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(AllColors.Options.FourKWidth, AllColors.Options.FourKHeight);
 		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
 		Context.Layers.Push(image);
-		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
+		Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if(O.UseOriginalCode) {
 			DrawOriginal.Draw(image, Context.Options.MaxDegreeOfParallelism, O);
@@ -60,7 +63,7 @@ public class Function : IFunction
 			Draw(image);
 		}
 
-		//Trace.WriteLine($"{nameof(AllColors)} Run 4");
+		Trace.WriteLine($"{nameof(AllColors)} Run 4");
 		return true;
 	}
 
