@@ -122,7 +122,7 @@ public class SkiaSharpEngine : IImageEngine, IDrawEngine
 			codec.GetPixels(imageInfo, pointer, codecOptions);
 
 			var nn = clerk.GetLabel(name, null, $"{frame + 1}");
-			layers.Push(new InSkiaCanvas(bitmap), nn);
+			layers.PushAt(layers.Count, new InSkiaCanvas(bitmap), nn);
 		}
 	}
 

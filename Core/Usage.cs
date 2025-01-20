@@ -78,7 +78,7 @@ public static class UsageRenderer
 		else if(t.Is<ColorRGBA>() || t.Is<Color>()) {
 			return "color";
 		}
-		else if(t.Is<Point>()) {
+		else if(t.Is<Point>() || t.Is<PointF>()) {
 			return "x,y";
 		}
 		if(t.IsNumeric()) {
@@ -90,12 +90,12 @@ public static class UsageRenderer
 	}
 }
 
-public class GetSet<T>
-{
-	public T Get() => Value;
-	public void Set(T val) => Value = val;
-	T Value;
-}
+// public class GetSet<T>
+// {
+// 	public T Get() => Value;
+// 	public void Set(T val) => Value = val;
+// 	T Value;
+// }
 
 public interface IUsageProvider
 {
@@ -119,8 +119,8 @@ public record UsageText : IUsageText
 		this.Description = description;
 	}
 
-	public int Indention { get; init; }
-	public string Name { get; init; }
+	public int Indention { get; private set; }
+	public string Name { get; private set; }
 	public string Description { get; init; }
 	public bool AddNewLineBefore { get; init; }
 }
@@ -137,13 +137,13 @@ public interface IUsageParameter : IUsageText
 
 public record UsageOne : UsageText, IUsageParameter
 {
-	public UsageOne(int indention, Type inputType, string name, string description)
+	public UsageOne(int indention, Type inputType, string name, string description = null)
 		: base(indention, name, description)
 	{
 		this.InputType = inputType;
 	}
 
-	public Type InputType { get; init; }
+	public Type InputType { get; private set; }
 	public object Default { get; init; }
 	public string TypeText { get; init; }
 	public double? Min { get; init; }
@@ -171,12 +171,12 @@ public record UsageRegistered : UsageOne
 
 public interface IUsageEnum
 {
-	int Indention { get; init; }
-	string Title { get; init; }
-	Func<object, string> DescriptionMap { get; init; }
-	Func<object, string> NameMap { get; init; }
-	bool ExcludeZero { get; init; }
-	Type EnumType { get; init; }
+	int Indention { get; }
+	string Title { get; }
+	Func<object, string> DescriptionMap { get; }
+	Func<object, string> NameMap { get; }
+	bool ExcludeZero { get; }
+	Type EnumType { get; }
 }
 
 public record UsageEnum : IUsageEnum
@@ -188,12 +188,12 @@ public record UsageEnum : IUsageEnum
 		this.EnumType = enumType;
 	}
 
-	public int Indention { get; init; }
-	public string Title { get; init; }
+	public int Indention { get; private set; }
+	public string Title { get; private set; }
 	public Func<object, string> DescriptionMap { get; init; }
 	public Func<object, string> NameMap { get; init; }
 	public bool ExcludeZero { get; init; }
-	public Type EnumType { get; init; }
+	public Type EnumType { get; private set; }
 }
 
 public record UsageEnum<T> : UsageEnum
@@ -206,10 +206,12 @@ public record UsageEnum<T> : UsageEnum
 
 public record UsageDescription
 {
-	public UsageDescription(int indention, string description)
+	public UsageDescription(int indention, string description = null)
 	{
 		this.Indention = indention;
-		this.Descriptions = new string[] { description };
+		if (description != null) {
+			this.Descriptions = new string[] { description };
+		}
 	}
 
 	public UsageDescription(int indention, params string[] descriptions)
@@ -218,7 +220,7 @@ public record UsageDescription
 		this.Descriptions = descriptions;
 	}
 
-	public int Indention { get; init; }
+	public int Indention { get; private set; }
 	public IEnumerable<string> Descriptions { get; init; }
 }
 

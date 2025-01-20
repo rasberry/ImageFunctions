@@ -22,7 +22,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Draws a line or sequence of lines"),
 			Parameters = [
-				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.RunLengthSlice, Name = "Type" },
+				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.RunLengthSlice },
 				//new UsageOne<double>(1, "-w", "Line width in pixels. Partial pixels are ok (defaults to 1.0)") { Default = 1.0, Max = 1024.0, Min = 0.0 },
 				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times"),
 				new UsageOne<ColorRGBA>(1, "-c", "Color for the line (default black)"),

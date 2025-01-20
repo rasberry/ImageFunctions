@@ -1,8 +1,8 @@
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
+using ImageFunctions.Plugin;
 using System.Collections;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -151,13 +151,18 @@ public class ImageStorage
 			int count = Stack.Count;
 			for(int i = 0; i < count; i++) {
 				var item = Stack[i];
-				if(item.Canvas is CanvasWrapper wrap && wrap.IsDirty) {
-					//Trace.WriteLine($"{nameof(RefreshAll)} Dirty:{i}");
-					var m = Maps[i];
-					var orig = m.Image;
-					m.Image = item.Preview = Converter(item.Canvas);
-					wrap.DeclareClean();
-					orig?.Dispose();
+				if(item.Canvas is CanvasWrapper wrap) {
+					if (wrap.IsDirty) {
+						//Trace.WriteLine($"{nameof(RefreshAll)} Dirty:{i}");
+						var m = Maps[i];
+						var orig = m.Image;
+						m.Image = item.Preview = Converter(item.Canvas);
+						wrap.DeclareClean();
+						orig?.Dispose();
+					}
+				}
+				else {
+					throw PlugSqueal.NotSupportedTypeByFunc(item.Canvas.GetType(),nameof(RefreshAll));
 				}
 			}
 		}

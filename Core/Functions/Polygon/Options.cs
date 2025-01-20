@@ -22,7 +22,7 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Draws a polygon"),
 			Parameters = [
-				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.DDA, Name = "Type" },
+				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.DDA },
 				new UsageOne<Point>(1, "-p", "Specify a point. Can be specified multiple times"),
 				new UsageOne<ColorRGBA>(1, "-c", "Color for the polygon (default black)"),
 			],

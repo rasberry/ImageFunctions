@@ -25,12 +25,13 @@ for /f "delims=" %%a in ('wsl "wslpath" "%~f0"') do set bp="%%a"
 call bash %bp% %*
 goto :EOF
 
+:cli
 :core
 ::we need all of the plugins in one folder so do a publish
 dotnet publish
 if not %ERRORLEVEL%==0 goto :EOF
 ::build\net8.0\publish\ImageFunctions.Core.exe %*
-dotnet run --project Core -- %*
+dotnet run --project Cli -- %*
 goto :EOF
 
 :wiki

@@ -27,7 +27,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		int count = 0;
 		foreach(var frame in native) {
 			var wrap = new IMCanvas(frame);
-			layers.Push(wrap, hasOne ? name : clerk.GetLabel(name, null, $"{++count}"));
+			layers.PushAt(layers.Count, wrap, hasOne ? name : clerk.GetLabel(name, null, $"{++count}"));
 		}
 	}
 

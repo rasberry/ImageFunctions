@@ -48,7 +48,8 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				frame.CopyPixelDataTo(span);
 				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
 				var lay = new SLCanvas(copy);
-				layers.Push(lay, clerk.GetLabel(layerName, null, $"{++count}"));
+				//push to the end so that the order does not get reversed
+				layers.PushAt(layers.Count, lay, clerk.GetLabel(layerName, null, $"{++count}"));
 			}
 		}
 	}
@@ -284,7 +285,7 @@ class SLCanvas : ICanvas
 
 //since native type is double, using a double based color should minimize conversions
 // admittedly using 64bit floats for each component is massive overkill but
-// double and float seem to be about the speed so might as well use the better precision
+// double and float seem to be about the same speed so might as well use the better precision
 struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 {
 	public RgbaD(double r, double g, double b, double a)
