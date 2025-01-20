@@ -147,6 +147,7 @@ public class MainWindowViewModel : ViewModelBase
 			token.ThrowIfCancellationRequested();
 
 			Dispatcher.UIThread.Post(() => {
+				CommandText = "";
 				UsageText = sb.ToString();
 				if(opts is IUsageProvider iup) {
 					RePopulateInputControls(iup, token);
@@ -420,7 +421,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void RunCommand()
 	{
-		Trace.WriteLine(nameof(RunCommand));
+		//Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
 			UpdateStatusText(txt, true, WarningTimeout);
@@ -432,7 +433,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(RunCommand)} 2");
+		//Trace.WriteLine($"{nameof(RunCommand)} 2");
 		var task = SingleTasks.GetOrMake(nameof(RunCommand), job, CommandTimeout);
 		_ = task.Run();
 

@@ -48,8 +48,6 @@ A collection of various image processing functions
 # Issues #
 ## GUI ##
 <pre>
-= when changing functions previously selected parameters stay and cannot be unselected
-= when applying a function, loaded images don't seem to be affected ?
 = cannot remove a layer
 = no busy screen when function is running
 = no progress bar while function is running

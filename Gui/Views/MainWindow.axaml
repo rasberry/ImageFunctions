@@ -101,7 +101,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 						</Button>
 					</StackPanel>
 				</Grid>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" />
+				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" VerticalAlignment="Stretch" />
 			</DockPanel>
 		</Grid>
 
