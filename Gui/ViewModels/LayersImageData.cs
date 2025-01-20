@@ -73,6 +73,13 @@ public class LayersImageData : ViewModelBase
 		}
 	}
 
+	public void LayerDelete()
+	{
+		int index = Layers.IndexOf(Id);
+		if(index < 0) { return; } //Not found :?
+		Layers.PopAt(index);
+	}
+
 	public void CheckUpDownEnabled()
 	{
 		int count = Layers.Count;
