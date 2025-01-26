@@ -23,7 +23,7 @@ public class GrowingTree : IMaze
 	readonly List<Point> CellList = new();
 	readonly Options O;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		//Log.Debug($"Seq [{String.Join(',',Sequence)}]");
 		var have = new List<PickWall>();
@@ -40,6 +40,7 @@ public class GrowingTree : IMaze
 
 		while(CellList.Count > 0) {
 			prog.Report(count / total);
+			token.ThrowIfCancellationRequested();
 			int last = CellList.Count - 1;
 
 			//pick next

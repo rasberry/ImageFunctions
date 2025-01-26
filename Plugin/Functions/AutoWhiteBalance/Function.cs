@@ -43,12 +43,11 @@ public class Function : IFunction
 		}
 
 		var source = Context.Layers.First().Canvas;
-		using var progress = new ProgressBar();
-		var hist = CalcHistorgram(progress, source, O.BucketCount);
+		var hist = CalcHistorgram(Context.Progress, source, O.BucketCount, Context.Token);
 		var factors = CalcStretchFactors(hist, source.Width, source.Height, O.DiscardRatio);
 
 		int maxThreads = Context.Options.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		progress.Prefix = "Modifying Colors ";
+		Context.Progress.Label = "Modifying Colors ";
 		source.ThreadPixels((int x, int y) => {
 			Core.ColorSpace.IColor3 orig = source[x, y];
 			var c1 = Math.Clamp((orig.C1 - factors.C1Shift) * factors.C1Stretch, 0.0, 1.0);
@@ -58,7 +57,7 @@ public class Function : IFunction
 				? Math.Clamp((orig.A - factors.AShift) * factors.AStretch, 0.0, 1.0)
 				: orig.A;
 			source[x, y] = new ColorRGBA(c1, c2, c3, a);
-		}, maxThreads, progress);
+		}, Context.Token, maxThreads, Context.Progress);
 
 		return true;
 	}
@@ -110,9 +109,9 @@ public class Function : IFunction
 		return (high, low);
 	}
 
-	static Histogram3Data CalcHistorgram(ProgressBar pb, ICanvas canvas, int bucketCount)
+	static Histogram3Data CalcHistorgram(IProgressWithLabel<double> pb, ICanvas canvas, int bucketCount, CancellationToken token)
 	{
-		pb.Prefix = "Calculating Histogram ";
+		pb.Label = "Calculating Histogram ";
 		var buckets = new Histogram3Data(bucketCount);
 		int lastIndex = bucketCount - 1;
 
@@ -135,6 +134,7 @@ public class Function : IFunction
 			}
 			var done = (double)y / canvas.Height;
 			pb.Report(done);
+			token.ThrowIfCancellationRequested();
 		}
 		return buckets;
 	}

@@ -91,7 +91,7 @@ public class Function : IFunction
 				if(IsSimilar(O.ReplaceColor.Value, c)) {
 					Storage.Stow((new Point(x, y), c));
 				}
-			});
+			}, Context.Token, Context.Options.MaxDegreeOfParallelism);
 		}
 
 		if(Storage.Count < 1) {
@@ -109,6 +109,7 @@ public class Function : IFunction
 		// there could be multiple different colors in flight if more than
 		// one starting point was provided
 		while(Storage.Count > 0) {
+			Context.Token.ThrowIfCancellationRequested();
 			var (p, color) = Storage.Take();
 			if(visited.Contains(p)) { continue; }
 

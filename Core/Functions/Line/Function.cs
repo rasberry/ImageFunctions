@@ -53,6 +53,7 @@ public class Function : IFunction
 		// draw lines until we run out of points
 		int pCount = O.PointList.Count;
 		for(int p = 1; p < pCount; p++) {
+			Context.Token.ThrowIfCancellationRequested();
 			var sp = O.PointList[p - 1];
 			var ep = O.PointList[p];
 			DrawMethod(canvas, O.Color, sp, ep);

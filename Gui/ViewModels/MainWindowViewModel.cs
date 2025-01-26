@@ -13,7 +13,6 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
@@ -27,6 +26,8 @@ public class MainWindowViewModel : ViewModelBase
 		var imageStorage = new ImageStorage(ConvertCanvasToRgba8888);
 		LayersImageList = imageStorage.Bitmaps;
 		Layers = imageStorage.Layers;
+		OverlayState = new();
+		OverlayState.OnStopJob += CancelCommand;
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 		LayersImageList.CollectionChanged += OnLayersCollectionChange;
@@ -85,6 +86,7 @@ public class MainWindowViewModel : ViewModelBase
 		return svm;
 	}
 
+	public OverlayViewModel OverlayState { get; init; }
 	public ILayers Layers { get; init; }
 	public ObservableStackList<LayersImageData> LayersImageList { get; init; }
 
@@ -132,12 +134,14 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		var task = Models.SingleTasks.GetOrMake(nameof(OnFunctionSelected), job);
+		var timeout = TimeSpan.FromMinutes(5);
+		var task = Models.SingleTasks.GetOrMake(nameof(OnFunctionSelected), job, timeout);
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token)
 		{
-			var ctx = new FunctionContext { Register = Program.Register, Log = Program.Log };
+			//usage only needs Register and Log
+			var ctx = new FunctionContext { Register = Program.Register, Log = Program.Log, Token = token };
 			var func = RegFunction?.Item.Invoke(ctx);
 			token.ThrowIfCancellationRequested();
 
@@ -439,6 +443,15 @@ public class MainWindowViewModel : ViewModelBase
 
 		void job(CancellationToken token)
 		{
+			OverlayState.IsPopupVisible = true;
+			OverlayState.Label = $"Running {RegFunction?.Name}";
+
+			var progress = new ProgressTracker();
+			progress.OnReport += (s,e) => {
+				double amount = Math.Clamp(e.Amount,0.0,1.0);
+				OverlayState.ProgressAmount = amount;
+			};
+
 			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
 			//var reg = new FunctionRegister(Program.Register);
@@ -450,7 +463,8 @@ public class MainWindowViewModel : ViewModelBase
 					Engine = RegEngine.AsRegisteredItem
 				},
 				Layers = Layers,
-				Progress = null //TODO fix
+				Progress = progress,
+				Token = token
 			};
 
 			//Trace.WriteLine($"{nameof(RunCommand)} 4");
@@ -470,10 +484,11 @@ public class MainWindowViewModel : ViewModelBase
 	//public delegate void ImagesUpdatedHandler(object sender, EventArgs args);
 	//public event ImagesUpdatedHandler ImagesUpdated;
 
-	public void CancelCommand()
+	public void CancelCommand(object sender, EventArgs args)
 	{
 		var task = SingleTasks.Get(nameof(RunCommand));
 		task?.Cancel();
+		OverlayState.IsPopupVisible = false;
 	}
 
 	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
@@ -590,7 +605,7 @@ public class MainWindowViewModel : ViewModelBase
 		RenderCommandLineFromWidgets();
 	}
 
-	Dictionary<string, string> CommandLineArgCache = new();
+	readonly Dictionary<string, string> CommandLineArgCache = new();
 
 	bool commandLineIsRendering = false;
 	void RenderCommandLineFromWidgets()
@@ -615,6 +630,7 @@ public class MainWindowViewModel : ViewModelBase
 		if(commandLineIsRendering) { return; }
 		commandLineIsRendering = true;
 
+		//TODO maybe get rid of this.. seems complicated
 		//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
 
 		//Log.Debug($"UpdateWidgetsFromCommandLine {text}");

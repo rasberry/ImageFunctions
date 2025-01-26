@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.GraphNet;
 
@@ -63,7 +62,6 @@ public class Function : IFunction
 		double nstates = O.States;
 		double prate = O.PerturbationRate;
 
-		using var progress = new ProgressBar();
 		for(int y = 0; y < maxy; y++) {
 			int x = 0;
 			for(int n = 0; n < maxn; n++) {
@@ -75,7 +73,8 @@ public class Function : IFunction
 				}
 			}
 			PermuteState(state, prate, nodeCount);
-			progress.Report(y / (double)maxy);
+			Context.Progress.Report(y / (double)maxy);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 
 		return true;

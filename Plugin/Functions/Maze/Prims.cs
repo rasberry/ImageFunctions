@@ -34,7 +34,7 @@ public class Prims : IMaze
 	readonly Random Rnd;
 	readonly List<Cell> Walls = new();
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		Point first = FindCell();
 		AddWallsForCell(first.X, first.Y);
@@ -52,6 +52,7 @@ public class Prims : IMaze
 				CellCount++;
 				// prog.Prefix = Walls.Count + " ";
 				prog.Report((double)CellCount / TCells);
+				token.ThrowIfCancellationRequested();
 			}
 		}
 	}

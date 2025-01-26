@@ -48,7 +48,6 @@ A collection of various image processing functions
 # Issues #
 ## GUI ##
 <pre>
-= cannot remove a layer
 = no busy screen when function is running
 = no progress bar while function is running
 = no stop button to cancen a running function
@@ -59,4 +58,5 @@ A collection of various image processing functions
 = be able to specify an initial size for functions that create a layer
   = ? expose the global -# option
   = ? allow user to add empty layer and specify size
+= when removing the last layer, the down button does not gray out on the (now) last item
 </pre>

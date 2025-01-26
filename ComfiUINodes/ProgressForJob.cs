@@ -1,6 +1,8 @@
+using Rasberry.Cli;
+
 namespace ImageFunctions.ComfiUINodes;
 
-internal class ProgressForJob : IProgress<double>
+internal class ProgressForJob : IProgressWithLabel<double>
 {
 	public void Report(double value)
 	{
@@ -9,4 +11,5 @@ internal class ProgressForJob : IProgress<double>
 
 	double _progress;
 	public double Amount { get { return _progress; } }
+	public string Label { get; set; }
 }

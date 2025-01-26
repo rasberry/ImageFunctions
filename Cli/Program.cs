@@ -1,6 +1,7 @@
 ﻿using ImageFunctions.Core;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
+using Rasberry.Cli;
 using System.Diagnostics;
 
 namespace ImageFunctions.Cli;
@@ -105,11 +106,17 @@ internal sealed class Program
 			return false;
 		}
 
+		//setup the context. we're not using cancellation but it's required
+		using CancellationTokenSource tokenSource = new();
+		using ProgressBar progress = new();
+
 		var context = new FunctionContext {
 			Register = Register,
 			Layers = Layers,
 			Options = Options,
-			Log = Log
+			Log = Log,
+			Token = tokenSource.Token,
+			Progress = progress
 		};
 
 		//Not really sure how to best use the bool return. Going with exit code for now

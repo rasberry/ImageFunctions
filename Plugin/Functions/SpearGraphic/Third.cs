@@ -1,18 +1,18 @@
 using ImageFunctions.Core;
-using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Third
 {
-	public static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, int? seed = null)
+	public static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, int? seed,
+		IProgress<double> progress, CancellationToken token)
 	{
 		InitRandom(seed);
 
 		int reps = 100;
 		int margin = 10;
-		DPoint curr = new DPoint(Random(margin, w - margin), Random(margin, h - margin));
+		DPoint curr = new(Random(margin, w - margin), Random(margin, h - margin));
 		DPoint last = curr;
 		int maxiter = 100;
 		double mindist = 10.0;
@@ -22,13 +22,7 @@ public static class Third
 		int nextRepDist = 400;
 		int colorDistMax = 500;
 
-		//var gop = new GraphicsOptions { Antialias = true };
-
-		//DPoint[] ways = new DPoint[] {
-		//	new DPoint(0
-		//}
 		DPoint dest = default(DPoint);
-		using var progress = new ProgressBar();
 
 		for(int r = 0; r < reps; r++) {
 			int iter = 0;
@@ -38,17 +32,6 @@ public static class Third
 				, Random(PumpAt(margin, curr.Y - nextRepDist), CapAt(curr.Y + nextRepDist, h - margin))
 			);
 
-			//random on a grid
-			//DPoint ndest;
-			//do {
-			//	ndest = new DPoint(
-			//		Decimate(Random(margin,w-margin),-2)
-			//		,Decimate(Random(margin,h-margin),-2)
-			//	);
-			//} while(Dist(dest,ndest) < 10.0);
-			//dest = ndest;
-
-			//g.DrawArc(Pens.Red,(int)(dest.X-2),(int)(dest.Y-2),4,4,0,(int)(2*Math.PI));
 			angadd = Random(0.01, 0.1);
 			speed = Random(1.0, 5.0);
 			mindist = speed / Math.Tan(angadd);
@@ -57,10 +40,7 @@ public static class Third
 			while(true) {
 				if(++iter >= maxiter) { break; }
 				double dist = Dist(dest, curr);
-				//Console.WriteLine(dist);
 				if(dist < mindist) { break; }
-				//Pen p1 = RandomColorFade(dist,colorDistMax,false);
-				//Pen p2 = RandomColorFade(dist,colorDistMax,true);
 				Color p1 = ColorFade(PumpAt(colorDistMax - dist, 0), colorDistMax, fcolor);
 				Color p2 = ColorFade(CapAt(dist, colorDistMax), colorDistMax, fcolor);
 
@@ -71,12 +51,6 @@ public static class Third
 				dlf(image, np2, new(dest.X, dest.Y), new(curr.X, curr.Y));
 				DPoint ext = Move(curr, 2 * Math.PI - dir, 100);
 				dlf(image, np1, new(ext.X, ext.Y), new(curr.X, curr.Y));
-
-				//if (dist < 100 && angadd > 0.01) {
-				//	angadd -= 0.01;
-				//} else if (dist > 500 && angadd < 0.1) {
-				//	angadd += 0.01;
-				//}
 
 				double newdirP = dir + angadd;
 				double newdirN = dir - angadd;
@@ -95,6 +69,7 @@ public static class Third
 				}
 
 				progress.Report((double)r / reps);
+				token.ThrowIfCancellationRequested();
 			}
 		}
 	}

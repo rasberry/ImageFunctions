@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.SliceComponent;
 
@@ -45,7 +44,6 @@ public class Function : IFunction
 			return false;
 		}
 
-		using var progress = new ProgressBar();
 		var engine = CoreOptions.Engine.Item.Value;
 		int numSlices = O.WhichSlice.HasValue ? 1 : O.Slices;
 
@@ -73,7 +71,7 @@ public class Function : IFunction
 				: c
 			;
 			slices[index][x, y] = O.Space.ToNative(mc);
-		}, CoreOptions.MaxDegreeOfParallelism, progress);
+		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
 
 		return true;
 	}

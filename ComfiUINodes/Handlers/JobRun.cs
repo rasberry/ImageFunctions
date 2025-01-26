@@ -56,12 +56,15 @@ internal static partial class Handlers
 			return;
 		}
 
+		CancellationTokenSource tokenSource = new();
+
 		var context = new FunctionContext {
 			Register = Program.Register,
 			Layers = layers,
 			Options = options,
 			Log = log,
-			Progress = new ProgressForJob()
+			Progress = new ProgressForJob(),
+			Token = tokenSource.Token
 		};
 		var job = new Job { Context = context };
 		int num = Interlocked.Increment(ref JobCounter);

@@ -36,6 +36,8 @@ public class Function : IFunction
 		if(O.PointList == null || O.PointList.Count < 2) {
 			return true; //nothing to do
 		}
+		
+		//TODO finish
 
 		// //all Draw function have the same signature, so choose the one to use
 		// Action<ICanvas, ColorRGBA, Point, Point> DrawMethod = O.Kind switch {

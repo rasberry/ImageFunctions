@@ -20,7 +20,7 @@ public class Automata : IBasicMaze
 	BitArray Curr;
 	BitArray Next;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		// B3/S12345
 
@@ -37,7 +37,7 @@ public class Automata : IBasicMaze
 		while(!done && iters < 100) {
 			done = true;
 
-			prog.Prefix = $"Iteration {iters} ";
+			prog.Label = $"Iteration {iters} ";
 			prog.Report(0.0);
 			iters++;
 
@@ -62,12 +62,14 @@ public class Automata : IBasicMaze
 
 			// copy updated layer to the current layer
 			for(int a = 0; a < bitLen; a++) { Curr[a] = Next[a]; }
+			token.ThrowIfCancellationRequested();
 		}
 
 		for(int y = 0; y < PixelGrid.Height; y++) {
 			for(int x = 0; x < PixelGrid.Width; x++) {
 				PixelGrid[x, y] = GetXYBit(x, y) ? O.CellColor : O.WallColor;
 			}
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

@@ -10,13 +10,14 @@ internal static class MoreAide
 	/// <param name="comp">Comparer function for T</param>
 	/// <param name="progress">optional progress object</param>
 	/// <param name="MaxDegreeOfParallelism">Maximum number of threads to allow</param>
-	public static void ParallelSort<T>(IList<T> array, IComparer<T> comp = null, IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
+	public static void ParallelSort<T>(IList<T> array, CancellationToken token, IComparer<T> comp = null,
+		IProgress<double> progress = null, int? MaxDegreeOfParallelism = null)
 	{
 		//var ps = new QuickSort<T>(array,comp,progress);
 		//ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 		//ps.Sort();
 
-		var ps = new BitonicSort<T>(array, comp, progress);
+		var ps = new BitonicSort<T>(array, token, comp, progress);
 		ps.MaxDegreeOfParallelism = MaxDegreeOfParallelism;
 		ps.Sort();
 	}
@@ -26,11 +27,13 @@ internal static class MoreAide
 	/// </summary>
 	/// <param name="max">The total number of iterations</param>
 	/// <param name="callback">The callsback is called on each iteration</param>
+	/// <param name="token">Token so user can cancel the operation</param>
 	/// <param name="progress">Optional progress object</param>
-	public static void ThreadRun(int max, Action<int> callback, int? maxThreads, IProgress<double> progress = null)
+	public static void ThreadRun(int max, Action<int> callback, CancellationToken token,
+		int? maxThreads, IProgress<double> progress = null)
 	{
 		int done = 0;
-		ParallelOptions po = new();
+		ParallelOptions po = new() { CancellationToken = token };
 		if(maxThreads.HasValue) {
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		};

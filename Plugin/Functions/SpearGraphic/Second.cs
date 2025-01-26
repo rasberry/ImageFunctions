@@ -1,12 +1,11 @@
 using ImageFunctions.Core;
-using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Second
 {
-	public static void Twist3(ICanvas image, DrawLineFunc dlf, int w, int h, int which = 2)
+	public static void Twist3(ICanvas image, DrawLineFunc dlf, int w, int h, int which, IProgress<double> progress, CancellationToken token)
 	{
 		if(which == 0) {
 			int iter = 9;
@@ -15,7 +14,7 @@ public static class Second
 			double o = w / 10.0;
 			double t = 1.1 * iter;
 			double aa = 64, am = 0, an = 0;
-			Twist3Params(image, w, h, max, s, o, t, aa, am, an);
+			Twist3Params(image, w, h, max, s, o, t, aa, am, an, progress, token);
 		}
 		if(which == 1) {
 			int iter = 40;
@@ -24,7 +23,7 @@ public static class Second
 			double o = w / 6.0;
 			double t = 1.2 * iter;
 			double aa = 64, am = 1, an = 0;
-			Twist3Params(image, w, h, max, s, o, t, aa, am, an);
+			Twist3Params(image, w, h, max, s, o, t, aa, am, an, progress, token);
 		}
 		if(which == 2) {
 			int iter = 80;
@@ -33,15 +32,14 @@ public static class Second
 			double o = w / 4.0;
 			double t = 2 * iter;
 			double aa = 1, am = 0, an = 0;
-			Twist3Params(image, w, h, max, s, o, t, aa, am, an);
+			Twist3Params(image, w, h, max, s, o, t, aa, am, an, progress, token);
 		}
 	}
 
-	static void Twist3Params(ICanvas image, int w, int h, double max, double s, double o, double t, double aa, double am, double an)
+	static void Twist3Params(ICanvas image, int w, int h, double max, double s, double o, double t,
+		double aa, double am, double an, IProgress<double> progress, CancellationToken token)
 	{
 		double a, x, y, ox, oy;
-
-		using var progress = new ProgressBar();
 
 		for(double v = 1; v < max; v++) {
 			ox = o + (an + (am * (max - v) / max)) * Math.Cos(v * Math.PI / aa);
@@ -56,6 +54,7 @@ public static class Second
 				DrawPoint(image, p, y, x);
 			}
 			progress.Report(v / max);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 
@@ -123,7 +122,8 @@ public static class Second
 		}
 	}
 
-	public static void Twist4(ICanvas image, DrawLineFunc dlf, int w, int h)
+	public static void Twist4(ICanvas image, DrawLineFunc dlf, int w, int h,
+		IProgress<double> progress, CancellationToken token)
 	{
 		double max = w * 9;
 		double s = w / 32.0; //stretch x
@@ -133,31 +133,30 @@ public static class Second
 		double lx = 0, ly = 0;
 		double oos = w * 0.088; //offset size
 
-		using(var progress = new ProgressBar()) {
-			for(double v = 1; v < max; v++) {
-				a = (max - v) * Math.PI / (max / (max - v / 32)) + Math.PI;
-				x = s * Math.Tan(a) + (v / t) + o;
-				y = s * Math.Sin(a) + (v / t) + o;
+		for(double v = 1; v < max; v++) {
+			a = (max - v) * Math.PI / (max / (max - v / 32)) + Math.PI;
+			x = s * Math.Tan(a) + (v / t) + o;
+			y = s * Math.Sin(a) + (v / t) + o;
 
-				if(v != 1 && x < w && y < h && x > 0 && y > 0) {
-					float oo = (float)(oos * Math.Sin(((max - v) / max) * 2 * Math.PI));
-					double dx = Math.Abs(lx - x);
-					double dy = Math.Abs(ly - y);
-					if(dx <= dy) {
-						double m2 = max / 2;
-						Color p = v > m2
-							? ColorFade(v - m2, m2, FadeComp.B)
-							: ColorFade(m2 - v, m2, FadeComp.R);
+			if(v != 1 && x < w && y < h && x > 0 && y > 0) {
+				float oo = (float)(oos * Math.Sin(((max - v) / max) * 2 * Math.PI));
+				double dx = Math.Abs(lx - x);
+				double dy = Math.Abs(ly - y);
+				if(dx <= dy) {
+					double m2 = max / 2;
+					Color p = v > m2
+						? ColorFade(v - m2, m2, FadeComp.B)
+						: ColorFade(m2 - v, m2, FadeComp.R);
 
-						var np = ColorRGBA.FromRGBA255(p.R, p.G, p.B, p.A);
-						dlf(image, np, new(lx, ly), new(x - oo, y - oo));
-						dlf(image, np, new(ly, lx), new(y + oo, x + oo));
-					}
-					lx = x;
-					ly = y;
+					var np = ColorRGBA.FromRGBA255(p.R, p.G, p.B, p.A);
+					dlf(image, np, new(lx, ly), new(x - oo, y - oo));
+					dlf(image, np, new(ly, lx), new(y + oo, x + oo));
 				}
-				progress.Report(v / max);
+				lx = x;
+				ly = y;
 			}
+			progress.Report(v / max);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

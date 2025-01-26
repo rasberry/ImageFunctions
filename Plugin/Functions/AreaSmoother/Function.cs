@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using System.Drawing;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
@@ -46,13 +45,12 @@ public class Function : IFunction
 		}
 
 		var frame = Context.Layers.First().Canvas;
-		using var progress = new ProgressBar();
 		using var canvas = Context.Options.Engine.Item.Value.NewCanvasFromLayers(Context.Layers);
 		var maxThreads = Context.Options.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		frame.ThreadPixels((x, y) => {
 			var nc = SmoothPixel(frame, x, y);
 			canvas[x, y] = nc;
-		}, maxThreads, progress);
+		}, Context.Token, maxThreads, Context.Progress);
 
 		frame.CopyFrom(canvas);
 		return true;

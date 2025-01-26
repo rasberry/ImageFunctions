@@ -45,13 +45,13 @@ class Program
 
 	static void DrawRazor()
 	{
-		var fileList = Directory.GetFiles(ViewFolder, "*.razor");
+		var fileList = Directory.GetFiles(ViewFolder, "*.md-razor");
 		var funReg = new FunctionRegister(Register);
 		var allFun = funReg.All().ToList();
 		allFun.Sort();
 
 		foreach(var path in fileList) {
-			if(path.Contains("function.md.razor")) { continue; }
+			if(path.Contains("function.md-razor")) { continue; }
 			var text = File.ReadAllText(path);
 			var template = Engine.Compile(text);
 			var model = new WikiModel { FunctionList = allFun };
@@ -66,7 +66,7 @@ class Program
 	static void DrawFunctions()
 	{
 		var funReg = new FunctionRegister(Register);
-		var templateFile = Path.Combine(ViewFolder, "function.md.razor");
+		var templateFile = Path.Combine(ViewFolder, "function.md-razor");
 		var text = File.ReadAllText(templateFile);
 
 		foreach(string name in funReg.All()) {
@@ -84,7 +84,7 @@ class Program
 		var model = new WikiModel();
 		StringBuilder sb = new();
 		var reg = funReg.Get(name);
-		var context = new FunctionContext { Register = Register, Log = Log };
+		var context = new FunctionContext { Register = Register, Log = Log }; //usage only needs Register and Log
 		var fun = reg.Item.Invoke(context);
 
 		fun.Options.Usage(sb, Register);

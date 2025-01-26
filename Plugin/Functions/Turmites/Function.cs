@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.Turmites;
@@ -56,12 +55,11 @@ public class Function : IFunction
 			y = source.Height / 2;
 		}
 
-		var progress = new ProgressBar();
-		Draw(source, progress, x, y);
+		Draw(source, x, y);
 		return true;
 	}
 
-	void Draw(ICanvas source, ProgressBar prog, int x, int y)
+	void Draw(ICanvas source, int x, int y)
 	{
 		int width = source.Width;
 		int height = source.Height;
@@ -70,7 +68,8 @@ public class Function : IFunction
 		ulong seqLen = (ulong)O.Sequence.Count;
 
 		for(ulong i = 0; i < O.Iterations; i++) {
-			prog.Report((double)i / O.Iterations);
+			Context.Progress.Report((double)i / O.Iterations);
+			Context.Token.ThrowIfCancellationRequested();
 
 			// change direction
 			uint c = state[x, y];

@@ -1,0 +1,65 @@
+<UserControl
+	xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+	x:Class="ImageFunctions.Gui.Views.OverlayControl"
+	x:DataType="vm:OverlayViewModel"
+	d:DesignHeight="200"
+	d:DesignWidth="200"
+	mc:Ignorable="d"
+>
+
+<Design.DataContext>
+	<vm:OverlayViewModel/>
+</Design.DataContext>
+
+<!-- also doesn't work..
+<UserControl.Resources>
+	<StaticResource x:Key="OverlayBorderThickness" ResourceKey="SemiThicknessTight" />
+</UserControl.Resources>
+-->
+
+<!-- Min width of ProgressBar is 200 -->
+<UserControl.Styles>
+	<Style Selector="Border#OverlayShade">
+		<Setter Property="Background" Value="{DynamicResource SemiColorOverlayBackground}"/>
+	</Style>
+
+	<Style Selector="Border#OverlayInside">
+		<Setter Property="HorizontalAlignment" Value="Center"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Background" Value="{DynamicResource WindowDefaultBackground}"/>
+		<Setter Property="Width" Value="300" /> <!-- needs to be > 200 + 20 + 2*padding-->
+		<Setter Property="Padding" Value="32"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}"/>
+		<Setter Property="BorderThickness" Value="4"/><!-- based on SemiThicknessTight -->
+	</Style>
+
+	<Style Selector="StackPanel#OverlayControls">
+		<Setter Property="Background" Value="{DynamicResource WindowDefaultBackground}"/>
+		<Setter Property="Spacing" Value="8" />
+	</Style>
+</UserControl.Styles>
+
+<Border Name="OverlayShade" IsVisible="{Binding IsPopupVisible}" >
+	<Border Name="OverlayInside">
+	<StackPanel Name="OverlayControls" Orientation="Vertical">
+		<TextBlock Text="{Binding Label}" />
+		<ProgressBar ShowProgressText="True" ProgressTextFormat="{}{1:0.0}%"
+			Maximum="{Binding CompletionMax}"
+			Minimum="{Binding CompletionMin}"
+			Value="{Binding ProgressAmount}"
+		/>
+		<Button Tag="Stop Job" HorizontalAlignment="Stretch" Command="{Binding StopJob}">
+			<StackPanel Orientation="Horizontal" Spacing="8">
+				<TextBlock Text="Stop Job" />
+				<PathIcon Data="{StaticResource IconStop}"/>
+			</StackPanel>
+		</Button>
+	</StackPanel>
+	</Border>
+</Border>
+
+</UserControl>

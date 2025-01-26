@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Deform;
 
@@ -45,7 +44,6 @@ public class Function : IFunction
 		var engine = Context.Options.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Context.Layers); //temporary canvas
 		var frame = Context.Layers.First().Canvas;
-		using var progress = new ProgressBar();
 
 		double ccx, ccy;
 		if(O.CenterPx != null) {
@@ -61,7 +59,7 @@ public class Function : IFunction
 		frame.ThreadPixels((x, y) => {
 			var nc = ProjectPixel(frame, x, y, ccx, ccy, O.Power);
 			canvas[x, y] = nc;
-		}, maxThreads, progress);
+		}, Context.Token, maxThreads, Context.Progress);
 
 		frame.CopyFrom(canvas);
 		return true;

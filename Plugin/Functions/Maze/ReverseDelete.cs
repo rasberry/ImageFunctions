@@ -21,7 +21,7 @@ public class ReverseDelete : IMaze
 	int[] Parent = null;
 	int MaxDepth = 0;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		int len = CellsHigh * CellsWide;
 		MaxDepth = len;
@@ -64,6 +64,7 @@ public class ReverseDelete : IMaze
 				}
 			}
 			prog.Report(f / (double)len);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
 namespace ImageFunctions.Plugin.Functions.AreaSmoother2;
@@ -46,7 +45,6 @@ public class Function : IFunction
 
 		var engine = Context.Options.Engine.Item.Value;
 		var origCanvas = Context.Layers.First().Canvas;
-		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Context.Layers); //temporary canvas
 
 		if(!O.VOnly) {
@@ -56,7 +54,7 @@ public class Function : IFunction
 					if(visited.Contains(x)) { continue; }
 					DrawGradientH(visited, origCanvas, canvas, x, y);
 				}
-			}, Context.Options.MaxDegreeOfParallelism, progress);
+			}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
 		}
 
 		if(!O.HOnly) {
@@ -66,7 +64,7 @@ public class Function : IFunction
 					if(visited.Contains(y)) { continue; }
 					DrawGradientV(visited, origCanvas, canvas, x, y, !O.VOnly);
 				}
-			}, Context.Options.MaxDegreeOfParallelism, progress);
+			}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
 		}
 
 		origCanvas.CopyFrom(canvas);

@@ -4,7 +4,7 @@ namespace ImageFunctions.Plugin.Functions.Maze;
 
 public interface IBasicMaze
 {
-	void DrawMaze(ProgressBar prog);
+	void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token);
 }
 
 public interface IMaze : IBasicMaze

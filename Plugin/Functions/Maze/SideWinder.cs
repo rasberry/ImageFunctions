@@ -18,7 +18,7 @@ public class SideWinder : IMaze
 
 	readonly Random Rnd;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		int lastx = CellsWide - 1;
 		for(int y = 0; y < CellsHigh; y++) {
@@ -36,6 +36,7 @@ public class SideWinder : IMaze
 				}
 			}
 			prog.Report(y / (double)CellsHigh);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 }

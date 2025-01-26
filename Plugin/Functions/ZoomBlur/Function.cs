@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.ZoomBlur;
@@ -49,7 +48,6 @@ public class Function : IFunction
 		var engine = CoreOptions.Engine.Item.Value;
 
 		var source = Layers.First().Canvas;
-		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		var bounds = canvas.Bounds();
 
@@ -73,7 +71,7 @@ public class Function : IFunction
 			int cx = x - bounds.Left;
 			//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 			canvas[cx, cy] = nc;
-		}, CoreOptions.MaxDegreeOfParallelism, progress);
+		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
 
 		source.CopyFrom(canvas, bounds);
 		return true;
