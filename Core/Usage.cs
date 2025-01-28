@@ -209,7 +209,7 @@ public record UsageDescription
 	public UsageDescription(int indention, string description = null)
 	{
 		this.Indention = indention;
-		if (description != null) {
+		if(description != null) {
 			this.Descriptions = new string[] { description };
 		}
 	}

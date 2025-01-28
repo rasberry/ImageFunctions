@@ -10,13 +10,13 @@ public static class SingleTasks
 		bool replace = found && (task == null || task.IsRunning == false);
 		//Trace.WriteLine($"{nameof(GetOrMake)} name={name} found={found} replace={replace}");
 
-		if (!found || replace) {
+		if(!found || replace) {
 			task = new SingleTonTask {
 				Job = job,
 				Timeout = timeout ?? TimeSpan.FromSeconds(DefaultTimeoutSeconds)
 			};
 
-			if (replace) {
+			if(replace) {
 				Tasks[name] = task;
 			}
 			else {

@@ -447,8 +447,8 @@ public class MainWindowViewModel : ViewModelBase
 			OverlayState.Label = $"Running {RegFunction?.Name}";
 
 			var progress = new ProgressTracker();
-			progress.OnReport += (s,e) => {
-				double amount = Math.Clamp(e.Amount,0.0,1.0);
+			progress.OnReport += (s, e) => {
+				double amount = Math.Clamp(e.Amount, 0.0, 1.0);
 				OverlayState.ProgressAmount = amount;
 			};
 

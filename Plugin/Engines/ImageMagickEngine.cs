@@ -1,8 +1,8 @@
 using ImageFunctions.Core;
 using ImageMagick;
+using ImageMagick.Drawing;
 using Point = ImageFunctions.Core.PointD;
 using QType = System.Single;
-using ImageMagick.Drawing;
 
 namespace ImageFunctions.Plugin.Engines;
 

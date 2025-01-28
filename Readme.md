@@ -55,5 +55,11 @@ A collection of various image processing functions
 = be able to specify an initial size for functions that create a layer
   = ? expose the global -# option
   = ? allow user to add empty layer and specify size
+  = ? maybe create a expander which has some image creation controls
+    = new image width / height
+    = push empty layer
+    = clone top layer
 = when removing the last layer, the down button does not gray out on the (now) last item
+= allcolors option -l / --legacy should pick just '-l']
+= make usage description stand out a little - maybe a border under the text ?
 </pre>

@@ -47,7 +47,7 @@
 	<Border Name="OverlayInside">
 	<StackPanel Name="OverlayControls" Orientation="Vertical">
 		<TextBlock Text="{Binding Label}" />
-		<ProgressBar ShowProgressText="True" ProgressTextFormat="{}{1:0.0}%"
+		<ProgressBar ShowProgressText="True" ProgressTextFormat="{}{1:0.00}%"
 			Maximum="{Binding CompletionMax}"
 			Minimum="{Binding CompletionMin}"
 			Value="{Binding ProgressAmount}"

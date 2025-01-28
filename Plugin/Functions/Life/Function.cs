@@ -103,7 +103,7 @@ public class Function : IFunction
 			else {
 				UpdatePixel(canvas, x, y, CoreColors.Black, channel);
 			}
-		},Context.Token,Context.Options.MaxDegreeOfParallelism);
+		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
 	}
 
 	void UpdatePixel(ICanvas canvas, int x, int y, ColorRGBA color, Channel channel)
