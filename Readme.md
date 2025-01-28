@@ -48,9 +48,6 @@ A collection of various image processing functions
 # Issues #
 ## GUI ##
 <pre>
-= no busy screen when function is running
-= no progress bar while function is running
-= no stop button to cancen a running function
 = preview image cannot be zoomed or scrolled
 = loaded image layer is named 'item' instead of being derived from file name
 = save does not work
