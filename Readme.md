@@ -31,7 +31,6 @@ A collection of various image processing functions
   allNames | sort | uniq -ic | sort
   ```
 
-
 # TODO #
 <pre>
 = move imagemagick to it's own plugin (to expose more imagemagick stuff)
@@ -60,6 +59,9 @@ A collection of various image processing functions
     = push empty layer
     = clone top layer
 = when removing the last layer, the down button does not gray out on the (now) last item
-= allcolors option -l / --legacy should pick just '-l']
+= allcolors option -l / --legacy should pick just '-l'
 = make usage description stand out a little - maybe a border under the text ?
+= finish adding controls
+  = color picker
+  = point selector
 </pre>

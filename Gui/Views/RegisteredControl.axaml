@@ -29,7 +29,6 @@
 			<TextBlock Classes="ChoosenText" Text="{Binding Selected.Name, StringFormat='- {0}'}" />
 		</StackPanel>
 	</Expander.Header>
-	<!--<ListBox Name="ItemList" ItemsSource="{Binding Items}" SelectionChanged="OnItemSelected" />-->
 	<ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" />
 </Expander>
 
