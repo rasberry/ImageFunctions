@@ -9,6 +9,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
+using ImageFunctions.Plugin.Aides;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -311,6 +312,28 @@ public class MainWindowViewModel : ViewModelBase
 	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
 	{
 		UpdateLayerImageButtons(args.NewStartingIndex, args.OldStartingIndex);
+	}
+
+	public void LayersNewTop()
+	{
+		var w = OptionsModel.InitialLayerWidth;
+		var h = OptionsModel.InitialLayerHeight;
+		var canvas = RegEngine.NewCanvasFromLayersOrDefault(Layers, w, h);
+		Layers.Push(canvas);
+	}
+
+	public void LayersCloneTop()
+	{
+		if (Layers.Count < 1) {
+			var txt = Note.NoLayersPresent();
+			UpdateStatusText(txt, true, WarningTimeout);
+		}
+		else {
+			var orig = Layers[0].Canvas;
+			var copy = RegEngine.NewCanvas(orig.Width, orig.Height);
+			copy.CopyFrom(orig);
+			Layers.Push(copy);
+		}
 	}
 
 	/*

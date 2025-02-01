@@ -49,19 +49,13 @@ A collection of various image processing functions
 <pre>
 = preview image cannot be zoomed or scrolled
 = loaded image layer is named 'item' instead of being derived from file name
-= save does not work
+= save image does not work
 = no feedback for errors
-= be able to specify an initial size for functions that create a layer
-  = ? expose the global -# option
-  = ? allow user to add empty layer and specify size
-  = ? maybe create a expander which has some image creation controls
-    = new image width / height
-    = push empty layer
-    = clone top layer
 = when removing the last layer, the down button does not gray out on the (now) last item
 = allcolors option -l / --legacy should pick just '-l'
 = make usage description stand out a little - maybe a border under the text ?
 = finish adding controls
   = color picker
   = point selector
+= job overlay doesn't close when job is complete
 </pre>

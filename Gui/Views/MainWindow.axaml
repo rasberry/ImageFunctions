@@ -40,6 +40,9 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
 		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
 	</Style>
+	<Style Selector="StackPanel#TopLayerControls">
+		<Setter Property="Margin" Value="0,0,0,8" />
+	</Style>
 </Window.Styles>
 
 <Grid>
@@ -49,7 +52,17 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 			<!-- Top level Column layer thumbnails -->
 			<ScrollViewer Grid.Column="0">
-				<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
+				<StackPanel Orientation="Vertical">
+					<StackPanel Orientation="Horizontal" Name="TopLayerControls">
+						<Button Tag="New Top Layer" Command="{Binding LayersNewTop}">
+							<PathIcon Data="{StaticResource IconCardPlus}"/>
+						</Button>
+						<Button Tag="Clone Top Layer" Command="{Binding LayersCloneTop}">
+							<PathIcon Data="{StaticResource IconCardMultiple}"/>
+						</Button>
+					</StackPanel>
+					<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
+				</StackPanel>
 			</ScrollViewer>
 
 			<!-- Top level Column primary image -->
