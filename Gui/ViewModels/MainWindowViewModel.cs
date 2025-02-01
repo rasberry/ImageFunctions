@@ -28,6 +28,7 @@ public class MainWindowViewModel : ViewModelBase
 		Layers = imageStorage.Layers;
 		OverlayState = new();
 		OverlayState.OnStopJob += CancelCommand;
+		OptionsModel = new();
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 		LayersImageList.CollectionChanged += OnLayersCollectionChange;
@@ -89,6 +90,7 @@ public class MainWindowViewModel : ViewModelBase
 	public OverlayViewModel OverlayState { get; init; }
 	public ILayers Layers { get; init; }
 	public ObservableStackList<LayersImageData> LayersImageList { get; init; }
+	public OptionsViewModel OptionsModel { get; init; }
 
 	SelectionViewModel AddTreeNodeFromRegistered(string @namespace,
 		Func<IRegister, INameSpaceName, SelectionItem> filler,

@@ -110,7 +110,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
 			<ScrollViewer Grid.Column="6" Name="Chooser" Theme="{DynamicResource StaticScrollViewer}">
 				<StackPanel Orientation="Vertical">
-					<v:OptionsControl />
+					<v:OptionsControl DataContext="{Binding OptionsModel}"/>
 					<ItemsControl ItemsSource="{Binding RegisteredControlList}" />
 				</StackPanel>
 			</ScrollViewer>

@@ -4,6 +4,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+	xmlns:local="clr-namespace:ImageFunctions.Gui.Helpers;assembly=ImageFunctions.Gui"
 	x:Class="ImageFunctions.Gui.Views.OptionsControl"
 	x:DataType="vm:OptionsViewModel"
 	d:DesignHeight="450"
@@ -13,6 +14,10 @@
 <Design.DataContext>
 	<vm:OptionsViewModel/>
 </Design.DataContext>
+
+<UserControl.Resources>
+	<local:UiConverter x:Key="uiConverter"/>
+</UserControl.Resources>
 
 <UserControl.Styles>
 	<!-- https://docs.avaloniaui.net/docs/tutorials/groupbox -->
@@ -84,16 +89,19 @@
 				</Border>
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" Classes="OptionItems">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="Width"/>
-					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Width" Text="{Binding InitialLayerWidth}" Classes="Bordered"/>
+					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Width"
+						Text="{Binding InitialLayerWidth, Converter={StaticResource uiConverter}}" Classes="Bordered"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Text="Height"/>
-					<TextBox Grid.Row="1" Grid.Column="1" Watermark="Height" Text="{Binding InitialLayerHeight}" Classes="Bordered"/>
+					<TextBox Grid.Row="1" Grid.Column="1" Watermark="Height"
+						Text="{Binding InitialLayerHeight, Converter={StaticResource uiConverter}}" Classes="Bordered"/>
 				</Grid>
 				<Border Classes="OptionHeader">
 					<TextBlock Text="Maximum number of threads allowed for function" />
 				</Border>
 				<Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*" Classes="OptionItems">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="Threads"/>
-					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Threads" Text="{Binding MaxNumberThreads}" Classes="Bordered"/>
+					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Threads"
+						Text="{Binding MaxNumberThreads, Converter={StaticResource uiConverter}}" Classes="Bordered"/>
 				</Grid>
 			</StackPanel>
 		</HeaderedContentControl>
