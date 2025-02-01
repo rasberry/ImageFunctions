@@ -501,6 +501,7 @@ public class MainWindowViewModel : ViewModelBase
 			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
+				OverlayState.IsPopupVisible = false;
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
 				((ImageStorage.LayersInside)Layers).RefreshAll();
 			});

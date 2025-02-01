@@ -57,5 +57,7 @@ A collection of various image processing functions
 = finish adding controls
   = color picker
   = point selector
-= job overlay doesn't close when job is complete
+= selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
+= some function job are not finishing
+= maybe capture log messages - probably need to create a log provider :/
 </pre>
