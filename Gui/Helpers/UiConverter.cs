@@ -9,10 +9,10 @@ internal class UiConverter : IValueConverter
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 	{
 		//Trace.WriteLine($"v={value} in={(value==null?"Y":"n")}) vt={value?.GetType()?.FullName} tt={targetType?.FullName}");
-		if (value == null) { return null; }
+		if(value == null) { return null; }
 
 		//shortcut for no-op conversions
-		if (targetType.IsAssignableFrom(value.GetType())) {
+		if(targetType.IsAssignableFrom(value.GetType())) {
 			return value;
 		}
 
@@ -22,7 +22,7 @@ internal class UiConverter : IValueConverter
 		}
 		catch {
 			//special case for nullables - if parsing fails allow an 'empty' value
-			if (Nullable.GetUnderlyingType(targetType) != null) {
+			if(Nullable.GetUnderlyingType(targetType) != null) {
 				return null;
 			}
 

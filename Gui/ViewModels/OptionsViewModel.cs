@@ -10,7 +10,7 @@ public class OptionsViewModel : ViewModelBase
 		Load();
 
 		DelayTimer = new System.Timers.Timer(TimerDelay);
-		DelayTimer.Elapsed += (s,e) => {
+		DelayTimer.Elapsed += (s, e) => {
 			//Trace.WriteLine("Options Timer Save");
 			DelayTimer.Stop();
 			Manager.Save();
@@ -18,7 +18,7 @@ public class OptionsViewModel : ViewModelBase
 		DelayTimer.AutoReset = false;
 		DelayTimer.Enabled = false;
 
-		PropertyChanged += (s,e) => {
+		PropertyChanged += (s, e) => {
 			//Trace.WriteLine($"Options Trigger Property {e.PropertyName}");
 			DelayTimer.Interval = TimerDelay;
 			DelayTimer.Start();
@@ -30,13 +30,13 @@ public class OptionsViewModel : ViewModelBase
 		Manager.Load();
 
 		//populate and/or set defaults
-		if (!Manager.TryGetAs(nameof(InitialLayerWidth), out _initialLayerWidth)) {
+		if(!Manager.TryGetAs(nameof(InitialLayerWidth), out _initialLayerWidth)) {
 			_initialLayerWidth = 512;
 		}
-		if (!Manager.TryGetAs(nameof(InitialLayerHeight), out _initialLayerHeight)) {
+		if(!Manager.TryGetAs(nameof(InitialLayerHeight), out _initialLayerHeight)) {
 			_initialLayerHeight = 512;
 		}
-		if (!Manager.TryGetAs(nameof(MaxNumberThreads), out _maxNumberThreads)) {
+		if(!Manager.TryGetAs(nameof(MaxNumberThreads), out _maxNumberThreads)) {
 			_maxNumberThreads = null;
 		}
 	}
@@ -45,7 +45,7 @@ public class OptionsViewModel : ViewModelBase
 	public int InitialLayerWidth {
 		get { return _initialLayerWidth; }
 		set {
-			Manager.Set(nameof(InitialLayerWidth),value);
+			Manager.Set(nameof(InitialLayerWidth), value);
 			this.RaiseAndSetIfChanged(ref _initialLayerWidth, value);
 		}
 	}
@@ -54,7 +54,7 @@ public class OptionsViewModel : ViewModelBase
 	public int InitialLayerHeight {
 		get { return _initialLayerHeight; }
 		set {
-			Manager.Set(nameof(InitialLayerHeight),value);
+			Manager.Set(nameof(InitialLayerHeight), value);
 			this.RaiseAndSetIfChanged(ref _initialLayerHeight, value);
 		}
 	}
@@ -63,7 +63,7 @@ public class OptionsViewModel : ViewModelBase
 	public int? MaxNumberThreads {
 		get { return _maxNumberThreads; }
 		set {
-			Manager.Set(nameof(MaxNumberThreads),value);
+			Manager.Set(nameof(MaxNumberThreads), value);
 			this.RaiseAndSetIfChanged(ref _maxNumberThreads, value);
 		}
 	}

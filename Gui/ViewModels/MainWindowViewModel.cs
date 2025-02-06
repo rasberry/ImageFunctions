@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -282,13 +281,13 @@ public class MainWindowViewModel : ViewModelBase
 			};
 		}
 
-		switch(category) {
-			case LogCategory.Debug: StatusClass = "Tertiary"; break;
-			case LogCategory.Info: StatusClass = "Secondary"; break;
-			case LogCategory.Warning: StatusClass = "Warning"; break;
-			case LogCategory.Error: StatusClass = "Danger"; break;
-			default: StatusClass = ""; break;
-		}
+		StatusClass = category switch {
+			LogCategory.Debug => "Tertiary",
+			LogCategory.Info => "Secondary",
+			LogCategory.Warning => "Warning",
+			LogCategory.Error => "Danger",
+			_ => "",
+		};
 		StatusText = text;
 
 		if(startTimer) {
@@ -341,7 +340,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void LayersCloneTop()
 	{
-		if (Layers.Count < 1) {
+		if(Layers.Count < 1) {
 			var txt = Note.NoLayersPresent();
 			UpdateStatusText(txt, true, WarningTimeout);
 		}
@@ -409,7 +408,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	readonly SimpleFileIO FileIO = new();
 
-	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
+	WriteableBitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{
 		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
 		var imgBounds = new Rect(0, 0, canvas.Width, canvas.Height);
@@ -498,7 +497,7 @@ public class MainWindowViewModel : ViewModelBase
 			token.ThrowIfCancellationRequested();
 			//var reg = new FunctionRegister(Program.Register);
 			var logger = new GuiLogger();
-			logger.OnLogEvent += (s,e) => {
+			logger.OnLogEvent += (s, e) => {
 				UpdateStatusText(e.Message, true, WarningTimeout, e.Category);
 			};
 

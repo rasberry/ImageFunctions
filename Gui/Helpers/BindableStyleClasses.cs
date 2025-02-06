@@ -1,5 +1,4 @@
 using Avalonia;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Helpers;
 
@@ -17,22 +16,22 @@ internal class BindableStyleClasses
 
 	private static void HandleClassesChanged(StyledElement element, AvaloniaPropertyChangedEventArgs args)
 	{
-		Trace.WriteLine($"{nameof(HandleClassesChanged)} c={args.NewValue}");
+		//Trace.WriteLine($"{nameof(HandleClassesChanged)} c={args.NewValue}");
 		element.Classes.Clear();
-		if (args.NewValue != null) {
+		if(args.NewValue != null) {
 			element.Classes.Add(args.NewValue.ToString());
 		}
 	}
 
 	public static void SetClasses(StyledElement element, object classes)
 	{
-		Trace.WriteLine($"{nameof(SetClasses)}");
+		//Trace.WriteLine($"{nameof(SetClasses)}");
 		element.SetValue(ClassesProperty, classes);
 	}
 
 	public static object GetClasses(StyledElement element)
 	{
-		Trace.WriteLine($"{nameof(GetClasses)}");
+		//Trace.WriteLine($"{nameof(GetClasses)}");
 		return element.GetValue(ClassesProperty);
 	}
 }

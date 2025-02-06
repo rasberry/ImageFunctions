@@ -6,33 +6,33 @@ public sealed class LogToConsole : ICoreLog
 
 	public void Message(string m)
 	{
-		if (Category > LogCategory.Message) { return; }
+		if(Category > LogCategory.Message) { return; }
 		Console.ResetColor();
 		Console.WriteLine(m);
 	}
 
 	public void Info(string m)
 	{
-		if (Category > LogCategory.Info) { return; }
+		if(Category > LogCategory.Info) { return; }
 		WithColor($"I: {m}", ConsoleColor.DarkCyan);
 	}
 
 	public void Warning(string m)
 	{
-		if (Category > LogCategory.Warning) { return; }
+		if(Category > LogCategory.Warning) { return; }
 		WithColor($"W: {m}", ConsoleColor.Yellow, true);
 	}
 
 	public void Error(string m, Exception e = null)
 	{
-		if (Category > LogCategory.Error) { return; }
+		if(Category > LogCategory.Error) { return; }
 		string se = e == null ? "" : $" : {e.Message}";
 		WithColor($"E: {m}{se}", ConsoleColor.Red, true);
 	}
 
 	public void Debug(string m)
 	{
-		if (Category > LogCategory.Debug) { return; }
+		if(Category > LogCategory.Debug) { return; }
 		WithColor($"D: {m}", ConsoleColor.DarkGray);
 	}
 

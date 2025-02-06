@@ -12,9 +12,9 @@ public class SettingsManager
 	public void Load()
 	{
 		var path = GetFilePath();
-		if (File.Exists(path)) {
+		if(File.Exists(path)) {
 			var text = File.ReadAllText(path);
-			SettingsData = JsonSerializer.Deserialize<Dictionary<string,object>>(text, JsonOpts);
+			SettingsData = JsonSerializer.Deserialize<Dictionary<string, object>>(text, JsonOpts);
 		}
 	}
 
@@ -30,7 +30,7 @@ public class SettingsManager
 	{
 		val = null;
 		bool w = SettingsData.TryGetValue(name, out object oval);
-		if (w) { val = oval.ToString(); }
+		if(w) { val = oval.ToString(); }
 		return w;
 	}
 
@@ -38,8 +38,8 @@ public class SettingsManager
 	{
 		val = default;
 		bool w = SettingsData.TryGetValue(name, out object oval);
-		if (w && oval != null) {
-			if (typeof(T).IsAssignableFrom(oval.GetType())) {
+		if(w && oval != null) {
+			if(typeof(T).IsAssignableFrom(oval.GetType())) {
 				val = (T)oval;
 				return true;
 			}
@@ -65,7 +65,7 @@ public class SettingsManager
 	string GetFilePath()
 	{
 		string folder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-		string path = Path.Combine(folder,SettingsFileName);
+		string path = Path.Combine(folder, SettingsFileName);
 		return path;
 	}
 
@@ -76,5 +76,5 @@ public class SettingsManager
 		WriteIndented = true,
 		ReferenceHandler = ReferenceHandler.IgnoreCycles
 	};
-	Dictionary<string,object> SettingsData = new();
+	Dictionary<string, object> SettingsData = new();
 }
