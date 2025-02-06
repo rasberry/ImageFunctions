@@ -4,7 +4,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
-	xmlns:local="clr-namespace:ImageFunctions.Gui.Helpers;assembly=ImageFunctions.Gui"
+	xmlns:h="using:ImageFunctions.Gui.Helpers"
 	x:Class="ImageFunctions.Gui.Views.OptionsControl"
 	x:DataType="vm:OptionsViewModel"
 	d:DesignHeight="450"
@@ -16,7 +16,7 @@
 </Design.DataContext>
 
 <UserControl.Resources>
-	<local:UiConverter x:Key="uiConverter"/>
+	<h:UiConverter x:Key="uiConverter"/>
 </UserControl.Resources>
 
 <UserControl.Styles>

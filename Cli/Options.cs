@@ -51,12 +51,15 @@ internal sealed class Options : ICoreOptions
 		sb.ND(1, "-f / --format (name)", "Save any output files as specified (engine supported) format");
 		sb.ND(1, "-x / --max-threads (number)", "Restrict parallel processing to a given number of threads (defaults to # of cores)");
 		sb.ND(1, "-e / --engine (name)", "Select (a registered) image engine (default first available)");
-		sb.ND(1, "-v / --verbose", "Show additional messages");
+		sb.ND(1, "-v / --verbose (category)", "Show messages from this and more severe categories (defaults to Message)");
 		sb.ND(1, "-o / --output (name)", "Output file name");
 		sb.ND(1, "-lf / --formats", "List engine supported image formats");
 		sb.ND(1, "-ln / --namespace (name)", "List registered items in given namespace (specify 'all' to list everything)");
 		sb.ND(1, "--", "Pass all remaining options to the function");
 		// sb.ND(1, "-n / --name (name)", "Name of the function to run"); //Note: reserving this in-case it must be a named input
+		sb.WT();
+		sb.WT(0, "Log Categories:");
+		sb.PrintEnum<LogCategory>(1,excludeZero:true);
 	}
 
 	public bool ParseArgs(string[] args, IRegister _)
@@ -149,8 +152,17 @@ internal sealed class Options : ICoreOptions
 			return false;
 		}
 
-		if(p.Has("-v", "--verbose").IsGood()) {
-			Log.BeVerbose = true;
+#if DEBUG
+		var logDefault = LogCategory.Debug;
+#else
+		var logDefault = LogCategory.Message;
+#endif
+		if (p.Scan(new[] { "-v", "--verbose"}, logDefault)
+			.WhenGood(r => { Log.Category = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
 		}
 
 		if(p.Has("-lf", "--formats").IsGood()) {

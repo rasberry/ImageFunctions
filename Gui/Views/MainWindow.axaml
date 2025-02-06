@@ -4,6 +4,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:v="using:ImageFunctions.Gui.Views"
+	xmlns:h="using:ImageFunctions.Gui.Helpers"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 	x:Class="ImageFunctions.Gui.Views.MainWindow"
 	x:DataType="vm:MainWindowViewModel"
@@ -137,7 +138,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<Button Name="SaveStack">Save Stack</Button>
 			</StackPanel>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
-				<TextBlock Text="{Binding StatusText}" />
+				<TextBlock Text="{Binding StatusText}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
 				<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
 					<PathIcon Data="{DynamicResource IconThemeToggle}"/>
 				</Button>

@@ -4,36 +4,37 @@ namespace ImageFunctions.ComfiUINodes;
 
 public class LoggerForJob : ICoreLog
 {
-	public bool BeVerbose { get; set; }
 	public List<string> LogMessages { get; private set; } = new();
+	public LogCategory Category { get; set; }
 
 	public void Debug(string m)
 	{
-#if DEBUG
+		if (Category > LogCategory.Debug) { return; }
 		LogMessages.Add($"D: {m}");
-#endif
 	}
 
 	public void Error(string m, Exception e = null)
 	{
+		if (Category > LogCategory.Error) { return; }
 		var err = e == null ? "" : " - " + e.Message;
 		LogMessages.Add($"E: {m}{err}");
 	}
 
 	public void Info(string m)
 	{
-		if(BeVerbose) {
-			LogMessages.Add($"I: {m}");
-		}
+		if (Category > LogCategory.Info) { return; }
+		LogMessages.Add($"I: {m}");
 	}
 
 	public void Message(string m)
 	{
+		if (Category > LogCategory.Message) { return; }
 		LogMessages.Add(m);
 	}
 
 	public void Warning(string m)
 	{
+		if (Category > LogCategory.Warning) { return; }
 		LogMessages.Add($"W: {m}");
 	}
 }

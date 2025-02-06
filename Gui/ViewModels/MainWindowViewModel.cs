@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -237,6 +238,12 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusText, value);
 	}
 
+	string _statusClass;
+	public string StatusClass {
+		get => _statusClass;
+		set => this.RaiseAndSetIfChanged(ref _statusClass, value);
+	}
+
 	string _commandText = "";
 	public string CommandText {
 		get => _commandText;
@@ -260,7 +267,8 @@ public class MainWindowViewModel : ViewModelBase
 
 	// The behavior shows the text as long as the control is still under the pointer
 	// but wait before hiding the text after the pointer leaves
-	public void UpdateStatusText(string text, bool startTimer, TimeSpan? timeout = null)
+	public void UpdateStatusText(string text, bool startTimer, TimeSpan? timeout = null,
+		LogCategory category = LogCategory.Unknown)
 	{
 		//Trace.WriteLine($"UpdateStatusText T:'{text}' E:{(startTimer?"Y":"N")} T:{timeout.GetValueOrDefault().TotalMilliseconds}");
 		if(StatusTextTimer == null) {
@@ -269,9 +277,18 @@ public class MainWindowViewModel : ViewModelBase
 				Interval = StatusTextTimeout.TotalMilliseconds
 			};
 			//this clears the status after some time
-			StatusTextTimer.Elapsed += (s, e) => UpdateStatusText("", false);
+			StatusTextTimer.Elapsed += (s, e) => {
+				UpdateStatusText("", false);
+			};
 		}
 
+		switch(category) {
+			case LogCategory.Debug: StatusClass = "Tertiary"; break;
+			case LogCategory.Info: StatusClass = "Secondary"; break;
+			case LogCategory.Warning: StatusClass = "Warning"; break;
+			case LogCategory.Error: StatusClass = "Danger"; break;
+			default: StatusClass = ""; break;
+		}
 		StatusText = text;
 
 		if(startTimer) {
@@ -480,9 +497,15 @@ public class MainWindowViewModel : ViewModelBase
 			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
 			//var reg = new FunctionRegister(Program.Register);
+			var logger = new GuiLogger();
+			logger.OnLogEvent += (s,e) => {
+				UpdateStatusText(e.Message, true, WarningTimeout, e.Category);
+			};
+
 			var context = new FunctionContext {
 				Register = Program.Register,
-				Log = Program.Log,
+				//Log = Program.Log, //TODO change this so logs go to the ui
+				Log = logger,
 				Options = new BasicOptions {
 					Register = Program.Register,
 					Engine = RegEngine.AsRegisteredItem

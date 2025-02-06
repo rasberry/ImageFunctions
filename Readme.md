@@ -35,10 +35,8 @@ A collection of various image processing functions
 <pre>
 = move imagemagick to it's own plugin (to expose more imagemagick stuff)
 = opencv (emgucv) plugin ?
-= create a UI plugin
 = create a gimp plugin
 = add more tests
-= create nuget packages
 = add coverage report
 = change canvas to another color space (edit in another color space)
 = string art - https://www.youtube.com/watch?v=WGccIFf6MF8
@@ -50,7 +48,6 @@ A collection of various image processing functions
 = preview image cannot be zoomed or scrolled
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work
-= no feedback for errors
 = when removing the last layer, the down button does not gray out on the (now) last item
 = allcolors option -l / --legacy should pick just '-l'
 = make usage description stand out a little - maybe a border under the text ?
@@ -59,5 +56,9 @@ A collection of various image processing functions
   = point selector
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
 = some function job are not finishing
-= maybe capture log messages - probably need to create a log provider :/
+
+X maybe capture log messages - probably need to create a log provider
+  = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line
+  = tried https://learn.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator
+  = but was too inflexible. not sure how to share messages between logs and exceptions
 </pre>

@@ -10,35 +10,36 @@ public sealed class TestLogger : ICoreLog
 	}
 
 	readonly TestContext Context;
-	public bool BeVerbose { get; set; }
+	public LogCategory Category { get; set; }
 
 	public void Debug(string m)
 	{
-#if DEBUG
+		if (Category > LogCategory.Debug) { return; }
 		Context.WriteLine($"D: {m}");
-#endif
 	}
 
 	public void Error(string m, Exception e = null)
 	{
+		if (Category > LogCategory.Error) { return; }
 		string err = e == null ? " " : " " + e.Message;
 		Context.WriteLine($"E: {m}{err}");
 	}
 
 	public void Info(string m)
 	{
-		if(BeVerbose) {
-			Context.WriteLine($"I: {m}");
-		}
+		if (Category > LogCategory.Info) { return; }
+		Context.WriteLine($"I: {m}");
 	}
 
 	public void Message(string m)
 	{
+		if (Category > LogCategory.Message) { return; }
 		Context.WriteLine($"M: {m}");
 	}
 
 	public void Warning(string m)
 	{
+		if (Category > LogCategory.Warning) { return; }
 		Context.WriteLine($"W: {m}");
 	}
 }
