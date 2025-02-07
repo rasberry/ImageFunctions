@@ -139,6 +139,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</StackPanel>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
 				<TextBlock Text="{Binding StatusText}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
+				<PathIcon Data="{Binding StatusCategoryIcon}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
 				<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
 					<PathIcon Data="{DynamicResource IconThemeToggle}"/>
 				</Button>

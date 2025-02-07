@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -243,6 +244,41 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusClass, value);
 	}
 
+	
+	StreamGeometry _statusCategoryIcon;
+	public StreamGeometry StatusCategoryIcon {
+		get {
+			return _statusCategoryIcon;
+		}
+		set {
+			this.RaiseAndSetIfChanged(ref _statusCategoryIcon, value);
+		}
+	}
+
+	static readonly Dictionary<LogCategory, StreamGeometry> _statusCategoryIconCache = InitStatusCategoryIconCache();
+	static Dictionary<LogCategory, StreamGeometry> InitStatusCategoryIconCache()
+	{
+		Dictionary<LogCategory, StreamGeometry> cache = new();
+		cache.Add(LogCategory.Warning,GetIconForName("IconAlert"));
+		cache.Add(LogCategory.Error,GetIconForName("IconAlertOctagram"));
+		cache.Add(LogCategory.Debug,GetIconForName("IconDeveloperBoard"));
+		cache.Add(LogCategory.Info,GetIconForName("IconInformationOutline"));
+		return cache;
+	}
+
+	LogCategory _statusCategory;
+	public LogCategory StatusCategory {
+		get {
+			return _statusCategory;
+		}
+		set { 
+			if (_statusCategoryIconCache.TryGetValue(_statusCategory, out var geometry)) {
+				StatusCategoryIcon = geometry;
+			}
+			this.RaiseAndSetIfChanged(ref _statusCategory, value);
+		}
+	}
+
 	string _commandText = "";
 	public string CommandText {
 		get => _commandText;
@@ -288,6 +324,7 @@ public class MainWindowViewModel : ViewModelBase
 			LogCategory.Error => "Danger",
 			_ => "",
 		};
+		StatusCategory = category;
 		StatusText = text;
 
 		if(startTimer) {
@@ -303,6 +340,12 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 	System.Timers.Timer StatusTextTimer = null;
+
+	static Avalonia.Media.StreamGeometry GetIconForName(string name)
+	{
+		Application.Current.Resources.TryGetResource(name, null, out object icon);
+		return (Avalonia.Media.StreamGeometry)icon;
+	}
 
 	public Rect PreviewRectangle { get; set; }
 
