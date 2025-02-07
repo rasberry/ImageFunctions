@@ -1,4 +1,6 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -15,6 +17,7 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
@@ -232,11 +235,11 @@ public class MainWindowViewModel : ViewModelBase
 	public FilePickerFileType SupportedReadTypes { get; private set; }
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
 
-	string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
-	public string StatusText {
-		get => _statusText;
-		set => this.RaiseAndSetIfChanged(ref _statusText, value);
-	}
+	// string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
+	// public string StatusText {
+	// 	get => _statusText;
+	// 	set => this.RaiseAndSetIfChanged(ref _statusText, value);
+	// }
 
 	string _statusClass;
 	public string StatusClass {
@@ -244,16 +247,17 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusClass, value);
 	}
 
-	
-	StreamGeometry _statusCategoryIcon;
-	public StreamGeometry StatusCategoryIcon {
-		get {
-			return _statusCategoryIcon;
-		}
-		set {
-			this.RaiseAndSetIfChanged(ref _statusCategoryIcon, value);
-		}
-	}
+	public InlineCollection StatusTextInlines { get; init; } = new();
+
+	// StreamGeometry _statusCategoryIcon;
+	// public StreamGeometry StatusCategoryIcon {
+	// 	get {
+	// 		return _statusCategoryIcon;
+	// 	}
+	// 	set {
+	// 		this.RaiseAndSetIfChanged(ref _statusCategoryIcon, value);
+	// 	}
+	// }
 
 	static readonly Dictionary<LogCategory, StreamGeometry> _statusCategoryIconCache = InitStatusCategoryIconCache();
 	static Dictionary<LogCategory, StreamGeometry> InitStatusCategoryIconCache()
@@ -266,18 +270,18 @@ public class MainWindowViewModel : ViewModelBase
 		return cache;
 	}
 
-	LogCategory _statusCategory;
-	public LogCategory StatusCategory {
-		get {
-			return _statusCategory;
-		}
-		set { 
-			if (_statusCategoryIconCache.TryGetValue(_statusCategory, out var geometry)) {
-				StatusCategoryIcon = geometry;
-			}
-			this.RaiseAndSetIfChanged(ref _statusCategory, value);
-		}
-	}
+	// LogCategory _statusCategory;
+	// public LogCategory StatusCategory {
+	// 	get {
+	// 		return _statusCategory;
+	// 	}
+	// 	set { 
+	// 		if (_statusCategoryIconCache.TryGetValue(_statusCategory, out var geometry)) {
+	// 			StatusCategoryIcon = geometry;
+	// 		}
+	// 		this.RaiseAndSetIfChanged(ref _statusCategory, value);
+	// 	}
+	// }
 
 	string _commandText = "";
 	public string CommandText {
@@ -301,22 +305,36 @@ public class MainWindowViewModel : ViewModelBase
 	}
 
 	// The behavior shows the text as long as the control is still under the pointer
-	// but wait before hiding the text after the pointer leaves
-	public void UpdateStatusText(string text, bool startTimer, TimeSpan? timeout = null,
+	// but waits before hiding the text after the pointer leaves
+	public void UpdateStatusText(string text, TimeSpan? timeout = null,
 		LogCategory category = LogCategory.Unknown)
 	{
 		//Trace.WriteLine($"UpdateStatusText T:'{text}' E:{(startTimer?"Y":"N")} T:{timeout.GetValueOrDefault().TotalMilliseconds}");
 		if(StatusTextTimer == null) {
-			StatusTextTimer = new() {
-				AutoReset = false,
-				Interval = StatusTextTimeout.TotalMilliseconds
-			};
+			StatusTextTimer = new() { AutoReset = false };
+
 			//this clears the status after some time
 			StatusTextTimer.Elapsed += (s, e) => {
-				UpdateStatusText("", false);
+				Trace.WriteLine($"{nameof(UpdateStatusText)} Time Stop");
+				StatusTextTimer.Stop();
+				Dispatcher.UIThread.Invoke(() => {
+					StatusTextInlines.Clear(); //clear text
+				});
 			};
 		}
 
+		DrawStatusText(text, category);
+		StatusTextTimer.Interval = timeout != null ? timeout.Value.TotalMilliseconds : StatusTextTimeout.TotalMilliseconds;
+		StatusTextTimer.Start();
+		Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
+	}
+	
+	//Elapsed method needs access to instance members so can't static initialize
+	System.Timers.Timer StatusTextTimer = null;
+	
+
+	void DrawStatusText(string text, LogCategory category)
+	{
 		StatusClass = category switch {
 			LogCategory.Debug => "Tertiary",
 			LogCategory.Info => "Secondary",
@@ -324,22 +342,30 @@ public class MainWindowViewModel : ViewModelBase
 			LogCategory.Error => "Danger",
 			_ => "",
 		};
-		StatusCategory = category;
-		StatusText = text;
 
-		if(startTimer) {
-			if(timeout != null) {
-				//Trace.WriteLine($"{nameof(UpdateStatusText)} timeout set {timeout.Value.TotalMilliseconds}");
-				StatusTextTimer.Interval = timeout.Value.TotalMilliseconds;
+		Dispatcher.UIThread.Invoke(() => {
+			StatusTextInlines.Clear();
+			if (!String.IsNullOrWhiteSpace(text)) {
+				var line = new Run(text);
+				switch(category) {
+					case LogCategory.Debug: line.Classes.Add("Tertiary"); break;
+					case LogCategory.Info: line.Classes.Add("Secondary"); break;
+					case LogCategory.Warning: line.Classes.Add("Warning"); break;
+					case LogCategory.Error: line.Classes.Add("Danger"); break;
+				}
+				StatusTextInlines.Add(line);
+
+				if (_statusCategoryIconCache.TryGetValue(category, out var geometry)) {
+					var icon = new PathIcon { Data = geometry };
+					var inline = new InlineUIContainer(icon);
+					StatusTextInlines.Add(inline);
+				}
 			}
-			StatusTextTimer.Start();
-		}
-		else {
-			StatusTextTimer.Stop();
-			StatusTextTimer.Interval = StatusTextTimeout.TotalMilliseconds;
-		}
+		});
+
+		// StatusCategory = category;
+		// StatusText = text;
 	}
-	System.Timers.Timer StatusTextTimer = null;
 
 	static Avalonia.Media.StreamGeometry GetIconForName(string name)
 	{
@@ -385,7 +411,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		if(Layers.Count < 1) {
 			var txt = Note.NoLayersPresent();
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout);
 		}
 		else {
 			var orig = Layers[0].Canvas;
@@ -440,7 +466,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout);
 			return;
 		}
 
@@ -512,12 +538,12 @@ public class MainWindowViewModel : ViewModelBase
 		//Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout);
 			return;
 		}
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout);
 			return;
 		}
 
@@ -541,7 +567,7 @@ public class MainWindowViewModel : ViewModelBase
 			//var reg = new FunctionRegister(Program.Register);
 			var logger = new GuiLogger();
 			logger.OnLogEvent += (s, e) => {
-				UpdateStatusText(e.Message, true, WarningTimeout, e.Category);
+				UpdateStatusText(e.Message, WarningTimeout, e.Category);
 			};
 
 			var context = new FunctionContext {

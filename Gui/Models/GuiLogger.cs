@@ -1,4 +1,5 @@
 using ImageFunctions.Core;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Models;
 
@@ -11,6 +12,7 @@ public sealed class GuiLogger : ICoreLog
 
 	public void Debug(string m)
 	{
+		Trace.WriteLine($"D: {m}");
 		if(Category > LogCategory.Debug) { return; }
 		OnLogEvent?.Invoke(this, new GuiLoggerEventArgs(m, LogCategory.Debug));
 	}

@@ -56,6 +56,8 @@ A collection of various image processing functions
   = point selector
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
 = some function job are not finishing
+= try making status bar a flyout that keeps some message history
+= maybe remove the Debug method from Log and switch to using Trace.Writeline instead
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line

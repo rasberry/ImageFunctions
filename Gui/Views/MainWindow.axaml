@@ -44,6 +44,9 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 	<Style Selector="StackPanel#TopLayerControls">
 		<Setter Property="Margin" Value="0,0,0,8" />
 	</Style>
+	<Style Selector="StackPanel#LowerPannel TextBlock PathIcon">
+		<Setter Property="Margin" Value="4,0,4,0" />
+	</Style>
 </Window.Styles>
 
 <Grid>
@@ -138,8 +141,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<Button Name="SaveStack">Save Stack</Button>
 			</StackPanel>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
-				<TextBlock Text="{Binding StatusText}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
-				<PathIcon Data="{Binding StatusCategoryIcon}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
+				<!-- <TextBlock Text="{Binding StatusText}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/> -->
+				<TextBlock Inlines="{Binding StatusTextInlines}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
 				<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
 					<PathIcon Data="{DynamicResource IconThemeToggle}"/>
 				</Button>

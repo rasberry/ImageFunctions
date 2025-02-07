@@ -44,10 +44,10 @@ public partial class MainWindow : Window
 			var (s, e) = o; //tuple deconstruct
 			UpdateStatusHandler(s, (PointerEventArgs)e, false);
 		});
-		PointerExitedEvent.Raised.Subscribe(o => {
-			var (s, e) = o;
-			UpdateStatusHandler(s, (PointerEventArgs)e, true);
-		});
+		// PointerExitedEvent.Raised.Subscribe(o => {
+		// 	var (s, e) = o;
+		// 	UpdateStatusHandler(s, (PointerEventArgs)e, true);
+		// });
 	}
 
 	void UpdateStatusHandler(object sender, PointerEventArgs args, bool isLeaving)
@@ -56,7 +56,7 @@ public partial class MainWindow : Window
 		string text = control?.Tag?.ToString();
 
 		if(text != null) {
-			Model?.UpdateStatusText(text, isLeaving);
+			Model?.UpdateStatusText(text);
 		}
 	}
 
