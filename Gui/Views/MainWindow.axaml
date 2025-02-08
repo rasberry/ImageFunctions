@@ -5,6 +5,7 @@
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:v="using:ImageFunctions.Gui.Views"
 	xmlns:h="using:ImageFunctions.Gui.Helpers"
+	xmlns:c="using:ImageFunctions.Gui.Controls"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 	x:Class="ImageFunctions.Gui.Views.MainWindow"
 	x:DataType="vm:MainWindowViewModel"
@@ -141,10 +142,20 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<Button Name="SaveStack">Save Stack</Button>
 			</StackPanel>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
-				<!-- <TextBlock Text="{Binding StatusText}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/> -->
-				<TextBlock Inlines="{Binding StatusTextInlines}" h:BindableStyleClasses.Classes="{Binding StatusClass}"/>
-				<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
+				<TextBlock Inlines="{Binding StatusTextInlines}" h:BindableStyleClasses.Classes="{Binding StatusClass}" />
+				<!-- <Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
 					<PathIcon Data="{DynamicResource IconThemeToggle}"/>
+				</Button> -->
+				<Button Command="{Binding ToggleStatusHistory}" Tag="Show Status History">
+					<PathIcon Data="{DynamicResource IconThemeToggle}" />
+					<!-- <Button.Flyout>
+						<c:ToggleFlyout Placement="TopEdgeAlignedRight">
+							<StackPanel Orientation="Vertical" Name="StatusHistoryPanel">
+								<TextBlock>Test Text Here</TextBlock>
+								<ItemsControl ItemsSource="{Binding StatusHistory}" />
+							</StackPanel>
+						</c:ToggleFlyout>
+					</Button.Flyout> -->
 				</Button>
 			</StackPanel>
 		</Grid>

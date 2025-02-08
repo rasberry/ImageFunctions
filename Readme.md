@@ -46,6 +46,8 @@ A collection of various image processing functions
 ## GUI ##
 <pre>
 = preview image cannot be zoomed or scrolled
+  = https://github.com/sn4k3/UVtools/blob/master/UVtools.AvaloniaControls/AdvancedImageBox.cs
+  = https://github.com/cyotek/Cyotek.Windows.Forms.ImageBox/tree/master/Cyotek.Windows.Forms.ImageBox
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work
 = when removing the last layer, the down button does not gray out on the (now) last item
@@ -57,10 +59,13 @@ A collection of various image processing functions
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
 = some function job are not finishing
 = try making status bar a flyout that keeps some message history
-= maybe remove the Debug method from Log and switch to using Trace.Writeline instead
+  = tried flyout but it's not really working out - having to hack sizes and events..
+  = maybe splitview but there's no horizontal version ..? :/
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line
   = tried https://learn.microsoft.com/en-us/dotnet/core/extensions/logger-message-generator
   = but was too inflexible. not sure how to share messages between logs and exceptions
+X maybe remove the Debug method from Log and switch to using Trace.Writeline instead
+  = sounds like trace is soft-deprecated - https://learn.microsoft.com/en-us/dotnet/core/diagnostics/logging-tracing
 </pre>

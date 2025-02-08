@@ -142,7 +142,7 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		var timeout = TimeSpan.FromMinutes(5);
-		var task = Models.SingleTasks.GetOrMake(nameof(OnFunctionSelected), job, timeout);
+		var task = SingleTasks.GetOrMake(nameof(OnFunctionSelected), job, timeout);
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token)
@@ -220,26 +220,20 @@ public class MainWindowViewModel : ViewModelBase
 		Program.Log.Debug($"Something selected {item?.Name}");
 	}
 
-	static Avalonia.Media.SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
+	static SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
 	{
 		var c = item.Item;
-		var ac = Avalonia.Media.Color.FromArgb(
+		var ac = Color.FromArgb(
 			(byte)(c.A * 255.0),
 			(byte)(c.R * 255.0),
 			(byte)(c.G * 255.0),
 			(byte)(c.B * 255.0)
 		);
-		return new Avalonia.Media.SolidColorBrush(ac);
+		return new SolidColorBrush(ac);
 	}
 
 	public FilePickerFileType SupportedReadTypes { get; private set; }
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
-
-	// string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
-	// public string StatusText {
-	// 	get => _statusText;
-	// 	set => this.RaiseAndSetIfChanged(ref _statusText, value);
-	// }
 
 	string _statusClass;
 	public string StatusClass {
@@ -247,41 +241,19 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusClass, value);
 	}
 
+	public ObservableCollection<StatusHistoryLine> StatusHistory { get; init; } = new();
 	public InlineCollection StatusTextInlines { get; init; } = new();
-
-	// StreamGeometry _statusCategoryIcon;
-	// public StreamGeometry StatusCategoryIcon {
-	// 	get {
-	// 		return _statusCategoryIcon;
-	// 	}
-	// 	set {
-	// 		this.RaiseAndSetIfChanged(ref _statusCategoryIcon, value);
-	// 	}
-	// }
 
 	static readonly Dictionary<LogCategory, StreamGeometry> _statusCategoryIconCache = InitStatusCategoryIconCache();
 	static Dictionary<LogCategory, StreamGeometry> InitStatusCategoryIconCache()
 	{
 		Dictionary<LogCategory, StreamGeometry> cache = new();
-		cache.Add(LogCategory.Warning,GetIconForName("IconAlert"));
-		cache.Add(LogCategory.Error,GetIconForName("IconAlertOctagram"));
-		cache.Add(LogCategory.Debug,GetIconForName("IconDeveloperBoard"));
-		cache.Add(LogCategory.Info,GetIconForName("IconInformationOutline"));
+		cache.Add(LogCategory.Warning, GetIconForName("IconAlert"));
+		cache.Add(LogCategory.Error, GetIconForName("IconAlertOctagram"));
+		cache.Add(LogCategory.Debug, GetIconForName("IconDeveloperBoard"));
+		cache.Add(LogCategory.Info, GetIconForName("IconInformationOutline"));
 		return cache;
 	}
-
-	// LogCategory _statusCategory;
-	// public LogCategory StatusCategory {
-	// 	get {
-	// 		return _statusCategory;
-	// 	}
-	// 	set { 
-	// 		if (_statusCategoryIconCache.TryGetValue(_statusCategory, out var geometry)) {
-	// 			StatusCategoryIcon = geometry;
-	// 		}
-	// 		this.RaiseAndSetIfChanged(ref _statusCategory, value);
-	// 	}
-	// }
 
 	string _commandText = "";
 	public string CommandText {
@@ -295,13 +267,15 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _usageText, value);
 	}
 
-	public void ToggleThemeClick()
+	bool _isStatusHistoryOpen = true;
+	public bool IsStatusHistoryOpen {
+		get => _isStatusHistoryOpen;
+		set => this.RaiseAndSetIfChanged(ref _isStatusHistoryOpen, value);
+	}
+
+	public void ToggleStatusHistory()
 	{
-		var app = Application.Current;
-		if(app is not null) {
-			var theme = app.ActualThemeVariant;
-			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-		}
+		IsStatusHistoryOpen = !IsStatusHistoryOpen;
 	}
 
 	// The behavior shows the text as long as the control is still under the pointer
@@ -324,6 +298,7 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		DrawStatusText(text, category);
+		AddStatusToHistory(text, category);
 		StatusTextTimer.Interval = timeout != null ? timeout.Value.TotalMilliseconds : StatusTextTimeout.TotalMilliseconds;
 		StatusTextTimer.Start();
 		Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
@@ -331,7 +306,6 @@ public class MainWindowViewModel : ViewModelBase
 	
 	//Elapsed method needs access to instance members so can't static initialize
 	System.Timers.Timer StatusTextTimer = null;
-	
 
 	void DrawStatusText(string text, LogCategory category)
 	{
@@ -362,15 +336,32 @@ public class MainWindowViewModel : ViewModelBase
 				}
 			}
 		});
-
-		// StatusCategory = category;
-		// StatusText = text;
 	}
 
-	static Avalonia.Media.StreamGeometry GetIconForName(string name)
+	const int MaxStatusHistorySize = 10;
+	void AddStatusToHistory(string text, LogCategory category)
+	{
+		//this is drawn top to bottom but we want the items to drop-off the top
+		//so adding new items to the end (bottom) and removing them from the beginning (top)
+		StatusHistory.Add(new StatusHistoryLine { Text = text, Category = category });
+		if (StatusHistory.Count > MaxStatusHistorySize) {
+			StatusHistory.RemoveAt(0);
+		}
+	}
+
+	static StreamGeometry GetIconForName(string name)
 	{
 		Application.Current.Resources.TryGetResource(name, null, out object icon);
-		return (Avalonia.Media.StreamGeometry)icon;
+		return (StreamGeometry)icon;
+	}
+
+	public void ToggleThemeClick()
+	{
+		var app = Application.Current;
+		if(app is not null) {
+			var theme = app.ActualThemeVariant;
+			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
+		}
 	}
 
 	public Rect PreviewRectangle { get; set; }
