@@ -499,15 +499,26 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
+		if (OverlayDelayTimer == null) {
+			OverlayDelayTimer = new();
+			OverlayDelayTimer.Elapsed += (s,e) => {
+				Dispatcher.UIThread.Post(() => {
+					OverlayDelayTimer.Stop();
+					OverlayState.Label = $"Running {RegFunction?.Name}";
+					OverlayState.IsPopupVisible = true;
+				});
+			};
+		}
+
 		//Trace.WriteLine($"{nameof(RunCommand)} 2");
 		var task = SingleTasks.GetOrMake(nameof(RunCommand), job, CommandTimeout);
 		_ = task.Run();
 
+		OverlayDelayTimer.Interval = OverlayDelayTimout.TotalMilliseconds;
+		OverlayDelayTimer.Start();
+
 		void job(CancellationToken token)
 		{
-			OverlayState.IsPopupVisible = true;
-			OverlayState.Label = $"Running {RegFunction?.Name}";
-
 			var progress = new ProgressTracker();
 			progress.OnReport += (s, e) => {
 				double amount = Math.Clamp(e.Amount, 0.0, 1.0);
@@ -546,12 +557,16 @@ public class MainWindowViewModel : ViewModelBase
 			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
+				OverlayDelayTimer.Stop();
 				OverlayState.IsPopupVisible = false;
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
 				((ImageStorage.LayersInside)Layers).RefreshAll();
 			});
 		}
 	}
+	static readonly TimeSpan OverlayDelayTimout = TimeSpan.FromMilliseconds(200);
+	System.Timers.Timer OverlayDelayTimer;
+
 	//public delegate void ImagesUpdatedHandler(object sender, EventArgs args);
 	//public event ImagesUpdatedHandler ImagesUpdated;
 

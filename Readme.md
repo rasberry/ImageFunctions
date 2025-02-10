@@ -58,12 +58,8 @@ A collection of various image processing functions
   = point selector
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
 = some function job are not finishing
-D try making status bar a flyout that keeps some message history
-  = tried flyout but it's not really working out - having to hack sizes and events..
-  = maybe splitview but there's no horizontal version ..? :/
-  = this is working tho not ideal
-= when running job, delay progress overlay open by 300ms to avoid the panel blinking in and out for fast jobs
-  = maybe also deplay progress overlay closing by 300ms
+= consider breaking up MainWindowViewModel .. it's getting a bit big
+= maybe use https://docs.avaloniaui.net/docs/concepts/reactiveui/data-persistence instead of custom options persistance
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line
