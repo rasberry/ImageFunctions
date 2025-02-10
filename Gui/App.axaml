@@ -5,6 +5,7 @@
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:mo="using:ImageFunctions.Gui.Models"
 	xmlns:v="using:ImageFunctions.Gui.Views"
+	xmlns:h="using:ImageFunctions.Gui.Helpers"
 	xmlns:semi="https://irihi.tech/semi"
 	RequestedThemeVariant="Default"
 >
@@ -87,6 +88,12 @@
 			</CheckBox>
 		</DataTemplate>
 
+		<!-- StatusHistoryLine -->
+		<DataTemplate DataType="{x:Type vm:StatusHistoryLine}">
+			<TextBlock Inlines="{Binding InlineItems}" TextAlignment="Right"
+				h:BindableStyleClasses.Classes="{Binding StatusClass}" />
+		</DataTemplate>
+
 		<local:ViewLocator/>
 	</Application.DataTemplates>
 
@@ -112,7 +119,35 @@
 			<Setter Property="Width" Value="16" />
 			<Setter Property="Height" Value="16" />
 		</Style>
+		<!-- this gets overriden by the native template.. ?!-->
+		<!-- <Style Selector="ScrollViewer /template/ ScrollContentPresenter#PART_ContentPresenter">
+			<Setter Property="Grid.RowSpan" Value="1" />
+			<Setter Property="Grid.ColumnSpan" Value="1" />
+		</Style> -->
 	</Application.Styles>
+
+	<Application.Resources>
+		<ControlTheme x:Key="MyScrollViewer" TargetType="ScrollViewer">
+			<Setter Property="Template">
+				<ControlTemplate>
+					<ScrollContentPresenter x:Name="PART_ContentPresenter"
+						Grid.RowSpan="1"
+						Grid.ColumnSpan="1"
+					/>
+				</ControlTemplate>
+			</Setter>
+			<!-- <Setter Property="Template">
+				<ControlTemplate>
+					<ContentPresenter x:Name="PART_ContentPresenter"
+						Background="{TemplateBinding Background}"/>
+				</ControlTemplate>
+			</Setter>
+
+			<Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+				<Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}"/>
+			</Style> -->
+		</ControlTheme>
+	</Application.Resources>
 
 	<Application.Resources>
 		<ResourceDictionary>

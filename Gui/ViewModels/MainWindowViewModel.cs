@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -244,17 +243,6 @@ public class MainWindowViewModel : ViewModelBase
 	public ObservableCollection<StatusHistoryLine> StatusHistory { get; init; } = new();
 	public InlineCollection StatusTextInlines { get; init; } = new();
 
-	static readonly Dictionary<LogCategory, StreamGeometry> _statusCategoryIconCache = InitStatusCategoryIconCache();
-	static Dictionary<LogCategory, StreamGeometry> InitStatusCategoryIconCache()
-	{
-		Dictionary<LogCategory, StreamGeometry> cache = new();
-		cache.Add(LogCategory.Warning, GetIconForName("IconAlert"));
-		cache.Add(LogCategory.Error, GetIconForName("IconAlertOctagram"));
-		cache.Add(LogCategory.Debug, GetIconForName("IconDeveloperBoard"));
-		cache.Add(LogCategory.Info, GetIconForName("IconInformationOutline"));
-		return cache;
-	}
-
 	string _commandText = "";
 	public string CommandText {
 		get => _commandText;
@@ -267,7 +255,7 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _usageText, value);
 	}
 
-	bool _isStatusHistoryOpen = true;
+	bool _isStatusHistoryOpen = false;
 	public bool IsStatusHistoryOpen {
 		get => _isStatusHistoryOpen;
 		set => this.RaiseAndSetIfChanged(ref _isStatusHistoryOpen, value);
@@ -289,7 +277,7 @@ public class MainWindowViewModel : ViewModelBase
 
 			//this clears the status after some time
 			StatusTextTimer.Elapsed += (s, e) => {
-				Trace.WriteLine($"{nameof(UpdateStatusText)} Time Stop");
+				//Trace.WriteLine($"{nameof(UpdateStatusText)} Time Stop");
 				StatusTextTimer.Stop();
 				Dispatcher.UIThread.Invoke(() => {
 					StatusTextInlines.Clear(); //clear text
@@ -298,10 +286,12 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		DrawStatusText(text, category);
-		AddStatusToHistory(text, category);
+		if (category != LogCategory.Unknown) {
+			AddStatusToHistory(text, category);
+		}
 		StatusTextTimer.Interval = timeout != null ? timeout.Value.TotalMilliseconds : StatusTextTimeout.TotalMilliseconds;
 		StatusTextTimer.Start();
-		Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
+		//Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
 	}
 	
 	//Elapsed method needs access to instance members so can't static initialize
@@ -309,50 +299,30 @@ public class MainWindowViewModel : ViewModelBase
 
 	void DrawStatusText(string text, LogCategory category)
 	{
-		StatusClass = category switch {
-			LogCategory.Debug => "Tertiary",
-			LogCategory.Info => "Secondary",
-			LogCategory.Warning => "Warning",
-			LogCategory.Error => "Danger",
-			_ => "",
-		};
-
-		Dispatcher.UIThread.Invoke(() => {
-			StatusTextInlines.Clear();
-			if (!String.IsNullOrWhiteSpace(text)) {
-				var line = new Run(text);
-				switch(category) {
-					case LogCategory.Debug: line.Classes.Add("Tertiary"); break;
-					case LogCategory.Info: line.Classes.Add("Secondary"); break;
-					case LogCategory.Warning: line.Classes.Add("Warning"); break;
-					case LogCategory.Error: line.Classes.Add("Danger"); break;
-				}
-				StatusTextInlines.Add(line);
-
-				if (_statusCategoryIconCache.TryGetValue(category, out var geometry)) {
-					var icon = new PathIcon { Data = geometry };
-					var inline = new InlineUIContainer(icon);
-					StatusTextInlines.Add(inline);
-				}
-			}
-		});
+		StatusClass = StatusHistoryLine.GetClassForCategory(category);
+		StatusTextInlines.Clear();
+		if (!String.IsNullOrWhiteSpace(text)) {
+			StatusHistoryLine.CreateStatusRun(StatusTextInlines, text, category);
+		}
+		//scroll to the bottom to show latest history
+		StatusHistoryScrollOffset = new Vector(0.0, double.PositiveInfinity);
 	}
 
-	const int MaxStatusHistorySize = 10;
+	const int MaxStatusHistorySize = 50;
 	void AddStatusToHistory(string text, LogCategory category)
 	{
 		//this is drawn top to bottom but we want the items to drop-off the top
 		//so adding new items to the end (bottom) and removing them from the beginning (top)
-		StatusHistory.Add(new StatusHistoryLine { Text = text, Category = category });
+		StatusHistory.Add(new StatusHistoryLine(text, category));
 		if (StatusHistory.Count > MaxStatusHistorySize) {
 			StatusHistory.RemoveAt(0);
 		}
 	}
 
-	static StreamGeometry GetIconForName(string name)
-	{
-		Application.Current.Resources.TryGetResource(name, null, out object icon);
-		return (StreamGeometry)icon;
+	Vector _statusHistoryScrollOffset;
+	public Vector StatusHistoryScrollOffset {
+		get => _statusHistoryScrollOffset;
+		set => this.RaiseAndSetIfChanged(ref _statusHistoryScrollOffset, value);
 	}
 
 	public void ToggleThemeClick()
@@ -402,7 +372,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		if(Layers.Count < 1) {
 			var txt = Note.NoLayersPresent();
-			UpdateStatusText(txt, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 		}
 		else {
 			var orig = Layers[0].Canvas;
@@ -457,7 +427,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 			return;
 		}
 
@@ -529,12 +499,12 @@ public class MainWindowViewModel : ViewModelBase
 		//Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
-			UpdateStatusText(txt, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 			return;
 		}
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 			return;
 		}
 
@@ -558,7 +528,9 @@ public class MainWindowViewModel : ViewModelBase
 			//var reg = new FunctionRegister(Program.Register);
 			var logger = new GuiLogger();
 			logger.OnLogEvent += (s, e) => {
-				UpdateStatusText(e.Message, WarningTimeout, e.Category);
+				Dispatcher.UIThread.Post(() => {
+					UpdateStatusText(e.Message, WarningTimeout, e.Category);
+				});
 			};
 
 			var context = new FunctionContext {
