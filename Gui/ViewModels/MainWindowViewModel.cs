@@ -325,15 +325,6 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusHistoryScrollOffset, value);
 	}
 
-	public void ToggleThemeClick()
-	{
-		var app = Application.Current;
-		if(app is not null) {
-			var theme = app.ActualThemeVariant;
-			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-		}
-	}
-
 	public Rect PreviewRectangle { get; set; }
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)

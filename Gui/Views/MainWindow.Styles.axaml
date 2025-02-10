@@ -1,0 +1,40 @@
+<Styles xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:v="using:ImageFunctions.Gui.Views"
+>
+	<Style Selector="#LowerPannel TextBlock">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Opacity" Value="0.8"/>
+	</Style>
+	<Style Selector="#CommandColumn TextBox">
+		<Setter Property="VerticalContentAlignment" Value="Top"/>
+		<Setter Property="Padding" Value="8,8,8,8"/>
+	</Style>
+	<Style Selector="#CommandColumn TextBlock, #CommandColumn v|TextBlockSelectedReg">
+		<Setter Property="Margin" Value="8,8,8,8"/>
+	</Style>
+	<Style Selector="GridSplitter">
+		<Setter Property="ShowsPreview" Value="True"/>
+	</Style>
+	<Style Selector="#Chooser PathIcon">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+	</Style>
+	<Style Selector="SelectableTextBlock#UsageTextBlock">
+		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
+		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
+	</Style>
+	<Style Selector="StackPanel#TopLayerControls">
+		<Setter Property="Margin" Value="0,0,0,8" />
+	</Style>
+	<Style Selector="StackPanel#LowerPannel TextBlock PathIcon, ScrollViewer#StatusHistoryScroll TextBlock PathIcon">
+		<Setter Property="Margin" Value="4,0,4,0" />
+	</Style>
+	<Style Selector="ScrollViewer#StatusHistoryScroll">
+		<!-- padding right is ScrollBarThickness -->
+		<Setter Property="Padding" Value="8,0,14,0" />
+	</Style>
+	<!-- <Style Selector="SplitView">
+		<Setter Property="PaneBackground" Value="{DynamicResource SemiColorOverlayBackground}" />
+	</Style> -->
+</Styles>

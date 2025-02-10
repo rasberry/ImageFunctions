@@ -1,3 +1,4 @@
+using Avalonia.Styling;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
 
@@ -39,6 +40,11 @@ public class OptionsViewModel : ViewModelBase
 		if(!Manager.TryGetAs(nameof(MaxNumberThreads), out _maxNumberThreads)) {
 			_maxNumberThreads = null;
 		}
+		if(!Manager.TryGetAs(nameof(WhichTheme), out _whichTheme)) {
+			_whichTheme = ThemeKind.System;
+		}
+
+		ToggleTheme(_whichTheme);
 	}
 
 	int _initialLayerWidth;
@@ -68,7 +74,42 @@ public class OptionsViewModel : ViewModelBase
 		}
 	}
 
+	ThemeKind _whichTheme;
+	public ThemeKind WhichTheme {
+		get { return  _whichTheme; }
+		set {
+			Manager.Set(nameof(WhichTheme), (int)value);
+			ToggleTheme(value);
+			this.RaiseAndSetIfChanged(ref _whichTheme, value);
+		}
+	}
+
 	readonly SettingsManager Manager = new();
 	readonly System.Timers.Timer DelayTimer;
 	const int TimerDelay = 1000; //milliseconds
+
+	void ToggleTheme(ThemeKind selected)
+	{
+		var app = Avalonia.Application.Current;
+		if(app != null) {
+			var current = app.ActualThemeVariant;
+			var request = selected switch {
+				ThemeKind.Dark => ThemeVariant.Dark,
+				ThemeKind.Light => ThemeVariant.Light,
+				_ => ThemeVariant.Default
+			};
+
+			// Trace.WriteLine($"ToggleTheme c={current} r={request}");
+			if (current != request) {
+				app.RequestedThemeVariant = request;
+			}
+		}
+	}
+}
+
+public enum ThemeKind
+{
+	System = 0,
+	Light = 1,
+	Dark = 2
 }

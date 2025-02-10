@@ -19,44 +19,13 @@
 see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 <Window.Styles>
-	<Style Selector="#LowerPannel TextBlock">
-		<Setter Property="Margin" Value="0,0,8,0"/>
-		<Setter Property="VerticalAlignment" Value="Center"/>
-		<Setter Property="Opacity" Value="0.8"/>
-	</Style>
-	<Style Selector="#CommandColumn TextBox">
-		<Setter Property="VerticalContentAlignment" Value="Top"/>
-		<Setter Property="Padding" Value="8,8,8,8"/>
-	</Style>
-	<Style Selector="#CommandColumn TextBlock, #CommandColumn v|TextBlockSelectedReg">
-		<Setter Property="Margin" Value="8,8,8,8"/>
-	</Style>
-	<Style Selector="GridSplitter">
-		<Setter Property="ShowsPreview" Value="True"/>
-	</Style>
-	<Style Selector="#Chooser PathIcon">
-		<Setter Property="Margin" Value="0,0,8,0"/>
-	</Style>
-	<Style Selector="SelectableTextBlock#UsageTextBlock">
-		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
-		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
-	</Style>
-	<Style Selector="StackPanel#TopLayerControls">
-		<Setter Property="Margin" Value="0,0,0,8" />
-	</Style>
-	<Style Selector="StackPanel#LowerPannel TextBlock PathIcon, ScrollViewer#StatusHistoryScroll TextBlock PathIcon">
-		<Setter Property="Margin" Value="4,0,4,0" />
-	</Style>
-	<Style Selector="ScrollViewer#StatusHistoryScroll">
-		<!-- padding right is ScrollBarThickness -->
-		<Setter Property="Padding" Value="8,0,14,0" />
-	</Style>
+	<StyleInclude Source="MainWindow.Styles.axaml"/>
 </Window.Styles>
 
 <Grid> <!-- Generic grid needed to support full window overlay -->
 	<Grid RowDefinitions="*,Auto">
 		<!-- Top section-->
-		<SplitView PanePlacement="Right" DisplayMode="Overlay" IsPaneOpen="{Binding IsStatusHistoryOpen}">
+		<SplitView PanePlacement="Right" DisplayMode="Overlay" OpenPaneLength="500" IsPaneOpen="{Binding IsStatusHistoryOpen}">
 			<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
 
 				<!-- Top level Column layer thumbnails -->
@@ -141,21 +110,6 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<ScrollViewer Name="StatusHistoryScroll" Offset="{Binding StatusHistoryScrollOffset, Mode=TwoWay}"
 					VerticalScrollBarVisibility="Visible" AllowAutoHide="False"
 				>
-					<!-- <ScrollViewer.Styles>
-						this gets overriden by the native template.. ?!
-						<Style Selector="ScrollViewer /template/ ScrollContentPresenter#PART_ContentPresenter">
-							<Setter Property="Grid.RowSpan" Value="1" />
-							<Setter Property="Grid.ColumnSpan" Value="1" />
-						</Style>
-						<Setter Property="Template">
-							<ControlTemplate>
-								<ContentPresenter x:Name="PART_ContentPresenter"
-									Grid.RowSpan="1"
-									Grid.ColumnSpan="1"
-								/>
-							</ControlTemplate>
-						</Setter>
-					</ScrollViewer.Styles> -->
 					<ItemsControl ItemsSource="{Binding StatusHistory}" />
 				</ScrollViewer>
 			</SplitView.Pane>
@@ -174,7 +128,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 					<PathIcon Data="{DynamicResource IconThemeToggle}"/>
 				</Button> -->
 				<Button Command="{Binding ToggleStatusHistory}" Tag="Show Status History">
-					<PathIcon Data="{DynamicResource IconThemeToggle}" />
+					<PathIcon Data="{DynamicResource IconReceiptText}" />
 				</Button>
 			</StackPanel>
 		</Grid>

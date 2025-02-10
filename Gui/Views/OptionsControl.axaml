@@ -5,6 +5,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:h="using:ImageFunctions.Gui.Helpers"
+	xmlns:ac="using:Avalonia.Controls.Converters"
 	x:Class="ImageFunctions.Gui.Views.OptionsControl"
 	x:DataType="vm:OptionsViewModel"
 	d:DesignHeight="450"
@@ -17,6 +18,7 @@
 
 <UserControl.Resources>
 	<h:UiConverter x:Key="uiConverter"/>
+	<ac:EnumToBoolConverter x:Key="enumBoolConverter"/>
 </UserControl.Resources>
 
 <UserControl.Styles>
@@ -105,8 +107,23 @@
 				</Grid>
 			</StackPanel>
 		</HeaderedContentControl>
-		<HeaderedContentControl Header="More Options">
-			<TextBlock Text="Put something here"/>
+		<HeaderedContentControl Header="General Options">
+			<StackPanel Orientation="Vertical" Classes="OptionStack">
+				<Border Classes="OptionHeader">
+					<TextBlock Text="Choose main theeme" />
+				</Border>
+				<StackPanel Orientation="Vertical">
+					<RadioButton GroupName="TheemeOptions" Content="Follow System"
+						IsChecked="{Binding WhichTheme, Converter={StaticResource enumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.System}}"
+					/>
+					<RadioButton GroupName="TheemeOptions" Content="Light"
+						IsChecked="{Binding WhichTheme, Converter={StaticResource enumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.Light}}"
+					/>
+					<RadioButton GroupName="TheemeOptions" Content="Dark"
+						IsChecked="{Binding WhichTheme, Converter={StaticResource enumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.Dark}}"
+					/>
+				</StackPanel>
+			</StackPanel>
 		</HeaderedContentControl>
 	</StackPanel>
 </Expander>
