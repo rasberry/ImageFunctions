@@ -30,6 +30,7 @@
 			<TextBlock Text="{Binding Name}" Tag="{Binding Tag}"/>
 		</DataTemplate>
 
+		<!-- InputItem -->
 		<DataTemplate DataType="{x:Type vm:InputItemColor}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
@@ -52,7 +53,7 @@
 
 		<DataTemplate DataType="{x:Type vm:InputItemSlider}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*,Auto">
+				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
 						Text="{Binding Display}" HorizontalContentAlignment="Left"/>
@@ -65,17 +66,19 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemDropDown}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
-					<ComboBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left"/>
+					<ComboBox Grid.Row="0" Grid.Column="1" Classes="Bordered"
 						ItemsSource="{Binding Choices}" HorizontalAlignment="Right" SelectedIndex="{Binding SelectedIndex}"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
 						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemSync}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
@@ -91,9 +94,10 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemText}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
 						Text="{Binding Text}" HorizontalContentAlignment="Left"/>
@@ -102,9 +106,11 @@
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemInfo}">
 			<TextBlock Classes="InputItem" Text="{Binding CombinedInfo}" xml:space="preserve" TextWrapping="Wrap" />
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItem}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto">

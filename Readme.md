@@ -51,7 +51,9 @@ A collection of various image processing functions
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work
 = when removing the last layer, the down button does not gray out on the (now) last item
-= allcolors option -l / --legacy should pick just '-l'
+= fix unusual inputs
+  = allcolors option -l / --legacy should pick just '-l'
+  = ulamspiral -c(1,2,3,4) - might need to re-work this
 = make usage description stand out a little - maybe a border under the text ?
 = finish adding controls
   = color picker
