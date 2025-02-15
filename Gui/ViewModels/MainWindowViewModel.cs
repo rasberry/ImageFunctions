@@ -71,9 +71,7 @@ public class MainWindowViewModel : ViewModelBase
 			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				var colorItem = reg.Get<ColorRGBA>(ns, item.Name);
 				return new SelectionItemColor {
-					Name = item.Name,
-					NameSpace = ns,
-					Color = ConvertColor(colorItem)
+					Name = item.Name, NameSpace = ns, Value = colorItem.Item
 				};
 			}, OnSomethingSelected),
 
@@ -221,13 +219,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	static SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
 	{
-		var c = item.Item;
-		var ac = Color.FromArgb(
-			(byte)(c.A * 255.0),
-			(byte)(c.R * 255.0),
-			(byte)(c.G * 255.0),
-			(byte)(c.B * 255.0)
-		);
+		var ac = item.Item.ToColor();
 		return new SolidColorBrush(ac);
 	}
 
@@ -606,7 +598,8 @@ public class MainWindowViewModel : ViewModelBase
 		var it = iup.InputType.UnWrapNullable();
 
 		if(iup is UsageRegistered ur) {
-			return new InputItemSync(iup, ur.NameSpace);
+			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
+			return new InputItemSync(iup, model);
 		}
 		else if(it.Is<bool>()) {
 			return new InputItem(iup);
@@ -623,9 +616,10 @@ public class MainWindowViewModel : ViewModelBase
 		else if(it.Is<string>()) {
 			return new InputItemText(iup);
 		}
+		//Color inputs also have a sync component
 		else if(it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>()) {
-			//TODO color picker ?
-			return null;
+			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
+			return new InputItemColor(iup, model);
 		}
 		else if(it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>()) {
 			//TODO point picker .. ?
@@ -656,7 +650,12 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		//string extra = "";
 		string value = "";
-		if(sender is InputItemSync iisync) {
+		if (sender is InputItemColor iicolor) {
+			//Trace.WriteLine($"OnInputListChanged InputItemColor {(iicolor == null ? "null" : "good")}");
+			var c = iicolor.Color;
+			value = $"#{c.R:X2}{c.G:X2}{c.B:X2}{c.A:X2}";
+		}
+		else if(sender is InputItemSync iisync) {
 			var sel = iisync.Item;
 			//extra = $"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
 			value = sel?.Value.ToString();

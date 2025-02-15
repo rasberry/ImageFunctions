@@ -4,7 +4,7 @@ using System.Globalization;
 
 namespace ImageFunctions.Gui.Helpers;
 
-internal class UiConverter : IValueConverter
+internal class StringToValueConverter : IValueConverter
 {
 	public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 	{

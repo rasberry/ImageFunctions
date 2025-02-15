@@ -17,7 +17,7 @@
 </Design.DataContext>
 
 <UserControl.Resources>
-	<h:UiConverter x:Key="uiConverter"/>
+	<h:StringToValueConverter x:Key="uiConverter"/>
 	<ac:EnumToBoolConverter x:Key="enumBoolConverter"/>
 </UserControl.Resources>
 

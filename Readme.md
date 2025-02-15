@@ -56,10 +56,11 @@ A collection of various image processing functions
 = finish adding controls
   = color picker
   = point selector
-= selecting dropdown from speargraphic causes -g paramter to mysteriously appar for other functions
+= selecting dropdown from speargraphic causes -g paramter to mysteriously appear for other functions
 = some function job are not finishing
 = consider breaking up MainWindowViewModel .. it's getting a bit big
 = maybe use https://docs.avaloniaui.net/docs/concepts/reactiveui/data-persistence instead of custom options persistance
+= look at replacing TextBlockSelectedReg with a binding
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line

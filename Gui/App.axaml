@@ -6,6 +6,7 @@
 	xmlns:mo="using:ImageFunctions.Gui.Models"
 	xmlns:v="using:ImageFunctions.Gui.Views"
 	xmlns:h="using:ImageFunctions.Gui.Helpers"
+	xmlns:ac="using:Avalonia.Controls"
 	xmlns:semi="https://irihi.tech/semi"
 	RequestedThemeVariant="Default"
 >
@@ -21,14 +22,34 @@
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">
 				<PathIcon Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
-				<TextBlock Text="{Binding Name}" />
+				<TextBlock Text="{Binding Name}" Tag="{Binding Tag}"/>
 			</StackPanel>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type mo:SelectionItem}">
 			<TextBlock Text="{Binding Name}" Tag="{Binding Tag}"/>
 		</DataTemplate>
 
-		<!-- InputItem -->
+		<DataTemplate DataType="{x:Type vm:InputItemColor}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
+				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
+					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
+						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
+						<PathIcon Data="{Binding SyncIcon}"/>
+					</CheckBox>
+					<TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right"
+						IsEnabled="{Binding IsSyncEnabled}" Text="{Binding Item.Name}"/>
+					<ColorPicker Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right"
+						Palette="{DynamicResource SemiColorPalette}" ColorSpectrumShape="Ring"
+						Theme="{DynamicResource HexColorPicker}" IsEnabled="{Binding !IsSyncEnabled}"
+						Color="{Binding Color}" />
+					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+				</Grid>
+			</CheckBox>
+		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemSlider}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*,Auto">
@@ -100,6 +121,7 @@
 	<Application.Styles>
 		<!--<FluentTheme />-->
 		<semi:SemiTheme Locale="en-US" />
+		<StyleInclude Source="avares://Semi.Avalonia.ColorPicker/Index.axaml" />
 
 		<Style Selector="TextBlock.TextSmall">
 			<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
@@ -108,6 +130,7 @@
 		<Style Selector="CheckBox.InputItem">
 			<Setter Property="Padding" Value="6" />
 			<Setter Property="Margin" Value="0,2" />
+			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 		</Style>
 		<Style Selector="CheckBox.InputItem Slider">
 			<Setter Property="Margin" Value="0,8,0,0" />

@@ -1,3 +1,7 @@
+using Avalonia.Media;
+using ImageFunctions.Core;
+using ImageFunctions.Gui.Helpers;
+
 namespace ImageFunctions.Gui.Models;
 
 public class SelectionItem
@@ -10,5 +14,10 @@ public class SelectionItem
 
 public class SelectionItemColor : SelectionItem
 {
-	public Avalonia.Media.Brush Color { get; init; }
+	public SolidColorBrush Color {
+		get {
+			var ac = ((ColorRGBA)Value).ToColor();
+			return new SolidColorBrush(ac);
+		}
+	}
 }

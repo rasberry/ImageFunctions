@@ -2,9 +2,11 @@ using Avalonia;
 using Avalonia.Media;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace ImageFunctions.Gui.ViewModels;
@@ -20,6 +22,7 @@ public class InputItem : ViewModelBase
 	public string Name { get { return Input.Name; } }
 	public string Description { get { return Input.Description; } }
 
+	//enabled means the input item has been checked in the ui
 	bool _enabled;
 	public bool Enabled {
 		get => _enabled;
@@ -191,19 +194,39 @@ public class InputItemSync : InputItem
 {
 	static InputItemSync()
 	{
-		IconSyncData = Application.Current.Resources.TryGetResource("IconSync", null, out var icon) ? (StreamGeometry)icon : null;
-		IconSyncOffData = Application.Current.Resources.TryGetResource("IconSyncOff", null, out var iconoff) ? (StreamGeometry)iconoff : null;
+		var res = Application.Current.Resources;
+		IconSyncData = res.TryGetResource("IconSync", null, out var icon) ? (StreamGeometry)icon : null;
+		IconSyncOffData = res.TryGetResource("IconSyncOff", null, out var iconoff) ? (StreamGeometry)iconoff : null;
 	}
 
-	public InputItemSync(IUsageParameter input, string @namespace) : base(input)
+	static readonly StreamGeometry IconSyncData;
+	static readonly StreamGeometry IconSyncOffData;
+
+	public InputItemSync(IUsageParameter input, SelectionViewModel svModel) : base(input)
 	{
 		var reg = Program.Register;
-		NameSpace = @namespace;
-		var defName = reg.Default(@namespace);
+		NameSpace = svModel.NameSpace;
+
+		//when the Registered item selection changes, update Item
+		svModel.WhenAnyValue(v => v.Selected)
+			.Subscribe(SetItemWhenConnected);
+		this.WhenAnyValue(v => v.IsSyncEnabled)
+			.Subscribe(s => SetItemWhenConnected(svModel.Selected));
+
+		var defName = reg.Default(NameSpace);
 		if(!String.IsNullOrEmpty(defName)) {
-			Item = new SelectionItem { Name = defName, NameSpace = @namespace, Value = defName };
+			Item = new SelectionItem { Name = defName, NameSpace = NameSpace, Value = defName };
 		}
 		SetSyncIcon();
+	}
+
+	void SetItemWhenConnected(SelectionItem item)
+	{
+		if (item == null) { return; }
+		//Trace.WriteLine($"InputItemSync Item Changed {item.Name}");
+		if(this.IsSyncEnabled) {
+			this.Item = item;
+		}
 	}
 
 	public string NameSpace { get; private set; }
@@ -214,9 +237,6 @@ public class InputItemSync : InputItem
 		get => _syncIcon;
 		set => this.RaiseAndSetIfChanged(ref _syncIcon, value);
 	}
-
-	static readonly StreamGeometry IconSyncData;
-	static readonly StreamGeometry IconSyncOffData;
 
 	void SetSyncIcon()
 	{
@@ -263,4 +283,43 @@ public class InputItemInfo : InputItem
 	}
 
 	public string CombinedInfo { get; init; }
+}
+
+public class InputItemColor : InputItemSync
+{
+	public InputItemColor(IUsageParameter input, SelectionViewModel model) : base(input, model)
+	{
+		this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
+
+		if (input.Default != null) {
+			if (input.Default is Color native) {
+				Color = native;
+			}
+			else if (input.Default is ColorRGBA rgba) {
+				Color = rgba.ToColor();
+			}
+			else if (input.Default is System.Drawing.Color sdcolor) {
+				Color = Color.FromArgb(sdcolor.A, sdcolor.R, sdcolor.G, sdcolor.B);
+			}
+			else {
+				var typeName = input.Default.GetType().FullName;
+				throw Squeal.NotSupported($"Color Type {typeName}");
+			}
+		}
+	}
+
+	void SetColorFromItem(SelectionItem item)
+	{
+		if (item == null) { return; }
+		//Trace.WriteLine($"SetValueFromItem {item.Name} - {item.Value}");
+		Color = ((ColorRGBA)item.Value).ToColor();
+	}
+
+	Color _color;
+	public Color Color {
+		get { return _color; }
+		set {
+			this.RaiseAndSetIfChanged(ref _color, value);
+		}
+	}
 }

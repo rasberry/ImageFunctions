@@ -49,6 +49,17 @@ public static class AvaloniaTools
 		};
 	}
 
+	public static Avalonia.Media.Color ToColor(this Core.ColorRGBA c)
+	{
+		var ac = Avalonia.Media.Color.FromArgb(
+			(byte)(c.A * 255.0),
+			(byte)(c.R * 255.0),
+			(byte)(c.G * 255.0),
+			(byte)(c.B * 255.0)
+		);
+		return ac;
+	}
+
 	// public static IObservable<TRet> WhenAnyChildValue<TSender, TRet>(this IReadOnlyCollection<TSender> sender, Expression<Func<TSender, TRet>> property1)
 	// {
 	// 	if (sender is not INotifyCollectionChanged incc) {
