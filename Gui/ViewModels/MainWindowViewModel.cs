@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls.Documents;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -68,12 +67,13 @@ public class MainWindowViewModel : ViewModelBase
 				return new SelectionItem { Name = item.Name, NameSpace = ns };
 			}, OnFunctionSelected),
 
+			// using Value here since ColorRGBA is light-weight
 			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				var colorItem = reg.Get<ColorRGBA>(ns, item.Name);
 				return new SelectionItemColor {
 					Name = item.Name, NameSpace = ns, Value = colorItem.Item
 				};
-			}, OnSomethingSelected),
+			}),
 
 			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
@@ -83,7 +83,7 @@ public class MainWindowViewModel : ViewModelBase
 			_ => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
 				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
-			}, OnSomethingSelected),
+			}),
 		};
 
 		return svm;
@@ -96,7 +96,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	SelectionViewModel AddTreeNodeFromRegistered(string @namespace,
 		Func<IRegister, INameSpaceName, SelectionItem> filler,
-		Action<SelectionItem> selectionHandler
+		Action<SelectionItem> selectionHandler = null
 	)
 	{
 		var reg = Program.Register;
@@ -120,8 +120,10 @@ public class MainWindowViewModel : ViewModelBase
 			sel.Selected = selected;
 		}
 
-		sel.WhenAnyValue(p => p.Selected)
-			.Subscribe(selectionHandler);
+		if(selectionHandler != null) {
+			sel.WhenAnyValue(p => p.Selected)
+				.Subscribe(selectionHandler);
+		}
 
 		return sel;
 	}
@@ -212,16 +214,10 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	void OnSomethingSelected(SelectionItem item)
-	{
-		Program.Log.Debug($"Something selected {item?.Name}");
-	}
-
-	static SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
-	{
-		var ac = item.Item.ToColor();
-		return new SolidColorBrush(ac);
-	}
+	// void OnSomethingSelected(SelectionItem item)
+	// {
+	// 	Program.Log.Debug($"Something selected {item?.Name}");
+	// }
 
 	public FilePickerFileType SupportedReadTypes { get; private set; }
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
@@ -278,14 +274,14 @@ public class MainWindowViewModel : ViewModelBase
 		}
 
 		DrawStatusText(text, category);
-		if (category != LogCategory.Unknown) {
+		if(category != LogCategory.Unknown) {
 			AddStatusToHistory(text, category);
 		}
 		StatusTextTimer.Interval = timeout != null ? timeout.Value.TotalMilliseconds : StatusTextTimeout.TotalMilliseconds;
 		StatusTextTimer.Start();
 		//Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
 	}
-	
+
 	//Elapsed method needs access to instance members so can't static initialize
 	System.Timers.Timer StatusTextTimer = null;
 
@@ -293,7 +289,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		StatusClass = StatusHistoryLine.GetClassForCategory(category);
 		StatusTextInlines.Clear();
-		if (!String.IsNullOrWhiteSpace(text)) {
+		if(!String.IsNullOrWhiteSpace(text)) {
 			StatusHistoryLine.CreateStatusRun(StatusTextInlines, text, category);
 		}
 		//scroll to the bottom to show latest history
@@ -306,7 +302,7 @@ public class MainWindowViewModel : ViewModelBase
 		//this is drawn top to bottom but we want the items to drop-off the top
 		//so adding new items to the end (bottom) and removing them from the beginning (top)
 		StatusHistory.Add(new StatusHistoryLine(text, category));
-		if (StatusHistory.Count > MaxStatusHistorySize) {
+		if(StatusHistory.Count > MaxStatusHistorySize) {
 			StatusHistory.RemoveAt(0);
 		}
 	}
@@ -414,7 +410,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
@@ -423,9 +419,9 @@ public class MainWindowViewModel : ViewModelBase
 
 	WriteableBitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{
-		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
-		var imgBounds = new Rect(0, 0, canvas.Width, canvas.Height);
-		var workBounds = imgBounds.Intersect(previewBounds);
+		//var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
+		var workBounds = new Rect(0, 0, canvas.Width, canvas.Height);
+		//var workBounds = bounds == null ? imgBounds : imgBounds.Intersect(bounds);
 
 		//Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
 		if(workBounds.Width < 1 || workBounds.Height < 1) {
@@ -441,18 +437,30 @@ public class MainWindowViewModel : ViewModelBase
 
 		byte[] data = new byte[wWidth * wHeight * BytesPerPixel];
 
+		//TODO not sure if serial or parallel loop is better
 		//Trace.WriteLine($"Rgba8888 {wWidth} {wHeight} {wTop} {wBottom} {wLeft} {wRight}");
-		int dataOffset = 0;
-		for(int y = wTop; y < wBottom; y++) {
-			for(int x = wLeft; x < wRight; x++) {
-				var pix = canvas[x, y];
-				data[dataOffset + 0] = (byte)(pix.R * 255.0);
-				data[dataOffset + 1] = (byte)(pix.G * 255.0);
-				data[dataOffset + 2] = (byte)(pix.B * 255.0);
-				data[dataOffset + 3] = (byte)(pix.A * 255.0);
-				dataOffset += BytesPerPixel;
-			}
-		}
+		// int dataOffset = 0;
+		// for(int y = wTop; y < wBottom; y++) {
+		// 	for(int x = wLeft; x < wRight; x++) {
+		// 		var pix = canvas[x, y];
+		// 		data[dataOffset + 0] = (byte)(pix.R * 255.0);
+		// 		data[dataOffset + 1] = (byte)(pix.G * 255.0);
+		// 		data[dataOffset + 2] = (byte)(pix.B * 255.0);
+		// 		data[dataOffset + 3] = (byte)(pix.A * 255.0);
+		// 		dataOffset += BytesPerPixel;
+		// 	}
+		// }
+
+		Parallel.For(0, wWidth * wHeight, (index) => {
+			int dataOffset = index * BytesPerPixel;
+			int x = index % wWidth;
+			int y = index / wWidth;
+			var pix = canvas[x, y];
+			data[dataOffset + 0] = (byte)(pix.R * 255.0);
+			data[dataOffset + 1] = (byte)(pix.G * 255.0);
+			data[dataOffset + 2] = (byte)(pix.B * 255.0);
+			data[dataOffset + 3] = (byte)(pix.A * 255.0);
+		});
 
 		var bitmap = new WriteableBitmap(
 			new PixelSize(wWidth, wHeight),
@@ -491,9 +499,9 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		if (OverlayDelayTimer == null) {
+		if(OverlayDelayTimer == null) {
 			OverlayDelayTimer = new();
-			OverlayDelayTimer.Elapsed += (s,e) => {
+			OverlayDelayTimer.Elapsed += (s, e) => {
 				Dispatcher.UIThread.Post(() => {
 					OverlayDelayTimer.Stop();
 					OverlayState.Label = $"Running {RegFunction?.Name}";
@@ -529,7 +537,6 @@ public class MainWindowViewModel : ViewModelBase
 
 			var context = new FunctionContext {
 				Register = Program.Register,
-				//Log = Program.Log, //TODO change this so logs go to the ui
 				Log = logger,
 				Options = new BasicOptions {
 					Register = Program.Register,
@@ -650,19 +657,19 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		//string extra = "";
 		string value = "";
-		if (sender is InputItemColor iicolor) {
+		if(sender is InputItemColor iicolor) {
 			//Trace.WriteLine($"OnInputListChanged InputItemColor {(iicolor == null ? "null" : "good")}");
 			var c = iicolor.Color;
 			value = $"#{c.R:X2}{c.G:X2}{c.B:X2}{c.A:X2}";
 		}
 		else if(sender is InputItemSync iisync) {
 			var sel = iisync.Item;
-			//extra = $"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
-			value = sel?.Value.ToString();
+			//Trace.WriteLine($"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}");
+			value = sel.Name;
 		}
 		else if(sender is InputItemSlider iislider) {
 			//extra = $"InputItemSlider Value={iislider.Value}";
-			value = iislider.Value.ToString();
+			value = iislider.Display + (iislider.ShowAsPct ? "%" : "");
 		}
 		else if(sender is InputItemText iitext) {
 			//extra = $"InputItemInfo Text={iitext.Text}";

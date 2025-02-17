@@ -47,7 +47,6 @@ A collection of various image processing functions
 <pre>
 = preview image cannot be zoomed or scrolled
   = https://github.com/sn4k3/UVtools/blob/master/UVtools.AvaloniaControls/AdvancedImageBox.cs
-  = https://github.com/cyotek/Cyotek.Windows.Forms.ImageBox/tree/master/Cyotek.Windows.Forms.ImageBox
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work
 = when removing the last layer, the down button does not gray out on the (now) last item
@@ -56,13 +55,11 @@ A collection of various image processing functions
   = ulamspiral -c(1,2,3,4) - might need to re-work this
 = make usage description stand out a little - maybe a border under the text ?
 = finish adding controls
-  = color picker
   = point selector
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appear for other functions
 = some function job are not finishing
 = consider breaking up MainWindowViewModel .. it's getting a bit big
 = maybe use https://docs.avaloniaui.net/docs/concepts/reactiveui/data-persistence instead of custom options persistance
-= look at replacing TextBlockSelectedReg with a binding
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line

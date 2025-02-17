@@ -221,7 +221,7 @@ public class InputItemSync : InputItem
 
 	void SetItemWhenConnected(SelectionItem item)
 	{
-		if (item == null) { return; }
+		if(item == null) { return; }
 		//Trace.WriteLine($"InputItemSync Item Changed {item.Name}");
 		if(this.IsSyncEnabled) {
 			this.Item = item;
@@ -290,14 +290,14 @@ public class InputItemColor : InputItemSync
 	{
 		this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
 
-		if (input.Default != null) {
-			if (input.Default is Color native) {
+		if(input.Default != null) {
+			if(input.Default is Color native) {
 				Color = native;
 			}
-			else if (input.Default is ColorRGBA rgba) {
+			else if(input.Default is ColorRGBA rgba) {
 				Color = rgba.ToColor();
 			}
-			else if (input.Default is System.Drawing.Color sdcolor) {
+			else if(input.Default is System.Drawing.Color sdcolor) {
 				Color = Color.FromArgb(sdcolor.A, sdcolor.R, sdcolor.G, sdcolor.B);
 			}
 			else {
@@ -309,7 +309,7 @@ public class InputItemColor : InputItemSync
 
 	void SetColorFromItem(SelectionItem item)
 	{
-		if (item == null) { return; }
+		if(item == null) { return; }
 		//Trace.WriteLine($"SetValueFromItem {item.Name} - {item.Value}");
 		Color = ((ColorRGBA)item.Value).ToColor();
 	}

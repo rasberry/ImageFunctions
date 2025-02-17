@@ -76,7 +76,7 @@ public class OptionsViewModel : ViewModelBase
 
 	ThemeKind _whichTheme;
 	public ThemeKind WhichTheme {
-		get { return  _whichTheme; }
+		get { return _whichTheme; }
 		set {
 			Manager.Set(nameof(WhichTheme), (int)value);
 			ToggleTheme(value);
@@ -100,7 +100,7 @@ public class OptionsViewModel : ViewModelBase
 			};
 
 			// Trace.WriteLine($"ToggleTheme c={current} r={request}");
-			if (current != request) {
+			if(current != request) {
 				app.RequestedThemeVariant = request;
 			}
 		}

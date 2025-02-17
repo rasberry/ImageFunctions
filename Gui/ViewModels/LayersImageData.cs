@@ -15,11 +15,11 @@ public class LayersImageData : ViewModelBase
 	Bitmap _image;
 	public Bitmap Image {
 		get {
-			//Trace.WriteLine($"{nameof(LayersImageData)} get_{nameof(Image)} {_image.GetHashCode()} h:{GetHashCode()}");
+			Trace.WriteLine($"{nameof(LayersImageData)} get_{nameof(Image)} {_image?.GetHashCode()} h:{GetHashCode()}");
 			return _image;
 		}
 		set {
-			//Trace.WriteLine($"{nameof(LayersImageData)} set_{nameof(Image)} {value.GetHashCode()} h:{GetHashCode()}");
+			Trace.WriteLine($"{nameof(LayersImageData)} set_{nameof(Image)} {value?.GetHashCode()} h:{GetHashCode()}");
 			this.RaiseAndSetIfChanged(ref _image, value);
 		}
 	}
@@ -98,11 +98,5 @@ public class LayersImageData : ViewModelBase
 	public bool DownEnabled {
 		get => _downEnabled;
 		set => this.RaiseAndSetIfChanged(ref _downEnabled, value);
-	}
-
-	public void Test()
-	{
-		Trace.WriteLine($"Test: {this.Id} {this.Name} {this.Image.GetHashCode()} h:{GetHashCode()}");
-		Trace.WriteLine($"Test: {String.Join(",", Layers.Select(x => x.Id))}");
 	}
 }

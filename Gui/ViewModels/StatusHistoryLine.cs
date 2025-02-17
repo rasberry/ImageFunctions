@@ -17,7 +17,7 @@ public sealed class StatusHistoryLine
 	}
 
 	public string Text { get; private set; }
-	public LogCategory Category { get; private set ; }
+	public LogCategory Category { get; private set; }
 	public string StatusClass { get; private set; }
 	public InlineCollection InlineItems { get; private set; }
 
@@ -36,9 +36,9 @@ public sealed class StatusHistoryLine
 	static int DebugCounter = 0;
 	public static void CreateStatusRun(InlineCollection inlinses, string text, LogCategory category)
 	{
-		Interlocked.Add(ref DebugCounter,1);
+		Interlocked.Add(ref DebugCounter, 1);
 		var line = new Run($"{DebugCounter} {text}");
-		if (
+		if(
 			category == LogCategory.Debug ||
 			category == LogCategory.Info ||
 			category == LogCategory.Warning ||
@@ -49,7 +49,7 @@ public sealed class StatusHistoryLine
 		}
 		inlinses.Add(line);
 
-		if (_statusCategoryIconCache.TryGetValue(category, out var geometry)) {
+		if(_statusCategoryIconCache.TryGetValue(category, out var geometry)) {
 			var icon = new PathIcon { Data = geometry };
 			var inline = new InlineUIContainer(icon);
 			inlinses.Add(inline);

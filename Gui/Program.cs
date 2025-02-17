@@ -14,9 +14,9 @@ internal sealed class Program
 	[STAThread]
 	static void Main(string[] args)
 	{
-		#if DEBUG
+#if DEBUG
 		Trace.Listeners.Add(new ConsoleTraceListener());
-		#endif
+#endif
 
 		try {
 			PluginSetup();

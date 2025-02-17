@@ -1,9 +1,9 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Views;
 
@@ -13,17 +13,26 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 		OpenLayers.Click += OpenFileDialog;
-		PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
+		// PreviewPanel.DataContextChanged += (s, e) => {
+		// 	Trace.WriteLine("PreviewPanel.DataContextChanged");
+		// };
+		// PreviewPanel.PropertyChanged += (s, e) => {
+		// 	Trace.WriteLine($"PreviewPanel.PropertyChanged {e.NewValue}");
+		// };
+		// PreviewPanel.PointerMoved += (s, e) => {
+		// 	Trace.WriteLine($"PreviewPanel.PointerMoved {e.Pointer.Id}");
+		// };
+		//PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
 		//DataContextChanged += OnDataContextChanged;
 	}
 
-	void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
-	{
-		if(Model != null) {
-			var current = Model.PreviewRectangle;
-			Model.PreviewRectangle = new Rect(current.TopLeft, args.NewSize);
-		}
-	}
+	// void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
+	// {
+	// 	if(Model != null) {
+	// 		var current = Model.PreviewRectangle;
+	// 		Model.PreviewRectangle = new Avalonia.Rect(current.TopLeft, args.NewSize);
+	// 	}
+	// }
 
 	//void OnDataContextChanged(object sender, EventArgs args)
 	//{

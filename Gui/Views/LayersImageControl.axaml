@@ -36,7 +36,7 @@
 	</StackPanel>
 	<StackPanel>
 		<TextBlock Text="{Binding Name}"/>
-		<Image Source="{Binding Image}" Stretch="Uniform" MaxHeight="100"/>
+		<Image Source="{Binding Image}" Stretch="Uniform" MaxHeight="100" MaxWidth="100"/>
 	</StackPanel>
 </DockPanel>
 

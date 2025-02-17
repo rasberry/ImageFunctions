@@ -5,10 +5,11 @@
 	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 	xmlns:v="using:ImageFunctions.Gui.Views"
 	xmlns:h="using:ImageFunctions.Gui.Helpers"
+	xmlns:uv="using:UVtools.AvaloniaControls"
 	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 	x:Class="ImageFunctions.Gui.Views.MainWindow"
 	x:DataType="vm:MainWindowViewModel"
-	Icon="/Assets/avalonia-logo.ico"
+	Icon="/Assets/image-functions.ico"
 	Title="ImageFunctions.Gui"
 >
 <Design.DataContext>
@@ -29,7 +30,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
 
 				<!-- Top level Column layer thumbnails -->
-				<ScrollViewer Grid.Column="0">
+				<ScrollViewer Grid.Column="0" Theme="{DynamicResource StaticScrollViewer}">
 					<StackPanel Orientation="Vertical">
 						<StackPanel Orientation="Horizontal" Name="TopLayerControls">
 							<Button Tag="New Top Layer" Command="{Binding LayersNewTop}">
@@ -46,7 +47,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<!-- Top level Column primary image -->
 				<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 				<DockPanel Grid.Column="2">
-					<StackPanel DockPanel.Dock="Right">
+					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
 						<Button Tag="Zoom In">
 							<PathIcon Data="{StaticResource IconPlusThick}"/>
 						</Button>
@@ -57,9 +58,22 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 							<PathIcon Data="{StaticResource IconMinusThick}"/>
 						</Button>
 					</StackPanel>
-					<Panel Name="PreviewPanel">
-						<Image Source="{Binding LayersImageList[0].Image}" Stretch="None"/>
-					</Panel>
+					<ScrollViewer Name="PreviewPanel" Theme="{DynamicResource StaticScrollViewer}"
+						HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
+						AllowAutoHide="False"
+					>
+						<ScrollViewer.Background>
+							<ImageBrush Source="/Assets/transparency-hint.png" Stretch="None"
+								TileMode="Tile" Opacity="0.2" DestinationRect="0,0,24,24">
+								<!-- DestinationRect: the png is 32x32 but needs 24x24 to fit correctly 🤷 -->
+							</ImageBrush>
+						</ScrollViewer.Background>
+						<Image Source="{Binding LayersImageList[0].Image}" Stretch="None">
+							<Image.GestureRecognizers>
+								<h:MouseScrollGestureRecognizer CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
+							</Image.GestureRecognizers>
+						</Image>
+					</ScrollViewer>
 				</DockPanel>
 
 				<!-- Top level Column command -->
@@ -108,7 +122,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</Grid>
 			<SplitView.Pane>
 				<ScrollViewer Name="StatusHistoryScroll" Offset="{Binding StatusHistoryScrollOffset, Mode=TwoWay}"
-					VerticalScrollBarVisibility="Visible" AllowAutoHide="False"
+					VerticalScrollBarVisibility="Visible" AllowAutoHide="False" Theme="{DynamicResource StaticScrollViewer}"
 				>
 					<ItemsControl ItemsSource="{Binding StatusHistory}" />
 				</ScrollViewer>

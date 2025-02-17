@@ -10,8 +10,6 @@ public class ImageStorage
 {
 	public ILayers Layers { get; }
 	public ObservableStackList<LayersImageData> Bitmaps { get; }
-	//public System.Collections.ObjectModel.ObservableCollection<LayersImageData> Bitmaps { get; }
-	//public MyObservableCollection<LayersImageData> Bitmaps { get; }
 
 	public ImageStorage(Func<ICanvas, Bitmap> converter)
 	{
