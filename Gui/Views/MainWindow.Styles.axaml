@@ -2,6 +2,7 @@
 	xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:v="using:ImageFunctions.Gui.Views"
+	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 >
 	<Style Selector="#LowerPannel TextBlock">
 		<Setter Property="Margin" Value="0,0,8,0"/>
@@ -34,6 +35,10 @@
 	<Style Selector="ScrollViewer#StatusHistoryScroll">
 		<Setter Property="Padding" Value="8,0,0,0" />
 	</Style>
+		<Style Selector="Image#PreviewImage">
+			<Setter Property="RenderTransform" Value="{Binding PreviewTransform, x:DataType=vm:MainWindowViewModel}"/>
+		</Style>
+
 	<!-- <Style Selector="SplitView">
 		<Setter Property="PaneBackground" Value="{DynamicResource SemiColorOverlayBackground}" />
 	</Style> -->

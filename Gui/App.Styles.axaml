@@ -23,12 +23,4 @@
 		<Setter Property="Height" Value="16" />
 	</Style>
 
-	<Styles.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<MergeResourceInclude Source="Views/AdvancedImageBox.axaml"/>
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</Styles.Resources>
-
 </Styles>

@@ -46,6 +46,7 @@ A collection of various image processing functions
 ## GUI ##
 <pre>
 = preview image cannot be zoomed or scrolled
+  = Was able to get scrolling working using a copy of ScrollGestureRecognizer
   = https://github.com/sn4k3/UVtools/blob/master/UVtools.AvaloniaControls/AdvancedImageBox.cs
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work

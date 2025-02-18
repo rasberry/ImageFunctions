@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls.Documents;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -313,7 +314,32 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusHistoryScrollOffset, value);
 	}
 
-	public Rect PreviewRectangle { get; set; }
+	ScaleTransform _previewTransform = new(1.0,1.0);
+	public ScaleTransform PreviewTransform {
+		get => _previewTransform;
+		set => this.RaiseAndSetIfChanged(ref _previewTransform, value);
+	}
+
+	public void UpdatePreviewZoomByScroll(Vector delta)
+	{
+		Trace.WriteLine($"UpdatePreviewZoomByScroll {delta.X},{delta.Y}");
+		double zoom = CurrentZoom.Zoom;
+		if (delta.Y < 0) {
+			zoom = CurrentZoom.Bigger();
+			//ZoomLevel = ZoomHelper.Bigger(_zoomLevel);
+		}
+		else if (delta.Y > 0) {
+			zoom = CurrentZoom.Smaller();
+			//ZoomLevel = ZoomHelper.Smaller(_zoomLevel);
+		}
+
+		Trace.WriteLine($"zoomlevel = {zoom}");
+
+		PreviewTransform.ScaleX = zoom;
+		PreviewTransform.ScaleY = zoom;
+	}
+
+	readonly ZoomHelper CurrentZoom = new();
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)
 	{
@@ -397,10 +423,10 @@ public class MainWindowViewModel : ViewModelBase
 	}
 	*/
 
-	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
-	{
-		//TODO scroll / zoom updates
-	}
+	// void OnPrimaryImageAreaChange(Rect previewSizeBounds)
+	// {
+	// 	//TODO scroll / zoom updates
+	// }
 
 	public void LoadAndShowImage(string fileName)
 	{
