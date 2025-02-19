@@ -172,7 +172,7 @@ public class MouseScrollGesture : GestureRecognizer
 
 	protected override void PointerReleased(PointerReleasedEventArgs e)
 	{
-		Trace.WriteLine($"PointerReleased {e.Pointer.Type}");
+		//Trace.WriteLine($"PointerReleased {e.Pointer.Type}");
 		if(e.Pointer == _tracking && _scrolling) {
 			_inertia = _velocityTracker?.GetFlingVelocity().PixelsPerSecond ?? Vector.Zero;
 

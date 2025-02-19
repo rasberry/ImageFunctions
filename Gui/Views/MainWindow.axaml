@@ -48,15 +48,24 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 				<DockPanel Grid.Column="2">
 					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-						<Button Tag="Zoom In">
+						<Button Tag="Zoom In" Command="{Binding PreviewZoomIn}">
 							<PathIcon Data="{StaticResource IconPlusThick}"/>
 						</Button>
-						<Button Tag="Reset Zoom">
+						<Button Tag="Reset Zoom" Command="{Binding PreviewZoomReset}">
 							<PathIcon Data="{StaticResource IconMagnifyScan}"/>
 						</Button>
-						<Button Tag="Zoom Out">
+						<Button Tag="Zoom Out" Command="{Binding PreviewZoomOut}">
 							<PathIcon Data="{StaticResource IconMinusThick}"/>
 						</Button>
+						<ComboBox ItemsSource="{Binding ZoomOptions}" SelectedIndex="{Binding CurrentZoom.Index}"
+							Tag="Select Zoom Level"
+						>
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Display}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 					</StackPanel>
 					<ScrollViewer Name="PreviewPanel" Theme="{DynamicResource StaticScrollViewer}"
 						HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
@@ -72,7 +81,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 							HorizontalAlignment="Center" VerticalAlignment="Center"
 						>
 							<LayoutTransformControl.LayoutTransform>
-								<ScaleTransform ScaleX="{Binding ZoomAmount}" ScaleY="{Binding ZoomAmount}" />
+								<ScaleTransform ScaleX="{Binding CurrentZoom.Zoom}" ScaleY="{Binding CurrentZoom.Zoom}" />
 							</LayoutTransformControl.LayoutTransform>
 							<Image Source="{Binding LayersImageList[0].Image}" Stretch="None" Name="PreviewImage"
 								RenderOptions.BitmapInterpolationMode="None"

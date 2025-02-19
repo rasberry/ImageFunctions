@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Controls.Documents;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -316,26 +315,42 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void UpdatePreviewZoomByScroll(Vector delta)
 	{
-		//Trace.WriteLine($"UpdatePreviewZoomByScroll {delta.X},{delta.Y}");
-		double zoom = CurrentZoom.Zoom;
-
 		if (delta.Y > 0) {
-			zoom = CurrentZoom.Bigger();
+			CurrentZoom.Bigger();
 		}
 		else if (delta.Y < 0) {
-			zoom = CurrentZoom.Smaller();
+			CurrentZoom.Smaller();
 		}
-
-		//Trace.WriteLine($"zoomlevel = {zoom}");
-		ZoomAmount = zoom;
 	}
 
-	readonly ZoomHelper CurrentZoom = new();
+	public ZoomViewModel CurrentZoom { get; private set; } = new();
 
-	double _zoomAmount = 1.0;
-	public double ZoomAmount {
-		get => _zoomAmount;
-		set => this.RaiseAndSetIfChanged(ref _zoomAmount, value);
+	public ReadOnlyCollection<ZoomHelperDisplayItem> ZoomOptions {
+		get {
+			return ZoomViewModel.Items;
+		}
+	}
+
+	public int CurrentZoomIndex {
+		get {
+			return CurrentZoom.Index;
+		}
+		set {
+			CurrentZoom.Index = value;
+		}
+	}
+
+	public void PreviewZoomIn()
+	{
+		CurrentZoom.Bigger();
+	}
+	public void PreviewZoomOut()
+	{
+		CurrentZoom.Smaller();
+	}
+	public void PreviewZoomReset()
+	{
+		CurrentZoom.Reset();
 	}
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)
