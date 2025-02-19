@@ -35,11 +35,4 @@
 	<Style Selector="ScrollViewer#StatusHistoryScroll">
 		<Setter Property="Padding" Value="8,0,0,0" />
 	</Style>
-		<Style Selector="Image#PreviewImage">
-			<Setter Property="RenderTransform" Value="{Binding PreviewTransform, x:DataType=vm:MainWindowViewModel}"/>
-		</Style>
-
-	<!-- <Style Selector="SplitView">
-		<Setter Property="PaneBackground" Value="{DynamicResource SemiColorOverlayBackground}" />
-	</Style> -->
 </Styles>

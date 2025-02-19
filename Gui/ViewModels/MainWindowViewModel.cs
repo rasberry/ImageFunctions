@@ -314,32 +314,29 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _statusHistoryScrollOffset, value);
 	}
 
-	ScaleTransform _previewTransform = new(1.0,1.0);
-	public ScaleTransform PreviewTransform {
-		get => _previewTransform;
-		set => this.RaiseAndSetIfChanged(ref _previewTransform, value);
-	}
-
 	public void UpdatePreviewZoomByScroll(Vector delta)
 	{
-		Trace.WriteLine($"UpdatePreviewZoomByScroll {delta.X},{delta.Y}");
+		//Trace.WriteLine($"UpdatePreviewZoomByScroll {delta.X},{delta.Y}");
 		double zoom = CurrentZoom.Zoom;
-		if (delta.Y < 0) {
+
+		if (delta.Y > 0) {
 			zoom = CurrentZoom.Bigger();
-			//ZoomLevel = ZoomHelper.Bigger(_zoomLevel);
 		}
-		else if (delta.Y > 0) {
+		else if (delta.Y < 0) {
 			zoom = CurrentZoom.Smaller();
-			//ZoomLevel = ZoomHelper.Smaller(_zoomLevel);
 		}
 
-		Trace.WriteLine($"zoomlevel = {zoom}");
-
-		PreviewTransform.ScaleX = zoom;
-		PreviewTransform.ScaleY = zoom;
+		//Trace.WriteLine($"zoomlevel = {zoom}");
+		ZoomAmount = zoom;
 	}
 
 	readonly ZoomHelper CurrentZoom = new();
+
+	double _zoomAmount = 1.0;
+	public double ZoomAmount {
+		get => _zoomAmount;
+		set => this.RaiseAndSetIfChanged(ref _zoomAmount, value);
+	}
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)
 	{
@@ -502,14 +499,14 @@ public class MainWindowViewModel : ViewModelBase
 		return bitmap;
 	}
 
-	static Rect RectSizeToPixels(Rect size, Vector dpi)
-	{
-		Size one = new(size.Left, size.Top);
-		Size two = new(size.Width, size.Height);
-		var pone = PixelSize.FromSize(one, dpi);
-		var ptwo = PixelSize.FromSize(two, dpi);
-		return new Rect(pone.Width, pone.Height, ptwo.Width, ptwo.Height);
-	}
+	// static Rect RectSizeToPixels(Rect size, Vector dpi)
+	// {
+	// 	Size one = new(size.Left, size.Top);
+	// 	Size two = new(size.Width, size.Height);
+	// 	var pone = PixelSize.FromSize(one, dpi);
+	// 	var ptwo = PixelSize.FromSize(two, dpi);
+	// 	return new Rect(pone.Width, pone.Height, ptwo.Width, ptwo.Height);
+	// }
 
 	public void RunCommand()
 	{

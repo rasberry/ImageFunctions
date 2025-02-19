@@ -3,6 +3,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Views;
 
@@ -25,6 +26,7 @@ public partial class MainWindow : Window
 		//DataContextChanged += OnDataContextChanged;
 
 		PreviewImage.PointerWheelChanged += (s, e) => {
+			//Trace.WriteLine($"b={PreviewImage.Bounds} w={PreviewImage.Width} h={PreviewImage.Height}");
 			e.Handled = true;
 			Model?.UpdatePreviewZoomByScroll(e.Delta);
 		};

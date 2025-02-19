@@ -2,7 +2,7 @@ namespace ImageFunctions.Gui.Helpers;
 
 public class ZoomHelper
 {
-	int CurrentIndex = 16;
+	int CurrentIndex = NormalZoomIndex;
 
 	public double Smaller()
 	{
@@ -18,7 +18,7 @@ public class ZoomHelper
 
 	public double Reset()
 	{
-		CurrentIndex = 16;
+		CurrentIndex = NormalZoomIndex;
 		return Levels[CurrentIndex];
 	}
 
@@ -45,15 +45,26 @@ public class ZoomHelper
 
 #pragma warning disable format
 
+	// //these were copied derived from Gimp
+	// const int NormalZoomIndex = 16;
+	// static readonly double[] Levels = new double[] {
+	// 	256.0, 180.0, 128.0,  90.0,  64.0,  45.0,
+	// 	32.0,   23.0,  16.0,  11.0,   8.0,   5.5,
+	// 	 4.0,    3.0,   2.0,   1.5,
+	// 	 1.0,
+	// 	 1/1.5,  1/2.0,  1/3.0,  1/4.0,
+	// 	 1/5.5,  1/8.0,  1/11.0, 1/16.0,  1/23.0,  1/32.0,
+	// 	 1/45.0, 1/64.0, 1/90.0, 1/128.0, 1/180.0, 1/256.0
+	// };
+
 	//these were copied derived from Gimp
+	const int NormalZoomIndex = 12;
 	static readonly double[] Levels = new double[] {
-		256.0, 180.0, 128.0,  90.0,  64.0,  45.0,
-		32.0,   23.0,  16.0,  11.0,   8.0,   5.5,
-		 4.0,    3.0,   2.0,   1.5,
+		64.0,  45.0,   32.0,   23.0,  16.0,  11.0,
+		 8.0,   5.5,    4.0,    3.0,   2.0,   1.5,
 		 1.0,
-		 1/1.5,  1/2.0,  1/3.0,  1/4.0,
-		 1/5.5,  1/8.0,  1/11.0, 1/16.0,  1/23.0,  1/32.0,
-		 1/45.0, 1/64.0, 1/90.0, 1/128.0, 1/180.0, 1/256.0
+		1/1.5,  1/2.0,   1/3.0,   1/4.0,  1/5.5,  1/8.0,
+		1/11.0, 1/16.0,  1/23.0,  1/32.0, 1/45.0, 1/64.0,
 	};
 
 #pragma warning restore format

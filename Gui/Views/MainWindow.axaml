@@ -68,13 +68,20 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 								<!-- DestinationRect: the png is 32x32 but needs 24x24 to fit correctly 🤷 -->
 							</ImageBrush>
 						</ScrollViewer.Background>
-						<Image Source="{Binding LayersImageList[0].Image}" Stretch="None" Name="PreviewImage"
-							RenderOptions.BitmapInterpolationMode="None"
+						<LayoutTransformControl Name="layoutTransformWrapper"
+							HorizontalAlignment="Center" VerticalAlignment="Center"
 						>
-							<Image.GestureRecognizers>
-								<h:MouseScrollGesture CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
-							</Image.GestureRecognizers>
-						</Image>
+							<LayoutTransformControl.LayoutTransform>
+								<ScaleTransform ScaleX="{Binding ZoomAmount}" ScaleY="{Binding ZoomAmount}" />
+							</LayoutTransformControl.LayoutTransform>
+							<Image Source="{Binding LayersImageList[0].Image}" Stretch="None" Name="PreviewImage"
+								RenderOptions.BitmapInterpolationMode="None"
+							>
+								<Image.GestureRecognizers>
+									<h:MouseScrollGesture CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
+								</Image.GestureRecognizers>
+							</Image>
+						</LayoutTransformControl>
 					</ScrollViewer>
 				</DockPanel>
 
