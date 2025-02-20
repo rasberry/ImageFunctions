@@ -1,5 +1,6 @@
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -7,40 +8,84 @@ public class ZoomViewModel : ViewModelBase
 {
 	int _index = NormalZoomIndex;
 	public int Index {
-		get {
-			return _index;
-		}
-		set {
-			bool updated = _index != value;
-			if (updated) {
-				this.RaisePropertyChanging(nameof(Index));
-				this.RaisePropertyChanging(nameof(Zoom));
-				_index = value;
-				this.RaisePropertyChanged(nameof(Index));
-				this.RaisePropertyChanged(nameof(Zoom));
-			}
-		}
+		get => _index;
+		set => DoZoom(value);
 	}
 
-	public double Zoom {
-		get {
-			return LevelsList[Index];
-		}
+	public double Zoom => LevelsList[Index];
+
+	Avalonia.Vector _offset;
+	public Avalonia.Vector Offset {
+		get => _offset;
+		set => this.RaiseAndSetIfChanged(ref _offset, value);
 	}
+
+	public Avalonia.Size ViewPort { get; set; }
+	public Avalonia.Size Extent { get; set; }
 
 	public void Smaller()
 	{
-		Index = Math.Clamp(Index + 1, 0, LevelsList.Length - 1);
+		var ix = Math.Clamp(Index + 1, 0, LevelsList.Length - 1); 
+		DoZoom(ix);
 	}
 
 	public void Bigger()
 	{
-		Index = Math.Clamp(Index - 1, 0, LevelsList.Length - 1);
+		var ix = Math.Clamp(Index - 1, 0, LevelsList.Length - 1);
+		DoZoom(ix);
 	}
 
 	public void Reset()
 	{
-		Index = NormalZoomIndex;
+		DoZoom(NormalZoomIndex);
+	}
+
+	void DoZoom(int newIndex)
+	{
+		int oldIndex = Index;
+		if (oldIndex == newIndex) {
+			return;
+		}
+
+		Avalonia.Vector oldOffset = Offset;
+		double oldZoom = Levels[oldIndex];
+		double newZoom = Levels[newIndex];
+		var vp = ViewPort;
+		var ex = Extent;
+
+		//calculate the new offset to retain center of viewport
+		double zoomRatio = newZoom / oldZoom;
+
+		// double sxBarOld = vp.Width / ex.Width * vp.Width / 2;
+		// double syBarOld = vp.Height / ex.Height * vp.Height / 2;
+		// double sxBarNew = vp.Width / (ex.Width * zoomRatio) * vp.Width / 2;
+		// double syBarNew = vp.Height / (ex.Height * zoomRatio) * vp.Height / 2;
+
+		// Avalonia.Vector newOffset = new(
+		// 	(oldOffset.X + sxBarOld) * zoomRatio - sxBarNew,
+		// 	(oldOffset.Y + syBarOld) * zoomRatio - syBarNew
+		// );
+
+		Avalonia.Vector newOffset = new(
+			CalcNewOffset(zoomRatio, vp.Width, ex.Width, oldOffset.X),
+			CalcNewOffset(zoomRatio, vp.Height, ex.Height, oldOffset.Y)
+		);
+
+		//Trace.WriteLine($"DoZoom oz={oldZoom} nz={newZoom} vp={vp} no={newOffset}");
+
+		this.RaisePropertyChanging(nameof(Index));
+		this.RaisePropertyChanging(nameof(Zoom));
+		this.RaisePropertyChanging(nameof(Offset));
+		_index = newIndex;
+		Offset = newOffset;
+		this.RaisePropertyChanged(nameof(Index));
+		this.RaisePropertyChanged(nameof(Zoom));
+		this.RaisePropertyChanging(nameof(Offset));
+	}
+
+	double CalcNewOffset(double r, double v, double e, double x)
+	{
+		return (r*r-1)*v*v / (2*e*r) + r*x;
 	}
 
 	public static ReadOnlyCollection<double> Levels {
@@ -68,7 +113,7 @@ public class ZoomViewModel : ViewModelBase
 
 #pragma warning disable format
 
-	// //these were copied derived from Gimp
+	// //these were derived from Gimp
 	// const int NormalZoomIndex = 16;
 	// static readonly double[] Levels = new double[] {
 	// 	256.0, 180.0, 128.0,  90.0,  64.0,  45.0,
@@ -80,7 +125,7 @@ public class ZoomViewModel : ViewModelBase
 	// 	 1/45.0, 1/64.0, 1/90.0, 1/128.0, 1/180.0, 1/256.0
 	// };
 
-	//these were copied derived from Gimp
+	//these were derived from Gimp
 	const int NormalZoomIndex = 12;
 	static readonly double[] LevelsList = new double[] {
 		64.0,  45.0,   32.0,   23.0,  16.0,  11.0,

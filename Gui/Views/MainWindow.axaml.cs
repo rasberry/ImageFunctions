@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -25,8 +26,28 @@ public partial class MainWindow : Window
 		//PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
 		//DataContextChanged += OnDataContextChanged;
 
+		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
+			if (Model != null && Model.CurrentZoom != null) {
+				Model.CurrentZoom.ViewPort = s;
+			}
+		});
+
+		PreviewPanel.GetObservable(ScrollViewer.ExtentProperty).Subscribe((s) => {
+			if (Model != null && Model.CurrentZoom != null) {
+				Model.CurrentZoom.Extent = s;
+			}
+		});
+
+		PreviewPanel.GetObservable(ScrollViewer.OffsetProperty).Subscribe((s) => {
+			Trace.WriteLine($"of={s} ex={PreviewPanel.Extent} vp={PreviewPanel.Viewport}");
+		});
+
 		PreviewImage.PointerWheelChanged += (s, e) => {
-			//Trace.WriteLine($"b={PreviewImage.Bounds} w={PreviewImage.Width} h={PreviewImage.Height}");
+			//Trace.WriteLine($"PointerWheelChanged {s.GetType().FullName}");
+			//var imageControl = (Image)s;
+			//var pp = PreviewPanel;
+			//Trace.WriteLine($"b={imageControl.Bounds} o={pp.Offset}");
+			Trace.WriteLine($"vp={PreviewPanel.Viewport}");
 			e.Handled = true;
 			Model?.UpdatePreviewZoomByScroll(e.Delta);
 		};

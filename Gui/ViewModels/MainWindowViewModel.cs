@@ -315,6 +315,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void UpdatePreviewZoomByScroll(Vector delta)
 	{
+		//CurrentZoom.ViewPort = viewPort;
 		if (delta.Y > 0) {
 			CurrentZoom.Bigger();
 		}
@@ -328,15 +329,6 @@ public class MainWindowViewModel : ViewModelBase
 	public ReadOnlyCollection<ZoomHelperDisplayItem> ZoomOptions {
 		get {
 			return ZoomViewModel.Items;
-		}
-	}
-
-	public int CurrentZoomIndex {
-		get {
-			return CurrentZoom.Index;
-		}
-		set {
-			CurrentZoom.Index = value;
 		}
 	}
 

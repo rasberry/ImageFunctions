@@ -69,7 +69,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 					</StackPanel>
 					<ScrollViewer Name="PreviewPanel" Theme="{DynamicResource StaticScrollViewer}"
 						HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
-						AllowAutoHide="False"
+						AllowAutoHide="False" Offset="{Binding CurrentZoom.Offset, Mode=TwoWay}"
 					>
 						<ScrollViewer.Background>
 							<ImageBrush Source="/Assets/transparency-hint.png" Stretch="None"
