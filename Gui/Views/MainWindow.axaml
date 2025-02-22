@@ -1,17 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
-	xmlns:v="using:ImageFunctions.Gui.Views"
-	xmlns:h="using:ImageFunctions.Gui.Helpers"
-	xmlns:uv="using:UVtools.AvaloniaControls"
-	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-	x:Class="ImageFunctions.Gui.Views.MainWindow"
-	x:DataType="vm:MainWindowViewModel"
-	Icon="/Assets/image-functions.ico"
-	Title="ImageFunctions.Gui"
->
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:v="using:ImageFunctions.Gui.Views"
+xmlns:h="using:ImageFunctions.Gui.Helpers"
+xmlns:uv="using:UVtools.AvaloniaControls"
+mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+x:Class="ImageFunctions.Gui.Views.MainWindow"
+x:DataType="vm:MainWindowViewModel"
+Icon="/Assets/image-functions.ico"
+Title="ImageFunctions.Gui">
 <Design.DataContext>
 	<vm:MainWindowViewModel/>
 </Design.DataContext>
@@ -72,19 +71,17 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 					>
 						<ScrollViewer.Background>
 							<ImageBrush Source="/Assets/transparency-hint.png" Stretch="None"
-								TileMode="Tile" Opacity="0.2" DestinationRect="0,0,24,24">
+							TileMode="Tile" Opacity="0.2" DestinationRect="0,0,24,24">
 								<!-- DestinationRect: the png is 32x32 but needs 24x24 to fit correctly 🤷 -->
 							</ImageBrush>
 						</ScrollViewer.Background>
 						<LayoutTransformControl Name="layoutTransformWrapper"
-							HorizontalAlignment="Center" VerticalAlignment="Center"
-						>
+						HorizontalAlignment="Center" VerticalAlignment="Center">
 							<LayoutTransformControl.LayoutTransform>
 								<ScaleTransform ScaleX="{Binding CurrentZoom.Zoom}" ScaleY="{Binding CurrentZoom.Zoom}" />
 							</LayoutTransformControl.LayoutTransform>
 							<Image Source="{Binding LayersImageList[0].Image}" Stretch="None" Name="PreviewImage"
-								RenderOptions.BitmapInterpolationMode="None"
-							>
+							RenderOptions.BitmapInterpolationMode="None">
 								<Image.GestureRecognizers>
 									<h:MouseScrollGesture CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
 								</Image.GestureRecognizers>
@@ -139,8 +136,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 			</Grid>
 			<SplitView.Pane>
 				<ScrollViewer Name="StatusHistoryScroll" Offset="{Binding StatusHistoryScrollOffset, Mode=TwoWay}"
-					VerticalScrollBarVisibility="Visible" AllowAutoHide="False" Theme="{DynamicResource StaticScrollViewer}"
-				>
+				VerticalScrollBarVisibility="Visible" AllowAutoHide="False" Theme="{DynamicResource StaticScrollViewer}">
 					<ItemsControl ItemsSource="{Binding StatusHistory}" />
 				</ScrollViewer>
 			</SplitView.Pane>
