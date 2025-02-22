@@ -58,8 +58,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 							<PathIcon Data="{StaticResource IconMinusThick}"/>
 						</Button>
 						<ComboBox ItemsSource="{Binding ZoomOptions}" SelectedIndex="{Binding CurrentZoom.Index}"
-							Tag="Select Zoom Level"
-						>
+						Tag="Select Zoom Level">
 							<ComboBox.ItemTemplate>
 								<DataTemplate>
 									<TextBlock Text="{Binding Display}"/>

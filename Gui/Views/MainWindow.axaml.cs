@@ -14,17 +14,6 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 		OpenLayers.Click += OpenFileDialog;
-		// PreviewPanel.DataContextChanged += (s, e) => {
-		// 	Trace.WriteLine("PreviewPanel.DataContextChanged");
-		// };
-		// PreviewPanel.PropertyChanged += (s, e) => {
-		// 	Trace.WriteLine($"PreviewPanel.PropertyChanged {e.NewValue}");
-		// };
-		// PreviewPanel.PointerMoved += (s, e) => {
-		// 	Trace.WriteLine($"PreviewPanel.PointerMoved {e.Pointer.Id}");
-		// };
-		//PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
-		//DataContextChanged += OnDataContextChanged;
 
 		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
 			if (Model != null && Model.CurrentZoom != null) {
@@ -38,33 +27,31 @@ public partial class MainWindow : Window
 			}
 		});
 
-		PreviewPanel.GetObservable(ScrollViewer.OffsetProperty).Subscribe((s) => {
-			Trace.WriteLine($"of={s} ex={PreviewPanel.Extent} vp={PreviewPanel.Viewport}");
+		PreviewPanel.GetObservable(PointerMovedEvent).Subscribe((p) => {
+			if (Model?.IsPickingFromPreview ?? false) {
+				var pp = p.GetCurrentPoint(PreviewImage);
+				Model.PreviewPointerPos = pp.Position;
+				//Trace.WriteLine($"PointerMoved pp={pp.Position}");
+			}
 		});
 
-		PreviewImage.PointerWheelChanged += (s, e) => {
-			//Trace.WriteLine($"PointerWheelChanged {s.GetType().FullName}");
-			//var imageControl = (Image)s;
-			//var pp = PreviewPanel;
-			//Trace.WriteLine($"b={imageControl.Bounds} o={pp.Offset}");
-			Trace.WriteLine($"vp={PreviewPanel.Viewport}");
+		PreviewPanel.GetObservable(PointerPressedEvent).Subscribe((p) => {
+			if (Model?.IsPickingFromPreview ?? false) {
+				p.Handled = true;
+				Model.IsPickingFromPreview = false;
+			}
+		});
+
+		PreviewImage.GetObservable(PointerWheelChangedEvent).Subscribe((e) => {
+			// Trace.WriteLine($"vp={PreviewPanel.Viewport}");
 			e.Handled = true;
 			Model?.UpdatePreviewZoomByScroll(e.Delta);
-		};
+		});
+
+		// PreviewPanel.GetObservable(ScrollViewer.OffsetProperty).Subscribe((s) => {
+		// 	Trace.WriteLine($"of={s} ex={PreviewPanel.Extent} vp={PreviewPanel.Viewport}");
+		// });
 	}
-
-	// void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
-	// {
-	// 	if(Model != null) {
-	// 		var current = Model.PreviewRectangle;
-	// 		Model.PreviewRectangle = new Avalonia.Rect(current.TopLeft, args.NewSize);
-	// 	}
-	// }
-
-	//void OnDataContextChanged(object sender, EventArgs args)
-	//{
-	//	Model.ImagesUpdated += RedrawImage;
-	//}
 
 	//Note: always check for null before using this e.g. Model?.
 	MainWindowViewModel Model {
@@ -80,6 +67,7 @@ public partial class MainWindow : Window
 			var (s, e) = o; //tuple deconstruct
 			UpdateStatusHandler(s, (PointerEventArgs)e, false);
 		});
+		//we don't need PointerExited becuase we're timer-hiding
 		// PointerExitedEvent.Raised.Subscribe(o => {
 		// 	var (s, e) = o;
 		// 	UpdateStatusHandler(s, (PointerEventArgs)e, true);

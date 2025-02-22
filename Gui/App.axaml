@@ -1,21 +1,21 @@
 <Application xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	x:Class="ImageFunctions.Gui.App"
-	xmlns:local="using:ImageFunctions.Gui"
-	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
-	xmlns:mo="using:ImageFunctions.Gui.Models"
-	xmlns:v="using:ImageFunctions.Gui.Views"
-	xmlns:h="using:ImageFunctions.Gui.Helpers"
-	xmlns:ac="using:Avalonia.Controls"
-	xmlns:semi="https://irihi.tech/semi"
-	RequestedThemeVariant="Default"
->
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+x:Class="ImageFunctions.Gui.App"
+xmlns:local="using:ImageFunctions.Gui"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:mo="using:ImageFunctions.Gui.Models"
+xmlns:v="using:ImageFunctions.Gui.Views"
+xmlns:h="using:ImageFunctions.Gui.Helpers"
+xmlns:ac="using:Avalonia.Controls"
+xmlns:av="using:Avalonia.Controls.Converters"
+xmlns:semi="https://irihi.tech/semi"
+RequestedThemeVariant="Default">
 	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
 		<!-- StatusHistoryLine -->
 		<DataTemplate DataType="{x:Type vm:StatusHistoryLine}">
 			<TextBlock Inlines="{Binding InlineItems}" TextAlignment="Right"
-				h:BindableStyleClasses.Classes="{Binding StatusClass}" />
+			h:BindableStyleClasses.Classes="{Binding StatusClass}" />
 		</DataTemplate>
 
 		<!-- SelectionItem -->
@@ -31,22 +31,40 @@
 		</DataTemplate>
 
 		<!-- InputItem -->
+		<DataTemplate DataType="{x:Type vm:InputItemPoint}">
+			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
+				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,*">
+					<CheckBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Classes="InnerCheckBox"
+					Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" IsChecked="{Binding IsPicking}"
+					Tag="Pick a point from the preview image">
+						<PathIcon Data="{DynamicResource IconCrosshairsGps}"/>
+					</CheckBox>
+					<TextBlock Grid.Row="0" Grid.Column="1" Text="X" />
+					<TextBlock Grid.Row="1" Grid.Column="1" Text="Y" />
+					<TextBox Grid.Row="0" Grid.Column="2" Text="{Binding PickedX, Converter={StaticResource StoVConverter}}" />
+					<TextBox Grid.Row="1" Grid.Column="2" Text="{Binding PickedY, Converter={StaticResource StoVConverter}}" />
+					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+				</Grid>
+			</CheckBox>
+		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemColor}">
 			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
 					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
-						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
+					Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
 						<PathIcon Data="{Binding SyncIcon}"/>
 					</CheckBox>
 					<TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right"
-						IsEnabled="{Binding IsSyncEnabled}" Text="{Binding Item.Name}"/>
+					IsEnabled="{Binding IsSyncEnabled}" Text="{Binding Item.Name}"/>
 					<ColorPicker Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Right"
-						Palette="{DynamicResource SemiColorPalette}" ColorSpectrumShape="Ring"
-						Theme="{DynamicResource HexColorPicker}" IsEnabled="{Binding !IsSyncEnabled}"
-						Color="{Binding Color}" />
+					Palette="{DynamicResource SemiColorPalette}" ColorSpectrumShape="Ring"
+					Theme="{DynamicResource HexColorPicker}" IsEnabled="{Binding !IsSyncEnabled}"
+					Color="{Binding Color}" />
 					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -56,13 +74,13 @@
 				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" Classes="Bordered"
-						Text="{Binding Display}" HorizontalContentAlignment="Left"/>
+					Text="{Binding Display}" HorizontalContentAlignment="Left"/>
 					<CheckBox Grid.Row="0" Grid.Column="2" IsVisible="{Binding IsNumberPct}" IsChecked="{Binding ShowAsPct}"
-						Theme="{DynamicResource PureCardCheckBox}" Classes="InnerCheckBox">%</CheckBox>
+					Theme="{DynamicResource PureCardCheckBox}" Classes="InnerCheckBox">%</CheckBox>
 					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-						Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
+					Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
 					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -72,9 +90,9 @@
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left"/>
 					<ComboBox Grid.Row="0" Grid.Column="1" Classes="Bordered"
-						ItemsSource="{Binding Choices}" HorizontalAlignment="Right" SelectedIndex="{Binding SelectedIndex}"/>
+					ItemsSource="{Binding Choices}" HorizontalAlignment="Right" SelectedIndex="{Binding SelectedIndex}"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -84,12 +102,12 @@
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
 					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
-						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
+					Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
 						<PathIcon Data="{Binding SyncIcon}"/>
 					</CheckBox>
 					<TextBlock Grid.Row="0" Grid.Column="2" TextAlignment="Right" Text="{Binding Item.Name}"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -99,9 +117,9 @@
 				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						Text="{Binding Text}" HorizontalContentAlignment="Left"/>
+					Text="{Binding Text}" HorizontalContentAlignment="Left"/>
 					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -115,7 +133,7 @@
 				<Grid RowDefinitions="Auto,Auto">
 					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
 					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
 				</Grid>
 			</CheckBox>
 		</DataTemplate>
@@ -133,6 +151,9 @@
 
 	<Application.Resources>
 	 	<ResourceDictionary>
+			<h:StringToValueConverter x:Key="StoVConverter"/>
+			<av:EnumToBoolConverter x:Key="EnumBoolConverter"/>
+
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceInclude Source="App.Icons.axaml" />
 			</ResourceDictionary.MergedDictionaries>

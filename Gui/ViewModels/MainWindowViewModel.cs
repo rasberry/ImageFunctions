@@ -5,6 +5,7 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using DynamicData.Binding;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
@@ -18,6 +19,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 
 namespace ImageFunctions.Gui.ViewModels;
@@ -345,6 +347,20 @@ public class MainWindowViewModel : ViewModelBase
 		CurrentZoom.Reset();
 	}
 
+	//global flag when a InputItemPoint control is picking
+	bool _isPickingFromPreview;
+	public bool IsPickingFromPreview {
+		get => _isPickingFromPreview;
+		set => this.RaiseAndSetIfChanged(ref _isPickingFromPreview, value);
+	}
+
+	//global position of pointer when InputItemPoint control is picking
+	Point _previewPointerPos;
+	public Point PreviewPointerPos {
+		get => _previewPointerPos;
+		set => this.RaiseAndSetIfChanged(ref _previewPointerPos, value);
+	}
+
 	void UpdateLayerImageButtons(int newIx, int oldIx)
 	{
 		//Trace.WriteLine($"{nameof(UpdateLayerImageButtons)} {newIx} {oldIx} {Layers.Count}");
@@ -440,7 +456,7 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		// Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
@@ -654,13 +670,12 @@ public class MainWindowViewModel : ViewModelBase
 			return new InputItemText(iup);
 		}
 		//Color inputs also have a sync component
-		else if(it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>()) {
+		else if(InputItemColor.IsSupportedColorType(it)) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
 			return new InputItemColor(iup, model);
 		}
-		else if(it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>()) {
-			//TODO point picker .. ?
-			return null;
+		else if(InputItemPoint.IsSupportedPointType(it)) {
+			return new InputItemPoint(iup, this);
 		}
 		else if(it.IsNumeric()) {
 			return new InputItemSlider(iup);
@@ -677,16 +692,13 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _showCommandUsageText, value);
 	}
 
-	// public void OnInputsClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-	// {
-	// 	if (sender is not CheckBox box) { return; }
-	// 	Log.Debug($"model click {box.Name} {box.IsChecked}");
-	// }
-
 	public void OnInputListChanged(object sender, PropertyChangedEventArgs args)
 	{
 		//string extra = "";
 		string value = "";
+		if (sender is InputItemPoint iipoint) {
+			value = $"{iipoint.PickedX},{iipoint.PickedY}";
+		}
 		if(sender is InputItemColor iicolor) {
 			//Trace.WriteLine($"OnInputListChanged InputItemColor {(iicolor == null ? "null" : "good")}");
 			var c = iicolor.Color;

@@ -45,18 +45,14 @@ A collection of various image processing functions
 # Issues #
 ## GUI ##
 <pre>
-= preview image cannot be zoomed or scrolled
-  = Was able to get scrolling working using a copy of ScrollGestureRecognizer
-  = https://github.com/sn4k3/UVtools/blob/master/UVtools.AvaloniaControls/AdvancedImageBox.cs
 = loaded image layer is named 'item' instead of being derived from file name
 = save image does not work
 = when removing the last layer, the down button does not gray out on the (now) last item
 = fix unusual inputs
   = allcolors option -l / --legacy should pick just '-l'
   = ulamspiral -c(1,2,3,4) - might need to re-work this
+  = some functions have inputs that can be specified multiple times (floodfill -p)
 = make usage description stand out a little - maybe a border under the text ?
-= finish adding controls
-  = point selector
 = selecting dropdown from speargraphic causes -g paramter to mysteriously appear for other functions
 = some function job are not finishing
 = consider breaking up MainWindowViewModel .. it's getting a bit big

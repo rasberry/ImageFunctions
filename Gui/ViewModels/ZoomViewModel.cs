@@ -83,6 +83,7 @@ public class ZoomViewModel : ViewModelBase
 		this.RaisePropertyChanging(nameof(Offset));
 	}
 
+	//r = zoom ratio, v = viewport, e = extenet, x = current scroll offset
 	double CalcNewOffset(double r, double v, double e, double x)
 	{
 		return (r*r-1)*v*v / (2*e*r) + r*x;
