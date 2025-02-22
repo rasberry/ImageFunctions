@@ -1,5 +1,6 @@
 using ReactiveUI;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -31,6 +32,7 @@ public class ZoomViewModel : ViewModelBase
 	public void Bigger()
 	{
 		var ix = Math.Clamp(Index - 1, 0, LevelsList.Length - 1);
+		Trace.WriteLine($"Bigger b={Index} a={ix}");
 		DoZoom(ix);
 	}
 
@@ -76,7 +78,7 @@ public class ZoomViewModel : ViewModelBase
 		this.RaisePropertyChanging(nameof(Zoom));
 		this.RaisePropertyChanging(nameof(Offset));
 		_index = newIndex;
-		Offset = newOffset;
+		_offset = newOffset;
 		this.RaisePropertyChanged(nameof(Index));
 		this.RaisePropertyChanged(nameof(Zoom));
 		this.RaisePropertyChanging(nameof(Offset));

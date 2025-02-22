@@ -2,8 +2,8 @@
 xmlns="https://github.com/avaloniaui"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:v="using:ImageFunctions.Gui.Views"
-xmlns:vm="using:ImageFunctions.Gui.ViewModels"
->
+xmlns:vm="using:ImageFunctions.Gui.ViewModels">
+
 	<Style Selector="#LowerPannel TextBlock">
 		<Setter Property="Margin" Value="0,0,8,0"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
@@ -26,8 +26,13 @@ xmlns:vm="using:ImageFunctions.Gui.ViewModels"
 		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
 		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
 	</Style>
-	<Style Selector="StackPanel#TopLayerControls">
+	<Style Selector="StackPanel#TopLayerControls, StackPanel#PreviewImageControls">
 		<Setter Property="Margin" Value="0,0,0,8" />
+	</Style>
+	<Style Selector="Border#BottomBorder">
+		<Setter Property="Margin" Value="0,2,0,2" /><!-- based on GridSplitter -->
+		<Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}"/>
+		<Setter Property="BorderThickness" Value="0,4,0,0"/><!-- based on SemiThicknessTight -->
 	</Style>
 	<Style Selector="StackPanel#LowerPannel TextBlock PathIcon, ScrollViewer#StatusHistoryScroll TextBlock PathIcon">
 		<Setter Property="Margin" Value="4,0,4,0" />

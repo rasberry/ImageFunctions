@@ -44,19 +44,19 @@ mc:Ignorable="d">
 
 <Border Name="OverlayShade" IsVisible="{Binding IsPopupVisible}" >
 	<Border Name="OverlayInside">
-	<StackPanel Name="OverlayControls" Orientation="Vertical">
-		<TextBlock Text="{Binding Label}" />
-		<ProgressBar ShowProgressText="True" ProgressTextFormat="{}{1:0.00}%"
-		Maximum="{Binding CompletionMax}"
-		Minimum="{Binding CompletionMin}"
-		Value="{Binding ProgressAmount}"/>
-		<Button Tag="Stop Job" HorizontalAlignment="Stretch" Command="{Binding StopJob}">
-			<StackPanel Orientation="Horizontal" Spacing="8">
-				<TextBlock Text="Stop Job" />
-				<PathIcon Data="{StaticResource IconStop}"/>
-			</StackPanel>
-		</Button>
-	</StackPanel>
+		<StackPanel Name="OverlayControls" Orientation="Vertical">
+			<TextBlock Text="{Binding Label}" />
+			<ProgressBar ShowProgressText="True" ProgressTextFormat="{}{1:0.00}%"
+			Maximum="{Binding CompletionMax}"
+			Minimum="{Binding CompletionMin}"
+			Value="{Binding ProgressAmount}"/>
+			<Button Tag="Stop Job" HorizontalAlignment="Stretch" Command="{Binding StopJob}">
+				<StackPanel Orientation="Horizontal" Spacing="8">
+					<TextBlock Text="Stop Job" />
+					<PathIcon Data="{StaticResource IconStop}"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
 	</Border>
 </Border>
 

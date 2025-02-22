@@ -12,13 +12,7 @@ public class ViewLocator : IDataTemplate
 		//Log.Debug($"ViewLocator.Build data={data?.ToString()}");
 		if(data is null) { return null; }
 
-		if(data is LayersImageData) {
-			return new LayersImageControl() { DataContext = data };
-		}
-		else if(data is SelectionViewModel svm) {
-			var svmName = $"Reg{svm.NameSpace}";
-			return new RegisteredControl { Name = svmName, DataContext = svm };
-		}
+		//Add specific viewmodel checks here
 
 		var name = data.GetType().FullName.Replace("ViewModel", "Views", StringComparison.Ordinal);
 		var type = Type.GetType(name);

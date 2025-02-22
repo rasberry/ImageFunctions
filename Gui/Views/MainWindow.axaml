@@ -23,7 +23,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 </Window.Styles>
 
 <Grid> <!-- Generic grid needed to support full window overlay -->
-	<Grid RowDefinitions="*,Auto">
+	<Grid RowDefinitions="*,Auto,Auto">
 		<!-- Top section-->
 		<SplitView PanePlacement="Right" DisplayMode="Overlay" OpenPaneLength="500" IsPaneOpen="{Binding IsStatusHistoryOpen}">
 			<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
@@ -46,7 +46,7 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 				<!-- Top level Column primary image -->
 				<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
 				<DockPanel Grid.Column="2">
-					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Name="PreviewImageControls">
 						<Button Tag="Zoom In" Command="{Binding PreviewZoomIn}">
 							<PathIcon Data="{StaticResource IconPlusThick}"/>
 						</Button>
@@ -66,9 +66,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 						</ComboBox>
 					</StackPanel>
 					<ScrollViewer Name="PreviewPanel" Theme="{DynamicResource StaticScrollViewer}"
-						HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
-						AllowAutoHide="False" Offset="{Binding CurrentZoom.Offset, Mode=TwoWay}"
-					>
+					HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
+					AllowAutoHide="False" Offset="{Binding CurrentZoom.Offset, Mode=TwoWay}">
 						<ScrollViewer.Background>
 							<ImageBrush Source="/Assets/transparency-hint.png" Stretch="None"
 							TileMode="Tile" Opacity="0.2" DestinationRect="0,0,24,24">
@@ -143,7 +142,8 @@ see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 		</SplitView>
 
 		<!-- Bottom section-->
-		<Grid Grid.Row="1" ColumnDefinitions="*,*">
+		<Border Grid.Row="1" Name="BottomBorder" />
+		<Grid Grid.Row="2" ColumnDefinitions="Auto,*" Name="BottomControlBar">
 			<StackPanel Grid.Column="0" Orientation="Horizontal">
 				<Button Name="OpenLayers">Load Images</Button>
 				<Button Name="SavePreview">Save Preview</Button>

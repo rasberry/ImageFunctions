@@ -18,6 +18,16 @@ RequestedThemeVariant="Default">
 			h:BindableStyleClasses.Classes="{Binding StatusClass}" />
 		</DataTemplate>
 
+		<!-- LayersImageData -->
+		<DataTemplate DataType="{x:Type vm:LayersImageData}">
+			<v:LayersImageControl />
+		</DataTemplate>
+
+		<!-- SelectionViewModel -->
+		<DataTemplate DataType="{x:Type vm:SelectionViewModel}">
+			<v:RegisteredControl Name="{Binding NameSpace, StringFormat='Reg{0}'}"/>
+		</DataTemplate>
+
 		<!-- SelectionItem -->
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">
