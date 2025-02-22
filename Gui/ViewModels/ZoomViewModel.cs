@@ -32,7 +32,6 @@ public class ZoomViewModel : ViewModelBase
 	public void Bigger()
 	{
 		var ix = Math.Clamp(Index - 1, 0, LevelsList.Length - 1);
-		Trace.WriteLine($"Bigger b={Index} a={ix}");
 		DoZoom(ix);
 	}
 

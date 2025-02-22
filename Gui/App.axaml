@@ -155,7 +155,6 @@ RequestedThemeVariant="Default">
 		<!--<FluentTheme />-->
 		<semi:SemiTheme Locale="en-US" />
 		<StyleInclude Source="avares://Semi.Avalonia.ColorPicker/Index.axaml" />
-		<!-- <StyleInclude Source="avares://UVtools.AvaloniaControls/Controls.axaml"/> -->
 		<StyleInclude Source="App.Styles.axaml"/>
 	</Application.Styles>
 
