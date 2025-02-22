@@ -4,7 +4,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using ImageFunctions.Gui.ViewModels;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Views;
 
@@ -16,19 +15,19 @@ public partial class MainWindow : Window
 		OpenLayers.Click += OpenFileDialog;
 
 		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
-			if (Model != null && Model.CurrentZoom != null) {
+			if(Model != null && Model.CurrentZoom != null) {
 				Model.CurrentZoom.ViewPort = s;
 			}
 		});
 
 		PreviewPanel.GetObservable(ScrollViewer.ExtentProperty).Subscribe((s) => {
-			if (Model != null && Model.CurrentZoom != null) {
+			if(Model != null && Model.CurrentZoom != null) {
 				Model.CurrentZoom.Extent = s;
 			}
 		});
 
 		PreviewPanel.GetObservable(PointerMovedEvent).Subscribe((p) => {
-			if (Model?.IsPickingFromPreview ?? false) {
+			if(Model?.IsPickingFromPreview ?? false) {
 				var pp = p.GetCurrentPoint(PreviewImage);
 				Model.PreviewPointerPos = pp.Position;
 				//Trace.WriteLine($"PointerMoved pp={pp.Position}");
@@ -36,7 +35,7 @@ public partial class MainWindow : Window
 		});
 
 		PreviewPanel.GetObservable(PointerPressedEvent).Subscribe((p) => {
-			if (Model?.IsPickingFromPreview ?? false) {
+			if(Model?.IsPickingFromPreview ?? false) {
 				p.Handled = true;
 				Model.IsPickingFromPreview = false;
 			}

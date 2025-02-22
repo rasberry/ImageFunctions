@@ -1,6 +1,5 @@
 using ReactiveUI;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -25,7 +24,7 @@ public class ZoomViewModel : ViewModelBase
 
 	public void Smaller()
 	{
-		var ix = Math.Clamp(Index + 1, 0, LevelsList.Length - 1); 
+		var ix = Math.Clamp(Index + 1, 0, LevelsList.Length - 1);
 		DoZoom(ix);
 	}
 
@@ -43,7 +42,7 @@ public class ZoomViewModel : ViewModelBase
 	void DoZoom(int newIndex)
 	{
 		int oldIndex = Index;
-		if (oldIndex == newIndex) {
+		if(oldIndex == newIndex) {
 			return;
 		}
 
@@ -86,7 +85,7 @@ public class ZoomViewModel : ViewModelBase
 	//r = zoom ratio, v = viewport, e = extenet, x = current scroll offset
 	double CalcNewOffset(double r, double v, double e, double x)
 	{
-		return (r*r-1)*v*v / (2*e*r) + r*x;
+		return (r * r - 1) * v * v / (2 * e * r) + r * x;
 	}
 
 	public static ReadOnlyCollection<double> Levels {
@@ -167,7 +166,7 @@ public sealed class ZoomHelperDisplayItem
 	public double Value { get; private set; }
 	public string Display {
 		get {
-			if (Value >= 1.0) {
+			if(Value >= 1.0) {
 				return Value.ToString("P0");
 			}
 			else {

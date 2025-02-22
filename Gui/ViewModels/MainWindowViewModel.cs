@@ -5,7 +5,6 @@ using Avalonia.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using DynamicData.Binding;
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
@@ -16,10 +15,8 @@ using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text;
 
 namespace ImageFunctions.Gui.ViewModels;
@@ -318,10 +315,10 @@ public class MainWindowViewModel : ViewModelBase
 	public void UpdatePreviewZoomByScroll(Vector delta)
 	{
 		//CurrentZoom.ViewPort = viewPort;
-		if (delta.Y > 0) {
+		if(delta.Y > 0) {
 			CurrentZoom.Bigger();
 		}
-		else if (delta.Y < 0) {
+		else if(delta.Y < 0) {
 			CurrentZoom.Smaller();
 		}
 	}
@@ -696,7 +693,7 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		//string extra = "";
 		string value = "";
-		if (sender is InputItemPoint iipoint) {
+		if(sender is InputItemPoint iipoint) {
 			value = $"{iipoint.PickedX},{iipoint.PickedY}";
 		}
 		if(sender is InputItemColor iicolor) {

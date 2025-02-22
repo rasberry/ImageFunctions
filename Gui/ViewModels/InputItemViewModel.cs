@@ -334,18 +334,18 @@ public class InputItemPoint : InputItem
 		MWVModel.WhenAnyValue(m => m.PreviewPointerPos).Subscribe(p => PickedPoint = p);
 		MWVModel.WhenAnyValue(m => m.IsPickingFromPreview).Subscribe(SetIsPickingAlone);
 
-		if (input.Default != null) {
+		if(input.Default != null) {
 			Point point;
-			if (input.Default is Point native) {
+			if(input.Default is Point native) {
 				point = native;
 			}
-			else if (input.Default is Core.PointD cpd) {
+			else if(input.Default is Core.PointD cpd) {
 				point = new Point(cpd.X, cpd.Y);
 			}
-			else if (input.Default is System.Drawing.Point sdp) {
+			else if(input.Default is System.Drawing.Point sdp) {
 				point = new Point(sdp.X, sdp.Y);
 			}
-			else if (input.Default is System.Drawing.PointF sdpf) {
+			else if(input.Default is System.Drawing.PointF sdpf) {
 				point = new Point(sdpf.X, sdpf.Y);
 			}
 			else {
@@ -356,12 +356,12 @@ public class InputItemPoint : InputItem
 			PickedPoint = point;
 		}
 
-		if (input.InputType != null) {
+		if(input.InputType != null) {
 			var it = input.InputType;
-			if (it.Is<System.Drawing.PointF>()) {
+			if(it.Is<System.Drawing.PointF>()) {
 				CoordType = typeof(float);
 			}
-			else if (it.Is<System.Drawing.Point>()) {
+			else if(it.Is<System.Drawing.Point>()) {
 				CoordType = typeof(int);
 			}
 			//covers Avalonia.Point and Core.PointD
@@ -388,7 +388,7 @@ public class InputItemPoint : InputItem
 	//used to avoid an infinite event loop with IsPickingFromPreview
 	void SetIsPickingAlone(bool val)
 	{
-		if (val != _isPicking) {
+		if(val != _isPicking) {
 			this.RaisePropertyChanging(nameof(IsPicking));
 			_isPicking = val;
 			this.RaisePropertyChanged(nameof(IsPicking));
@@ -397,12 +397,12 @@ public class InputItemPoint : InputItem
 
 	string FormatCoord(double raw)
 	{
-		if (CoordType.Is<int>()) {
-			//spacial case-ing because Convert.ChangeType is rounding the double instead of flooring ?!
+		if(CoordType.Is<int>()) {
+			//spacial case-ing because Convert.ChangeType is rounding the double instead of flooring 🤷
 			return ((int)raw).ToString();
 		}
 		else {
-			return Convert.ChangeType(raw,CoordType).ToString();
+			return Convert.ChangeType(raw, CoordType).ToString();
 		}
 	}
 
@@ -412,8 +412,8 @@ public class InputItemPoint : InputItem
 		}
 		set {
 			var newVal = Convert.ToDouble(value);
-			if (PickedPoint.X != newVal) {
-				PickedPoint = new Point(newVal,PickedPoint.Y);
+			if(PickedPoint.X != newVal) {
+				PickedPoint = new Point(newVal, PickedPoint.Y);
 			}
 		}
 	}
@@ -424,7 +424,7 @@ public class InputItemPoint : InputItem
 		}
 		set {
 			var newVal = Convert.ToDouble(value);
-			if (PickedPoint.Y != newVal) {
+			if(PickedPoint.Y != newVal) {
 				PickedPoint = new Point(PickedPoint.X, newVal);
 			}
 		}
@@ -436,7 +436,7 @@ public class InputItemPoint : InputItem
 			return _pickedPoint;
 		}
 		set {
-			if (_pickedPoint != value) {
+			if(_pickedPoint != value) {
 				this.RaisePropertyChanging(nameof(PickedX));
 				this.RaisePropertyChanging(nameof(PickedY));
 				this.RaisePropertyChanging(nameof(PickedPoint));
