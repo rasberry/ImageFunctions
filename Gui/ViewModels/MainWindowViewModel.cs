@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -11,13 +10,11 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
-using ImageFunctions.Gui.Views;
 using ImageFunctions.Plugin.Aides;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
@@ -409,7 +406,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void LoadAndShowImage(string fileName)
 	{
-		if (!CheckIsEngineSelected()) { return; }
+		if(!CheckIsEngineSelected()) { return; }
 		// Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
@@ -417,7 +414,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void SaveImage(string fileName, string format, bool doSaveStack)
 	{
-		if (!CheckIsEngineSelected()) { return; }
+		if(!CheckIsEngineSelected()) { return; }
 		var layers = MakeUnwrappedLayers(!doSaveStack);
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.SaveImage(layers, clerk, format);
@@ -426,7 +423,7 @@ public class MainWindowViewModel : ViewModelBase
 	Layers MakeUnwrappedLayers(bool topOnly)
 	{
 		var layers = new Layers(); //don't dispose since we're just referencing
-		if (topOnly) {
+		if(topOnly) {
 			var first = Layers.First();
 			layers.Push(tryUnwrap(first.Canvas), first.Name);
 		}
@@ -441,14 +438,15 @@ public class MainWindowViewModel : ViewModelBase
 
 		static ICanvas tryUnwrap(ICanvas canvas)
 		{
-			if (canvas is CanvasWrapper wrap) {
+			if(canvas is CanvasWrapper wrap) {
 				return wrap.Unwrap();
 			}
 			return canvas;
 		}
 	}
 
-	bool CheckIsEngineSelected() {
+	bool CheckIsEngineSelected()
+	{
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
 			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);

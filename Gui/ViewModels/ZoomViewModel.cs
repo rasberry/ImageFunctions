@@ -1,6 +1,5 @@
 using ReactiveUI;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 

@@ -1,7 +1,6 @@
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ReactiveUI;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.ViewModels;
 

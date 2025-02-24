@@ -13,22 +13,10 @@ public partial class MainWindow : Window
 	{
 		InitializeComponent();
 
-		//Using click because sure why PointerPressed doesn't work
+		//Using click because not sure why PointerPressed doesn't work
 		OpenLayers.Click += OpenFileDialog;
-		SavePreview.Click += (s,e) => SaveFileDialog(e,false);
-		SaveStack.Click += (s,e) => SaveFileDialog(e,true);
-
-		// OpenLayers.GetObservable(PointerPressedEvent).Subscribe((p) => {
-		// 	OpenFileDialog(p);
-		// });
-
-		// SavePreview.GetObservable(PointerPressedEvent).Subscribe((p) => {
-		// 	SaveFileDialog(p,false);
-		// });
-
-		// SaveStack.GetObservable(PointerPressedEvent).Subscribe((p) => {
-		// 	SaveFileDialog(p, true);
-		// });
+		SavePreview.Click += (s, e) => SaveFileDialog(e, false);
+		SaveStack.Click += (s, e) => SaveFileDialog(e, true);
 
 		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
 			if(Model != null && Model.CurrentZoom != null) {
@@ -150,20 +138,4 @@ public partial class MainWindow : Window
 		var format = Path.GetExtension(path);
 		Model?.SaveImage(path, format, doSaveStack);
 	}
-
-	/*
-	public void RedrawImage(object sender, EventArgs args)
-	{
-		Trace.WriteLine($"{nameof(RedrawImage)}");
-		var prim = PreviewPanel.FindLogicalDescendantOfType<Image>();
-		prim.UpdateLayout();
-
-		var list = LayersBox.GetLogicalDescendants();
-		foreach(var node in list) {
-			if (node is Image image) {
-				image.UpdateLayout();
-			}
-		}
-	}
-	*/
 }

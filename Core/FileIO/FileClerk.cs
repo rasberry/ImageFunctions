@@ -24,7 +24,9 @@ public sealed class FileClerk : IFileClerk
 	public string GetLabel(string name, string ext = null, string tag = null)
 	{
 		//give name a default
-		if(String.IsNullOrWhiteSpace(name)) { name = "item"; }
+		if(String.IsNullOrWhiteSpace(name)) {
+			name = Path.GetFileNameWithoutExtension(Location);
+		}
 		return TransformLocation(name, ext, tag);
 	}
 

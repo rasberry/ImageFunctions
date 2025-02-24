@@ -22,7 +22,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		layerName ??= clerk.GetLabel(layerName);
+		layerName ??= clerk.GetLabel(null);
 		var image = Image.Load<RgbaD>(clerk.ReadStream());
 
 		//for images with one frame just use the original
