@@ -631,13 +631,23 @@ public class MainWindowViewModel : ViewModelBase
 	{
 		//bool isTwo = p is IUsageParameterTwo; //TODO
 		var it = iup.InputType.UnWrapNullable();
+		var altSet = usage.Alternates?.ToDictionary(k => k.Name) ?? null;
+
+		//helper alt lookup function to avoid a bunch of repeat code
+		string GetAlt(string name)
+		{
+			if (altSet != null && altSet.TryGetValue(name, out var alt)) {
+				return alt.Alternate;
+			}
+			return null;
+		}
 
 		if(iup is UsageRegistered ur) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
-			return new InputItemSync(iup, model);
+			return new InputItemSync(iup, model, GetAlt(iup.Name));
 		}
 		else if(it.Is<bool>()) {
-			return new InputItem(iup);
+			return new InputItem(iup, GetAlt(iup.Name));
 		}
 		else if(it.IsEnum) {
 			IUsageEnum iue = null;
@@ -646,7 +656,7 @@ public class MainWindowViewModel : ViewModelBase
 					iue = i; break;
 				}
 			}
-			return new InputItemDropDown(iup, iue);
+			return new InputItemDropDown(iup, iue, GetAlt(iup.Name));
 		}
 		else if(it.Is<string>()) {
 			return new InputItemText(iup);
@@ -654,13 +664,13 @@ public class MainWindowViewModel : ViewModelBase
 		//Color inputs also have a sync component
 		else if(InputItemColor.IsSupportedColorType(it)) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
-			return new InputItemColor(iup, model);
+			return new InputItemColor(iup, model, GetAlt(iup.Name));
 		}
 		else if(InputItemPoint.IsSupportedPointType(it)) {
-			return new InputItemPoint(iup, this);
+			return new InputItemPoint(iup, this, GetAlt(iup.Name));
 		}
 		else if(it.IsNumeric()) {
-			return new InputItemSlider(iup);
+			return new InputItemSlider(iup, GetAlt(iup.Name));
 		}
 
 		throw Squeal.NotSupported($"Type {it}");

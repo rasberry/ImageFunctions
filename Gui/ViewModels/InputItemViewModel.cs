@@ -12,14 +12,20 @@ namespace ImageFunctions.Gui.ViewModels;
 
 public class InputItem : ViewModelBase
 {
-	public InputItem(IUsageText input)
+	public InputItem(IUsageText input, string altName = null)
 	{
 		Input = input;
+		Alternate = altName;
 	}
-	public IUsageText Input { get; init; }
 
-	public string Name { get { return Input.Name; } }
+	public IUsageText Input { get; init; }
 	public string Description { get { return Input.Description; } }
+	public string Name { get { return Input.Name; }}
+	public string Alternate { get; init; }
+
+	public string NameDisplay { get {
+		return String.IsNullOrWhiteSpace(Alternate) ? Name : $"{Name} / {Alternate}";
+	}}
 
 	//enabled means the input item has been checked in the ui
 	bool _enabled;
@@ -31,7 +37,7 @@ public class InputItem : ViewModelBase
 
 public class InputItemSlider : InputItem
 {
-	public InputItemSlider(IUsageParameter input) : base(input)
+	public InputItemSlider(IUsageParameter input, string altName) : base(input, altName)
 	{
 		//using var deplay = this.DelayChangeNotifications();
 		NumberType = input.InputType.UnWrapNullable();
@@ -146,7 +152,7 @@ public class InputItemSlider : InputItem
 
 public class InputItemDropDown : InputItem
 {
-	public InputItemDropDown(IUsageParameter input, IUsageEnum @enum) : base(input)
+	public InputItemDropDown(IUsageParameter input, IUsageEnum @enum, string altName) : base(input, altName)
 	{
 		var valsList = Rasberry.Cli.PrintHelper.EnumAll(@enum.EnumType, @enum.ExcludeZero);
 
@@ -166,7 +172,7 @@ public class InputItemDropDown : InputItem
 		}
 	}
 
-	public InputItemDropDown(IUsageParameter input, IEnumerable<string> @enum) : base(input)
+	public InputItemDropDown(IUsageParameter input, IEnumerable<string> @enum, string altName) : base(input, altName)
 	{
 		int index = 0;
 		foreach(var name in @enum) {
@@ -201,7 +207,7 @@ public class InputItemSync : InputItem
 	static readonly StreamGeometry IconSyncData;
 	static readonly StreamGeometry IconSyncOffData;
 
-	public InputItemSync(IUsageParameter input, SelectionViewModel svModel) : base(input)
+	public InputItemSync(IUsageParameter input, SelectionViewModel svModel, string altName) : base(input, altName)
 	{
 		var reg = Program.Register;
 		NameSpace = svModel.NameSpace;
@@ -286,7 +292,7 @@ public class InputItemInfo : InputItem
 
 public class InputItemColor : InputItemSync
 {
-	public InputItemColor(IUsageParameter input, SelectionViewModel model) : base(input, model)
+	public InputItemColor(IUsageParameter input, SelectionViewModel model, string altName) : base(input, model, altName)
 	{
 		this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
 
@@ -328,7 +334,7 @@ public class InputItemColor : InputItemSync
 
 public class InputItemPoint : InputItem
 {
-	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm) : base(input)
+	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm, string altName) : base(input, altName)
 	{
 		MWVModel = mwvm;
 		MWVModel.WhenAnyValue(m => m.PreviewPointerPos).Subscribe(p => PickedPoint = p);

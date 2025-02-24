@@ -5,14 +5,25 @@ using System.Drawing;
 
 namespace ImageFunctions.Core;
 
+/// <summary>
+/// Produces a command-line style usage text describing input parameters
+/// </summary>
 public static class UsageRenderer
 {
+	/// <summary>
+	/// Render method
+	/// </summary>
+	/// <param name="sb">A <c cref="StringBuilder"/> instance</param>
+	/// <param name="provider">Instance of a <c cref="IUsageProvider"/></param>
+	/// <returns>The given StringBuilder for chaining</returns>
 	public static StringBuilder RenderUsage(this StringBuilder sb, IUsageProvider provider)
 	{
 		ArgumentNullException.ThrowIfNull(provider);
 		ArgumentNullException.ThrowIfNull(sb);
 
 		var info = provider.GetUsageInfo();
+		var altLookup = info.Alternates?.ToDictionary(i => i.Name) ?? null;
+
 		var desc = info.Description;
 		if(desc != null) {
 			foreach(var d in desc.Descriptions) {
@@ -24,7 +35,7 @@ public static class UsageRenderer
 		if(pList != null) {
 			foreach(var p in pList) {
 				if(p.AddNewLineBefore) { sb.WT(); }
-				var label = GetUsageLabel(p);
+				var label = GetUsageLabel(p, altLookup);
 				sb.ND(p.Indention, label, p.Description);
 			}
 		}
@@ -49,11 +60,16 @@ public static class UsageRenderer
 		return sb;
 	}
 
-	public static string GetUsageLabel(IUsageText p)
+	static string GetUsageLabel(IUsageText p, Dictionary<string,IUsageAlt> altSet)
 	{
 		if(p is IUsageParameter iup) {
+			string alt = null;
+			if (altSet != null && altSet.TryGetValue(p.Name, out var altUsage)) {
+				alt = altUsage.Alternate;
+			}
+			string name = String.IsNullOrWhiteSpace(alt) ? p.Name : $"{p.Name} / {alt}";
 			var tt = iup.TypeText ?? MapTypeToText(iup.InputType, iup.IsNumberPct);
-			var label = p.Name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
+			var label = name + (String.IsNullOrEmpty(tt) ? "" : $" ({tt})");
 			return label;
 		}
 		else {
@@ -61,7 +77,7 @@ public static class UsageRenderer
 		}
 	}
 
-	public static string MapTypeToText(Type t, bool isNumPct)
+	static string MapTypeToText(Type t, bool isNumPct)
 	{
 		if(t == null) {
 			throw Squeal.ArgumentNull(nameof(t));
@@ -90,26 +106,30 @@ public static class UsageRenderer
 	}
 }
 
-// public class GetSet<T>
-// {
-// 	public T Get() => Value;
-// 	public void Set(T val) => Value = val;
-// 	T Value;
-// }
-
+/// <summary>
+/// Provides a <c cref="Usage"/> object
+/// </summary>
 public interface IUsageProvider
 {
 	Usage GetUsageInfo();
 }
 
+/// <summary>
+/// Describes a basic usage parameter
+/// </summary>
 public interface IUsageText
 {
+	/// <summary>Characters to indent</summary>
 	int Indention { get; }
+	/// <summary>Name of paramete. For command line this is they parameter key</summary>
 	string Name { get; }
+	/// <summary>Description of the parameter</summary>
 	string Description { get; }
+	/// <summary>Whether to include a new line before this option during rendering</summary>
 	bool AddNewLineBefore { get; }
 }
 
+/// <inheritdoc />
 public record UsageText : IUsageText
 {
 	public UsageText(int indention, string name, string description = null)
@@ -119,22 +139,36 @@ public record UsageText : IUsageText
 		this.Description = description;
 	}
 
+	/// <inheritdoc />
 	public int Indention { get; private set; }
+	/// <inheritdoc />
 	public string Name { get; private set; }
+	/// <inheritdoc />
 	public string Description { get; init; }
+	/// <inheritdoc />
 	public bool AddNewLineBefore { get; init; }
 }
 
+/// <summary>
+/// A usage parameter with a default value and optionally min,max,numberPct
+/// </summary>
 public interface IUsageParameter : IUsageText
 {
+	/// <summary>The Type of the parameter value</summary>
 	Type InputType { get; }
+	/// <summary>Optional min for this value</summary>
 	double? Min { get; }
+	/// <summary>Optional max for this value</summary>
 	double? Max { get; }
+	/// <summary>The default value</summary>
 	object Default { get; }
+	/// <summary>Override the normal Type name</summary>
 	string TypeText { get; }
+	/// <summary>Specifies if this parameter represents a number%</summary>
 	bool IsNumberPct { get; }
 }
 
+/// <inheritdoc />
 public record UsageOne : UsageText, IUsageParameter
 {
 	public UsageOne(int indention, Type inputType, string name, string description = null)
@@ -143,14 +177,20 @@ public record UsageOne : UsageText, IUsageParameter
 		this.InputType = inputType;
 	}
 
+	/// <inheritdoc />
 	public Type InputType { get; private set; }
+	/// <inheritdoc />
 	public object Default { get; init; }
+	/// <inheritdoc />
 	public string TypeText { get; init; }
+	/// <inheritdoc />
 	public double? Min { get; init; }
+	/// <inheritdoc />
 	public double? Max { get; init; }
+	/// <inheritdoc />
 	public bool IsNumberPct { get; init; }
 }
-
+/// <inheritdoc />
 public record UsageOne<T> : UsageOne
 {
 	public UsageOne(int indention, string name, string description)
@@ -159,6 +199,9 @@ public record UsageOne<T> : UsageOne
 	}
 }
 
+/// <summary>
+/// A usage parameter whos value corresponds to a registered namespace
+/// </summary>
 public record UsageRegistered : UsageOne
 {
 	public UsageRegistered(int indention, string name, string description)
@@ -169,16 +212,26 @@ public record UsageRegistered : UsageOne
 	public string NameSpace { get; init; }
 }
 
+/// <summary>
+/// A usage parameter whos value is an enum
+/// </summary>
 public interface IUsageEnum
 {
+	/// <summary>Characters to indent</summary>
 	int Indention { get; }
+	/// <summary>The title of the enum</summary>
 	string Title { get; }
+	/// <summary>A mapping from an enum value to a description</summary>
 	Func<object, string> DescriptionMap { get; }
+	/// <summary>A mapping from an enum value to a name</summary>
 	Func<object, string> NameMap { get; }
+	/// <summary>Skip the zero enum value when rendering</summary>
 	bool ExcludeZero { get; }
+	/// <summary>The Type of the enum</summary>
 	Type EnumType { get; }
 }
 
+/// <inheritdoc />
 public record UsageEnum : IUsageEnum
 {
 	public UsageEnum(int indention, Type enumType, string title)
@@ -188,14 +241,21 @@ public record UsageEnum : IUsageEnum
 		this.EnumType = enumType;
 	}
 
+	/// <inheritdoc />
 	public int Indention { get; private set; }
+	/// <inheritdoc />
 	public string Title { get; private set; }
+	/// <inheritdoc />
 	public Func<object, string> DescriptionMap { get; init; }
+	/// <inheritdoc />
 	public Func<object, string> NameMap { get; init; }
+	/// <inheritdoc />
 	public bool ExcludeZero { get; init; }
+	/// <inheritdoc />
 	public Type EnumType { get; private set; }
 }
 
+/// <inheritdoc />
 public record UsageEnum<T> : UsageEnum
 {
 	public UsageEnum(int indention, string title)
@@ -204,6 +264,9 @@ public record UsageEnum<T> : UsageEnum
 	}
 }
 
+/// <summary>
+/// Used to display text and not parameters
+/// </summary>
 public record UsageDescription
 {
 	public UsageDescription(int indention, string description = null)
@@ -220,14 +283,48 @@ public record UsageDescription
 		this.Descriptions = descriptions;
 	}
 
+	/// <summary>Characters to indent</summary>
 	public int Indention { get; private set; }
+	/// <summary>A collection of description lines</summary>
 	public IEnumerable<string> Descriptions { get; init; }
 }
 
+/// <summary>
+/// An alternate name for a parameter
+/// </summary>
+public interface IUsageAlt
+{
+	/// <summary>The original name of the parameter</summary>
+	string Name { get; }
+	/// <summary>The alternate name of the parameter</summary>
+	string Alternate { get; }
+}
+
+public record UsageAlt : IUsageAlt
+{
+	public UsageAlt(string name, string alt)
+	{
+		Name = name;
+		Alternate = alt;
+	}
+
+	public string Name { get; init; }
+	public string Alternate { get; init; }
+}
+
+/// <summary>
+/// Represents a collection of usage items
+/// </summary>
 public record Usage
 {
+	/// <summary>The description for this collection</summary>
 	public UsageDescription Description { get; init; }
+	/// <summary>A collection of parameters</summary>
 	public IEnumerable<IUsageText> Parameters { get; init; }
+	/// <summary>The enum specific parameters</summary>
 	public IEnumerable<IUsageEnum> EnumParameters { get; init; }
+	/// <summary>Used for additional help text</summary>
 	public IEnumerable<IUsageText> SuffixParameters { get; init; }
+	/// <summary>A collection of alternate parameter names</summary>
+	public IEnumerable<IUsageAlt> Alternates { get; init; }
 }
