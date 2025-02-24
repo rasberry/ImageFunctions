@@ -1,5 +1,6 @@
 namespace ImageFunctions.Core.FileIO;
 
+/// <inheritdoc />
 public sealed class FileClerk : IFileClerk
 {
 	public FileClerk(IFileIO fileIOinst, string location)
@@ -19,6 +20,7 @@ public sealed class FileClerk : IFileClerk
 		Watcher.Clear();
 	}
 
+	/// <inheritdoc />
 	public string GetLabel(string name, string ext = null, string tag = null)
 	{
 		//give name a default
@@ -26,6 +28,7 @@ public sealed class FileClerk : IFileClerk
 		return TransformLocation(name, ext, tag);
 	}
 
+	/// <inheritdoc />
 	public Stream ReadStream(string ext = null, string tag = null)
 	{
 		if(OneStream != null) {
@@ -38,6 +41,7 @@ public sealed class FileClerk : IFileClerk
 		return OneStream;
 	}
 
+	/// <inheritdoc />
 	public Stream WriteStream(string ext = null, string tag = null)
 	{
 		if(OneStream != null) {
@@ -50,6 +54,7 @@ public sealed class FileClerk : IFileClerk
 		return OneStream;
 	}
 
+	/// <inheritdoc />
 	public Func<Stream> WriteFactory(string ext = null)
 	{
 		if(FactoryCount != 0) {

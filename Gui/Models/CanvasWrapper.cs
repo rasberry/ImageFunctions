@@ -59,5 +59,10 @@ public class CanvasWrapper : ICanvas, INotifyPropertyChanged
 		IsDirty = false;
 	}
 
+	public ICanvas Unwrap()
+	{
+		return Canvas;
+	}
+
 	public event PropertyChangedEventHandler PropertyChanged;
 }

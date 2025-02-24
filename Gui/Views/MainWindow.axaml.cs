@@ -12,7 +12,23 @@ public partial class MainWindow : Window
 	public MainWindow() : base()
 	{
 		InitializeComponent();
+
+		//Using click because sure why PointerPressed doesn't work
 		OpenLayers.Click += OpenFileDialog;
+		SavePreview.Click += (s,e) => SaveFileDialog(e,false);
+		SaveStack.Click += (s,e) => SaveFileDialog(e,true);
+
+		// OpenLayers.GetObservable(PointerPressedEvent).Subscribe((p) => {
+		// 	OpenFileDialog(p);
+		// });
+
+		// SavePreview.GetObservable(PointerPressedEvent).Subscribe((p) => {
+		// 	SaveFileDialog(p,false);
+		// });
+
+		// SaveStack.GetObservable(PointerPressedEvent).Subscribe((p) => {
+		// 	SaveFileDialog(p, true);
+		// });
 
 		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
 			if(Model != null && Model.CurrentZoom != null) {
@@ -105,11 +121,34 @@ public partial class MainWindow : Window
 			AllowMultiple = true
 		});
 
-		IStorageFile item = result.FirstOrDefault();
+		//TODO if multiple selected we should load all of them
+		using IStorageFile item = result.FirstOrDefault();
 		if(item != null) {
 			var path = item.Path.LocalPath ?? item.Path.ToString();
 			Model?.LoadAndShowImage(path);
 		}
+	}
+
+	async void SaveFileDialog(RoutedEventArgs args, bool doSaveStack)
+	{
+		IStorageProvider sp = GetStorageProvider();
+		if(sp is null) { return; }
+		var filter = new List<FilePickerFileType>();
+		if(Model?.SupportedWriteTypes != null) {
+			filter.Add(Model?.SupportedWriteTypes);
+		}
+		filter.Add(FilePickerFileTypes.All);
+
+		var result = await sp.SaveFilePickerAsync(new FilePickerSaveOptions() {
+			Title = "Open Images",
+			FileTypeChoices = filter,
+			DefaultExtension = filter.First().ToString(),
+			ShowOverwritePrompt = true
+		});
+
+		var path = result.Path.LocalPath ?? result.Path.ToString();
+		var format = Path.GetExtension(path);
+		Model?.SaveImage(path, format, doSaveStack);
 	}
 
 	/*

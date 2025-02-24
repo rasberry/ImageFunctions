@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -10,11 +11,13 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
+using ImageFunctions.Gui.Views;
 using ImageFunctions.Plugin.Aides;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
@@ -38,8 +41,8 @@ public class MainWindowViewModel : ViewModelBase
 		//Don't know how to 'subscribe' to all child prop changes so just using a wrapper
 		InputsList.WatchChildProperties(OnInputListChanged);
 
-		this.WhenAnyValue(v => v.CommandText)
-			.Subscribe(UpdateWidgetsFromCommandLine);
+		// this.WhenAnyValue(v => v.CommandText)
+		// 	.Subscribe(UpdateWidgetsFromCommandLine);
 	}
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
@@ -404,58 +407,54 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	/*
-	Bitmap _primaryImageSource;
-	public Bitmap PrimaryImageSource {
-		get => _primaryImageSource;
-		set => this.RaiseAndSetIfChanged(ref _primaryImageSource, value);
-	}
-	public Rect PreviewRectangle { get; set; }
-
-	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
-	{
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} {args.Action} {args.NewStartingIndex} {args.OldStartingIndex}");
-
-		//we only care if the first image was changed
-		bool isNotable = args.OldStartingIndex == 0 || args.NewStartingIndex == 0;
-		if (!isNotable) { return; }
-
-		var roTask = SingleTasks.Get(nameof(PrimaryImageSource));
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} R:{roTask?.IsRunning}");
-
-		var task = SingleTasks.GetOrMake(nameof(PrimaryImageSource),job);
-		_ = task.Run();
-
-		void job(CancellationToken token) {
-			//Trace.WriteLine($"{nameof(OnLayersCollectionChange)} started job");
-			if (Layers.Count < 1) { return; }
-			token.ThrowIfCancellationRequested();
-			var item = Layers[Layers.Count - 1]; //the 'Top' of the stack is the last image
-
-			Trace.WriteLine($"Updating Primary image {item.Canvas.Width}x{item.Canvas.Height}");
-			var orig = PrimaryImageSource;
-			PrimaryImageSource = ConvertCanvasToRgba8888(item.Canvas);
-			orig?.Dispose();
-		}
-	}
-	*/
-
-	// void OnPrimaryImageAreaChange(Rect previewSizeBounds)
-	// {
-	// 	//TODO scroll / zoom updates
-	// }
-
 	public void LoadAndShowImage(string fileName)
 	{
-		if(RegEngine == null) {
-			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
-			return;
-		}
-
+		if (!CheckIsEngineSelected()) { return; }
 		// Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
+	}
+
+	public void SaveImage(string fileName, string format, bool doSaveStack)
+	{
+		if (!CheckIsEngineSelected()) { return; }
+		var layers = MakeUnwrappedLayers(!doSaveStack);
+		using var clerk = new FileClerk(FileIO, fileName);
+		RegEngine.SaveImage(layers, clerk, format);
+	}
+
+	Layers MakeUnwrappedLayers(bool topOnly)
+	{
+		var layers = new Layers(); //don't dispose since we're just referencing
+		if (topOnly) {
+			var first = Layers.First();
+			layers.Push(tryUnwrap(first.Canvas), first.Name);
+		}
+		else {
+			foreach(var l in Layers) {
+				//push to the end since we want the order to not get reversed
+				layers.PushAt(layers.Count, tryUnwrap(l.Canvas), l.Name);
+			}
+		}
+
+		return layers;
+
+		static ICanvas tryUnwrap(ICanvas canvas)
+		{
+			if (canvas is CanvasWrapper wrap) {
+				return wrap.Unwrap();
+			}
+			return canvas;
+		}
+	}
+
+	bool CheckIsEngineSelected() {
+		if(RegEngine == null) {
+			var txt = GuiNote.WarningMustBeSelected("engine");
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
+			return false;
+		}
+		return true;
 	}
 
 	readonly SimpleFileIO FileIO = new();
@@ -518,15 +517,6 @@ public class MainWindowViewModel : ViewModelBase
 
 		return bitmap;
 	}
-
-	// static Rect RectSizeToPixels(Rect size, Vector dpi)
-	// {
-	// 	Size one = new(size.Left, size.Top);
-	// 	Size two = new(size.Width, size.Height);
-	// 	var pone = PixelSize.FromSize(one, dpi);
-	// 	var ptwo = PixelSize.FromSize(two, dpi);
-	// 	return new Rect(pone.Width, pone.Height, ptwo.Width, ptwo.Height);
-	// }
 
 	public void RunCommand()
 	{
@@ -608,9 +598,6 @@ public class MainWindowViewModel : ViewModelBase
 	}
 	static readonly TimeSpan OverlayDelayTimout = TimeSpan.FromMilliseconds(200);
 	System.Timers.Timer OverlayDelayTimer;
-
-	//public delegate void ImagesUpdatedHandler(object sender, EventArgs args);
-	//public event ImagesUpdatedHandler ImagesUpdated;
 
 	public void CancelCommand(object sender, EventArgs args)
 	{
@@ -755,16 +742,16 @@ public class MainWindowViewModel : ViewModelBase
 		commandLineIsRendering = false;
 	}
 
-	void UpdateWidgetsFromCommandLine(string text)
-	{
-		if(String.IsNullOrWhiteSpace(text)) { return; }
-		if(commandLineIsRendering) { return; }
-		commandLineIsRendering = true;
+	// void UpdateWidgetsFromCommandLine(string text)
+	// {
+	// 	if(String.IsNullOrWhiteSpace(text)) { return; }
+	// 	if(commandLineIsRendering) { return; }
+	// 	commandLineIsRendering = true;
 
-		//TODO maybe get rid of this.. seems complicated
-		//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
+	// 	//TODO maybe get rid of this.. seems complicated
+	// 	//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
 
-		//Log.Debug($"UpdateWidgetsFromCommandLine {text}");
-		commandLineIsRendering = false;
-	}
+	// 	//Log.Debug($"UpdateWidgetsFromCommandLine {text}");
+	// 	commandLineIsRendering = false;
+	// }
 }

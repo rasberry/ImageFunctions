@@ -46,7 +46,6 @@ A collection of various image processing functions
 ## GUI ##
 <pre>
 = loaded image layer is named 'item' instead of being derived from file name
-= save image does not work
 = when removing the last layer, the down button does not gray out on the (now) last item
 = fix unusual inputs
   = allcolors option -l / --legacy should pick just '-l'
@@ -57,6 +56,9 @@ A collection of various image processing functions
 = some function job are not finishing
 = consider breaking up MainWindowViewModel .. it's getting a bit big
 = maybe use https://docs.avaloniaui.net/docs/concepts/reactiveui/data-persistence instead of custom options persistance
+= add button to copy full command to clipboard
+= review public classes / interfaces to see if they should be internal
+= add docs to all public classes / methods, etc..
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line

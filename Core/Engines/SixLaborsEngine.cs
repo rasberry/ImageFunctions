@@ -105,18 +105,16 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			//save each frame as it's own image
 			var enc = ifm.GetEncoder(sixFormat);
 
-			int count = 1;
+			var streamFactory = clerk.WriteFactory(ext);
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
-				var stream = clerk.WriteStream(ext, count.ToString());
+				var stream = streamFactory();
 				img.Save(stream, enc);
-				count++;
 			}
 		}
 		else {
 			//copy all frames into a single image
-			var first = layers.First();
 			var firstImg = (SLCanvas)layers.First().Canvas;
 			using var final = new Image<RgbaD>(firstImg.Width, firstImg.Height);
 
