@@ -52,7 +52,6 @@ A collection of various image processing functions
 = function deform has two point pickers.. they are not supposed to be synchronized
   = also one is suppsed to propotional, not pixel based
   = also probableimg
-= selecting dropdown from speargraphic causes -g paramter to mysteriously appear for other functions
 = make usage description stand out a little - maybe a border under the text ?
 = consider breaking up MainWindowViewModel .. it's getting a bit big
 = maybe use https://docs.avaloniaui.net/docs/concepts/reactiveui/data-persistence instead of custom options persistance
@@ -60,7 +59,6 @@ A collection of various image processing functions
 = review public classes / interfaces to see if they should be internal
 = add docs to all public classes / methods, etc..
 = when removing the last layer, the down button does not gray out on the (now) last item
-
 
 X maybe capture log messages - probably need to create a log provider
   = maybe this ? https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line

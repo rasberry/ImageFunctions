@@ -195,7 +195,7 @@ public class InputItemDropDown : InputItem
 	}
 }
 
-public class InputItemSync : InputItem
+public class InputItemSync : InputItem, IDisposable
 {
 	static InputItemSync()
 	{
@@ -213,9 +213,9 @@ public class InputItemSync : InputItem
 		NameSpace = svModel.NameSpace;
 
 		//when the Registered item selection changes, update Item
-		svModel.WhenAnyValue(v => v.Selected)
+		SubSelected = svModel.WhenAnyValue(v => v.Selected)
 			.Subscribe(SetItemWhenConnected);
-		this.WhenAnyValue(v => v.IsSyncEnabled)
+		SubIsSyncEnabled = this.WhenAnyValue(v => v.IsSyncEnabled)
 			.Subscribe(s => SetItemWhenConnected(svModel.Selected));
 
 		var defName = reg.Default(NameSpace);
@@ -246,6 +246,16 @@ public class InputItemSync : InputItem
 	void SetSyncIcon()
 	{
 		SyncIcon = IsSyncEnabled ? IconSyncData : IconSyncOffData;
+	}
+
+	readonly IDisposable SubSelected;
+	readonly IDisposable SubIsSyncEnabled;
+
+	public virtual void Dispose()
+	{
+		SubSelected?.Dispose();
+		SubIsSyncEnabled?.Dispose();
+		GC.SuppressFinalize(this);
 	}
 
 	bool _isSyncEnabled;
@@ -290,11 +300,11 @@ public class InputItemInfo : InputItem
 	public string CombinedInfo { get; init; }
 }
 
-public class InputItemColor : InputItemSync
+public sealed class InputItemColor : InputItemSync
 {
 	public InputItemColor(IUsageParameter input, SelectionViewModel model, string altName) : base(input, model, altName)
 	{
-		this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
+		SubItem = this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
 
 		if(input.Default != null) {
 			if(input.Default is Color native) {
@@ -325,6 +335,14 @@ public class InputItemColor : InputItemSync
 		Color = ((ColorRGBA)item.Value).ToColor();
 	}
 
+	readonly IDisposable SubItem;
+
+	public override void Dispose()
+	{
+		base.Dispose();
+		SubItem?.Dispose();
+	}
+
 	Color _color;
 	public Color Color {
 		get => _color;
@@ -332,13 +350,15 @@ public class InputItemColor : InputItemSync
 	}
 }
 
-public class InputItemPoint : InputItem
+public sealed class InputItemPoint : InputItem, IDisposable
 {
 	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm, string altName) : base(input, altName)
 	{
 		MWVModel = mwvm;
-		MWVModel.WhenAnyValue(m => m.PreviewPointerPos).Subscribe(p => PickedPoint = p);
-		MWVModel.WhenAnyValue(m => m.IsPickingFromPreview).Subscribe(SetIsPickingAlone);
+		SubPreviewPointerPos = MWVModel.WhenAnyValue(m => m.PreviewPointerPos)
+			.Subscribe(p => PickedPoint = p);
+		SubIsPickingFromPreview = MWVModel.WhenAnyValue(m => m.IsPickingFromPreview)
+			.Subscribe(SetIsPickingAlone);
 
 		if(input.Default != null) {
 			Point point;
@@ -461,5 +481,14 @@ public class InputItemPoint : InputItem
 			|| it.Is<System.Drawing.Point>()
 			|| it.Is<System.Drawing.PointF>()
 		;
+	}
+
+	readonly IDisposable SubPreviewPointerPos;
+	readonly IDisposable SubIsPickingFromPreview;
+
+	public void Dispose()
+	{
+		SubPreviewPointerPos?.Dispose();
+		SubIsPickingFromPreview?.Dispose();
 	}
 }

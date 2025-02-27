@@ -606,8 +606,10 @@ public class MainWindowViewModel : ViewModelBase
 
 	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
 	{
-		InputsList.Clear();
+		InputsList.RemoveAll(true);
+		CommandLineArgCache.Clear();
 		var usage = provider.GetUsageInfo();
+		// Trace.WriteLine($"RePopulateInputControls CLAC={CommandLineArgCache.Count} IL={InputsList.Count}");
 
 		var ud = usage.Description;
 		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
@@ -629,6 +631,7 @@ public class MainWindowViewModel : ViewModelBase
 
 	InputItem DetermineInputControl(Usage usage, IUsageParameter iup)
 	{
+		//should these InputItems be cached .. ?
 		//bool isTwo = p is IUsageParameterTwo; //TODO
 		var it = iup.InputType.UnWrapNullable();
 		var altSet = usage.Alternates?.ToDictionary(k => k.Name) ?? null;
@@ -642,12 +645,13 @@ public class MainWindowViewModel : ViewModelBase
 			return null;
 		}
 
+		InputItem final = null;
 		if(iup is UsageRegistered ur) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
-			return new InputItemSync(iup, model, GetAlt(iup.Name));
+			final = new InputItemSync(iup, model, GetAlt(iup.Name));
 		}
 		else if(it.Is<bool>()) {
-			return new InputItem(iup, GetAlt(iup.Name));
+			final = new InputItem(iup, GetAlt(iup.Name));
 		}
 		else if(it.IsEnum) {
 			IUsageEnum iue = null;
@@ -656,25 +660,68 @@ public class MainWindowViewModel : ViewModelBase
 					iue = i; break;
 				}
 			}
-			return new InputItemDropDown(iup, iue, GetAlt(iup.Name));
+			final = new InputItemDropDown(iup, iue, GetAlt(iup.Name));
 		}
 		else if(it.Is<string>()) {
-			return new InputItemText(iup);
+			final = new InputItemText(iup);
 		}
 		//Color inputs also have a sync component
 		else if(InputItemColor.IsSupportedColorType(it)) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
-			return new InputItemColor(iup, model, GetAlt(iup.Name));
+			final = new InputItemColor(iup, model, GetAlt(iup.Name));
 		}
 		else if(InputItemPoint.IsSupportedPointType(it)) {
-			return new InputItemPoint(iup, this, GetAlt(iup.Name));
+			final = new InputItemPoint(iup, this, GetAlt(iup.Name));
 		}
 		else if(it.IsNumeric()) {
-			return new InputItemSlider(iup, GetAlt(iup.Name));
+			final = new InputItemSlider(iup, GetAlt(iup.Name));
 		}
 
-		throw Squeal.NotSupported($"Type {it}");
+		if (final != null) {
+			// WeakTrackItem(final);
+			return final;
+		}
+		else {
+			throw Squeal.NotSupported($"Type {it}");
+		}
 	}
+
+	//Keep - test for subscription leaks
+	//readonly object TrackerLock = new();
+	//readonly List<WeakReference> TrackerList = new();
+	// void WeakTrackItem(InputItem item)
+	// {
+	// 	int wasLen = 0;
+	// 	var dist = new Dictionary<string,int>();
+	// 	lock(TrackerLock) {
+	// 		//add item
+	// 		TrackerList.Add(new WeakReference(item));
+	// 		//remove dead items
+	// 		int len = wasLen = TrackerList.Count;
+	// 		for(int t=0; t < len; t++) {
+	// 			var wr = TrackerList[t];
+	// 			if (wr == null || !wr.IsAlive) {
+	// 				//swap out end and remove
+	// 				len--;
+	// 				TrackerList[t] = TrackerList[len];
+	// 				TrackerList.RemoveAt(len);
+	// 			}
+	// 			var n = wr?.Target?.GetType()?.FullName;
+	// 			if (!String.IsNullOrWhiteSpace(n)) {
+	// 				if (!dist.ContainsKey(n)) {
+	// 					dist[n] = 1;
+	// 				}
+	// 				else {
+	// 					dist[n]++;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	Trace.WriteLine($"WeakTrackItem count={wasLen}");
+	// 	foreach(var kvp in dist) {
+	// 		Trace.WriteLine($"{kvp.Key} = {kvp.Value}");
+	// 	}
+	// }
 
 	public ObservableCollection<InputItem> InputsList { get; init; } = new();
 
@@ -686,7 +733,6 @@ public class MainWindowViewModel : ViewModelBase
 
 	public void OnInputListChanged(object sender, PropertyChangedEventArgs args)
 	{
-		//string extra = "";
 		string value = "";
 		if(sender is InputItemPoint iipoint) {
 			value = $"{iipoint.PickedX},{iipoint.PickedY}";
@@ -718,9 +764,11 @@ public class MainWindowViewModel : ViewModelBase
 		if(sender is InputItem ii) {
 			//Log.Debug($"{(ii.Enabled?"✔":"❌")} [{ii.Name}] {extra}");
 			if(ii.Enabled) {
+				//Trace.WriteLine($"OnInputListChanged {sender.GetType().FullName}: {ii.Name}={value}");
 				CommandLineArgCache[ii.Name] = value;
 			}
 			else {
+				//Trace.WriteLine($"OnInputListChanged Remove {sender.GetType().FullName}: {ii.Name}");
 				CommandLineArgCache.Remove(ii.Name);
 			}
 		}
@@ -742,6 +790,7 @@ public class MainWindowViewModel : ViewModelBase
 		bool isFirst = true;
 		StringBuilder sb = new();
 		foreach(var kvp in CommandLineArgCache) {
+			//Trace.WriteLine($"RCLFW [{kvp.Key},{kvp.Value}]");
 			sb.Append($"{(isFirst ? "" : " ")}{kvp.Key} {kvp.Value}");
 			isFirst = false;
 		}
@@ -750,16 +799,17 @@ public class MainWindowViewModel : ViewModelBase
 		commandLineIsRendering = false;
 	}
 
+	// 	//TODO maybe get rid of this.. seems complicated
 	// void UpdateWidgetsFromCommandLine(string text)
 	// {
 	// 	if(String.IsNullOrWhiteSpace(text)) { return; }
 	// 	if(commandLineIsRendering) { return; }
 	// 	commandLineIsRendering = true;
 
-	// 	//TODO maybe get rid of this.. seems complicated
 	// 	//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
 
 	// 	//Log.Debug($"UpdateWidgetsFromCommandLine {text}");
 	// 	commandLineIsRendering = false;
+	//	//TODO how to update controls ?
 	// }
 }

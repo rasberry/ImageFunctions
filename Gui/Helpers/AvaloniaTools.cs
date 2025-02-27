@@ -1,6 +1,10 @@
 using Avalonia.Controls;
+using DynamicData;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Helpers;
 
@@ -39,10 +43,21 @@ public static class AvaloniaTools
 		}
 
 		incc.CollectionChanged += (sender, args) => {
+			//Trace.WriteLine($"CollectionChanged a={args.Action} n={args.NewItems?.Count} o={args.OldItems?.Count}");
 			if(args.NewItems != null) {
-				foreach(T item in args?.NewItems) {
+				foreach(T item in args.NewItems) {
 					if(item is INotifyPropertyChanged inpc) {
+						//Trace.WriteLine($"Watch += {inpc.GetType().FullName}");
 						inpc.PropertyChanged += handler;
+					}
+				}
+			}
+			
+			if (args.OldItems != null && args.Action == NotifyCollectionChangedAction.Remove) {
+				foreach(T item in args.OldItems) {
+					if (item is INotifyPropertyChanged inpc) {
+						//Trace.WriteLine($"Watch -= {inpc.GetType().FullName}");
+						inpc.PropertyChanged -= handler;
 					}
 				}
 			}
@@ -222,4 +237,17 @@ public static class AvaloniaTools
 		QuoteEnd
 	}
 
+	// This exists because Clear() doesn't remove fire the Remove Notification
+	public static void RemoveAll<T>(this IList<T> itemList, bool disposeItems = false)
+	{
+		for(int i = itemList.Count - 1; i >= 0; i--) {
+			if (disposeItems) {
+				var item = itemList[i];
+				if (item is IDisposable id) {
+					id.Dispose();
+				}
+			}
+			itemList.RemoveAt(i);
+		}
+	}
 }

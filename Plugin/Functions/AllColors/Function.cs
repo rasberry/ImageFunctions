@@ -46,7 +46,7 @@ public class Function : IFunction
 			//Trace.WriteLine($"{nameof(AllColors)} Run 1.5");
 			return false;
 		}
-		Trace.WriteLine($"{nameof(AllColors)} Run 2");
+		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
 
 		//since we're rendering pixels make a new layer each time
 		var engine = Context.Options.Engine.Item.Value;
