@@ -36,7 +36,7 @@ public class MainWindowViewModel : ViewModelBase
 		LayersImageList.CollectionChanged += OnLayersCollectionChange;
 
 		//Don't know how to 'subscribe' to all child prop changes so just using a wrapper
-		InputsList.WatchChildProperties(OnInputListChanged);
+		InputsList.WatchChildProperties(OnInputListPropChanged, OnInputListChanged);
 
 		// this.WhenAnyValue(v => v.CommandText)
 		// 	.Subscribe(UpdateWidgetsFromCommandLine);
@@ -606,21 +606,27 @@ public class MainWindowViewModel : ViewModelBase
 
 	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
 	{
-		InputsList.RemoveAll(true);
+		CurrentUsage = provider.GetUsageInfo();
+		InputsList.RemoveDisposeAll();
 		CommandLineArgCache.Clear();
-		var usage = provider.GetUsageInfo();
+		MultipleParameterCount.Clear();
 		// Trace.WriteLine($"RePopulateInputControls CLAC={CommandLineArgCache.Count} IL={InputsList.Count}");
 
-		var ud = usage.Description;
+		var ud = CurrentUsage.Description;
 		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
-			var iii = new InputItemInfo(new UsageText(1, "", ""), usage.Description.Descriptions);
+			var iii = new InputItemInfo(
+				new UsageText(1, "", ""),
+				CurrentUsage.Description.Descriptions
+			);
 			InputsList.Add(iii);
 		}
 
-		foreach(var p in usage.Parameters) {
+		foreach(var p in CurrentUsage.Parameters) {
 			if(p is IUsageParameter iup) {
-				var input = DetermineInputControl(usage, iup);
-				if(input != null) { InputsList.Add(input); }
+				var input = DetermineInputControl(iup);
+				if(input != null) {
+					InputsList.Add(input);
+				}
 			}
 			else {
 				//just text so skip
@@ -629,17 +635,52 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	InputItem DetermineInputControl(Usage usage, IUsageParameter iup)
+	readonly Dictionary<string, int> MultipleParameterCount = new();
+	int MultipleParameterCounter = 0; //used to make sure each parameter has it's own id
+	Usage CurrentUsage;
+
+	void MakeOrRemoveInputItem(InputItem item)
 	{
-		//should these InputItems be cached .. ?
-		//bool isTwo = p is IUsageParameterTwo; //TODO
+		if(!item.MultipleEnabled) { return; }
+		string name = item.Name;
+		if(!MultipleParameterCount.TryGetValue(name, out int count)) {
+			MultipleParameterCount.Add(name, 1);
+			count = 1;
+		}
+
+		var index = InputsList.IndexOf(item);
+		if(item.IsMultiplePrimary) { //adding
+			var itemMany = (IUsageMany)item.Input;
+			int max = itemMany.AllowCount;
+			if(count >= max) {
+				this.UpdateStatusText($"Maximum item count of {max} reached for {item.Name}", null, LogCategory.Info);
+				return;
+			}
+			int ter = Interlocked.Increment(ref MultipleParameterCounter);
+			//Trace.WriteLine($"Add ix={index} mi={item.MultipleIndex} c={count} nix={index + count}");
+			var input = DetermineInputControl(itemMany, index + ter);
+			if(input != null) {
+				MultipleParameterCount[name]++;
+				InputsList.Insert(index + count, input);
+			}
+		}
+		else { //removing
+			   //Trace.WriteLine($"Remove ix={index} mi={item.MultipleIndex} c={count}");
+			MultipleParameterCount[name]--;
+			InputsList.RemoveDisposeAt(index);
+		}
+	}
+
+	InputItem DetermineInputControl(IUsageParameter iup, int multiIndex = 0)
+	{
 		var it = iup.InputType.UnWrapNullable();
-		var altSet = usage.Alternates?.ToDictionary(k => k.Name) ?? null;
+		var altSet = CurrentUsage.Alternates?.ToDictionary(k => k.Name) ?? null;
+		var isMany = iup is IUsageMany ium;
 
 		//helper alt lookup function to avoid a bunch of repeat code
 		string GetAlt(string name)
 		{
-			if (altSet != null && altSet.TryGetValue(name, out var alt)) {
+			if(altSet != null && altSet.TryGetValue(name, out var alt)) {
 				return alt.Alternate;
 			}
 			return null;
@@ -648,36 +689,56 @@ public class MainWindowViewModel : ViewModelBase
 		InputItem final = null;
 		if(iup is UsageRegistered ur) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
-			final = new InputItemSync(iup, model, GetAlt(iup.Name));
+			final = new InputItemSync(iup, model) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.Is<bool>()) {
-			final = new InputItem(iup, GetAlt(iup.Name));
+			final = new InputItem(iup) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.IsEnum) {
 			IUsageEnum iue = null;
-			foreach(var i in usage.EnumParameters) {
+			foreach(var i in CurrentUsage.EnumParameters) {
 				if(i.EnumType.Equals(iup.InputType)) {
 					iue = i; break;
 				}
 			}
-			final = new InputItemDropDown(iup, iue, GetAlt(iup.Name));
+			final = new InputItemDropDown(iup, iue) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		else if(it.Is<string>()) {
-			final = new InputItemText(iup);
+			final = new InputItemText(iup) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		//Color inputs also have a sync component
 		else if(InputItemColor.IsSupportedColorType(it)) {
 			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
-			final = new InputItemColor(iup, model, GetAlt(iup.Name));
+			final = new InputItemColor(iup, model) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		else if(InputItemPoint.IsSupportedPointType(it)) {
-			final = new InputItemPoint(iup, this, GetAlt(iup.Name));
+			final = new InputItemPoint(iup, this) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		else if(it.IsNumeric()) {
-			final = new InputItemSlider(iup, GetAlt(iup.Name));
+			final = new InputItemSlider(iup) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 
-		if (final != null) {
+		if(final != null) {
 			// WeakTrackItem(final);
 			return final;
 		}
@@ -731,45 +792,39 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _showCommandUsageText, value);
 	}
 
-	public void OnInputListChanged(object sender, PropertyChangedEventArgs args)
+	public void OnInputListPropChanged(object sender, PropertyChangedEventArgs args)
 	{
 		string value = "";
 		if(sender is InputItemPoint iipoint) {
 			value = $"{iipoint.PickedX},{iipoint.PickedY}";
 		}
 		if(sender is InputItemColor iicolor) {
-			//Trace.WriteLine($"OnInputListChanged InputItemColor {(iicolor == null ? "null" : "good")}");
 			var c = iicolor.Color;
 			value = $"#{c.R:X2}{c.G:X2}{c.B:X2}{c.A:X2}";
 		}
 		else if(sender is InputItemSync iisync) {
 			var sel = iisync.Item;
-			//Trace.WriteLine($"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}");
 			value = sel.Name;
 		}
 		else if(sender is InputItemSlider iislider) {
-			//extra = $"InputItemSlider Value={iislider.Value}";
 			value = iislider.Display + (iislider.ShowAsPct ? "%" : "");
 		}
 		else if(sender is InputItemText iitext) {
-			//extra = $"InputItemInfo Text={iitext.Text}";
 			value = iitext.Text;
 		}
 		else if(sender is InputItemDropDown iidrop) {
 			var sel = iidrop.SelectedIndex >= 0 ? iidrop.Choices[iidrop.SelectedIndex] : null;
-			//extra = $"InputItemDropDown SelectedIndex={iidrop.SelectedIndex} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
 			value = sel?.Value.ToString();
 		}
 
 		if(sender is InputItem ii) {
-			//Log.Debug($"{(ii.Enabled?"✔":"❌")} [{ii.Name}] {extra}");
+			var key = $"{ii.Name}{ii.MultipleIndex}";
+			// Trace.WriteLine($"OnInputListChanged {(ii.Enabled?"add":"rem")} {sender.GetType().FullName}: [{ii.MultipleIndex}] {ii.Name}={value}");
 			if(ii.Enabled) {
-				//Trace.WriteLine($"OnInputListChanged {sender.GetType().FullName}: {ii.Name}={value}");
-				CommandLineArgCache[ii.Name] = value;
+				CommandLineArgCache[key] = (ii.Name, value);
 			}
 			else {
-				//Trace.WriteLine($"OnInputListChanged Remove {sender.GetType().FullName}: {ii.Name}");
-				CommandLineArgCache.Remove(ii.Name);
+				CommandLineArgCache.Remove(key);
 			}
 		}
 		else {
@@ -779,7 +834,20 @@ public class MainWindowViewModel : ViewModelBase
 		RenderCommandLineFromWidgets();
 	}
 
-	readonly Dictionary<string, string> CommandLineArgCache = new();
+	void OnInputListChanged(object sender, NotifyCollectionChangedEventArgs args)
+	{
+		if(args.Action == NotifyCollectionChangedAction.Remove) {
+			foreach(var item in args.OldItems) {
+				if(item is InputItem ii) {
+					var key = $"{ii.Name}{ii.MultipleIndex}";
+					CommandLineArgCache.Remove(key);
+				}
+			}
+			RenderCommandLineFromWidgets();
+		}
+	}
+
+	readonly Dictionary<string, (string, string)> CommandLineArgCache = new();
 
 	bool commandLineIsRendering = false;
 	void RenderCommandLineFromWidgets()
@@ -790,8 +858,9 @@ public class MainWindowViewModel : ViewModelBase
 		bool isFirst = true;
 		StringBuilder sb = new();
 		foreach(var kvp in CommandLineArgCache) {
+			var (name, value) = kvp.Value;
 			//Trace.WriteLine($"RCLFW [{kvp.Key},{kvp.Value}]");
-			sb.Append($"{(isFirst ? "" : " ")}{kvp.Key} {kvp.Value}");
+			sb.Append($"{(isFirst ? "" : " ")}{name} {value}");
 			isFirst = false;
 		}
 

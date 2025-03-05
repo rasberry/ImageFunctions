@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
 using ImageFunctions.Core;
+using ImageFunctions.Gui.Helpers;
 
 namespace ImageFunctions.Gui.ViewModels;
 
@@ -33,11 +34,11 @@ public sealed class StatusHistoryLine
 		return @class;
 	}
 
-	static int DebugCounter = 0;
+	//static int DebugCounter = 0;
 	public static void CreateStatusRun(InlineCollection inlinses, string text, LogCategory category)
 	{
-		Interlocked.Add(ref DebugCounter, 1);
-		var line = new Run($"{DebugCounter} {text}");
+		//Interlocked.Add(ref DebugCounter, 1);
+		var line = new Run(text);
 		if(
 			category == LogCategory.Debug ||
 			category == LogCategory.Info ||
@@ -61,16 +62,10 @@ public sealed class StatusHistoryLine
 	static Dictionary<LogCategory, StreamGeometry> InitStatusCategoryIconCache()
 	{
 		Dictionary<LogCategory, StreamGeometry> cache = new();
-		cache.Add(LogCategory.Warning, GetIconForName("IconAlert"));
-		cache.Add(LogCategory.Error, GetIconForName("IconAlertOctagram"));
-		cache.Add(LogCategory.Debug, GetIconForName("IconDeveloperBoard"));
-		cache.Add(LogCategory.Info, GetIconForName("IconInformationOutline"));
+		cache.Add(LogCategory.Warning, AvaloniaTools.GetIconFromName("IconAlert"));
+		cache.Add(LogCategory.Error, AvaloniaTools.GetIconFromName("IconAlertOctagram"));
+		cache.Add(LogCategory.Debug, AvaloniaTools.GetIconFromName("IconDeveloperBoard"));
+		cache.Add(LogCategory.Info, AvaloniaTools.GetIconFromName("IconInformationOutline"));
 		return cache;
-	}
-
-	static StreamGeometry GetIconForName(string name)
-	{
-		Avalonia.Application.Current.Resources.TryGetResource(name, null, out object icon);
-		return (StreamGeometry)icon;
 	}
 }

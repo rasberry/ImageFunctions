@@ -1,10 +1,7 @@
 using Avalonia.Controls;
-using DynamicData;
-using System.Collections;
-using System.Collections.ObjectModel;
+using Avalonia.Media;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
 
 namespace ImageFunctions.Gui.Helpers;
 
@@ -36,7 +33,9 @@ public static class AvaloniaTools
 		return null;
 	}
 
-	public static void WatchChildProperties<T>(this IReadOnlyCollection<T> sender, PropertyChangedEventHandler handler)
+	public static void WatchChildProperties<T>(this IReadOnlyCollection<T> sender,
+		PropertyChangedEventHandler propertyHandler,
+		NotifyCollectionChangedEventHandler collectionHandler)
 	{
 		if(sender is not INotifyCollectionChanged incc) {
 			throw new ArgumentException($"{typeof(T).FullName} is not an observable collection");
@@ -48,25 +47,27 @@ public static class AvaloniaTools
 				foreach(T item in args.NewItems) {
 					if(item is INotifyPropertyChanged inpc) {
 						//Trace.WriteLine($"Watch += {inpc.GetType().FullName}");
-						inpc.PropertyChanged += handler;
+						inpc.PropertyChanged += propertyHandler;
 					}
 				}
 			}
-			
-			if (args.OldItems != null && args.Action == NotifyCollectionChangedAction.Remove) {
+
+			if(args.OldItems != null) {
 				foreach(T item in args.OldItems) {
-					if (item is INotifyPropertyChanged inpc) {
+					if(item is INotifyPropertyChanged inpc) {
 						//Trace.WriteLine($"Watch -= {inpc.GetType().FullName}");
-						inpc.PropertyChanged -= handler;
+						inpc.PropertyChanged -= propertyHandler;
 					}
 				}
 			}
+
+			collectionHandler?.Invoke(sender, args);
 		};
 	}
 
-	public static Avalonia.Media.Color ToColor(this Core.ColorRGBA c)
+	public static Color ToColor(this Core.ColorRGBA c)
 	{
-		var ac = Avalonia.Media.Color.FromArgb(
+		var ac = Color.FromArgb(
 			(byte)(c.A * 255.0),
 			(byte)(c.R * 255.0),
 			(byte)(c.G * 255.0),
@@ -75,73 +76,11 @@ public static class AvaloniaTools
 		return ac;
 	}
 
-	// public static IObservable<TRet> WhenAnyChildValue<TSender, TRet>(this IReadOnlyCollection<TSender> sender, Expression<Func<TSender, TRet>> property1)
-	// {
-	// 	if (sender is not INotifyCollectionChanged incc) {
-	// 		throw new ArgumentException($"{typeof(TSender).FullName} is not an observable collection");
-	// 	}
-
-	// 	Dictionary<TSender, IObservable<TRet>> oList = new();
-
-	// 	incc.CollectionChanged += (sender, args) => {
-	// 		if (args.OldItems != null) {
-	// 			foreach(TSender item in args.OldItems) {
-	// 				oList.Remove(item);
-	// 			}
-	// 		}
-
-	// 		if (args.NewItems != null) {
-	// 			foreach(TSender item in args?.NewItems) {
-	// 				var o = item.WhenAnyValue(property1);
-	// 				oList.Add(item, o);
-	// 			}
-	// 		}
-	// 	};
-
-	// 	var bco = new BroadcastObservable<TRet>(oList.Values);
-	// 	return bco;
-	// }
-
-	// class BroadcastObservable<T> : IObservable<T>
-	// {
-	// 	public BroadcastObservable(IReadOnlyCollection<IObservable<T>> items)
-	// 	{
-	// 		this.Items = items;
-	// 	}
-
-	// 	readonly IReadOnlyCollection<IObservable<T>> Items;
-
-	// 	public IDisposable Subscribe(IObserver<T> observer)
-	// 	{
-	// 		var cleanup = new List<IDisposable>();
-
-	// 		foreach(var item in Items) {
-	// 			var id = item.Subscribe(observer);
-	// 			cleanup.Add(id);
-	// 		}
-
-	// 		return new MultiCleanup(cleanup);
-	// 	}
-	// }
-
-	// class MultiCleanup : IDisposable
-	// {
-	// 	public MultiCleanup(List<IDisposable> list)
-	// 	{
-	// 		this.TheList = list;
-	// 	}
-
-	// 	readonly List<IDisposable> TheList;
-
-	// 	public void Dispose()
-	// 	{
-	// 		if (TheList != null) {
-	// 			foreach(var item in TheList) {
-	// 				item?.Dispose();
-	// 			}
-	// 		}
-	// 	}
-	// }
+	public static StreamGeometry GetIconFromName(string name)
+	{
+		Avalonia.Application.Current.Resources.TryGetResource(name, null, out object icon);
+		return (StreamGeometry)icon;
+	}
 
 	// https://github.com/dotnet/command-line-api/blob/main/src/System.CommandLine/Parsing/CliParser.cs#L40
 
@@ -238,16 +177,19 @@ public static class AvaloniaTools
 	}
 
 	// This exists because Clear() doesn't remove fire the Remove Notification
-	public static void RemoveAll<T>(this IList<T> itemList, bool disposeItems = false)
+	public static void RemoveDisposeAll<T>(this IList<T> itemList)
 	{
 		for(int i = itemList.Count - 1; i >= 0; i--) {
-			if (disposeItems) {
-				var item = itemList[i];
-				if (item is IDisposable id) {
-					id.Dispose();
-				}
-			}
-			itemList.RemoveAt(i);
+			itemList.RemoveDisposeAt(i);
 		}
+	}
+
+	public static void RemoveDisposeAt<T>(this IList<T> itemList, int index)
+	{
+		var item = itemList[index];
+		if(item is IDisposable id) {
+			id.Dispose();
+		}
+		itemList.RemoveAt(index);
 	}
 }

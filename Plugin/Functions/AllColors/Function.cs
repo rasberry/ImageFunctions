@@ -2,7 +2,6 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using ImageFunctions.Plugin.Aides;
-using System.Diagnostics;
 using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;

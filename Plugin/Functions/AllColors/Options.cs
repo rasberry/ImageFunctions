@@ -72,7 +72,7 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageEnum<Space>(1, "Available Spaces") { ExcludeZero = true }
 			],
 			Alternates = [
-				new UsageAlt("-l","--legacy")
+				new UsageAlt("-l", "--legacy")
 			]
 		};
 	}

@@ -46,9 +46,6 @@ A collection of various image processing functions
 ## GUI ##
 <pre>
 = some function job are not finishing
-= fix unusual inputs
-  = ulamspiral -c(1,2,3,4) - might need to re-work this
-  = some functions have inputs that can be specified multiple times (floodfill -p)
 = function deform has two point pickers.. they are not supposed to be synchronized
   = also one is suppsed to propotional, not pixel based
   = also probableimg

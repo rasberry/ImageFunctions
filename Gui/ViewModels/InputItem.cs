@@ -12,20 +12,50 @@ namespace ImageFunctions.Gui.ViewModels;
 
 public class InputItem : ViewModelBase
 {
-	public InputItem(IUsageText input, string altName = null)
+	static InputItem()
+	{
+		IconMultiAdd = AvaloniaTools.GetIconFromName("IconPlusCircle");
+		IconMultiRemove = AvaloniaTools.GetIconFromName("IconCloseCircle");
+	}
+
+	static readonly StreamGeometry IconMultiAdd;
+	static readonly StreamGeometry IconMultiRemove;
+
+	public InputItem(IUsageText input)
 	{
 		Input = input;
-		Alternate = altName;
 	}
 
 	public IUsageText Input { get; init; }
 	public string Description { get { return Input.Description; } }
-	public string Name { get { return Input.Name; }}
+	public string Name { get { return Input.Name; } }
+
+	// alternate name feature
 	public string Alternate { get; init; }
 
-	public string NameDisplay { get {
-		return String.IsNullOrWhiteSpace(Alternate) ? Name : $"{Name} / {Alternate}";
-	}}
+	//multiple of same parameter feature
+	public bool MultipleEnabled { get { return AddOrRemoveHandler != null; } }
+	public bool IsMultiplePrimary { get { return MultipleIndex == 0; } }
+	public Action<InputItem> AddOrRemoveHandler { get; init; }
+	public int MultipleIndex { get; init; }
+
+	public string NameDisplay {
+		get {
+			return String.IsNullOrWhiteSpace(Alternate) ? Name : $"{Name} / {Alternate}";
+		}
+	}
+
+	public string MultiButtonTag {
+		get {
+			return IsMultiplePrimary ? "Add another of this parameter" : "Remove this parameter";
+		}
+	}
+
+	public StreamGeometry MultiIcon {
+		get {
+			return IsMultiplePrimary ? IconMultiAdd : IconMultiRemove;
+		}
+	}
 
 	//enabled means the input item has been checked in the ui
 	bool _enabled;
@@ -33,11 +63,17 @@ public class InputItem : ViewModelBase
 		get => _enabled;
 		set => this.RaiseAndSetIfChanged(ref _enabled, value);
 	}
+
+	public void AddOrRemoveInputItem()
+	{
+		//Trace.WriteLine("CloneOrRemoveInputItem");
+		AddOrRemoveHandler?.Invoke(this);
+	}
 }
 
 public class InputItemSlider : InputItem
 {
-	public InputItemSlider(IUsageParameter input, string altName) : base(input, altName)
+	public InputItemSlider(IUsageParameter input) : base(input)
 	{
 		//using var deplay = this.DelayChangeNotifications();
 		NumberType = input.InputType.UnWrapNullable();
@@ -152,11 +188,11 @@ public class InputItemSlider : InputItem
 
 public class InputItemDropDown : InputItem
 {
-	public InputItemDropDown(IUsageParameter input, IUsageEnum @enum, string altName) : base(input, altName)
+	public InputItemDropDown(IUsageParameter input, IUsageEnum @enum) : base(input)
 	{
 		var valsList = Rasberry.Cli.PrintHelper.EnumAll(@enum.EnumType, @enum.ExcludeZero);
 
-		int index = 0;
+		int selIndex = 0;
 		foreach(var item in valsList) {
 			string num = ((int)item).ToString();
 			var name = @enum.NameMap != null ? @enum.NameMap(item) : item.ToString();
@@ -166,23 +202,23 @@ public class InputItemDropDown : InputItem
 			Choices.Add(sel);
 
 			if(input.Default != null && input.Default.Equals(item)) {
-				SelectedIndex = index;
+				SelectedIndex = selIndex;
 			}
-			index++;
+			selIndex++;
 		}
 	}
 
-	public InputItemDropDown(IUsageParameter input, IEnumerable<string> @enum, string altName) : base(input, altName)
+	public InputItemDropDown(IUsageParameter input, IEnumerable<string> @enum) : base(input)
 	{
-		int index = 0;
+		int selIndex = 0;
 		foreach(var name in @enum) {
 			var sel = new SelectionItem() { Name = name, Value = name };
 			Choices.Add(sel);
 
 			if(input.Default != null && input.Default.Equals(name)) {
-				SelectedIndex = index;
+				SelectedIndex = selIndex;
 			}
-			index++;
+			selIndex++;
 		}
 	}
 
@@ -199,15 +235,14 @@ public class InputItemSync : InputItem, IDisposable
 {
 	static InputItemSync()
 	{
-		var res = Application.Current.Resources;
-		IconSyncData = res.TryGetResource("IconSync", null, out var icon) ? (StreamGeometry)icon : null;
-		IconSyncOffData = res.TryGetResource("IconSyncOff", null, out var iconoff) ? (StreamGeometry)iconoff : null;
+		IconSyncData = AvaloniaTools.GetIconFromName("IconSync");
+		IconSyncOffData = AvaloniaTools.GetIconFromName("IconSyncOff");
 	}
 
 	static readonly StreamGeometry IconSyncData;
 	static readonly StreamGeometry IconSyncOffData;
 
-	public InputItemSync(IUsageParameter input, SelectionViewModel svModel, string altName) : base(input, altName)
+	public InputItemSync(IUsageParameter input, SelectionViewModel svModel) : base(input)
 	{
 		var reg = Program.Register;
 		NameSpace = svModel.NameSpace;
@@ -302,7 +337,7 @@ public class InputItemInfo : InputItem
 
 public sealed class InputItemColor : InputItemSync
 {
-	public InputItemColor(IUsageParameter input, SelectionViewModel model, string altName) : base(input, model, altName)
+	public InputItemColor(IUsageParameter input, SelectionViewModel model) : base(input, model)
 	{
 		SubItem = this.WhenAnyValue(v => v.Item).Subscribe(SetColorFromItem);
 
@@ -352,7 +387,7 @@ public sealed class InputItemColor : InputItemSync
 
 public sealed class InputItemPoint : InputItem, IDisposable
 {
-	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm, string altName) : base(input, altName)
+	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm) : base(input)
 	{
 		MWVModel = mwvm;
 		SubPreviewPointerPos = MWVModel.WhenAnyValue(m => m.PreviewPointerPos)

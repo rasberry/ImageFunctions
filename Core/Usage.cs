@@ -60,11 +60,11 @@ public static class UsageRenderer
 		return sb;
 	}
 
-	static string GetUsageLabel(IUsageText p, Dictionary<string,IUsageAlt> altSet)
+	static string GetUsageLabel(IUsageText p, Dictionary<string, IUsageAlt> altSet)
 	{
 		if(p is IUsageParameter iup) {
 			string alt = null;
-			if (altSet != null && altSet.TryGetValue(p.Name, out var altUsage)) {
+			if(altSet != null && altSet.TryGetValue(p.Name, out var altUsage)) {
 				alt = altUsage.Alternate;
 			}
 			string name = String.IsNullOrWhiteSpace(alt) ? p.Name : $"{p.Name} / {alt}";
@@ -193,8 +193,39 @@ public record UsageOne : UsageText, IUsageParameter
 /// <inheritdoc />
 public record UsageOne<T> : UsageOne
 {
-	public UsageOne(int indention, string name, string description)
+	public UsageOne(int indention, string name, string description = null)
 		: base(indention, typeof(T), name, description)
+	{
+	}
+}
+
+/// <summary>
+/// A usage parameter with a default value and optionally min,max,numberPct
+/// </summary>
+public interface IUsageMany : IUsageParameter
+{
+	/// <summary>How many of this parameter to allow</summary>
+	int AllowCount { get; }
+}
+
+/// <inheritdoc />
+public record UsageMany : UsageOne, IUsageMany
+{
+	public UsageMany(int indention, Type inputType, string name, string description = null, int count = 1)
+		: base(indention, inputType, name, description)
+	{
+		AllowCount = count;
+	}
+
+	/// <inheritdoc />
+	public int AllowCount { get; init; }
+}
+
+/// <inheritdoc />
+public record UsageMany<T> : UsageMany
+{
+	public UsageMany(int indention, string name, string description = null, int count = 1)
+		: base(indention, typeof(T), name, description, count)
 	{
 	}
 }

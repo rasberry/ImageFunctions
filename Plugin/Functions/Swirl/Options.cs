@@ -37,7 +37,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1, "Smears pixels in a circle around a point"),
 			Parameters = [
 				new UsageOne<Point>(1, "-cx", "Swirl center X and Y coordinate in pixels"),
-				new UsageOne<PointF>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = new PointF(0.5f,0.5f), IsNumberPct = true },
+				new UsageOne<PointF>(1, "-cp", "Swirl center X and Y coordinate proportionally (default 50%,50%)") { Default = new PointF(0.5f, 0.5f), IsNumberPct = true },
 				new UsageOne<int>(1, "-rx", "Swirl radius in pixels") { Min = 0, Max = 9999 },
 				new UsageOne<double>(1, "-rp", "Swirl radius proportional to smallest image dimension (default 90%)") { Default = 0.9, IsNumberPct = true },
 				new UsageOne<double>(1, "-s", "Number of rotations (default 0.9)") { Min = 0.01, Default = 0.9, Max = 99 },

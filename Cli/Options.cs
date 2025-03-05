@@ -203,7 +203,7 @@ internal sealed class Options : ICoreOptions
 		}
 
 		//show registered items
-		if(Show.HasFlag(PickShow.Registered) || NameSpaceList != null) {
+		if(Show.HasFlag(PickShow.Registered) || (NameSpaceList?.Count ?? 0) > 0) {
 			ShowRegisteredItems(sb, Show.HasFlag(PickShow.Registered));
 		}
 

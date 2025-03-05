@@ -199,9 +199,7 @@ public class ImageStorage
 
 		static LayersImageData Make(Poco poco, ILayers layers)
 		{
-			//TODO does the assignment order matter here ?
-			return new LayersImageData {
-				Layers = layers,
+			return new LayersImageData(layers) {
 				Image = poco.Preview,
 				Name = poco.Name,
 				Id = poco.Id

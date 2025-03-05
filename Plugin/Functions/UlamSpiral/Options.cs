@@ -47,16 +47,19 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<bool>(1, "-p", "Color pixel if prime (true if -f not specified)"),
 				new UsageOne<bool>(1, "-f", "Color pixel based on number of divisors; dot size is proportional to divisor count"),
 				new UsageOne<bool>(1, "-6m", "Color primes depending on if they are 6*m+1 or 6*m-1"),
-				new UsageOne<Point>(1, "-c", "Center x,y coordinate (default 0,0)"),
+				new UsageOne<Point>(1, "-cc", "Center x,y coordinate (default 0,0)"),
 				new UsageOne<PickMapping>(1, "-m", "Mapping used to translate x,y into an index number (default spiral)") { TypeText = "Mapping" },
 				new UsageOne<int>(1, "-s", "Spacing between points (default 1)") { Min = 0, Default = 1, Max = 999 },
 				new UsageOne<double>(1, "-ds", "Maximum dot size in pixels; decimals allowed (default 1.0)") { Min = 0.01, Default = 1.0, Max = 99 },
 				new UsageOne<PickDot>(1, "-dt", "Dot used for drawing (default circle)") { TypeText = "Dot" },
-				new UsageOne<ColorRGBA>(1, "-c(1,2,3,4)", "Colors to be used depending on mode. (setting any of the colors is optional)"),
+				new UsageOne<ColorRGBA>(1, "-c1", "Color to be used depending on mode. (setting any of the colors is optional)"),
+				new UsageOne<ColorRGBA>(1, "-c2", "Color to be used depending on mode. (setting any of the colors is optional)"),
+				new UsageOne<ColorRGBA>(1, "-c3", "Color to be used depending on mode. (setting any of the colors is optional)"),
+				new UsageOne<ColorRGBA>(1, "-c4", "Color to be used depending on mode. (setting any of the colors is optional)"),
 				new UsageText(1, "Color Mappings:") { AddNewLineBefore = true },
 				new UsageText(1, "default", "c1=background  c2=primes"),
-				new UsageOne<bool>(1, "-f", "c1=background  c2=primes  c3=composites"),
-				new UsageOne<bool>(1, "-6m", "c1=background  c2=6m-1    c3=composites  c4=6m+1"),
+				new UsageText(1, "-f", "c1=background  c2=primes  c3=composites"),
+				new UsageText(1, "-6m", "c1=background  c2=6m-1    c3=composites  c4=6m+1"),
 			],
 			EnumParameters = [
 				new UsageEnum<PickMapping>(1, "Available Mappings:") { DescriptionMap = DescMapping, ExcludeZero = true },
@@ -102,7 +105,7 @@ public sealed class Options : IOptions, IUsageProvider
 			ColorPrimesForce = true;
 		}
 
-		if(p.Scan("-c", par: pointParser)
+		if(p.Scan("-cc", par: pointParser)
 			.WhenGood(r => {
 				CenterX = r.Value.X;
 				CenterY = r.Value.Y;

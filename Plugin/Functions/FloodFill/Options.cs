@@ -39,7 +39,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Description = new UsageDescription(1, "Fills area(s) of color with another color"),
 			Parameters = [
 				new UsageOne<ColorRGBA>(1, "-c", "Fill color (default white)") { Default = CoreColors.White },
-				new UsageOne<Point>(1, "-p", "Pick starting coordinate (can be specified multiple times)"),
+				new UsageMany<Point>(1, "-p", "Pick starting coordinate (can be specified multiple times)") { AllowCount = int.MaxValue },
 				new UsageOne<bool>(1, "-i", "Replace pixels with ones taken the second layer"),
 				new UsageOne<ColorRGBA>(1, "-r", "Treat all pixels of given color as starting points"),
 				new UsageOne<double>(1, "-s", "How similar pixels should be to match range: [0.0,1.0] (default 100%)") { Default = 1.0, IsNumberPct = true },
