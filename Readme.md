@@ -45,9 +45,11 @@ A collection of various image processing functions
 # Issues #
 ## GUI ##
 <pre>
+= canceling the save dialog crashes
+  = also rename to "save images" intead of "open images"
 = some function job are not finishing
-= function deform has two point pickers.. they are not supposed to be synchronized
-  = also one is suppsed to propotional, not pixel based
+= function deform has two point pickers..
+  = one is suppsed to propotional, not pixel based
   = also probableimg
 = make usage description stand out a little - maybe a border under the text ?
 = consider breaking up MainWindowViewModel .. it's getting a bit big

@@ -688,10 +688,12 @@ public class MainWindowViewModel : ViewModelBase
 
 		InputItem final = null;
 		if(iup is UsageRegistered ur) {
+			//not implementing multiple for register items since i can't think of a use-case
 			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
 			final = new InputItemSync(iup, model) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.Is<bool>()) {
+			//doesn't make sense for bool types to have multiple
 			final = new InputItem(iup) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.IsEnum) {

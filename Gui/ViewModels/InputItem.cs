@@ -390,10 +390,6 @@ public sealed class InputItemPoint : InputItem, IDisposable
 	public InputItemPoint(IUsageParameter input, MainWindowViewModel mwvm) : base(input)
 	{
 		MWVModel = mwvm;
-		SubPreviewPointerPos = MWVModel.WhenAnyValue(m => m.PreviewPointerPos)
-			.Subscribe(p => PickedPoint = p);
-		SubIsPickingFromPreview = MWVModel.WhenAnyValue(m => m.IsPickingFromPreview)
-			.Subscribe(SetIsPickingAlone);
 
 		if(input.Default != null) {
 			Point point;
@@ -446,14 +442,38 @@ public sealed class InputItemPoint : InputItem, IDisposable
 		}
 	}
 
-	//used to avoid an infinite event loop with IsPickingFromPreview
+	//seperate function to avoid an infinite event loop with IsPickingFromPreview
 	void SetIsPickingAlone(bool val)
 	{
+		if (val) {
+			PickingSubscribe();
+		}
+		else {
+			PickingUnsubscribe();
+		}
+
 		if(val != _isPicking) {
 			this.RaisePropertyChanging(nameof(IsPicking));
 			_isPicking = val;
 			this.RaisePropertyChanged(nameof(IsPicking));
 		}
+	}
+
+	void PickingSubscribe()
+	{
+		if (IsSubscribed || MWVModel == null) { return; }
+		IsSubscribed = true;
+		SubPreviewPointerPos = MWVModel.WhenAnyValue(m => m.PreviewPointerPos)
+			.Subscribe(p => PickedPoint = p);
+		SubIsPickingFromPreview = MWVModel.WhenAnyValue(m => m.IsPickingFromPreview)
+			.Subscribe(SetIsPickingAlone);
+	}
+
+	void PickingUnsubscribe()
+	{
+		SubPreviewPointerPos?.Dispose();
+		SubIsPickingFromPreview?.Dispose();
+		IsSubscribed = false;
 	}
 
 	string FormatCoord(double raw)
@@ -518,12 +538,12 @@ public sealed class InputItemPoint : InputItem, IDisposable
 		;
 	}
 
-	readonly IDisposable SubPreviewPointerPos;
-	readonly IDisposable SubIsPickingFromPreview;
+	IDisposable SubPreviewPointerPos;
+	IDisposable SubIsPickingFromPreview;
+	bool IsSubscribed;
 
 	public void Dispose()
 	{
-		SubPreviewPointerPos?.Dispose();
-		SubIsPickingFromPreview?.Dispose();
+		PickingUnsubscribe();
 	}
 }
