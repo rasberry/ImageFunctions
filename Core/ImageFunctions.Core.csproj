@@ -17,10 +17,10 @@
     <!-- if referencing this project, references in *your* project to these packages
       must be included with <Private>false</Private>
     -->
-    <PackageReference Include="Rasberry.Cli" Version="2.2.4" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.4" />
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.0.0" />
+    <PackageReference Include="Rasberry.Cli" Version="2.3.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.10" />
+    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.6" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.ProbableImg;
 
@@ -47,12 +46,11 @@ public class Function : IFunction
 		var source = Layers.First().Canvas;
 		var bounds = source.Bounds();
 
-		using var progress = new ProgressBar();
 		MethodBase m = O.UseNonLookup
 			? new MethodTwo { O = O, Log = Context.Log }
 			: new MethodOne { O = O, Log = Context.Log }
 		;
-		m.CreateProfile(progress, source, bounds);
+		m.CreateProfile(Context.Progress, Context.Token, source, bounds);
 
 		//foreach(var kvp in Profile) {
 		//	Log.Debug($"Key = {kvp.Key}");
@@ -61,7 +59,7 @@ public class Function : IFunction
 
 		var engine = Context.Options.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers);
-		m.CreateImage(progress, canvas);
+		m.CreateImage(Context.Progress, canvas, Context.Token);
 		source.CopyFrom(canvas);
 
 		return true;

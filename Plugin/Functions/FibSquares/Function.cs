@@ -384,7 +384,7 @@ public class Function : IFunction
 
 		inside.ThreadPixels((px, py) => {
 			canvas[px, py] = color;
-		}, Context.Options.MaxDegreeOfParallelism);
+		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
 
 		return true;
 	}
@@ -416,7 +416,7 @@ public class Function : IFunction
 
 			var color = CoreColors.BetweenColor(start, end, offset);
 			canvas[px, py] = color;
-		}, Context.Options.MaxDegreeOfParallelism);
+		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
 		return true;
 	}
 

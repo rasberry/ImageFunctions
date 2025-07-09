@@ -1,12 +1,12 @@
 using ImageFunctions.Core;
-using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
 public static class Fourth
 {
-	public static void Draw(ICanvas image, DrawLineFunc dlf, int w, int h, int? seed = null)
+	public static void Draw(ICanvas image, DrawLineFunc dlf, int w, int h, int? seed,
+		IProgress<double> progress, CancellationToken token)
 	{
 		InitRandom(seed);
 
@@ -23,7 +23,7 @@ public static class Fourth
 			PenRateMax = 3
 		};
 
-		Twist1(image, dlf, w, h, p1);
+		Twist1(image, dlf, w, h, p1, progress, token);
 
 		var p2 = new Twist1Params {
 			RadRateMax = 0.3,
@@ -38,7 +38,7 @@ public static class Fourth
 			PenRateMax = 3
 		};
 
-		Twist1(image, dlf, w, h, p2);
+		Twist1(image, dlf, w, h, p2, progress, token);
 
 		var p3 = new Twist1Params {
 			RadRateMax = 0.3,
@@ -52,14 +52,6 @@ public static class Fourth
 			PenRateMin = 0.1,
 			PenRateMax = 3
 		};
-
-		//Twist1(g,w,h,p3);
-
-		//switch(op.Type)
-		//{
-		//case Twist.One: Twist1(g,w,h); break;
-		////case Twist.Two: Twist4(g,w,h); break;
-		//}
 	}
 
 	public class Twist1Params
@@ -76,9 +68,10 @@ public static class Fourth
 		public Color PenStart { get; set; }
 	}
 
-	static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, Twist1Params p)
+	static void Twist1(ICanvas image, DrawLineFunc dlf, int w, int h, Twist1Params p,
+		IProgress<double> progress, CancellationToken token)
 	{
-		DPoint cen = new DPoint(w / 2.0, h / 2.0);
+		DPoint cen = new(w / 2.0, h / 2.0);
 
 		double ang = 0;
 		double maxrad = Math.Min(cen.X, cen.Y);
@@ -91,7 +84,6 @@ public static class Fourth
 		double penrate = Random(p.PenRateMin, p.PenRateMax);
 		double penw = penwtarget;
 
-		using var progress = new ProgressBar();
 		while(true) {
 			double x = Math.Cos(ang) * rad + cen.X;
 			double y = Math.Sin(ang) * rad + cen.Y;
@@ -114,6 +106,7 @@ public static class Fourth
 				break;
 			}
 			progress.Report((maxrad - dist) / maxrad);
+			token.ThrowIfCancellationRequested();
 
 			lx = x; ly = y;
 			ang += p.RotRate;

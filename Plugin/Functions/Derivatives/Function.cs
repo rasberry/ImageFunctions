@@ -53,6 +53,7 @@ public class Function : IFunction
 		QueueItem dqi;
 
 		for(int y = 0; y < frame.Height; y++) {
+			Context.Token.ThrowIfCancellationRequested();
 			for(int x = 0; x < frame.Width; x++) {
 				ColorRGBA? n = null, e = null, s = null, w = null;
 				ColorRGBA c = frame[x, y];

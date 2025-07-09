@@ -22,7 +22,7 @@ public class Division : IMaze
 	readonly Random Rnd;
 	enum PickHV { H = 0, V = 1 }
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		var stack = new Stack<Rectangle>();
 		stack.Push(new Rectangle(0, 0, CellsWide, CellsHigh));
@@ -31,6 +31,7 @@ public class Division : IMaze
 
 		while(stack.Count > 0) {
 			prog.Report(count / total);
+			token.ThrowIfCancellationRequested();
 			var rect = stack.Pop();
 			int dx = rect.Width - rect.X;
 			int dy = rect.Height - rect.Y;

@@ -35,7 +35,7 @@ public class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageOne<double>(1, "-z", "Zoom amount (default 1.1)") { Max = 200.0, Default = 1.1, IsNumberPct = true },
 				new UsageOne<Point>(1, "-cx", "Coordinates of zoom center in pixels"),
-				new UsageOne<PointF>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = 0.5, IsNumberPct = true },
+				new UsageOne<PointF>(1, "-cp", "Coordinates of zoom center by proportion (default 50% 50%)") { Default = new PointF(0.5f, 0.5f), IsNumberPct = true },
 				//new UsageOne<>(" -oh", "Only zoom horizontally");
 				//new UsageOne<>(" -ov", "Only zoom vertically");
 				SamplerHelpers.SamplerUsageParameter(),

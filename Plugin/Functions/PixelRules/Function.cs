@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.PixelRules;
@@ -49,16 +48,15 @@ public class Function : IFunction
 		var engine = CoreOptions.Engine.Item.Value;
 		int maxThreads = CoreOptions.MaxDegreeOfParallelism.GetValueOrDefault(1);
 		var source = Layers.First().Canvas;
-		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 		var rect = source.Bounds();
 
 		for(int p = 0; p < O.Passes; p++) {
-			progress.Prefix = "Pass " + (p + 1) + "/" + O.Passes + " ";
+			Context.Progress.Label = "Pass " + (p + 1) + "/" + O.Passes + " ";
 			canvas.ThreadPixels((x, y) => {
 				ColorRGBA nc = RunRule(source, rect, x, y);
 				canvas[x, y] = nc;
-			}, maxThreads, progress);
+			}, Context.Token, maxThreads, Context.Progress);
 			source.CopyFrom(canvas);
 		}
 

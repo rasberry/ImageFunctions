@@ -1,5 +1,4 @@
 using ImageFunctions.Core;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
@@ -8,7 +7,7 @@ public static class First
 	//-1mm - max multiple
 	//-1dw - divisor for width
 	//-1dh - divisor for height
-	public static void Twist1(ICanvas image, int w, int h)
+	public static void Twist1(ICanvas image, int w, int h, IProgress<double> progress, CancellationToken token)
 	{
 		double maxmult = 6;
 		double vdiv = 10.0;
@@ -18,7 +17,6 @@ public static class First
 		double xyr = 2.0;
 
 		double max = w * maxmult;
-		using var progress = new ProgressBar();
 		for(int v = 0; v < max; v++) {
 			double add = (v / vdiv) + (w / wdiv);
 			double x = (w / xdiv) * Math.Cos(v * Math.PI / w) + add;
@@ -26,29 +24,29 @@ public static class First
 			int c = GreenFade(v, max);
 			DrawDot(image, (int)x, (int)y, c);
 			progress.Report((double)v / max);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 
-	public static void Twist2(ICanvas image, int w, int h)
+	public static void Twist2(ICanvas image, int w, int h, IProgress<double> progress, CancellationToken token)
 	{
 		double maxmult = 10;
 		double wdiv = 32.0;
 		double vdiv = 10.0;
 
 		double max = w * maxmult;
-		using(var progress = new ProgressBar()) {
-			for(int v = 1; v < max; v++) {
-				double a = (max - v) * Math.PI / (max / (max - v / wdiv)) + Math.PI;
-				double x = (w / wdiv) * Math.Cos(a) + (v / vdiv);
-				double y = (w / wdiv) * Math.Sin(a) + (v / vdiv);
-				int c = GreenFade(v, max);
-				DrawDot(image, (int)x, (int)y, c);
-				progress.Report(v / max);
-			}
+		for(int v = 1; v < max; v++) {
+			double a = (max - v) * Math.PI / (max / (max - v / wdiv)) + Math.PI;
+			double x = (w / wdiv) * Math.Cos(a) + (v / vdiv);
+			double y = (w / wdiv) * Math.Sin(a) + (v / vdiv);
+			int c = GreenFade(v, max);
+			DrawDot(image, (int)x, (int)y, c);
+			progress.Report(v / max);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 
-	public static void Twist3(ICanvas image, int w, int h)
+	public static void Twist3(ICanvas image, int w, int h, IProgress<double> progress, CancellationToken token)
 	{
 		double maxmult = 9.5;  //9,10,11 do different things
 		double wdiv = 32.0;
@@ -59,21 +57,20 @@ public static class First
 		double s = w / wdiv;
 		double o = w / vdiv;
 
-		using(var progress = new ProgressBar()) {
-			for(int v = 1; v < max; v++) {
-				double add = (v / tnum) + o;
-				double a = (max - v) * Math.PI / (max / (max - v / wdiv)) + Math.PI;
-				double x = s * Math.Tan(a) + add;
-				double y = s * Math.Sin(a) + add;
-				int c = GreenFade(v, max);
-				DrawDot(image, (int)x, (int)y, c);
+		for(int v = 1; v < max; v++) {
+			double add = (v / tnum) + o;
+			double a = (max - v) * Math.PI / (max / (max - v / wdiv)) + Math.PI;
+			double x = s * Math.Tan(a) + add;
+			double y = s * Math.Sin(a) + add;
+			int c = GreenFade(v, max);
+			DrawDot(image, (int)x, (int)y, c);
 
-				x = s * Math.Sin(a) + add;
-				y = s * Math.Tan(a) + add;
-				DrawDot(image, (int)x, (int)y, c);
+			x = s * Math.Sin(a) + add;
+			y = s * Math.Tan(a) + add;
+			DrawDot(image, (int)x, (int)y, c);
 
-				progress.Report((double)v / max);
-			}
+			progress.Report((double)v / max);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

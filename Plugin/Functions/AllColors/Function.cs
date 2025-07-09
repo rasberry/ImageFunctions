@@ -2,7 +2,6 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
@@ -39,9 +38,11 @@ public class Function : IFunction
 	{
 		//Trace.WriteLine($"{nameof(AllColors)} Run 1");
 		if(Context.Layers == null) {
+			//Trace.WriteLine($"{nameof(AllColors)} Run 1.2");
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
 		if(!O.ParseArgs(args, Context.Register)) {
+			//Trace.WriteLine($"{nameof(AllColors)} Run 1.5");
 			return false;
 		}
 		//Trace.WriteLine($"{nameof(AllColors)} Run 2");
@@ -54,7 +55,13 @@ public class Function : IFunction
 		//Trace.WriteLine($"{nameof(AllColors)} Run 3");
 
 		if(O.UseOriginalCode) {
-			DrawOriginal.Draw(image, Context.Options.MaxDegreeOfParallelism, O);
+			DrawOriginal.Draw(
+				image,
+				Context.Options.MaxDegreeOfParallelism,
+				O,
+				Context.Token,
+				Context.Progress
+			);
 		}
 		else {
 			Draw(image);
@@ -73,14 +80,13 @@ public class Function : IFunction
 	{
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 1");
 		List<ColorRGBA> colorList = null;
-		using var progress = new ProgressBar();
-		progress.Prefix = "Converting... ";
+		Context.Progress.Label = "Converting... ";
 
 		if(O.WhichSpace != Space.None) {
-			colorList = ConvertBySpace(image, O.WhichSpace, progress);
+			colorList = ConvertBySpace(image, O.WhichSpace);
 		}
 		else {
-			colorList = ConvertByPattern(image, O.SortBy, progress);
+			colorList = ConvertByPattern(image, O.SortBy);
 		}
 
 		void copyColors(int x, int y)
@@ -94,22 +100,27 @@ public class Function : IFunction
 		}
 
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 2");
-		progress.Prefix = "Rendering... ";
-		image.ThreadPixels(copyColors, Context.Options.MaxDegreeOfParallelism, progress);
+		Context.Progress.Label = "Rendering... ";
+		image.ThreadPixels(
+			copyColors,
+			Context.Token,
+			Context.Options.MaxDegreeOfParallelism,
+			Context.Progress
+		);
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 3");
 	}
 
-	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p, ProgressBar progress)
+	List<ColorRGBA> ConvertByPattern(ICanvas image, Pattern p)
 	{
 		Func<ColorRGBA, double> converter = null;
 		switch(p) {
 		default:
 		// TODO these patterns could be converted to a colorspace before returning the list ^_^
-		case Pattern.BitOrder: return PatternBitOrder(image, progress, true).ToList();
-		case Pattern.Spiral16: return Spiral16(image, progress).ToList();
-		case Pattern.Spiral4k: return Spiral4k(image, progress).ToList();
-		case Pattern.Spiral4kBuckets: return Spiral4kBuckets(image, progress).ToList();
-		case Pattern.Squares4k: return Squares4k(image, progress).ToList();
+		case Pattern.BitOrder: return PatternBitOrder(image, true).ToList();
+		case Pattern.Spiral16: return Spiral16(image).ToList();
+		case Pattern.Spiral4k: return Spiral4k(image).ToList();
+		case Pattern.Spiral4kBuckets: return Spiral4kBuckets(image).ToList();
+		case Pattern.Squares4k: return Squares4k(image).ToList();
 		// the rest of these are custom luminance sorts
 		case Pattern.AERT: converter = ConvertAERT; break;
 		case Pattern.HSP: converter = ConvertHSP; break;
@@ -124,14 +135,14 @@ public class Function : IFunction
 			throw Squeal.NotSupported($"Pattern {p}");
 		}
 
-		return ConvertAndSort(image, converter, ComparersLuminance(), progress);
+		return ConvertAndSort(image, converter, ComparersLuminance());
 	}
 
-	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space, ProgressBar progress)
+	List<ColorRGBA> ConvertBySpace(ICanvas image, Space space)
 	{
 		switch(space) {
 		case Space.RGB:
-			return ConvertAndSort(image, c => c, CompareColorRGBA(), progress);
+			return ConvertAndSort(image, c => c, CompareColorRGBA());
 		//case Space.CieLab:
 		//	return ConvertAndSort(c => _Converter.ToCieLab(c),ComparersCieLab(),rect);
 		//case Space.CieLch:
@@ -143,15 +154,15 @@ public class Function : IFunction
 		//case Space.CieXyy:
 		//	return ConvertAndSort(c => _Converter.ToCieXyy(c),ComparersCieXyy(),rect);
 		case Space.CieXyz:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()), CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCie1931()), CompareIColor3());
 		case Space.Cmyk:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()), CompareIColor4(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceCmyk()), CompareIColor4());
 		case Space.HSI:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()), CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsi()), CompareIColor3());
 		case Space.HSL:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()), CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsl()), CompareIColor3());
 		case Space.HSV:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()), CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceHsv()), CompareIColor3());
 		//case Space.HunterLab:
 		//	return ConvertAndSort(c => _Converter.ToHunterLab(c),ComparersHunterLab(),rect);
 		//case Space.LinearRgb:
@@ -159,7 +170,7 @@ public class Function : IFunction
 		//case Space.Lms:
 		//	return ConvertAndSort(c => _Converter.ToLms(c),ComparersLms(),rect);
 		case Space.YCbCr:
-			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3(), progress);
+			return ConvertAndSort(image, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3());
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
@@ -168,7 +179,7 @@ public class Function : IFunction
 	//return every color in numeric order
 	//Note: multiple functions use this pattern as their staring point to ordering should not be
 	// applied unless it's output is being rendered directly
-	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image, ProgressBar progress, bool applyOrder = false)
+	IEnumerable<ColorRGBA> PatternBitOrder(ICanvas image, bool applyOrder = false)
 	{
 		int total = Math.Min(image.Width * image.Height, NumberOfColors);
 		for(int i = 0; i < total; i++) {
@@ -191,7 +202,7 @@ public class Function : IFunction
 	}
 
 	// https://en.wikipedia.org/wiki/Wikipedia:Featured_picture_candidates/All_24-bit_RGB_colors
-	IEnumerable<ColorRGBA> Spiral16(ICanvas image, ProgressBar progress)
+	IEnumerable<ColorRGBA> Spiral16(ICanvas image)
 	{
 		//split by 16x16 squares
 		//split by row
@@ -220,11 +231,12 @@ public class Function : IFunction
 			else {
 				yield return new ColorRGBA(r, g, b, 1.0);
 			}
-			progress?.Report((double)c / total);
+			Context.Progress.Report((double)c / total);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 	}
 
-	IEnumerable<ColorRGBA> Spiral4kBuckets(ICanvas image, ProgressBar progress)
+	IEnumerable<ColorRGBA> Spiral4kBuckets(ICanvas image)
 	{
 		//split by buckets then arrange in a spiral
 		const int componentCount = 3;
@@ -257,11 +269,12 @@ public class Function : IFunction
 			else {
 				yield return new ColorRGBA(r, g, b, 1.0);
 			}
-			progress?.Report((double)i / total);
+			Context.Progress.Report((double)i / total);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 	}
 
-	IEnumerable<ColorRGBA> Spiral4k(ICanvas image, ProgressBar progress)
+	IEnumerable<ColorRGBA> Spiral4k(ICanvas image)
 	{
 		// split color by bit pattern then arrange in a spiral
 		const int componentCount = 3;
@@ -289,12 +302,13 @@ public class Function : IFunction
 			else {
 				yield return new ColorRGBA(r, g, b, 1.0);
 			}
-			progress?.Report((double)i / total);
+			Context.Progress.Report((double)i / total);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 	}
 
 	// https://en.wikipedia.org/wiki/Wikipedia:Featured_picture_candidates/All_24-bit_RGB_colors
-	IEnumerable<ColorRGBA> Squares4k(ICanvas image, ProgressBar progress)
+	IEnumerable<ColorRGBA> Squares4k(ICanvas image)
 	{
 		//split by 256x256 squares (256 of them)
 		//split by rows
@@ -324,14 +338,15 @@ public class Function : IFunction
 			else {
 				yield return new ColorRGBA(r, g, b, 1.0);
 			}
-			progress?.Report((double)c / total);
+			Context.Progress.Report((double)c / total);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 	}
 
 
-	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA, T> conv, Func<T, T, int>[] compList, ProgressBar progress)
+	List<ColorRGBA> ConvertAndSort<T>(ICanvas image, Func<ColorRGBA, T> conv, Func<T, T, int>[] compList)
 	{
-		var colorList = PatternBitOrder(image, progress).ToList();
+		var colorList = PatternBitOrder(image).ToList();
 		var tempList = new List<(ColorRGBA, T)>(colorList.Count);
 
 		if(O.Order != null) {
@@ -344,14 +359,16 @@ public class Function : IFunction
 			var c = colorList[t];
 			T next = conv(c);
 			tempList.Add((c, next));
-			progress.Report((double)t / colorList.Count);
+			Context.Progress.Report((double)t / colorList.Count);
+			Context.Token.ThrowIfCancellationRequested();
 		}
 
-		progress.Prefix = "Sorting... ";
+		Context.Progress.Label = "Sorting... ";
 		int count = 0;
 		var progressSorter = new Comparison<(ColorRGBA, T)>((a, b) => {
 			count++;
-			progress.Report(count / SortMax);
+			Context.Progress.Report(count / SortMax);
+			Context.Token.ThrowIfCancellationRequested();
 			return MultiSort(compList, a.Item2, b.Item2);
 		});
 
@@ -362,7 +379,8 @@ public class Function : IFunction
 					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			MoreAide.ParallelSort(tempList, comp, progress, Context.Options.MaxDegreeOfParallelism);
+			MoreAide.ParallelSort(tempList, Context.Token, comp,
+				Context.Progress, Context.Options.MaxDegreeOfParallelism);
 		}
 		else {
 			//seems to be a lot faster than Array.Sort(key,collection)

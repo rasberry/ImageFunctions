@@ -12,23 +12,49 @@ public partial class MainWindow : Window
 	public MainWindow() : base()
 	{
 		InitializeComponent();
+
+		//Using click because not sure why PointerPressed doesn't work
 		OpenLayers.Click += OpenFileDialog;
-		PreviewPanel.SizeChanged += OnPreviewPanelSizeChanged;
-		//DataContextChanged += OnDataContextChanged;
-	}
+		SavePreview.Click += (s, e) => SaveFileDialog(e, false);
+		SaveStack.Click += (s, e) => SaveFileDialog(e, true);
 
-	void OnPreviewPanelSizeChanged(object sender, SizeChangedEventArgs args)
-	{
-		if(Model != null) {
-			var current = Model.PreviewRectangle;
-			Model.PreviewRectangle = new Rect(current.TopLeft, args.NewSize);
-		}
-	}
+		PreviewPanel.GetObservable(ScrollViewer.ViewportProperty).Subscribe((s) => {
+			if(Model != null && Model.CurrentZoom != null) {
+				Model.CurrentZoom.ViewPort = s;
+			}
+		});
 
-	//void OnDataContextChanged(object sender, EventArgs args)
-	//{
-	//	Model.ImagesUpdated += RedrawImage;
-	//}
+		PreviewPanel.GetObservable(ScrollViewer.ExtentProperty).Subscribe((s) => {
+			if(Model != null && Model.CurrentZoom != null) {
+				Model.CurrentZoom.Extent = s;
+			}
+		});
+
+		PreviewPanel.GetObservable(PointerMovedEvent).Subscribe((p) => {
+			if(Model?.IsPickingFromPreview ?? false) {
+				var pp = p.GetCurrentPoint(PreviewImage);
+				Model.PreviewPointerPos = pp.Position;
+				//Trace.WriteLine($"PointerMoved pp={pp.Position}");
+			}
+		});
+
+		PreviewPanel.GetObservable(PointerPressedEvent).Subscribe((p) => {
+			if(Model?.IsPickingFromPreview ?? false) {
+				p.Handled = true;
+				Model.IsPickingFromPreview = false;
+			}
+		});
+
+		PreviewImage.GetObservable(PointerWheelChangedEvent).Subscribe((e) => {
+			// Trace.WriteLine($"vp={PreviewPanel.Viewport}");
+			e.Handled = true;
+			Model?.UpdatePreviewZoomByScroll(e.Delta);
+		});
+
+		// PreviewPanel.GetObservable(ScrollViewer.OffsetProperty).Subscribe((s) => {
+		// 	Trace.WriteLine($"of={s} ex={PreviewPanel.Extent} vp={PreviewPanel.Viewport}");
+		// });
+	}
 
 	//Note: always check for null before using this e.g. Model?.
 	MainWindowViewModel Model {
@@ -44,10 +70,11 @@ public partial class MainWindow : Window
 			var (s, e) = o; //tuple deconstruct
 			UpdateStatusHandler(s, (PointerEventArgs)e, false);
 		});
-		PointerExitedEvent.Raised.Subscribe(o => {
-			var (s, e) = o;
-			UpdateStatusHandler(s, (PointerEventArgs)e, true);
-		});
+		//we don't need PointerExited becuase we're timer-hiding
+		// PointerExitedEvent.Raised.Subscribe(o => {
+		// 	var (s, e) = o;
+		// 	UpdateStatusHandler(s, (PointerEventArgs)e, true);
+		// });
 	}
 
 	void UpdateStatusHandler(object sender, PointerEventArgs args, bool isLeaving)
@@ -56,7 +83,7 @@ public partial class MainWindow : Window
 		string text = control?.Tag?.ToString();
 
 		if(text != null) {
-			Model?.UpdateStatusText(text, isLeaving);
+			Model?.UpdateStatusText(text);
 		}
 	}
 
@@ -82,26 +109,33 @@ public partial class MainWindow : Window
 			AllowMultiple = true
 		});
 
-		IStorageFile item = result.FirstOrDefault();
+		//TODO if multiple selected we should load all of them
+		using IStorageFile item = result.FirstOrDefault();
 		if(item != null) {
 			var path = item.Path.LocalPath ?? item.Path.ToString();
 			Model?.LoadAndShowImage(path);
 		}
 	}
 
-	/*
-	public void RedrawImage(object sender, EventArgs args)
+	async void SaveFileDialog(RoutedEventArgs args, bool doSaveStack)
 	{
-		Trace.WriteLine($"{nameof(RedrawImage)}");
-		var prim = PreviewPanel.FindLogicalDescendantOfType<Image>();
-		prim.UpdateLayout();
-
-		var list = LayersBox.GetLogicalDescendants();
-		foreach(var node in list) {
-			if (node is Image image) {
-				image.UpdateLayout();
-			}
+		IStorageProvider sp = GetStorageProvider();
+		if(sp is null) { return; }
+		var filter = new List<FilePickerFileType>();
+		if(Model?.SupportedWriteTypes != null) {
+			filter.Add(Model?.SupportedWriteTypes);
 		}
+		filter.Add(FilePickerFileTypes.All);
+
+		var result = await sp.SaveFilePickerAsync(new FilePickerSaveOptions() {
+			Title = "Open Images",
+			FileTypeChoices = filter,
+			DefaultExtension = filter.First().ToString(),
+			ShowOverwritePrompt = true
+		});
+
+		var path = result.Path.LocalPath ?? result.Path.ToString();
+		var format = Path.GetExtension(path);
+		Model?.SaveImage(path, format, doSaveStack);
 	}
-	*/
 }

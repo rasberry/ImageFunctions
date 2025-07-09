@@ -2,7 +2,6 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using System.Drawing;
 using CoreColor = ImageFunctions.Core.Aides.ColorAide;
 using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
@@ -95,7 +94,7 @@ public class Function : IFunction
 			}
 		};
 
-		using var pb2 = new ProgressBar() { Prefix = "Drawing " };
+		Context.Progress.Label = "Drawing ";
 
 		if(drawSlow) {
 			//have to keep track of progress manually
@@ -104,8 +103,9 @@ public class Function : IFunction
 			for(int y = srect.Top; y < srect.Bottom; y++) {
 				for(int x = srect.Left; x < srect.Right; x++) {
 					drawOne(x, y);
-					pb2.Report(++pbcount / pbmax);
+					Context.Progress.Report(++pbcount / pbmax);
 				}
+				Context.Token.ThrowIfCancellationRequested();
 			}
 
 			//for slow composites need to draw leftovers
@@ -116,14 +116,15 @@ public class Function : IFunction
 				foreach(var item in list) {
 					var (count, x, y) = item;
 					DrawComposite(source, count * factor, x, y, drawFunc);
-					pb2.Report(++pbcount / pbmax);
+					Context.Progress.Report(++pbcount / pbmax);
+					Context.Token.ThrowIfCancellationRequested();
 				}
 			}
 		}
 		else {
 			srect.ThreadPixels((x, y) => {
 				drawOne(x, y);
-			}, CoreOptions.MaxDegreeOfParallelism, pb2);
+			}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
 		}
 
 		return true;
@@ -151,7 +152,7 @@ public class Function : IFunction
 		int maxFactor = int.MinValue;
 		object maxLock = new object();
 		var (cx, cy) = GetCenterXY(srect);
-		using var pb1 = new ProgressBar() { Prefix = "Calculating " };
+		Context.Progress.Label = "Calculating ";
 
 		srect.ThreadPixels((x, y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
@@ -162,7 +163,7 @@ public class Function : IFunction
 					if(count > maxFactor) { maxFactor = count; }
 				}
 			}
-		}, CoreOptions.MaxDegreeOfParallelism, pb1);
+		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
 
 		return maxFactor;
 	}

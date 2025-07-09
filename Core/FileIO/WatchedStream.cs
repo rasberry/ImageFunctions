@@ -2,10 +2,10 @@ namespace ImageFunctions.Core.FileIO;
 
 public sealed class WatchedStream : Stream
 {
-	public WatchedStream(Stream s, IProgress<double> progress)
+	public WatchedStream(Stream stream, IProgress<double> progress = null)
 	{
 		Progress = progress;
-		InnerStream = s;
+		InnerStream = stream ?? throw Squeal.ArgumentNull(nameof(stream));
 		IsDisposed = false;
 	}
 

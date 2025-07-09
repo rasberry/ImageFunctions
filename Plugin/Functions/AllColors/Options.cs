@@ -65,11 +65,14 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<bool>(1, "-ps", "Use multi-threaded sort function instead of regular sort"),
 				new UsageOne<double>(1, "-o", "Color Offset to use (should be between 0% and 100%") { IsNumberPct = true },
 				new UsageOne<int>(1, "-on", $"Absolute Color Offset to use"),
-				new UsageOne<bool>(1, "-l / --legacy", "Use original (legacy) algorithm"),
+				new UsageOne<bool>(1, "-l", "Use original (legacy) algorithm"),
 			],
 			EnumParameters = [
 				new UsageEnum<Pattern>(1, "Available Patterns") { DescriptionMap = GetPatternDescription, ExcludeZero = true },
 				new UsageEnum<Space>(1, "Available Spaces") { ExcludeZero = true }
+			],
+			Alternates = [
+				new UsageAlt("-l", "--legacy")
 			]
 		};
 	}

@@ -5,18 +5,19 @@ namespace ImageFunctions.Plugin.Aides;
 
 internal class BitonicSort<T>
 {
-	public BitonicSort(IList<T> array, IComparer<T> comparer = null, IProgress<double> progress = null)
+	public BitonicSort(IList<T> array, CancellationToken token, IComparer<T> comparer = null, IProgress<double> progress = null)
 	{
 		Data = array;
 		Compare = comparer;
 		Progress = progress;
+		Token = token;
 	}
 
 	public int? MaxDegreeOfParallelism { get; set; }
 
 	public void Sort()
 	{
-		var options = new ParallelOptions();
+		var options = new ParallelOptions { CancellationToken = Token };
 		if(MaxDegreeOfParallelism.HasValue) {
 			options.MaxDegreeOfParallelism = MaxDegreeOfParallelism.Value;
 		}
@@ -53,4 +54,5 @@ internal class BitonicSort<T>
 	readonly IList<T> Data;
 	readonly IComparer<T> Compare;
 	readonly IProgress<double> Progress;
+	readonly CancellationToken Token;
 }

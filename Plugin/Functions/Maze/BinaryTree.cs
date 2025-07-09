@@ -16,28 +16,31 @@ public class BinaryTree : IMaze
 
 	readonly Random Rnd;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		//left edge
-		prog.Prefix = "Left Edge ";
+		prog.Label = "Left Edge ";
 		for(int y = 0; y < CellsHigh; y++) {
 			DrawPick(0, y, PickWall.N, PickWall.N);
 			prog.Report((double)y / CellsHigh);
+			token.ThrowIfCancellationRequested();
 		}
 		//top edge
-		prog.Prefix = "Top Edge ";
+		prog.Label = "Top Edge ";
 		for(int x = 0; x < CellsWide; x++) {
 			DrawPick(x, 0, PickWall.W, PickWall.W);
 			prog.Report((double)x / CellsWide);
+			token.ThrowIfCancellationRequested();
 		}
 		//everything else
-		prog.Prefix = "Maze ";
+		prog.Label = "Maze ";
 		double total = CellsWide * CellsHigh;
 		for(int y = 0; y < CellsHigh; y++) {
 			for(int x = 0; x < CellsWide; x++) {
 				DrawPick(x, y, PickWall.W, PickWall.N);
 				prog.Report((y * CellsWide + x) / total);
 			}
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

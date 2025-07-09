@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Maze;
 
@@ -67,8 +66,7 @@ public class Function : IFunction
 		}
 
 		Plugin.Aides.ImageAide.FillWithColor(canvas, O.WallColor);
-		using var progress = new ProgressBar();
-		BasicMaze.DrawMaze(progress);
+		BasicMaze.DrawMaze(Context.Progress, Context.Token);
 
 		return true;
 	}

@@ -20,7 +20,7 @@ public class Ellers : IMaze
 	public int CellsHigh { get; set; }
 	readonly Random Rnd;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		PickWall M = PickWall.None;
 		int W = CellsWide + 1; //+1 to account for the ghost column

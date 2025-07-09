@@ -19,7 +19,7 @@ public class Kruskal : IMaze
 
 	readonly Random Rnd;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		int len = CellsHigh * CellsWide;
 
@@ -46,6 +46,7 @@ public class Kruskal : IMaze
 			case PickWall.W: next = new Point(node.P.X - 1, node.P.Y); break;
 			}
 			prog.Report((len - Edges.Count) / (double)len);
+			token.ThrowIfCancellationRequested();
 
 			//didn't find an edge
 			if(!next.HasValue) {

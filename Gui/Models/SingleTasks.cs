@@ -4,29 +4,26 @@ namespace ImageFunctions.Gui.Models;
 
 public static class SingleTasks
 {
-	public static async Task TimeoutAfterAsync(this Task task, TimeSpan timeout)
-	{
-		using var timeoutCancel = new CancellationTokenSource();
-		var completedTask = await Task.WhenAny(task, Task.Delay(timeout, timeoutCancel.Token));
-		if(completedTask == task) {
-			timeoutCancel.Cancel();
-			await task;  // Very important in order to propagate exceptions
-		}
-		else {
-			throw new TimeoutException("The operation has timed out.");
-		}
-	}
-
 	public static SingleTonTask GetOrMake(string name, Action<CancellationToken> job, TimeSpan? timeout = null)
 	{
-		if(!Tasks.TryGetValue(name, out var task)) {
+		bool found = Tasks.TryGetValue(name, out var task);
+		bool replace = found && (task == null || task.IsRunning == false);
+		//Trace.WriteLine($"{nameof(GetOrMake)} name={name} found={found} replace={replace}");
+
+		if(!found || replace) {
 			task = new SingleTonTask {
 				Job = job,
 				Timeout = timeout ?? TimeSpan.FromSeconds(DefaultTimeoutSeconds)
 			};
 
-			Tasks.Add(name, task);
+			if(replace) {
+				Tasks[name] = task;
+			}
+			else {
+				Tasks.Add(name, task);
+			}
 		}
+
 		return task;
 	}
 
@@ -39,39 +36,43 @@ public static class SingleTasks
 	}
 
 	const int DefaultTimeoutSeconds = 30;
-	static Dictionary<string, SingleTonTask> Tasks = new();
+	readonly static Dictionary<string, SingleTonTask> Tasks = new();
 }
 
-public class SingleTonTask : IDisposable
+public sealed class SingleTonTask : IDisposable
 {
 	public Action<CancellationToken> Job { get; set; }
 	public TimeSpan Timeout { get; set; }
 	public bool IsRunning { get; private set; }
-	readonly CancellationTokenSource TokenSource = new();
+	CancellationTokenSource TokenSource;
 	Task RunningTask;
 
 	/// <summary>Try to start the task</summary>
 	/// <returns>true if the task was started</returns>
 	public async Task<bool> Run()
 	{
+		//stop the currently running task if it's run again.
 		if(IsRunning) {
-			TokenSource.Cancel();
+			//Trace.WriteLine($"{nameof(SingleTonTask)} Run Calling cancel");
+			TokenSource?.Cancel();
 			return false;
 		}
 
+		TokenSource = new(Timeout);
 		IsRunning = true;
 
 		try {
-			RunningTask = Task.Run(() => Job(TokenSource.Token), TokenSource.Token)
-				.TimeoutAfterAsync(Timeout);
+			//Trace.WriteLine($"{nameof(SingleTonTask)} Starting Run..");
+			RunningTask = Task.Run(() => Job(TokenSource.Token), TokenSource.Token);
 
 			await RunningTask.ContinueWith(t => {
 				IsRunning = false;
 				TokenSource.TryReset();
 			});
+			//Trace.WriteLine($"{nameof(SingleTonTask)} Ending Run..");
 		}
-		catch(OperationCanceledException e) {
-			Trace.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+		catch(Exception e) {
+			Trace.WriteLine($"Run {e.GetType().Name} thrown with message: {e.Message}");
 			IsRunning = false;
 			TokenSource.TryReset();
 		}
@@ -80,14 +81,23 @@ public class SingleTonTask : IDisposable
 
 	public void Cancel()
 	{
+		//Trace.WriteLine($"{nameof(SingleTonTask)} Cancel called IsRunning={IsRunning}");
 		if(IsRunning) {
-			TokenSource.Cancel();
+			try {
+				TokenSource.Cancel();
+			}
+			catch(Exception e) {
+				Trace.WriteLine($"Cancel {e.GetType().Name} thrown with message: {e.Message}");
+			}
+			finally {
+				IsRunning = false;
+				TokenSource.TryReset();
+			}
 		}
 	}
 
 	public void Dispose()
 	{
 		TokenSource?.Dispose();
-		GC.SuppressFinalize(this);
 	}
 }

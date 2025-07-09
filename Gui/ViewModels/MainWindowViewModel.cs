@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls.Documents;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Platform.Storage;
@@ -9,6 +10,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Gui.Helpers;
 using ImageFunctions.Gui.Models;
+using ImageFunctions.Plugin.Aides;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -26,15 +28,18 @@ public class MainWindowViewModel : ViewModelBase
 		var imageStorage = new ImageStorage(ConvertCanvasToRgba8888);
 		LayersImageList = imageStorage.Bitmaps;
 		Layers = imageStorage.Layers;
+		OverlayState = new();
+		OverlayState.OnStopJob += CancelCommand;
+		OptionsModel = new();
 
 		RxApp.MainThreadScheduler.Schedule(LoadData);
 		LayersImageList.CollectionChanged += OnLayersCollectionChange;
 
 		//Don't know how to 'subscribe' to all child prop changes so just using a wrapper
-		InputsList.WatchChildProperties(OnInputListChanged);
+		InputsList.WatchChildProperties(OnInputListPropChanged, OnInputListChanged);
 
-		this.WhenAnyValue(v => v.CommandText)
-			.Subscribe(UpdateWidgetsFromCommandLine);
+		// this.WhenAnyValue(v => v.CommandText)
+		// 	.Subscribe(UpdateWidgetsFromCommandLine);
 	}
 
 	static readonly TimeSpan WarningTimeout = TimeSpan.FromSeconds(10.0);
@@ -61,14 +66,13 @@ public class MainWindowViewModel : ViewModelBase
 				return new SelectionItem { Name = item.Name, NameSpace = ns };
 			}, OnFunctionSelected),
 
+			// using Value here since ColorRGBA is light-weight
 			ColorRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				var colorItem = reg.Get<ColorRGBA>(ns, item.Name);
 				return new SelectionItemColor {
-					Name = item.Name,
-					NameSpace = ns,
-					Color = ConvertColor(colorItem)
+					Name = item.Name, NameSpace = ns, Value = colorItem.Item
 				};
-			}, OnSomethingSelected),
+			}),
 
 			EngineRegister.NS => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
@@ -78,18 +82,20 @@ public class MainWindowViewModel : ViewModelBase
 			_ => AddTreeNodeFromRegistered(ns, (reg, item) => {
 				string tag = reg.GetNameSpaceItemHelp(item);
 				return new SelectionItem { Name = item.Name, NameSpace = ns, Tag = tag };
-			}, OnSomethingSelected),
+			}),
 		};
 
 		return svm;
 	}
 
+	public OverlayViewModel OverlayState { get; init; }
 	public ILayers Layers { get; init; }
 	public ObservableStackList<LayersImageData> LayersImageList { get; init; }
+	public OptionsViewModel OptionsModel { get; init; }
 
 	SelectionViewModel AddTreeNodeFromRegistered(string @namespace,
 		Func<IRegister, INameSpaceName, SelectionItem> filler,
-		Action<SelectionItem> selectionHandler
+		Action<SelectionItem> selectionHandler = null
 	)
 	{
 		var reg = Program.Register;
@@ -113,8 +119,10 @@ public class MainWindowViewModel : ViewModelBase
 			sel.Selected = selected;
 		}
 
-		sel.WhenAnyValue(p => p.Selected)
-			.Subscribe(selectionHandler);
+		if(selectionHandler != null) {
+			sel.WhenAnyValue(p => p.Selected)
+				.Subscribe(selectionHandler);
+		}
 
 		return sel;
 	}
@@ -131,12 +139,14 @@ public class MainWindowViewModel : ViewModelBase
 			return;
 		}
 
-		var task = Models.SingleTasks.GetOrMake(nameof(OnFunctionSelected), job);
+		var timeout = TimeSpan.FromMinutes(5);
+		var task = SingleTasks.GetOrMake(nameof(OnFunctionSelected), job, timeout);
 		_ = task?.Run(); //fire and forget
 
 		void job(CancellationToken token)
 		{
-			var ctx = new FunctionContext { Register = Program.Register, Log = Program.Log };
+			//usage only needs Register and Log
+			var ctx = new FunctionContext { Register = Program.Register, Log = Program.Log, Token = token };
 			var func = RegFunction?.Item.Invoke(ctx);
 			token.ThrowIfCancellationRequested();
 
@@ -146,6 +156,7 @@ public class MainWindowViewModel : ViewModelBase
 			token.ThrowIfCancellationRequested();
 
 			Dispatcher.UIThread.Post(() => {
+				CommandText = "";
 				UsageText = sb.ToString();
 				if(opts is IUsageProvider iup) {
 					RePopulateInputControls(iup, token);
@@ -202,31 +213,22 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	void OnSomethingSelected(SelectionItem item)
-	{
-		Program.Log.Debug($"Something selected {item?.Name}");
-	}
-
-	static Avalonia.Media.SolidColorBrush ConvertColor(IRegisteredItem<ColorRGBA> item)
-	{
-		var c = item.Item;
-		var ac = Avalonia.Media.Color.FromArgb(
-			(byte)(c.A * 255.0),
-			(byte)(c.R * 255.0),
-			(byte)(c.G * 255.0),
-			(byte)(c.B * 255.0)
-		);
-		return new Avalonia.Media.SolidColorBrush(ac);
-	}
+	// void OnSomethingSelected(SelectionItem item)
+	// {
+	// 	Program.Log.Debug($"Something selected {item?.Name}");
+	// }
 
 	public FilePickerFileType SupportedReadTypes { get; private set; }
 	public FilePickerFileType SupportedWriteTypes { get; private set; }
 
-	string _statusText = $"Welcome to {nameof(ImageFunctions)}"; //TODO add version
-	public string StatusText {
-		get => _statusText;
-		set => this.RaiseAndSetIfChanged(ref _statusText, value);
+	string _statusClass;
+	public string StatusClass {
+		get => _statusClass;
+		set => this.RaiseAndSetIfChanged(ref _statusClass, value);
 	}
+
+	public ObservableCollection<StatusHistoryLine> StatusHistory { get; init; } = new();
+	public InlineCollection StatusTextInlines { get; init; } = new();
 
 	string _commandText = "";
 	public string CommandText {
@@ -240,46 +242,121 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _usageText, value);
 	}
 
-	public void ToggleThemeClick()
+	bool _isStatusHistoryOpen = false;
+	public bool IsStatusHistoryOpen {
+		get => _isStatusHistoryOpen;
+		set => this.RaiseAndSetIfChanged(ref _isStatusHistoryOpen, value);
+	}
+
+	public void ToggleStatusHistory()
 	{
-		var app = Application.Current;
-		if(app is not null) {
-			var theme = app.ActualThemeVariant;
-			app.RequestedThemeVariant = theme == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
-		}
+		IsStatusHistoryOpen = !IsStatusHistoryOpen;
 	}
 
 	// The behavior shows the text as long as the control is still under the pointer
-	// but wait before hiding the text after the pointer leaves
-	public void UpdateStatusText(string text, bool startTimer, TimeSpan? timeout = null)
+	// but waits before hiding the text after the pointer leaves
+	public void UpdateStatusText(string text, TimeSpan? timeout = null,
+		LogCategory category = LogCategory.Unknown)
 	{
 		//Trace.WriteLine($"UpdateStatusText T:'{text}' E:{(startTimer?"Y":"N")} T:{timeout.GetValueOrDefault().TotalMilliseconds}");
 		if(StatusTextTimer == null) {
-			StatusTextTimer = new() {
-				AutoReset = false,
-				Interval = StatusTextTimeout.TotalMilliseconds
-			};
+			StatusTextTimer = new() { AutoReset = false };
+
 			//this clears the status after some time
-			StatusTextTimer.Elapsed += (s, e) => UpdateStatusText("", false);
+			StatusTextTimer.Elapsed += (s, e) => {
+				//Trace.WriteLine($"{nameof(UpdateStatusText)} Time Stop");
+				StatusTextTimer.Stop();
+				Dispatcher.UIThread.Invoke(() => {
+					StatusTextInlines.Clear(); //clear text
+				});
+			};
 		}
 
-		StatusText = text;
-
-		if(startTimer) {
-			if(timeout != null) {
-				//Trace.WriteLine($"{nameof(UpdateStatusText)} timeout set {timeout.Value.TotalMilliseconds}");
-				StatusTextTimer.Interval = timeout.Value.TotalMilliseconds;
-			}
-			StatusTextTimer.Start();
+		DrawStatusText(text, category);
+		if(category != LogCategory.Unknown) {
+			AddStatusToHistory(text, category);
 		}
-		else {
-			StatusTextTimer.Stop();
-			StatusTextTimer.Interval = StatusTextTimeout.TotalMilliseconds;
-		}
+		StatusTextTimer.Interval = timeout != null ? timeout.Value.TotalMilliseconds : StatusTextTimeout.TotalMilliseconds;
+		StatusTextTimer.Start();
+		//Trace.WriteLine($"{nameof(UpdateStatusText)} Time Start {StatusTextTimer.Interval}");
 	}
+
+	//Elapsed method needs access to instance members so can't static initialize
 	System.Timers.Timer StatusTextTimer = null;
 
-	public Rect PreviewRectangle { get; set; }
+	void DrawStatusText(string text, LogCategory category)
+	{
+		StatusClass = StatusHistoryLine.GetClassForCategory(category);
+		StatusTextInlines.Clear();
+		if(!String.IsNullOrWhiteSpace(text)) {
+			StatusHistoryLine.CreateStatusRun(StatusTextInlines, text, category);
+		}
+		//scroll to the bottom to show latest history
+		StatusHistoryScrollOffset = new Vector(0.0, double.PositiveInfinity);
+	}
+
+	const int MaxStatusHistorySize = 50;
+	void AddStatusToHistory(string text, LogCategory category)
+	{
+		//this is drawn top to bottom but we want the items to drop-off the top
+		//so adding new items to the end (bottom) and removing them from the beginning (top)
+		StatusHistory.Add(new StatusHistoryLine(text, category));
+		if(StatusHistory.Count > MaxStatusHistorySize) {
+			StatusHistory.RemoveAt(0);
+		}
+	}
+
+	Vector _statusHistoryScrollOffset;
+	public Vector StatusHistoryScrollOffset {
+		get => _statusHistoryScrollOffset;
+		set => this.RaiseAndSetIfChanged(ref _statusHistoryScrollOffset, value);
+	}
+
+	public void UpdatePreviewZoomByScroll(Vector delta)
+	{
+		//CurrentZoom.ViewPort = viewPort;
+		if(delta.Y > 0) {
+			CurrentZoom.Bigger();
+		}
+		else if(delta.Y < 0) {
+			CurrentZoom.Smaller();
+		}
+	}
+
+	public ZoomViewModel CurrentZoom { get; private set; } = new();
+
+	public ReadOnlyCollection<ZoomHelperDisplayItem> ZoomOptions {
+		get {
+			return ZoomViewModel.Items;
+		}
+	}
+
+	public void PreviewZoomIn()
+	{
+		CurrentZoom.Bigger();
+	}
+	public void PreviewZoomOut()
+	{
+		CurrentZoom.Smaller();
+	}
+	public void PreviewZoomReset()
+	{
+		CurrentZoom.Reset();
+	}
+
+	//global flag when a InputItemPoint control is picking
+	bool _isPickingFromPreview;
+	public bool IsPickingFromPreview {
+		get => _isPickingFromPreview;
+		set => this.RaiseAndSetIfChanged(ref _isPickingFromPreview, value);
+	}
+
+	//global position of pointer when InputItemPoint control is picking
+	Point _previewPointerPos;
+	public Point PreviewPointerPos {
+		get => _previewPointerPos;
+		set => this.RaiseAndSetIfChanged(ref _previewPointerPos, value);
+	}
 
 	void UpdateLayerImageButtons(int newIx, int oldIx)
 	{
@@ -305,67 +382,86 @@ public class MainWindowViewModel : ViewModelBase
 		UpdateLayerImageButtons(args.NewStartingIndex, args.OldStartingIndex);
 	}
 
-	/*
-	Bitmap _primaryImageSource;
-	public Bitmap PrimaryImageSource {
-		get => _primaryImageSource;
-		set => this.RaiseAndSetIfChanged(ref _primaryImageSource, value);
-	}
-	public Rect PreviewRectangle { get; set; }
-
-	void OnLayersCollectionChange(object sender, NotifyCollectionChangedEventArgs args)
+	public void LayersNewTop()
 	{
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} {args.Action} {args.NewStartingIndex} {args.OldStartingIndex}");
+		var w = OptionsModel.InitialLayerWidth;
+		var h = OptionsModel.InitialLayerHeight;
+		var canvas = RegEngine.NewCanvasFromLayersOrDefault(Layers, w, h);
+		Layers.Push(canvas);
+	}
 
-		//we only care if the first image was changed
-		bool isNotable = args.OldStartingIndex == 0 || args.NewStartingIndex == 0;
-		if (!isNotable) { return; }
-
-		var roTask = SingleTasks.Get(nameof(PrimaryImageSource));
-		Trace.WriteLine($"{nameof(OnLayersCollectionChange)} R:{roTask?.IsRunning}");
-
-		var task = SingleTasks.GetOrMake(nameof(PrimaryImageSource),job);
-		_ = task.Run();
-
-		void job(CancellationToken token) {
-			//Trace.WriteLine($"{nameof(OnLayersCollectionChange)} started job");
-			if (Layers.Count < 1) { return; }
-			token.ThrowIfCancellationRequested();
-			var item = Layers[Layers.Count - 1]; //the 'Top' of the stack is the last image
-
-			Trace.WriteLine($"Updating Primary image {item.Canvas.Width}x{item.Canvas.Height}");
-			var orig = PrimaryImageSource;
-			PrimaryImageSource = ConvertCanvasToRgba8888(item.Canvas);
-			orig?.Dispose();
+	public void LayersCloneTop()
+	{
+		if(Layers.Count < 1) {
+			var txt = Note.NoLayersPresent();
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 		}
-	}
-	*/
-
-	void OnPrimaryImageAreaChange(Rect previewSizeBounds)
-	{
-		//TODO scroll / zoom updates
+		else {
+			var orig = Layers[0].Canvas;
+			var copy = RegEngine.NewCanvas(orig.Width, orig.Height);
+			copy.CopyFrom(orig);
+			Layers.Push(copy);
+		}
 	}
 
 	public void LoadAndShowImage(string fileName)
 	{
-		if(RegEngine == null) {
-			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, true, WarningTimeout);
-			return;
-		}
-
-		//Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
+		if(!CheckIsEngineSelected()) { return; }
+		// Trace.WriteLine($"{nameof(LoadAndShowImage)} {fileName}");
 		using var clerk = new FileClerk(FileIO, fileName);
 		RegEngine.LoadImage(Layers, clerk);
 	}
 
+	public void SaveImage(string fileName, string format, bool doSaveStack)
+	{
+		if(!CheckIsEngineSelected()) { return; }
+		var layers = MakeUnwrappedLayers(!doSaveStack);
+		using var clerk = new FileClerk(FileIO, fileName);
+		RegEngine.SaveImage(layers, clerk, format);
+	}
+
+	Layers MakeUnwrappedLayers(bool topOnly)
+	{
+		var layers = new Layers(); //don't dispose since we're just referencing
+		if(topOnly) {
+			var first = Layers.First();
+			layers.Push(tryUnwrap(first.Canvas), first.Name);
+		}
+		else {
+			foreach(var l in Layers) {
+				//push to the end since we want the order to not get reversed
+				layers.PushAt(layers.Count, tryUnwrap(l.Canvas), l.Name);
+			}
+		}
+
+		return layers;
+
+		static ICanvas tryUnwrap(ICanvas canvas)
+		{
+			if(canvas is CanvasWrapper wrap) {
+				return wrap.Unwrap();
+			}
+			return canvas;
+		}
+	}
+
+	bool CheckIsEngineSelected()
+	{
+		if(RegEngine == null) {
+			var txt = GuiNote.WarningMustBeSelected("engine");
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
+			return false;
+		}
+		return true;
+	}
+
 	readonly SimpleFileIO FileIO = new();
 
-	Bitmap ConvertCanvasToRgba8888(ICanvas canvas)
+	WriteableBitmap ConvertCanvasToRgba8888(ICanvas canvas)
 	{
-		var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
-		var imgBounds = new Rect(0, 0, canvas.Width, canvas.Height);
-		var workBounds = imgBounds.Intersect(previewBounds);
+		//var previewBounds = RectSizeToPixels(PreviewRectangle, StandardDpi); //TODO this is definitely wrong
+		var workBounds = new Rect(0, 0, canvas.Width, canvas.Height);
+		//var workBounds = bounds == null ? imgBounds : imgBounds.Intersect(bounds);
 
 		//Trace.WriteLine($"Rgba8888 P:{previewBounds} I:{imgBounds} W:{workBounds}");
 		if(workBounds.Width < 1 || workBounds.Height < 1) {
@@ -381,18 +477,30 @@ public class MainWindowViewModel : ViewModelBase
 
 		byte[] data = new byte[wWidth * wHeight * BytesPerPixel];
 
+		//TODO not sure if serial or parallel loop is better
 		//Trace.WriteLine($"Rgba8888 {wWidth} {wHeight} {wTop} {wBottom} {wLeft} {wRight}");
-		int dataOffset = 0;
-		for(int y = wTop; y < wBottom; y++) {
-			for(int x = wLeft; x < wRight; x++) {
-				var pix = canvas[x, y];
-				data[dataOffset + 0] = (byte)(pix.R * 255.0);
-				data[dataOffset + 1] = (byte)(pix.G * 255.0);
-				data[dataOffset + 2] = (byte)(pix.B * 255.0);
-				data[dataOffset + 3] = (byte)(pix.A * 255.0);
-				dataOffset += BytesPerPixel;
-			}
-		}
+		// int dataOffset = 0;
+		// for(int y = wTop; y < wBottom; y++) {
+		// 	for(int x = wLeft; x < wRight; x++) {
+		// 		var pix = canvas[x, y];
+		// 		data[dataOffset + 0] = (byte)(pix.R * 255.0);
+		// 		data[dataOffset + 1] = (byte)(pix.G * 255.0);
+		// 		data[dataOffset + 2] = (byte)(pix.B * 255.0);
+		// 		data[dataOffset + 3] = (byte)(pix.A * 255.0);
+		// 		dataOffset += BytesPerPixel;
+		// 	}
+		// }
+
+		Parallel.For(0, wWidth * wHeight, (index) => {
+			int dataOffset = index * BytesPerPixel;
+			int x = index % wWidth;
+			int y = index / wWidth;
+			var pix = canvas[x, y];
+			data[dataOffset + 0] = (byte)(pix.R * 255.0);
+			data[dataOffset + 1] = (byte)(pix.G * 255.0);
+			data[dataOffset + 2] = (byte)(pix.B * 255.0);
+			data[dataOffset + 3] = (byte)(pix.A * 255.0);
+		});
 
 		var bitmap = new WriteableBitmap(
 			new PixelSize(wWidth, wHeight),
@@ -408,83 +516,117 @@ public class MainWindowViewModel : ViewModelBase
 		return bitmap;
 	}
 
-	static Rect RectSizeToPixels(Rect size, Vector dpi)
-	{
-		Size one = new(size.Left, size.Top);
-		Size two = new(size.Width, size.Height);
-		var pone = PixelSize.FromSize(one, dpi);
-		var ptwo = PixelSize.FromSize(two, dpi);
-		return new Rect(pone.Width, pone.Height, ptwo.Width, ptwo.Height);
-	}
-
 	public void RunCommand()
 	{
 		//Trace.WriteLine(nameof(RunCommand));
 		if(RegFunction == null) {
 			var txt = GuiNote.WarningMustBeSelected("function");
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 			return;
 		}
 		if(RegEngine == null) {
 			var txt = GuiNote.WarningMustBeSelected("engine");
-			UpdateStatusText(txt, true, WarningTimeout);
+			UpdateStatusText(txt, WarningTimeout, LogCategory.Warning);
 			return;
+		}
+
+		if(OverlayDelayTimer == null) {
+			OverlayDelayTimer = new();
+			OverlayDelayTimer.Elapsed += (s, e) => {
+				Dispatcher.UIThread.Post(() => {
+					OverlayDelayTimer.Stop();
+					OverlayState.Label = $"Running {RegFunction?.Name}";
+					OverlayState.IsPopupVisible = true;
+				});
+			};
 		}
 
 		//Trace.WriteLine($"{nameof(RunCommand)} 2");
 		var task = SingleTasks.GetOrMake(nameof(RunCommand), job, CommandTimeout);
 		_ = task.Run();
 
+		OverlayDelayTimer.Interval = OverlayDelayTimout.TotalMilliseconds;
+		OverlayDelayTimer.Start();
+
 		void job(CancellationToken token)
 		{
+			var progress = new ProgressTracker();
+			progress.OnReport += (s, e) => {
+				double amount = Math.Clamp(e.Amount, 0.0, 1.0);
+				OverlayState.ProgressAmount = amount;
+			};
+
 			//Trace.WriteLine($"{nameof(RunCommand)} 3");
 			token.ThrowIfCancellationRequested();
 			//var reg = new FunctionRegister(Program.Register);
+			var logger = new GuiLogger();
+			logger.OnLogEvent += (s, e) => {
+				Dispatcher.UIThread.Post(() => {
+					UpdateStatusText(e.Message, WarningTimeout, e.Category);
+				});
+			};
+
 			var context = new FunctionContext {
 				Register = Program.Register,
-				Log = Program.Log,
+				Log = logger,
 				Options = new BasicOptions {
 					Register = Program.Register,
 					Engine = RegEngine.AsRegisteredItem
-				}
+				},
+				Layers = Layers,
+				Progress = progress,
+				Token = token
 			};
 
 			//Trace.WriteLine($"{nameof(RunCommand)} 4");
 			var func = RegFunction?.Item.Invoke(context);
-			//Trace.WriteLine($"{nameof(RunCommand)} 4.5");
-			func.Run(new string[0]); //TODO fix args
-									 //Trace.WriteLine($"{nameof(RunCommand)} 5");
+			//Trace.WriteLine($"{nameof(RunCommand)} 4.5 {RegFunction?.Name}");
+			var args = AvaloniaTools.SplitCommandLine(this.CommandText).ToArray();
+			//Trace.WriteLine($"{nameof(RunCommand)} '{this.CommandText}' '{String.Join(' ',args)}'");
+			func.Run(args);
+			//Trace.WriteLine($"{nameof(RunCommand)} 5");
 
 			Dispatcher.UIThread.Post(() => {
+				OverlayDelayTimer.Stop();
+				OverlayState.IsPopupVisible = false;
 				//Trace.WriteLine($"{nameof(RunCommand)} 6");
-				((ImageStorage.LayersInside)Layers).RefreshAll(); //TODO this still doesn't seem to work..
+				((ImageStorage.LayersInside)Layers).RefreshAll();
 			});
 		}
 	}
-	//public delegate void ImagesUpdatedHandler(object sender, EventArgs args);
-	//public event ImagesUpdatedHandler ImagesUpdated;
+	static readonly TimeSpan OverlayDelayTimout = TimeSpan.FromMilliseconds(200);
+	System.Timers.Timer OverlayDelayTimer;
 
-	public void CancelCommand()
+	public void CancelCommand(object sender, EventArgs args)
 	{
 		var task = SingleTasks.Get(nameof(RunCommand));
 		task?.Cancel();
+		OverlayState.IsPopupVisible = false;
 	}
 
 	void RePopulateInputControls(IUsageProvider provider, CancellationToken token)
 	{
-		InputsList.Clear();
-		var usage = provider.GetUsageInfo();
+		CurrentUsage = provider.GetUsageInfo();
+		InputsList.RemoveDisposeAll();
+		CommandLineArgCache.Clear();
+		MultipleParameterCount.Clear();
+		// Trace.WriteLine($"RePopulateInputControls CLAC={CommandLineArgCache.Count} IL={InputsList.Count}");
 
-		var ud = usage.Description;
+		var ud = CurrentUsage.Description;
 		if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
-			var iii = new InputItemInfo(new UsageText(1, "", ""), usage.Description.Descriptions);
+			var iii = new InputItemInfo(
+				new UsageText(1, "", ""),
+				CurrentUsage.Description.Descriptions
+			);
 			InputsList.Add(iii);
 		}
 
-		foreach(var p in usage.Parameters) {
+		foreach(var p in CurrentUsage.Parameters) {
 			if(p is IUsageParameter iup) {
-				var input = DetermineInputControl(usage, iup);
-				if(input != null) { InputsList.Add(input); }
+				var input = DetermineInputControl(iup);
+				if(input != null) {
+					InputsList.Add(input);
+				}
 			}
 			else {
 				//just text so skip
@@ -493,43 +635,156 @@ public class MainWindowViewModel : ViewModelBase
 		}
 	}
 
-	InputItem DetermineInputControl(Usage usage, IUsageParameter iup)
-	{
-		//bool isTwo = p is IUsageParameterTwo; //TODO
-		var it = iup.InputType.UnWrapNullable();
+	readonly Dictionary<string, int> MultipleParameterCount = new();
+	int MultipleParameterCounter = 0; //used to make sure each parameter has it's own id
+	Usage CurrentUsage;
 
+	void MakeOrRemoveInputItem(InputItem item)
+	{
+		if(!item.MultipleEnabled) { return; }
+		string name = item.Name;
+		if(!MultipleParameterCount.TryGetValue(name, out int count)) {
+			MultipleParameterCount.Add(name, 1);
+			count = 1;
+		}
+
+		var index = InputsList.IndexOf(item);
+		if(item.IsMultiplePrimary) { //adding
+			var itemMany = (IUsageMany)item.Input;
+			int max = itemMany.AllowCount;
+			if(count >= max) {
+				this.UpdateStatusText($"Maximum item count of {max} reached for {item.Name}", null, LogCategory.Info);
+				return;
+			}
+			int ter = Interlocked.Increment(ref MultipleParameterCounter);
+			//Trace.WriteLine($"Add ix={index} mi={item.MultipleIndex} c={count} nix={index + count}");
+			var input = DetermineInputControl(itemMany, index + ter);
+			if(input != null) {
+				MultipleParameterCount[name]++;
+				InputsList.Insert(index + count, input);
+			}
+		}
+		else { //removing
+			   //Trace.WriteLine($"Remove ix={index} mi={item.MultipleIndex} c={count}");
+			MultipleParameterCount[name]--;
+			InputsList.RemoveDisposeAt(index);
+		}
+	}
+
+	InputItem DetermineInputControl(IUsageParameter iup, int multiIndex = 0)
+	{
+		var it = iup.InputType.UnWrapNullable();
+		var altSet = CurrentUsage.Alternates?.ToDictionary(k => k.Name) ?? null;
+		var isMany = iup is IUsageMany ium;
+
+		//helper alt lookup function to avoid a bunch of repeat code
+		string GetAlt(string name)
+		{
+			if(altSet != null && altSet.TryGetValue(name, out var alt)) {
+				return alt.Alternate;
+			}
+			return null;
+		}
+
+		InputItem final = null;
 		if(iup is UsageRegistered ur) {
-			return new InputItemSync(iup, ur.NameSpace);
+			//not implementing multiple for register items since i can't think of a use-case
+			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
+			final = new InputItemSync(iup, model) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.Is<bool>()) {
-			return new InputItem(iup);
+			//doesn't make sense for bool types to have multiple
+			final = new InputItem(iup) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.IsEnum) {
 			IUsageEnum iue = null;
-			foreach(var i in usage.EnumParameters) {
+			foreach(var i in CurrentUsage.EnumParameters) {
 				if(i.EnumType.Equals(iup.InputType)) {
 					iue = i; break;
 				}
 			}
-			return new InputItemDropDown(iup, iue);
+			final = new InputItemDropDown(iup, iue) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		else if(it.Is<string>()) {
-			return new InputItemText(iup);
+			final = new InputItemText(iup) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
-		else if(it.Is<ColorRGBA>() || it.Is<System.Drawing.Color>()) {
-			//TODO color picker ?
-			return null;
+		//Color inputs also have a sync component
+		else if(InputItemColor.IsSupportedColorType(it)) {
+			var model = RegisteredControlList.First(svm => svm.NameSpace == "Color");
+			final = new InputItemColor(iup, model) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
-		else if(it.Is<System.Drawing.Point>() || it.Is<System.Drawing.PointF>() || it.Is<PointD>()) {
-			//TODO point picker .. ?
-			return null;
+		else if(InputItemPoint.IsSupportedPointType(it)) {
+			final = new InputItemPoint(iup, this) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 		else if(it.IsNumeric()) {
-			return new InputItemSlider(iup);
+			final = new InputItemSlider(iup) {
+				Alternate = GetAlt(iup.Name),
+				AddOrRemoveHandler = isMany ? MakeOrRemoveInputItem : null,
+				MultipleIndex = multiIndex
+			};
 		}
 
-		throw Squeal.NotSupported($"Type {it}");
+		if(final != null) {
+			// WeakTrackItem(final);
+			return final;
+		}
+		else {
+			throw Squeal.NotSupported($"Type {it}");
+		}
 	}
+
+	//Keep - test for subscription leaks
+	//readonly object TrackerLock = new();
+	//readonly List<WeakReference> TrackerList = new();
+	// void WeakTrackItem(InputItem item)
+	// {
+	// 	int wasLen = 0;
+	// 	var dist = new Dictionary<string,int>();
+	// 	lock(TrackerLock) {
+	// 		//add item
+	// 		TrackerList.Add(new WeakReference(item));
+	// 		//remove dead items
+	// 		int len = wasLen = TrackerList.Count;
+	// 		for(int t=0; t < len; t++) {
+	// 			var wr = TrackerList[t];
+	// 			if (wr == null || !wr.IsAlive) {
+	// 				//swap out end and remove
+	// 				len--;
+	// 				TrackerList[t] = TrackerList[len];
+	// 				TrackerList.RemoveAt(len);
+	// 			}
+	// 			var n = wr?.Target?.GetType()?.FullName;
+	// 			if (!String.IsNullOrWhiteSpace(n)) {
+	// 				if (!dist.ContainsKey(n)) {
+	// 					dist[n] = 1;
+	// 				}
+	// 				else {
+	// 					dist[n]++;
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// 	Trace.WriteLine($"WeakTrackItem count={wasLen}");
+	// 	foreach(var kvp in dist) {
+	// 		Trace.WriteLine($"{kvp.Key} = {kvp.Value}");
+	// 	}
+	// }
 
 	public ObservableCollection<InputItem> InputsList { get; init; } = new();
 
@@ -539,42 +794,39 @@ public class MainWindowViewModel : ViewModelBase
 		set => this.RaiseAndSetIfChanged(ref _showCommandUsageText, value);
 	}
 
-	// public void OnInputsClick(object sender, Avalonia.Interactivity.RoutedEventArgs args)
-	// {
-	// 	if (sender is not CheckBox box) { return; }
-	// 	Log.Debug($"model click {box.Name} {box.IsChecked}");
-	// }
-
-	public void OnInputListChanged(object sender, PropertyChangedEventArgs args)
+	public void OnInputListPropChanged(object sender, PropertyChangedEventArgs args)
 	{
-		//string extra = "";
 		string value = "";
-		if(sender is InputItemSync iisync) {
+		if(sender is InputItemPoint iipoint) {
+			value = $"{iipoint.PickedX},{iipoint.PickedY}";
+		}
+		if(sender is InputItemColor iicolor) {
+			var c = iicolor.Color;
+			value = $"#{c.R:X2}{c.G:X2}{c.B:X2}{c.A:X2}";
+		}
+		else if(sender is InputItemSync iisync) {
 			var sel = iisync.Item;
-			//extra = $"InputItemSync IsSyncEnabled={iisync.IsSyncEnabled} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
-			value = sel?.Value.ToString();
+			value = sel.Name;
 		}
 		else if(sender is InputItemSlider iislider) {
-			//extra = $"InputItemSlider Value={iislider.Value}";
-			value = iislider.Value.ToString();
+			value = iislider.Display + (iislider.ShowAsPct ? "%" : "");
 		}
 		else if(sender is InputItemText iitext) {
-			//extra = $"InputItemInfo Text={iitext.Text}";
 			value = iitext.Text;
 		}
 		else if(sender is InputItemDropDown iidrop) {
 			var sel = iidrop.SelectedIndex >= 0 ? iidrop.Choices[iidrop.SelectedIndex] : null;
-			//extra = $"InputItemDropDown SelectedIndex={iidrop.SelectedIndex} INS={sel?.NameSpace} IN={sel?.Name} V={sel?.Value}";
 			value = sel?.Value.ToString();
 		}
 
 		if(sender is InputItem ii) {
-			//Log.Debug($"{(ii.Enabled?"✔":"❌")} [{ii.Name}] {extra}");
+			var key = $"{ii.Name}{ii.MultipleIndex}";
+			// Trace.WriteLine($"OnInputListChanged {(ii.Enabled?"add":"rem")} {sender.GetType().FullName}: [{ii.MultipleIndex}] {ii.Name}={value}");
 			if(ii.Enabled) {
-				CommandLineArgCache[ii.Name] = value;
+				CommandLineArgCache[key] = (ii.Name, value);
 			}
 			else {
-				CommandLineArgCache.Remove(ii.Name);
+				CommandLineArgCache.Remove(key);
 			}
 		}
 		else {
@@ -584,7 +836,20 @@ public class MainWindowViewModel : ViewModelBase
 		RenderCommandLineFromWidgets();
 	}
 
-	Dictionary<string, string> CommandLineArgCache = new();
+	void OnInputListChanged(object sender, NotifyCollectionChangedEventArgs args)
+	{
+		if(args.Action == NotifyCollectionChangedAction.Remove) {
+			foreach(var item in args.OldItems) {
+				if(item is InputItem ii) {
+					var key = $"{ii.Name}{ii.MultipleIndex}";
+					CommandLineArgCache.Remove(key);
+				}
+			}
+			RenderCommandLineFromWidgets();
+		}
+	}
+
+	readonly Dictionary<string, (string, string)> CommandLineArgCache = new();
 
 	bool commandLineIsRendering = false;
 	void RenderCommandLineFromWidgets()
@@ -595,7 +860,9 @@ public class MainWindowViewModel : ViewModelBase
 		bool isFirst = true;
 		StringBuilder sb = new();
 		foreach(var kvp in CommandLineArgCache) {
-			sb.Append($"{(isFirst ? "" : " ")}{kvp.Key} {kvp.Value}");
+			var (name, value) = kvp.Value;
+			//Trace.WriteLine($"RCLFW [{kvp.Key},{kvp.Value}]");
+			sb.Append($"{(isFirst ? "" : " ")}{name} {value}");
 			isFirst = false;
 		}
 
@@ -603,15 +870,17 @@ public class MainWindowViewModel : ViewModelBase
 		commandLineIsRendering = false;
 	}
 
-	void UpdateWidgetsFromCommandLine(string text)
-	{
-		if(String.IsNullOrWhiteSpace(text)) { return; }
-		if(commandLineIsRendering) { return; }
-		commandLineIsRendering = true;
+	// 	//TODO maybe get rid of this.. seems complicated
+	// void UpdateWidgetsFromCommandLine(string text)
+	// {
+	// 	if(String.IsNullOrWhiteSpace(text)) { return; }
+	// 	if(commandLineIsRendering) { return; }
+	// 	commandLineIsRendering = true;
 
-		//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
+	// 	//var parts = text.Split([' '],StringSplitOptions.RemoveEmptyEntries);
 
-		//Log.Debug($"UpdateWidgetsFromCommandLine {text}");
-		commandLineIsRendering = false;
-	}
+	// 	//Log.Debug($"UpdateWidgetsFromCommandLine {text}");
+	// 	commandLineIsRendering = false;
+	//	//TODO how to update controls ?
+	// }
 }

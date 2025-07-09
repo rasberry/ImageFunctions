@@ -12,13 +12,13 @@ public static class ImageAide
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this ICanvas image, Action<int, int> callback,
-		int? maxThreads = null, IProgress<double> progress = null)
+		CancellationToken token, int? maxThreads = null, IProgress<double> progress = null)
 	{
 		if(image == null) {
 			throw Squeal.ArgumentNull(nameof(image));
 		}
 		var size = new Rectangle(0, 0, image.Width, image.Height);
-		ThreadPixels(size, callback, maxThreads, progress);
+		ThreadPixels(size, callback, token, maxThreads, progress);
 	}
 
 	/// <summary>
@@ -28,12 +28,12 @@ public static class ImageAide
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this Rectangle rect, Action<int, int> callback,
-		int? maxThreads = null, IProgress<double> progress = null)
+		CancellationToken token, int? maxThreads = null, IProgress<double> progress = null)
 	{
 		long done = 0;
 		long max = (long)rect.Width * rect.Height;
 
-		ParallelOptions po = new();
+		ParallelOptions po = new() { CancellationToken = token };
 		if(maxThreads.HasValue) {
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
 		}

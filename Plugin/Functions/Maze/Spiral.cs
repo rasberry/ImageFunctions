@@ -17,7 +17,7 @@ public class Spiral : IMaze
 
 	readonly Random Rnd;
 
-	public void DrawMaze(ProgressBar prog)
+	public void DrawMaze(IProgressWithLabel<double> prog, CancellationToken token)
 	{
 		int len = CellsHigh * CellsWide;
 		int cx = CellsWide / 2;
@@ -25,6 +25,7 @@ public class Spiral : IMaze
 
 		for(int c = 0; c < len; c++) {
 			prog.Report((double)c / len);
+			token.ThrowIfCancellationRequested();
 			var (x, y) = MathAide.SpiralSquareToXY(c, cx, cy);
 			//if (!IsBlocked(x,y,PickWall.None)) { continue; }
 

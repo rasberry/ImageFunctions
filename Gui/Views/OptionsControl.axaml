@@ -1,0 +1,113 @@
+<UserControl
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:h="using:ImageFunctions.Gui.Helpers"
+x:Class="ImageFunctions.Gui.Views.OptionsControl"
+x:DataType="vm:OptionsViewModel"
+d:DesignHeight="450"
+d:DesignWidth="800"
+mc:Ignorable="d">
+<Design.DataContext>
+	<vm:OptionsViewModel/>
+</Design.DataContext>
+
+<UserControl.Styles>
+	<!-- https://docs.avaloniaui.net/docs/tutorials/groupbox -->
+	<Style Selector="HeaderedContentControl">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Grid RowDefinitions="Auto,*" ColumnDefinitions="*">
+					<!-- Header -->
+					<Border
+					Grid.Row="0" Grid.Column="0" Padding="0,8,0,8" Margin="0,8,0,8"
+					BorderThickness="0,1,0,1" BorderBrush="{DynamicResource SemiColorFocusBorder}">
+						<TextBlock Text="{TemplateBinding Header}" FontWeight="Bold" />
+					</Border>
+			
+					<!-- Content Area -->
+					<ContentPresenter 
+					Grid.Row="1" Grid.Column="0" Name="PART_ContentPresenter" Padding="0,0,0,8"
+					Content="{TemplateBinding Content}"/>
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+	<Style Selector="HeaderedContentControl:nth-child(1) /template/ Border">
+		<Setter Property="Margin" Value="0,0,0,8"/>
+	</Style>
+	<Style Selector=".OptionItems TextBlock">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+	</Style>
+	<Style Selector=".OptionItems TextBox">
+		<Setter Property="Margin" Value="0,4,0,4"/>
+	</Style>
+	<Style Selector="Border.OptionHeader">
+		<Setter Property="Margin" Value="0,8,0,0"/>
+		<Setter Property="Padding" Value="0,8,0,8"/>
+		<Setter Property="BorderThickness" Value="0,1,0,1"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}"/>
+	</Style>
+	<Style Selector="Border.OptionHeader:nth-child(1)">
+		<Setter Property="Margin" Value="0,0,0,0"/>
+		<Setter Property="Padding" Value="0,0,0,8"/>
+		<Setter Property="BorderThickness" Value="0,0,0,1"/>
+	</Style>
+	<Style Selector="Border.OptionHeader TextBlock">
+		<Setter Property="TextWrapping" Value="Wrap"/>
+	</Style>
+</UserControl.Styles>
+
+<Expander>
+	<Expander.Header>
+		<StackPanel Orientation="Horizontal">
+			<PathIcon Data="{DynamicResource IconCog}"/>
+			<TextBlock Text="Options" />
+		</StackPanel>
+	</Expander.Header>
+	<StackPanel Orientation="Vertical">
+		<HeaderedContentControl Header="Function Options">
+			<StackPanel Orientation="Vertical" Classes="OptionStack">
+				<Border Classes="OptionHeader">
+					<TextBlock Text="Initial layer width and height" />
+				</Border>
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*" Classes="OptionItems">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="Width"/>
+					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Width"
+					Text="{Binding InitialLayerWidth, Converter={StaticResource StoVConverter}}" Classes="Bordered"/>
+					<TextBlock Grid.Row="1" Grid.Column="0" Text="Height"/>
+					<TextBox Grid.Row="1" Grid.Column="1" Watermark="Height"
+					Text="{Binding InitialLayerHeight, Converter={StaticResource StoVConverter}}" Classes="Bordered"/>
+				</Grid>
+				<Border Classes="OptionHeader">
+					<TextBlock Text="Maximum number of threads allowed for function" />
+				</Border>
+				<Grid RowDefinitions="Auto" ColumnDefinitions="Auto,*" Classes="OptionItems">
+					<TextBlock Grid.Row="0" Grid.Column="0" Text="Threads"/>
+					<TextBox Grid.Row="0" Grid.Column="1" Watermark="Threads"
+					Text="{Binding MaxNumberThreads, Converter={StaticResource StoVConverter}}" Classes="Bordered"/>
+				</Grid>
+			</StackPanel>
+		</HeaderedContentControl>
+		<HeaderedContentControl Header="General Options">
+			<StackPanel Orientation="Vertical" Classes="OptionStack">
+				<Border Classes="OptionHeader">
+					<TextBlock Text="Choose main theeme" />
+				</Border>
+				<StackPanel Orientation="Vertical">
+					<RadioButton GroupName="TheemeOptions" Content="Follow System"
+					IsChecked="{Binding WhichTheme, Converter={StaticResource EnumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.System}}"/>
+					<RadioButton GroupName="TheemeOptions" Content="Light"
+					IsChecked="{Binding WhichTheme, Converter={StaticResource EnumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.Light}}"/>
+					<RadioButton GroupName="TheemeOptions" Content="Dark"
+					IsChecked="{Binding WhichTheme, Converter={StaticResource EnumBoolConverter} ConverterParameter={x:Static vm:ThemeKind.Dark}}"/>
+				</StackPanel>
+			</StackPanel>
+		</HeaderedContentControl>
+	</StackPanel>
+</Expander>
+
+</UserControl>

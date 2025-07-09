@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 using System.Drawing;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
 
@@ -77,7 +76,6 @@ public class Function : IFunction
 		var colorHilight = O.HilightColor;
 		var colorTransp = CoreColors.Transparent;
 		double totalDist = 0.0;
-		var progress = new ProgressBar();
 
 		minimum.ThreadPixels((x, y) => {
 			var one = srcImg[x, y];
@@ -110,7 +108,7 @@ public class Function : IFunction
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		}, Context.Options.MaxDegreeOfParallelism, progress);
+		}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
 
 		return totalDist;
 	}

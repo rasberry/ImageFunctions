@@ -1,0 +1,43 @@
+<Styles
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:v="using:ImageFunctions.Gui.Views"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels">
+
+	<Style Selector="#LowerPannel TextBlock">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+		<Setter Property="VerticalAlignment" Value="Center"/>
+		<Setter Property="Opacity" Value="0.8"/>
+	</Style>
+	<Style Selector="#CommandColumn TextBox">
+		<Setter Property="VerticalContentAlignment" Value="Top"/>
+		<Setter Property="Padding" Value="8,8,8,8"/>
+	</Style>
+	<Style Selector="#CommandColumn TextBlock">
+		<Setter Property="Margin" Value="8,8,8,8"/>
+	</Style>
+	<Style Selector="GridSplitter">
+		<Setter Property="ShowsPreview" Value="True"/>
+	</Style>
+	<Style Selector="#Chooser PathIcon">
+		<Setter Property="Margin" Value="0,0,8,0"/>
+	</Style>
+	<Style Selector="SelectableTextBlock#UsageTextBlock">
+		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
+		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
+	</Style>
+	<Style Selector="StackPanel#TopLayerControls, StackPanel#PreviewImageControls">
+		<Setter Property="Margin" Value="0,0,0,8" />
+	</Style>
+	<Style Selector="Border#BottomBorder">
+		<Setter Property="Margin" Value="0,2,0,2" /><!-- based on GridSplitter -->
+		<Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}"/>
+		<Setter Property="BorderThickness" Value="0,4,0,0"/><!-- based on SemiThicknessTight -->
+	</Style>
+	<Style Selector="StackPanel#LowerPannel TextBlock PathIcon, ScrollViewer#StatusHistoryScroll TextBlock PathIcon">
+		<Setter Property="Margin" Value="4,0,4,0" />
+	</Style>
+	<Style Selector="ScrollViewer#StatusHistoryScroll">
+		<Setter Property="Padding" Value="8,0,0,0" />
+	</Style>
+</Styles>

@@ -1,15 +1,16 @@
 <Window xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
-	xmlns:v="using:ImageFunctions.Gui.Views"
-	mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-	x:Class="ImageFunctions.Gui.Views.MainWindow"
-	x:DataType="vm:MainWindowViewModel"
-	Icon="/Assets/avalonia-logo.ico"
-	Title="ImageFunctions.Gui"
->
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:v="using:ImageFunctions.Gui.Views"
+xmlns:h="using:ImageFunctions.Gui.Helpers"
+xmlns:uv="using:UVtools.AvaloniaControls"
+mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+x:Class="ImageFunctions.Gui.Views.MainWindow"
+x:DataType="vm:MainWindowViewModel"
+Icon="/Assets/image-functions.ico"
+Title="ImageFunctions.Gui">
 <Design.DataContext>
 	<vm:MainWindowViewModel/>
 </Design.DataContext>
@@ -18,113 +19,146 @@
 see https://github.com/AvaloniaUI/Avalonia/issues/3766 -->
 
 <Window.Styles>
-	<Style Selector="#LowerPannel TextBlock">
-		<Setter Property="Margin" Value="0,0,8,0"/>
-		<Setter Property="VerticalAlignment" Value="Center"/>
-		<Setter Property="Opacity" Value="0.8"/>
-	</Style>
-	<Style Selector="#CommandColumn TextBox">
-		<Setter Property="VerticalContentAlignment" Value="Top"/>
-		<Setter Property="Padding" Value="8,8,8,8"/>
-	</Style>
-	<Style Selector="#CommandColumn TextBlock, #CommandColumn v|TextBlockSelectedReg">
-		<Setter Property="Margin" Value="8,8,8,8"/>
-	</Style>
-	<Style Selector="GridSplitter">
-		<Setter Property="ShowsPreview" Value="True"/>
-	</Style>
-	<Style Selector="#Chooser PathIcon">
-		<Setter Property="Margin" Value="0,0,8,0"/>
-	</Style>
-	<Style Selector="SelectableTextBlock#UsageTextBlock">
-		<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
-		<Setter Property="FontFamily" Value="{DynamicResource CodeFontFamily}" />
-	</Style>
+	<StyleInclude Source="MainWindow.Styles.axaml"/>
 </Window.Styles>
 
-<Grid RowDefinitions="*,Auto">
-	<!-- Top section-->
-	<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
+<Grid> <!-- Generic grid needed to support full window overlay -->
+	<Grid RowDefinitions="*,Auto,Auto">
+		<!-- Top section-->
+		<SplitView PanePlacement="Right" DisplayMode="Overlay" OpenPaneLength="500" IsPaneOpen="{Binding IsStatusHistoryOpen}">
+			<Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,1.5*,Auto,*,Auto,250">
 
-		<!-- Top level Column layer thumbnails -->
-		<ScrollViewer Grid.Column="0">
-			<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
-		</ScrollViewer>
+				<!-- Top level Column layer thumbnails -->
+				<ScrollViewer Grid.Column="0" Theme="{DynamicResource StaticScrollViewer}">
+					<StackPanel Orientation="Vertical">
+						<StackPanel Orientation="Horizontal" Name="TopLayerControls">
+							<Button Tag="New Top Layer" Command="{Binding LayersNewTop}">
+								<PathIcon Data="{StaticResource IconCardPlus}"/>
+							</Button>
+							<Button Tag="Clone Top Layer" Command="{Binding LayersCloneTop}">
+								<PathIcon Data="{StaticResource IconCardMultiple}"/>
+							</Button>
+						</StackPanel>
+						<ItemsControl Name="LayersBox" ItemsSource="{Binding LayersImageList}" />
+					</StackPanel>
+				</ScrollViewer>
 
-		<!-- Top level Column primary image -->
-		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
-		<DockPanel Grid.Column="2">
-			<StackPanel DockPanel.Dock="Right">
-				<Button Tag="Zoom In">
-					<PathIcon Data="{StaticResource IconPlusThick}"/>
-				</Button>
-				<Button Tag="Reset Zoom">
-					<PathIcon Data="{StaticResource IconMagnifyScan}"/>
-				</Button>
-				<Button Tag="Zoom Out">
-					<PathIcon Data="{StaticResource IconMinusThick}"/>
+				<!-- Top level Column primary image -->
+				<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+				<DockPanel Grid.Column="2">
+					<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Name="PreviewImageControls">
+						<Button Tag="Zoom In" Command="{Binding PreviewZoomIn}">
+							<PathIcon Data="{StaticResource IconPlusThick}"/>
+						</Button>
+						<Button Tag="Reset Zoom" Command="{Binding PreviewZoomReset}">
+							<PathIcon Data="{StaticResource IconMagnifyScan}"/>
+						</Button>
+						<Button Tag="Zoom Out" Command="{Binding PreviewZoomOut}">
+							<PathIcon Data="{StaticResource IconMinusThick}"/>
+						</Button>
+						<ComboBox ItemsSource="{Binding ZoomOptions}" SelectedIndex="{Binding CurrentZoom.Index}"
+						Tag="Select Zoom Level">
+							<ComboBox.ItemTemplate>
+								<DataTemplate>
+									<TextBlock Text="{Binding Display}"/>
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
+					</StackPanel>
+					<ScrollViewer Name="PreviewPanel" Theme="{DynamicResource StaticScrollViewer}"
+					HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
+					AllowAutoHide="False" Offset="{Binding CurrentZoom.Offset, Mode=TwoWay}">
+						<ScrollViewer.Background>
+							<ImageBrush Source="/Assets/transparency-hint.png" Stretch="None"
+							TileMode="Tile" Opacity="0.2" DestinationRect="0,0,24,24">
+								<!-- DestinationRect: the png is 32x32 but needs 24x24 to fit correctly 🤷 -->
+							</ImageBrush>
+						</ScrollViewer.Background>
+						<LayoutTransformControl Name="layoutTransformWrapper"
+						HorizontalAlignment="Center" VerticalAlignment="Center">
+							<LayoutTransformControl.LayoutTransform>
+								<ScaleTransform ScaleX="{Binding CurrentZoom.Zoom}" ScaleY="{Binding CurrentZoom.Zoom}" />
+							</LayoutTransformControl.LayoutTransform>
+							<Image Source="{Binding LayersImageList[0].Image}" Stretch="None" Name="PreviewImage"
+							RenderOptions.BitmapInterpolationMode="None">
+								<Image.GestureRecognizers>
+									<h:MouseScrollGesture CanHorizontallyScroll="True" CanVerticallyScroll="True"/>
+								</Image.GestureRecognizers>
+							</Image>
+						</LayoutTransformControl>
+					</ScrollViewer>
+				</DockPanel>
+
+				<!-- Top level Column command -->
+				<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
+				<Grid Grid.Column="4" RowDefinitions="*,Auto,150" Name="CommandColumn">
+					<DockPanel Grid.Row="0">
+						<DockPanel DockPanel.Dock="Top">
+							<TextBlock DockPanel.Dock="Left">Usage</TextBlock>
+							<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+								<RadioButton GroupName="UsageHideshow" Content="Controls" IsChecked="True" Theme="{DynamicResource PureCardRadioButton}" />
+								<RadioButton GroupName="UsageHideshow" Content="Text" Name="RadioUsageText" Theme="{DynamicResource PureCardRadioButton}" />
+							</StackPanel>
+						</DockPanel>
+						<Panel>
+							<ScrollViewer IsVisible="{Binding #RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}"
+								HorizontalScrollBarVisibility="Auto">
+								<SelectableTextBlock Name="UsageTextBlock" TextWrapping="NoWrap" Text="{Binding UsageText}" />
+							</ScrollViewer>
+							<ScrollViewer IsVisible="{Binding !#RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}">
+								<ItemsControl ItemsSource="{Binding InputsList}" />
+							</ScrollViewer>
+						</Panel>
+					</DockPanel>
+					<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
+					<DockPanel Grid.Row="2">
+						<Grid DockPanel.Dock="Top" ColumnDefinitions="*,*">
+							<TextBlock Grid.Column="0">Command</TextBlock>
+							<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+								<Button Tag="Run Command" Command="{Binding RunCommand}">
+									<PathIcon Data="{StaticResource IconPlay}"/>
+								</Button>
+							</StackPanel>
+						</Grid>
+						<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" VerticalAlignment="Stretch" />
+					</DockPanel>
+				</Grid>
+
+				<!-- Top level Column selectors -->
+				<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
+				<ScrollViewer Grid.Column="6" Name="Chooser" Theme="{DynamicResource StaticScrollViewer}">
+					<StackPanel Orientation="Vertical">
+						<v:OptionsControl DataContext="{Binding OptionsModel}"/>
+						<ItemsControl ItemsSource="{Binding RegisteredControlList}" />
+					</StackPanel>
+				</ScrollViewer>
+			</Grid>
+			<SplitView.Pane>
+				<ScrollViewer Name="StatusHistoryScroll" Offset="{Binding StatusHistoryScrollOffset, Mode=TwoWay}"
+				VerticalScrollBarVisibility="Visible" AllowAutoHide="False" Theme="{DynamicResource StaticScrollViewer}">
+					<ItemsControl ItemsSource="{Binding StatusHistory}" />
+				</ScrollViewer>
+			</SplitView.Pane>
+		</SplitView>
+
+		<!-- Bottom section-->
+		<Border Grid.Row="1" Name="BottomBorder" />
+		<Grid Grid.Row="2" ColumnDefinitions="Auto,*" Name="BottomControlBar">
+			<StackPanel Grid.Column="0" Orientation="Horizontal">
+				<Button Name="OpenLayers">Load Images</Button>
+				<Button Name="SavePreview">Save Preview</Button>
+				<Button Name="SaveStack">Save Stack</Button>
+			</StackPanel>
+			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
+				<TextBlock Inlines="{Binding StatusTextInlines}" h:BindableStyleClasses.Classes="{Binding StatusClass}" />
+				<Button Command="{Binding ToggleStatusHistory}" Tag="Show Status History">
+					<PathIcon Data="{DynamicResource IconReceiptText}" />
 				</Button>
 			</StackPanel>
-			<Panel Name="PreviewPanel">
-				<Image Source="{Binding LayersImageList[0].Image}" Stretch="None"/>
-			</Panel>
-		</DockPanel>
-
-		<!-- Top level Column command -->
-		<GridSplitter Grid.Column="3" ResizeDirection="Columns"/>
-		<Grid Grid.Column="4" RowDefinitions="*,Auto,150" Name="CommandColumn">
-			<DockPanel Grid.Row="0">
-				<DockPanel DockPanel.Dock="Top">
-					<TextBlock DockPanel.Dock="Left">Usage</TextBlock>
-					<StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-						<RadioButton GroupName="UsageHideshow" Content="Controls" IsChecked="True" Theme="{DynamicResource PureCardRadioButton}" />
-						<RadioButton GroupName="UsageHideshow" Content="Text" Name="RadioUsageText" Theme="{DynamicResource PureCardRadioButton}" />
-					</StackPanel>
-				</DockPanel>
-				<Panel>
-					<ScrollViewer IsVisible="{Binding #RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}"
-						HorizontalScrollBarVisibility="Auto">
-						<SelectableTextBlock Name="UsageTextBlock" TextWrapping="NoWrap" Text="{Binding UsageText}" />
-					</ScrollViewer>
-					<ScrollViewer IsVisible="{Binding !#RadioUsageText.IsChecked}" Theme="{DynamicResource StaticScrollViewer}">
-						<ItemsControl ItemsSource="{Binding InputsList}" />
-					</ScrollViewer>
-				</Panel>
-			</DockPanel>
-			<GridSplitter Grid.Row="1" ResizeDirection="Rows"/>
-			<DockPanel Grid.Row="2">
-				<Grid DockPanel.Dock="Top" ColumnDefinitions="*,*">
-					<TextBlock Grid.Column="0">Command</TextBlock>
-					<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-						<Button Tag="Run Command" Command="{Binding RunCommand}">
-							<PathIcon Data="{StaticResource IconPlay}"/>
-						</Button>
-					</StackPanel>
-				</Grid>
-				<TextBox TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding CommandText}" />
-			</DockPanel>
 		</Grid>
-
-		<!-- Top level Column selectors -->
-		<GridSplitter Grid.Column="5" ResizeDirection="Columns"/>
-		<ScrollViewer Grid.Column="6" Name="Chooser" Theme="{DynamicResource StaticScrollViewer}">
-			<ItemsControl ItemsSource="{Binding RegisteredControlList}" />
-		</ScrollViewer>
 	</Grid>
 
-	<!-- Bottom section-->
-	<Grid Grid.Row="1" ColumnDefinitions="*,*">
-		<StackPanel Grid.Column="0" Orientation="Horizontal">
-			<Button Name="OpenLayers">Load Images</Button>
-			<Button Name="SavePreview">Save Preview</Button>
-			<Button Name="SaveStack">Save Stack</Button>
-		</StackPanel>
-		<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Name="LowerPannel">
-			<TextBlock Text="{Binding StatusText}" />
-			<Button Command="{Binding ToggleThemeClick}" Tag="Change Theeme">
-				<PathIcon Data="{DynamicResource IconThemeToggle}"/>
-			</Button>
-		</StackPanel>
-	</Grid>
+	<!-- Overlay section -->
+	<v:OverlayControl DataContext="{Binding OverlayState}" />
 </Grid>
 </Window>

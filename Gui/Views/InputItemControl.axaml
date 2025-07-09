@@ -1,0 +1,67 @@
+<UserControl
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:v="using:ImageFunctions.Gui.Views"
+x:Class="ImageFunctions.Gui.Views.InputItemControl"
+x:DataType="vm:InputItem"
+d:DesignHeight="200"
+d:DesignWidth="200"
+mc:Ignorable="d">
+
+<Design.DataContext>
+	<vm:InputItem/>
+</Design.DataContext>
+
+<UserControl.Styles>
+<Style>
+	<Setter Property="Template">
+		<ControlTemplate>
+
+<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
+	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
+		<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding NameDisplay}" HorizontalAlignment="Left" TextAlignment="Left"/>
+		<ContentPresenter Grid.Row="0" Grid.Column="1"
+		Classes="InputItemContentPresenter"
+		Name="PART_ContentPresenter"
+		Background="{TemplateBinding Background}"
+		BorderBrush="{TemplateBinding BorderBrush}"
+		BorderThickness="{TemplateBinding BorderThickness}"
+		CornerRadius="{TemplateBinding CornerRadius}"
+		ContentTemplate="{TemplateBinding ContentTemplate}"
+		Content="{TemplateBinding Content}"
+		Padding="{TemplateBinding Padding}"
+		VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+		HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+		<!-- had to use a grid here or the text would overflow instead of wrapping -->
+		<Grid ColumnDefinitions="*,Auto" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+			<TextBlock Grid.Column="0" Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+			<Button Grid.Column="1" Command="{Binding AddOrRemoveInputItem}"
+			IsVisible="{Binding MultipleEnabled}" Tag="{Binding MultiButtonTag}">
+				<PathIcon Data="{Binding MultiIcon}"/>
+			</Button>
+		</Grid>
+	</Grid>
+</CheckBox>
+
+		</ControlTemplate>
+	</Setter>
+</Style>
+
+<Style Selector="TextBlock.TextSmall">
+	<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
+	<Setter Property="Foreground" Value="{DynamicResource TextBlockSecondaryForeground}" />
+</Style>
+<Style Selector="CheckBox.InputItem">
+	<Setter Property="Padding" Value="4" />
+	<Setter Property="Margin" Value="0,2" />
+	<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+</Style>
+<Style Selector="ContentPresenter.InputItemContentPresenter">
+	<Setter Property="Margin" Value="0,0,0,4" />
+</Style>
+
+</UserControl.Styles>
+</UserControl>

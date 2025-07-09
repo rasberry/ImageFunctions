@@ -5,7 +5,7 @@ namespace ImageFunctions.Plugin.Aides;
 
 internal class QuickSort<T>
 {
-	public QuickSort(IList<T> array, IComparer<T> comparer = null, IProgress<double> progress = null)
+	public QuickSort(IList<T> array, CancellationToken token, IComparer<T> comparer = null, IProgress<double> progress = null)
 	{
 		Elements = array;
 		Length = array.Count;
@@ -13,12 +13,14 @@ internal class QuickSort<T>
 			? comparer
 			: Comparer<T>.Default;
 		Progress = progress;
+		Token = token;
 	}
 
 	readonly IList<T> Elements;
 	readonly IComparer<T> Comparer;
 	readonly IProgress<double> Progress;
 	readonly int Length;
+	readonly CancellationToken Token;
 	int Finished = 0;
 
 	public int? MaxDegreeOfParallelism { get; set; }
@@ -31,14 +33,13 @@ internal class QuickSort<T>
 
 	void ParallelQuickSort(int from, int to, int depthRemaining)
 	{
-		var options = new ParallelOptions();
+		var options = new ParallelOptions() { CancellationToken = Token };
 		if(MaxDegreeOfParallelism.HasValue) {
 			options.MaxDegreeOfParallelism = MaxDegreeOfParallelism.Value;
 		}
 
-		if(Progress != null) {
-			Progress.Report((double)Finished / Length);
-		}
+		Progress?.Report((double)Finished / Length);
+		Token.ThrowIfCancellationRequested();
 
 		if(to - from <= SortThreshold) {
 			InsertionSort(from, to);

@@ -2,37 +2,38 @@ namespace ImageFunctions.Core.Logging;
 
 public sealed class LogToConsole : ICoreLog
 {
-	public bool BeVerbose { get; set; }
+	public LogCategory Category { get; set; }
 
 	public void Message(string m)
 	{
+		if(Category > LogCategory.Message) { return; }
 		Console.ResetColor();
 		Console.WriteLine(m);
 	}
 
 	public void Info(string m)
 	{
-		if(BeVerbose) {
-			WithColor($"I: {m}", ConsoleColor.Gray);
-		}
+		if(Category > LogCategory.Info) { return; }
+		WithColor($"I: {m}", ConsoleColor.DarkCyan);
 	}
 
 	public void Warning(string m)
 	{
+		if(Category > LogCategory.Warning) { return; }
 		WithColor($"W: {m}", ConsoleColor.Yellow, true);
 	}
 
 	public void Error(string m, Exception e = null)
 	{
+		if(Category > LogCategory.Error) { return; }
 		string se = e == null ? "" : $" : {e.Message}";
 		WithColor($"E: {m}{se}", ConsoleColor.Red, true);
 	}
 
 	public void Debug(string m)
 	{
-#if DEBUG
+		if(Category > LogCategory.Debug) { return; }
 		WithColor($"D: {m}", ConsoleColor.DarkGray);
-#endif
 	}
 
 	void WithColor(string m, ConsoleColor color, bool error = false)

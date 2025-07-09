@@ -32,8 +32,8 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageOne<int>(1, "-n", "Max Number of start nodes (defaults to 1 or number of -pp/-xy options)") { Min = 1, Default = 1, Max = 999 },
 				new UsageOne<int>(1, "-rs", "Options number seed for the random number generator") { TypeText = "seed" },
-				new UsageOne<Point>(1, "-xy", "Add a start node (in pixels) - multiple allowed"),
-				new UsageOne<PointF>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true },
+				new UsageMany<Point>(1, "-xy", "Add a start node (in pixels) - multiple allowed") { AllowCount = int.MaxValue },
+				new UsageMany<PointF>(1, "-pp", "Add a start node (by proportion) - multiple allowed") { IsNumberPct = true, AllowCount = int.MaxValue },
 				new UsageOne<bool>(1, "-alt", "Use alternate rendering uses slightly less memory"),
 			],
 		};

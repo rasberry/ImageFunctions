@@ -1,6 +1,7 @@
 using Avalonia.Media.Imaging;
 using ImageFunctions.Core;
 using ImageFunctions.Gui.ViewModels;
+using ImageFunctions.Plugin;
 using System.Collections;
 
 namespace ImageFunctions.Gui.Models;
@@ -9,8 +10,6 @@ public class ImageStorage
 {
 	public ILayers Layers { get; }
 	public ObservableStackList<LayersImageData> Bitmaps { get; }
-	//public System.Collections.ObjectModel.ObservableCollection<LayersImageData> Bitmaps { get; }
-	//public MyObservableCollection<LayersImageData> Bitmaps { get; }
 
 	public ImageStorage(Func<ICanvas, Bitmap> converter)
 	{
@@ -43,6 +42,7 @@ public class ImageStorage
 
 		void Setter(int index, ISingleLayerItem item)
 		{
+			//Trace.WriteLine($"ImageStorage.Setter I: {index} id:{item.Id} N:{item.Name}");
 			var orig = Stack[index];
 			if(item.Id == orig.Id) { return; }
 
@@ -120,6 +120,7 @@ public class ImageStorage
 		public ISingleLayerItem Push(ICanvas layer, string name = null) => PushAt(0, layer, name);
 		public ISingleLayerItem PushAt(int index, ICanvas layer, string name = null)
 		{
+			//Trace.WriteLine($"ImageStorage.Push: {index} N:{name}");
 			var poco = Make(layer, name);
 			Stack.PushAt(index, poco);
 			Maps.PushAt(index, Make(poco, this));
@@ -128,6 +129,7 @@ public class ImageStorage
 
 		public void AddRange(IEnumerable<ISingleLayerItem> items)
 		{
+			//Trace.WriteLine($"ImageStorage.AddRange");
 			var multi = ForEach(items, i => {
 				var poco = Make(i);
 				var loco = Make(poco, this);
@@ -147,13 +149,18 @@ public class ImageStorage
 			int count = Stack.Count;
 			for(int i = 0; i < count; i++) {
 				var item = Stack[i];
-				if(item.Canvas is CanvasWrapper wrap && wrap.IsDirty) {
-					//Trace.WriteLine($"{nameof(RefreshAll)} Dirty:{i}");
-					var m = Maps[i];
-					var orig = m.Image;
-					m.Image = item.Preview = Converter(item.Canvas);
-					wrap.DeclareClean();
-					orig?.Dispose();
+				if(item.Canvas is CanvasWrapper wrap) {
+					if(wrap.IsDirty) {
+						//Trace.WriteLine($"{nameof(RefreshAll)} Dirty:{i}");
+						var m = Maps[i];
+						var orig = m.Image;
+						m.Image = item.Preview = Converter(item.Canvas);
+						wrap.DeclareClean();
+						orig?.Dispose();
+					}
+				}
+				else {
+					throw PlugSqueal.NotSupportedTypeByFunc(item.Canvas.GetType(), nameof(RefreshAll));
 				}
 			}
 		}
@@ -192,9 +199,7 @@ public class ImageStorage
 
 		static LayersImageData Make(Poco poco, ILayers layers)
 		{
-			//TODO does the assignment order matter here ?
-			return new LayersImageData {
-				Layers = layers,
+			return new LayersImageData(layers) {
 				Image = poco.Preview,
 				Name = poco.Name,
 				Id = poco.Id

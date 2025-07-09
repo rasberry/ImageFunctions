@@ -17,9 +17,9 @@ abstract class MethodBase
 	public Options O { get; set; }
 	public ICoreLog Log { get; set; }
 
-	public void CreateProfile(ProgressBar pbar, ICanvas frame, Rectangle rect)
+	public void CreateProfile(IProgressWithLabel<double> pbar, CancellationToken token, ICanvas frame, Rectangle rect)
 	{
-		pbar.Prefix = "Creating Profile ";
+		pbar.Label = "Creating Profile ";
 
 		rect.ThreadPixels((x, y) => {
 			int cy = y - rect.Top;
@@ -30,7 +30,7 @@ abstract class MethodBase
 			UpdateCounts(oc, frame, fourSides);
 
 			//The above code is not thread-safe so forcing max concurrency to one instead of  Core.MaxDegreeOfParallelism
-		}, 1, pbar);
+		}, token, 1, pbar);
 	}
 
 	protected void UpdateCountsBase<T>(T ix, ICanvas frame, Dictionary<T, ColorProfile<T>> profile,
@@ -55,9 +55,9 @@ abstract class MethodBase
 		if(ce != null) { addUpdateMethod(cc.EColor, ce.Value); }
 	}
 
-	public void CreateImage(ProgressBar pbar, ICanvas img)
+	public void CreateImage(IProgressWithLabel<double> pbar, ICanvas img, CancellationToken token)
 	{
-		pbar.Prefix = "Generating Image ";
+		pbar.Label = "Generating Image ";
 		int iw = img.Width, ih = img.Height;
 		double totalPixels = iw * ih;
 		double visitedPixels = 0; //to keep track of progress
@@ -125,6 +125,7 @@ abstract class MethodBase
 
 			pbar.Report(++visitedPixels / totalPixels);
 			PickAndVisitFour(img, x, y, pixStack);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageMagick;
+using ImageMagick.Drawing;
 using Point = ImageFunctions.Core.PointD;
 using QType = System.Single;
 
@@ -26,7 +27,7 @@ public class ImageMagickEngine : IImageEngine, IDrawEngine
 		int count = 0;
 		foreach(var frame in native) {
 			var wrap = new IMCanvas(frame);
-			layers.Push(wrap, hasOne ? name : clerk.GetLabel(name, null, $"{++count}"));
+			layers.PushAt(layers.Count, wrap, hasOne ? name : clerk.GetLabel(name, null, $"{++count}"));
 		}
 	}
 
@@ -134,7 +135,7 @@ public class IMCanvas : ICanvas
 
 	public IMCanvas(int w, int h)
 	{
-		var image = new MagickImage(MagickColors.None, w, h);
+		var image = new MagickImage(MagickColors.None, (uint)w, (uint)h);
 		Init(image);
 	}
 
@@ -169,10 +170,10 @@ public class IMCanvas : ICanvas
 	void Init(IMagickImage<QType> image)
 	{
 		NativeImage = image;
-		ChannelCount = image.ChannelCount;
+		ChannelCount = (int)image.ChannelCount;
 		Pixels = image.GetPixels();
-		Width = image.Width;
-		Height = image.Height;
+		Width = (int)image.Width;
+		Height = (int)image.Height;
 	}
 
 	internal int ChannelCount;

@@ -25,7 +25,7 @@ public class Encryptor
 	public byte[] IVBytes { get; set; }
 
 	public void TransformStream(bool decrypt, Stream inData, Stream outData,
-		byte[] password, IProgress<double> progress = null)
+		byte[] password, CancellationToken token, IProgress<double> progress = null)
 	{
 		if(IVBytes == null) {
 			IVBytes = GetIVBytesFromPassword(password);
@@ -45,12 +45,12 @@ public class Encryptor
 		;
 		using var cryptoStream = new CryptoStream(outData, encryptor, CryptoStreamMode.Write);
 
-		CopyToWithProgress(inData, cryptoStream, progress);
+		CopyToWithProgress(inData, cryptoStream, token, progress);
 	}
 
 	// https://referencesource.microsoft.com/#mscorlib/system/io/stream.cs,2a0f078c2e0c0aa8
 	const int _DefaultCopyBufferSize = 81920;
-	void CopyToWithProgress(Stream source, Stream destination, IProgress<double> progress = null)
+	void CopyToWithProgress(Stream source, CryptoStream destination, CancellationToken token, IProgress<double> progress = null)
 	{
 		byte[] buffer = new byte[_DefaultCopyBufferSize];
 		long len = source.Length;
@@ -60,6 +60,7 @@ public class Encryptor
 			destination.Write(buffer, 0, read);
 			count += read;
 			progress?.Report((double)count / len);
+			token.ThrowIfCancellationRequested();
 		}
 	}
 

@@ -37,6 +37,8 @@ public class Function : IFunction
 			return true; //nothing to do
 		}
 
+		//TODO finish
+
 		// //all Draw function have the same signature, so choose the one to use
 		// Action<ICanvas, ColorRGBA, Point, Point> DrawMethod = O.Kind switch {
 		// 	Line.Options.LineKind.Bresenham => DrawBresenham,

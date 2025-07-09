@@ -9,16 +9,17 @@ namespace ImageFunctions.Plugin.Functions.AllColors;
 
 public static class DrawOriginal
 {
-	internal static void Draw(ICanvas image, int? maxThreads, Options O)
+	internal static void Draw(ICanvas image, int? maxThreads, Options O,
+		CancellationToken token, IProgressWithLabel<double> progress)
 	{
 		List<Color> colorList = null;
 		var bounds = image.Bounds();
 
 		if(O.WhichSpace != Space.None) {
-			colorList = ConvertBySpace(bounds, O.WhichSpace, O.Order, maxThreads, O);
+			colorList = ConvertBySpace(bounds, O.WhichSpace, O.Order, maxThreads, O, token, progress);
 		}
 		else {
-			colorList = ConvertByPattern(bounds, O.SortBy, maxThreads, O);
+			colorList = ConvertByPattern(bounds, O.SortBy, maxThreads, O, token, progress);
 		}
 
 		var work = (int x, int y) => {
@@ -30,12 +31,12 @@ public static class DrawOriginal
 			image[x, y] = ColorRGBA.FromRGBA255(nc.R, nc.G, nc.B, nc.A);
 		};
 
-		using var progress = new ProgressBar();
-		progress.Prefix = "Rendering...";
-		bounds.ThreadPixels(work, maxThreads, progress);
+		progress.Label = "Rendering...";
+		bounds.ThreadPixels(work, token, maxThreads, progress);
 	}
 
-	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int? maxThreads, Options O)
+	static List<Color> ConvertByPattern(Rectangle bounds, Pattern p, int? maxThreads, Options O,
+		CancellationToken token, IProgressWithLabel<double> progress)
 	{
 		Func<Color, double> converter = null;
 		switch(p) {
@@ -54,26 +55,27 @@ public static class DrawOriginal
 			throw Squeal.NotSupported($"Pattern {p}");
 		}
 
-		return ConvertAndSort(bounds, converter, ComparersLuminance(), null, maxThreads, O);
+		return ConvertAndSort(bounds, converter, ComparersLuminance(), null, maxThreads, O, progress, token);
 	}
 
-	static List<Color> ConvertBySpace(Rectangle bounds, Space space, int[] order, int? maxThreads, Options O)
+	static List<Color> ConvertBySpace(Rectangle bounds, Space space, int[] order, int? maxThreads, Options O,
+		CancellationToken token, IProgressWithLabel<double> progress)
 	{
 		switch(space) {
 		case Space.RGB:
-			return ConvertAndSort(bounds, c => c, ComparersRgba32(), order, maxThreads, O);
+			return ConvertAndSort(bounds, c => c, ComparersRgba32(), order, maxThreads, O, progress, token);
 		case Space.CieXyz:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCie1931()), CompareIColor3(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCie1931()), CompareIColor3(), order, maxThreads, O, progress, token);
 		case Space.Cmyk:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCmyk()), CompareIColor4(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceCmyk()), CompareIColor4(), order, maxThreads, O, progress, token);
 		case Space.HSI:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsi()), CompareIColor3(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsi()), CompareIColor3(), order, maxThreads, O, progress, token);
 		case Space.HSL:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsl()), CompareIColor3(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsl()), CompareIColor3(), order, maxThreads, O, progress, token);
 		case Space.HSV:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsv()), CompareIColor3(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceHsv()), CompareIColor3(), order, maxThreads, O, progress, token);
 		case Space.YCbCr:
-			return ConvertAndSort(bounds, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3(), order, maxThreads, O);
+			return ConvertAndSort(bounds, GetConverter(new ColorSpaceYCbCrJpeg()), CompareIColor3(), order, maxThreads, O, progress, token);
 		}
 
 		throw PlugSqueal.NotImplementedSpace(space);
@@ -117,7 +119,7 @@ public static class DrawOriginal
 	}
 
 	static List<Color> ConvertAndSort<T>(Rectangle bounds, Func<Color, T> conv, Func<T, T, int>[] compList,
-		int[] order, int? maxThreads, Options O)
+		int[] order, int? maxThreads, Options O, IProgressWithLabel<double> progress, CancellationToken token)
 	{
 		var colorList = PatternBitOrder(bounds, O).ToList();
 		var tempList = new List<(Color, T)>(colorList.Count);
@@ -135,40 +137,38 @@ public static class DrawOriginal
 			Array.Sort(order, compList);
 		}
 
-		using(var progress = new ProgressBar()) {
-			progress.Prefix = "Converting...";
-			for(int t = 0; t < colorList.Count; t++) {
-				Color c = colorList[t];
-				T next = conv(c);
-				tempList.Add((c, next));
-				progress.Report((double)t / colorList.Count);
-			}
+		progress.Label = "Converting...";
+		for(int t = 0; t < colorList.Count; t++) {
+			Color c = colorList[t];
+			T next = conv(c);
+			tempList.Add((c, next));
+			progress.Report((double)t / colorList.Count);
+			token.ThrowIfCancellationRequested();
 		}
 
-		using(var progress = new ProgressBar()) {
-			progress.Prefix = "Sorting...";
+		progress.Label = "Sorting...";
 
-			int count = 0;
-			var progressSorter = new Comparison<(Color, T)>((a, b) => {
-				count++;
-				progress.Report(count / Function.SortMax);
-				return MultiSort(compList, a.Item2, b.Item2);
-			});
+		int count = 0;
+		var progressSorter = new Comparison<(Color, T)>((a, b) => {
+			count++;
+			progress.Report(count / Function.SortMax);
+			token.ThrowIfCancellationRequested();
+			return MultiSort(compList, a.Item2, b.Item2);
+		});
 
-			if(O.ParallelSort) {
-				//parallel version seems to works best on 4+ cores
-				var comp = Comparer<(Color, T)>.Create(
-					new Comparison<(Color, T)>((a, b) => {
-						return MultiSort(compList, a.Item2, b.Item2);
-					})
-				);
-				MoreAide.ParallelSort(tempList, comp, progress, maxThreads);
-			}
-			else {
-				//seems to be a lot faster than Array.Sort(key,collection)
-				//single threaded version for machines with a low number of cores
-				tempList.Sort(progressSorter);
-			}
+		if(O.ParallelSort) {
+			//parallel version seems to works best on 4+ cores
+			var comp = Comparer<(Color, T)>.Create(
+				new Comparison<(Color, T)>((a, b) => {
+					return MultiSort(compList, a.Item2, b.Item2);
+				})
+			);
+			MoreAide.ParallelSort(tempList, token, comp, progress, maxThreads);
+		}
+		else {
+			//seems to be a lot faster than Array.Sort(key,collection)
+			//single threaded version for machines with a low number of cores
+			tempList.Sort(progressSorter);
 		}
 
 		for(int t = 0; t < colorList.Count; t++) {

@@ -103,7 +103,7 @@ public class Function : IFunction
 			else {
 				UpdatePixel(canvas, x, y, CoreColors.Black, channel);
 			}
-		});
+		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
 	}
 
 	void UpdatePixel(ICanvas canvas, int x, int y, ColorRGBA color, Channel channel)
@@ -121,14 +121,14 @@ public class Function : IFunction
 		HashSet<Point> next = new();
 		HashSet<Point> dead = new();
 
-		using var progress = new Rasberry.Cli.ProgressBar();
 		ulong iter = 0u;
 		int lastPop = last.Count;
 		ulong lastStable = 0;
 
 		while(iter < O.IterationMax) {
-			progress.Prefix = $"Population {last.Count} ";
-			progress.Report((double)iter / O.IterationMax * ProgressRatio + ProgressOffset);
+			Context.Progress.Label = $"Population {last.Count} ";
+			Context.Progress.Report((double)iter / O.IterationMax * ProgressRatio + ProgressOffset);
+			Context.Token.ThrowIfCancellationRequested();
 
 			RunIteration(W, H, ref next, ref last, dead, history);
 			iter++;

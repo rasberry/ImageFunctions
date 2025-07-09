@@ -27,6 +27,7 @@ internal static partial class Handlers
 		foreach(string key in list) {
 			if(qsName != null && !qsName.EqualsIC(key)) { continue; }
 
+			//usage only relies on Register
 			var context = new FunctionContext {
 				Register = reg
 			};
@@ -57,20 +58,6 @@ internal static partial class Handlers
 	static readonly JsonSerializerOptions JOptions = new() {
 		IncludeFields = true,
 	};
-
-	// static string GetParamDescription(IUsageProvider provider)
-	// {
-	// 	var usage = provider.GetUsageInfo();
-	// 	var ud = usage.Description;
-
-	// 	StringBuilder description = new();
-	// 	if((ud?.Descriptions?.Any()).GetValueOrDefault(false)) {
-	// 		foreach(var txt in usage.Description.Descriptions) {
-	// 			description.AppendLine(txt);
-	// 		}
-	// 	}
-	// 	return description.ToString();
-	// }
 
 	static UsageParam DetermineParamList(Usage usage, IUsageParameter iup)
 	{

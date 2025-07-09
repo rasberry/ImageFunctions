@@ -22,7 +22,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			throw Squeal.ArgumentNull(nameof(clerk));
 		}
 
-		layerName ??= clerk.GetLabel(layerName);
+		layerName ??= clerk.GetLabel(null);
 		var image = Image.Load<RgbaD>(clerk.ReadStream());
 
 		//for images with one frame just use the original
@@ -48,7 +48,8 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				frame.CopyPixelDataTo(span);
 				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
 				var lay = new SLCanvas(copy);
-				layers.Push(lay, clerk.GetLabel(layerName, null, $"{++count}"));
+				//push to the end so that the order does not get reversed
+				layers.PushAt(layers.Count, lay, clerk.GetLabel(layerName, null, $"{++count}"));
 			}
 		}
 	}
@@ -104,18 +105,16 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			//save each frame as it's own image
 			var enc = ifm.GetEncoder(sixFormat);
 
-			int count = 1;
+			var streamFactory = clerk.WriteFactory(ext);
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;
 				var img = native.Image;
-				var stream = clerk.WriteStream(ext, count.ToString());
+				var stream = streamFactory();
 				img.Save(stream, enc);
-				count++;
 			}
 		}
 		else {
 			//copy all frames into a single image
-			var first = layers.First();
 			var firstImg = (SLCanvas)layers.First().Canvas;
 			using var final = new Image<RgbaD>(firstImg.Width, firstImg.Height);
 
@@ -284,7 +283,7 @@ class SLCanvas : ICanvas
 
 //since native type is double, using a double based color should minimize conversions
 // admittedly using 64bit floats for each component is massive overkill but
-// double and float seem to be about the speed so might as well use the better precision
+// double and float seem to be about the same speed so might as well use the better precision
 struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 {
 	public RgbaD(double r, double g, double b, double a)

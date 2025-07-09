@@ -1,89 +1,123 @@
 <Application xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	x:Class="ImageFunctions.Gui.App"
-	xmlns:local="using:ImageFunctions.Gui"
-	xmlns:vm="using:ImageFunctions.Gui.ViewModels"
-	xmlns:mo="using:ImageFunctions.Gui.Models"
-	xmlns:v="using:ImageFunctions.Gui.Views"
-	RequestedThemeVariant="Default"
->
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+x:Class="ImageFunctions.Gui.App"
+xmlns:local="using:ImageFunctions.Gui"
+xmlns:vm="using:ImageFunctions.Gui.ViewModels"
+xmlns:mo="using:ImageFunctions.Gui.Models"
+xmlns:v="using:ImageFunctions.Gui.Views"
+xmlns:h="using:ImageFunctions.Gui.Helpers"
+xmlns:ac="using:Avalonia.Controls"
+xmlns:av="using:Avalonia.Controls.Converters"
+xmlns:semi="https://irihi.tech/semi"
+RequestedThemeVariant="Default">
 	<!-- Note: templates are checked in order, so put the most specific first -->
 	<Application.DataTemplates>
+		<!-- StatusHistoryLine -->
+		<DataTemplate DataType="{x:Type vm:StatusHistoryLine}">
+			<TextBlock Inlines="{Binding InlineItems}" TextAlignment="Right"
+			h:BindableStyleClasses.Classes="{Binding StatusClass}" />
+		</DataTemplate>
+
+		<!-- LayersImageData -->
+		<DataTemplate DataType="{x:Type vm:LayersImageData}">
+			<v:LayersImageControl />
+		</DataTemplate>
+
+		<!-- SelectionViewModel -->
+		<DataTemplate DataType="{x:Type vm:SelectionViewModel}">
+			<v:RegisteredControl Name="{Binding NameSpace, StringFormat='Reg{0}'}"/>
+		</DataTemplate>
+
 		<!-- SelectionItem -->
 		<DataTemplate DataType="{x:Type mo:SelectionItemColor}">
 			<StackPanel Orientation="Horizontal">
 				<PathIcon Data="{StaticResource IconSquare}" Foreground="{Binding Color}"/>
-				<TextBlock Text="{Binding Name}" />
+				<TextBlock Text="{Binding Name}" Tag="{Binding Tag}"/>
 			</StackPanel>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type mo:SelectionItem}">
 			<TextBlock Text="{Binding Name}" Tag="{Binding Tag}"/>
 		</DataTemplate>
 
 		<!-- InputItem -->
-		<DataTemplate DataType="{x:Type vm:InputItemSlider}">
-			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*,Auto">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
-					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						Text="{Binding Display}" HorizontalContentAlignment="Left"/>
-					<CheckBox Grid.Row="0" Grid.Column="2" IsVisible="{Binding IsNumberPct}" IsChecked="{Binding ShowAsPct}"
-						Theme="{DynamicResource PureCardCheckBox}" Classes="InnerCheckBox">%</CheckBox>
-					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-						Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
-					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+		<DataTemplate DataType="{x:Type vm:InputItemPoint}">
+			<v:InputItemControl>
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,Auto,*">
+					<CheckBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Classes="InnerCheckBox"
+					Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left"
+					IsChecked="{Binding IsPicking}" Tag="Pick a point from the preview image">
+						<PathIcon Data="{DynamicResource IconCrosshairsGps}"/>
+					</CheckBox>
+					<TextBlock Grid.Row="0" Grid.Column="1" Text="X" />
+					<TextBlock Grid.Row="1" Grid.Column="1" Text="Y" />
+					<TextBox Grid.Row="0" Grid.Column="2" Text="{Binding PickedX}" Classes="Bordered" />
+					<TextBox Grid.Row="1" Grid.Column="2" Text="{Binding PickedY}" Classes="Bordered" />
 				</Grid>
-			</CheckBox>
+			</v:InputItemControl>
 		</DataTemplate>
-		<DataTemplate DataType="{x:Type vm:InputItemDropDown}">
-			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
-					<ComboBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						ItemsSource="{Binding Choices}" HorizontalAlignment="Right" SelectedIndex="{Binding SelectedIndex}"/>
-					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
-				</Grid>
-			</CheckBox>
-		</DataTemplate>
-		<DataTemplate DataType="{x:Type vm:InputItemSync}">
-			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" HorizontalAlignment="Left" TextAlignment="Left"/>
-					<CheckBox Grid.Row="0" Grid.Column="1" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
-						Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
+
+		<DataTemplate DataType="{x:Type vm:InputItemColor}">
+			<v:InputItemControl>
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+					<CheckBox Grid.Row="0" Grid.Column="0" IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
+					Theme="{DynamicResource PureCardCheckBox}" HorizontalAlignment="Left" Tag="{Binding Tag}">
 						<PathIcon Data="{Binding SyncIcon}"/>
 					</CheckBox>
-					<v:TextBlockSelectedReg Grid.Row="0" Grid.Column="2" TextAlignment="Right"
-						NameSpace="{Binding NameSpace}" IsConnected="{Binding IsSyncEnabled}"/>
-					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
+					<TextBlock Grid.Row="0" Grid.Column="1" TextAlignment="Right"
+					IsEnabled="{Binding IsSyncEnabled}" Text="{Binding Item.Name}"/>
+					<ColorPicker Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Right"
+					Palette="{DynamicResource SemiColorPalette}" ColorSpectrumShape="Ring"
+					Theme="{DynamicResource HexColorPicker}" IsEnabled="{Binding !IsSyncEnabled}"
+					Color="{Binding Color}" />
 				</Grid>
-			</CheckBox>
+			</v:InputItemControl>
 		</DataTemplate>
+
+		<DataTemplate DataType="{x:Type vm:InputItemSlider}">
+			<v:InputItemControl>
+				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Classes="InputItemSlider">
+					<TextBox Grid.Row="0" Grid.Column="0" Classes="Bordered"
+					Text="{Binding Display}" HorizontalContentAlignment="Left"/>
+					<CheckBox Grid.Row="0" Grid.Column="1" IsVisible="{Binding IsNumberPct}"
+					IsChecked="{Binding ShowAsPct}" Theme="{DynamicResource PureCardCheckBox}">%</CheckBox>
+					<Slider Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+					Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" />
+				</Grid>
+			</v:InputItemControl>
+		</DataTemplate>
+
+		<DataTemplate DataType="{x:Type vm:InputItemDropDown}">
+			<v:InputItemControl>
+				<ComboBox Classes="Bordered" ItemsSource="{Binding Choices}"
+				HorizontalAlignment="Right" SelectedIndex="{Binding SelectedIndex}"/>
+			</v:InputItemControl>
+		</DataTemplate>
+
+		<DataTemplate DataType="{x:Type vm:InputItemSync}">
+			<v:InputItemControl>
+				<StackPanel Orientation="Horizontal">
+					<CheckBox IsChecked="{Binding IsSyncEnabled}" Classes="InnerCheckBox"
+					Theme="{DynamicResource PureCardCheckBox}" Tag="{Binding Tag}">
+						<PathIcon Data="{Binding SyncIcon}"/>
+					</CheckBox>
+					<TextBlock Text="{Binding Item.Name}"/>
+				</StackPanel>
+			</v:InputItemControl>
+		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemText}">
-			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
-					<TextBox Grid.Row="0" Grid.Column="1" DockPanel.Dock="Right" Classes="Bordered"
-						Text="{Binding Text}" HorizontalContentAlignment="Left"/>
-					<TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
-				</Grid>
-			</CheckBox>
+			<v:InputItemControl>
+				<TextBox Classes="Bordered" Text="{Binding Text}" HorizontalContentAlignment="Left"/>
+			</v:InputItemControl>
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItemInfo}">
 			<TextBlock Classes="InputItem" Text="{Binding CombinedInfo}" xml:space="preserve" TextWrapping="Wrap" />
 		</DataTemplate>
+
 		<DataTemplate DataType="{x:Type vm:InputItem}">
-			<CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
-				<Grid RowDefinitions="Auto,Auto">
-					<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding Name}" />
-					<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-						Text="{Binding Description}" Classes="TextSmall" TextWrapping="Wrap" />
-				</Grid>
-			</CheckBox>
+			<v:InputItemControl />
 		</DataTemplate>
 
 		<local:ViewLocator/>
@@ -91,50 +125,19 @@
 
 	<Application.Styles>
 		<!--<FluentTheme />-->
-		<StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
-
-		<Style Selector="TextBlock.TextSmall">
-			<Setter Property="FontSize" Value="{DynamicResource TextBlockCodeFontSize}" />
-			<Setter Property="Foreground" Value="{DynamicResource TextBlockSecondaryForeground}" />
-		</Style>
-		<Style Selector="CheckBox.InputItem">
-			<Setter Property="Padding" Value="6" />
-			<Setter Property="Margin" Value="0,2" />
-		</Style>
-		<Style Selector="CheckBox.InputItem Slider">
-			<Setter Property="Margin" Value="0,8,0,0" />
-		</Style>
-		<Style Selector="CheckBox.InnerCheckBox">
-			<Setter Property="Padding" Value="16,0" />
-		</Style>
-		<Style Selector="PathIcon">
-			<Setter Property="Width" Value="16" />
-			<Setter Property="Height" Value="16" />
-		</Style>
+		<semi:SemiTheme Locale="en-US" />
+		<StyleInclude Source="avares://Semi.Avalonia.ColorPicker/Index.axaml" />
+		<StyleInclude Source="App.Styles.axaml"/>
 	</Application.Styles>
 
 	<Application.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.ThemeDictionaries>
-				<ResourceDictionary x:Key="Light">
-					<StreamGeometry x:Key="IconThemeToggle">M12 23C18.0751 23 23 18.0751 23 12C23 5.92487 18.0751 1 12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23ZM17 15C17.476 15 17.9408 14.9525 18.3901 14.862C17.296 17.3011 14.8464 19 12 19C8.13401 19 5 15.866 5 12C5 8.60996 7.40983 5.78277 10.6099 5.13803C10.218 6.01173 10 6.98041 10 8C10 11.866 13.134 15 17 15Z</StreamGeometry>
-				</ResourceDictionary>
-				<ResourceDictionary x:Key="Dark">
-					<StreamGeometry x:Key="IconThemeToggle">M3.55 19.09L4.96 20.5L6.76 18.71L5.34 17.29M12 6C8.69 6 6 8.69 6 12S8.69 18 12 18 18 15.31 18 12C18 8.68 15.31 6 12 6M20 13H23V11H20M17.24 18.71L19.04 20.5L20.45 19.09L18.66 17.29M20.45 5L19.04 3.6L17.24 5.39L18.66 6.81M13 1H11V4H13M6.76 5.39L4.96 3.6L3.55 5L5.34 6.81L6.76 5.39M1 13H4V11H1M13 20H11V23H13</StreamGeometry>
-				</ResourceDictionary>
-			</ResourceDictionary.ThemeDictionaries>
-			<StreamGeometry x:Key="IconPlusThick">M20 14H14V20H10V14H4V10H10V4H14V10H20V14Z</StreamGeometry>
-			<StreamGeometry x:Key="IconMinusThick">M20 14H4V10H20</StreamGeometry>
-			<StreamGeometry x:Key="IconMagnifyPlus">M9,2A7,7 0 0,1 16,9C16,10.57 15.5,12 14.61,13.19L15.41,14H16L22,20L20,22L14,16V15.41L13.19,14.61C12,15.5 10.57,16 9,16A7,7 0 0,1 2,9A7,7 0 0,1 9,2M8,5V8H5V10H8V13H10V10H13V8H10V5H8Z</StreamGeometry>
-			<StreamGeometry x:Key="IconMagnifyMinus">M9,2A7,7 0 0,1 16,9C16,10.57 15.5,12 14.61,13.19L15.41,14H16L22,20L20,22L14,16V15.41L13.19,14.61C12,15.5 10.57,16 9,16A7,7 0 0,1 2,9A7,7 0 0,1 9,2M5,8V10H13V8H5Z</StreamGeometry>
-			<StreamGeometry x:Key="IconMagnifyScan">M17 22V20H20V17H22V20.5C22 20.89 21.84 21.24 21.54 21.54C21.24 21.84 20.89 22 20.5 22H17M7 22H3.5C3.11 22 2.76 21.84 2.46 21.54C2.16 21.24 2 20.89 2 20.5V17H4V20H7V22M17 2H20.5C20.89 2 21.24 2.16 21.54 2.46C21.84 2.76 22 3.11 22 3.5V7H20V4H17V2M7 2V4H4V7H2V3.5C2 3.11 2.16 2.76 2.46 2.46C2.76 2.16 3.11 2 3.5 2H7M10.5 6C13 6 15 8 15 10.5C15 11.38 14.75 12.2 14.31 12.9L17.57 16.16L16.16 17.57L12.9 14.31C12.2 14.75 11.38 15 10.5 15C8 15 6 13 6 10.5C6 8 8 6 10.5 6M10.5 8C9.12 8 8 9.12 8 10.5C8 11.88 9.12 13 10.5 13C11.88 13 13 11.88 13 10.5C13 9.12 11.88 8 10.5 8Z</StreamGeometry>
-			<StreamGeometry x:Key="IconSquare">M0 0H10V10H0</StreamGeometry>
-			<StreamGeometry x:Key="IconTriUp">M7,15L12,10L17,15H7Z</StreamGeometry>
-			<StreamGeometry x:Key="IconTriDown">M7,10L12,15L17,10H7Z</StreamGeometry>
-			<StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
-			<StreamGeometry x:Key="IconStop">M18,18H6V6H18V18</StreamGeometry>
-			<StreamGeometry x:Key="IconSync">M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z</StreamGeometry>
-			<StreamGeometry x:Key="IconSyncOff">M18 12C18 11 17.74 10.04 17.3 9.2L18.76 7.74C19.54 8.97 20 10.43 20 12C20 13.39 19.64 14.68 19 15.82L17.5 14.32C17.82 13.6 18 12.83 18 12M2.39 1.73L1.11 3L5.5 7.37C4.55 8.68 4 10.27 4 12C4 13.57 4.46 15.03 5.24 16.26L6.7 14.8C6.25 13.97 6 13 6 12C6 10.83 6.34 9.74 6.92 8.81L15.19 17.08C14.26 17.66 13.17 18 12 18V15L8 19L12 23V20C13.73 20 15.32 19.45 16.63 18.5L20.84 22.73L22.11 21.46L2.39 1.73M12 6V8.8L12.1 8.9L16 5L12 1V4C10.62 4 9.32 4.36 8.18 5L9.68 6.5C10.4 6.18 11.18 6 12 6Z</StreamGeometry>
+	 	<ResourceDictionary>
+			<h:StringToValueConverter x:Key="StoVConverter"/>
+			<av:EnumToBoolConverter x:Key="EnumBoolConverter"/>
+
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="App.Icons.axaml" />
+			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
 </Application>

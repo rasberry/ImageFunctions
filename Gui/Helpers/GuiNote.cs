@@ -9,7 +9,7 @@ public static class GuiNote
 	public static string WarningMustBeSelected(string name)
 	{
 		string aan = StartsWithVowel(name) ? "An" : "A";
-		return $"⚠️{aan} {name} must be selected";
+		return $"{aan} {name} must be selected";
 	}
 
 	static bool StartsWithVowel(string text)

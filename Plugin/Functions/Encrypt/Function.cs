@@ -1,7 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
-using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.Encrypt;
 
@@ -45,7 +44,6 @@ public class Function : IFunction
 
 		var engine = Context.Options.Engine.Item.Value;
 		var frame = Context.Layers.First().Canvas;
-		using var progress = new ProgressBar();
 		using var canvas = engine.NewCanvasFromLayers(Context.Layers);
 		Encryptor processor = new Encryptor() { IVBytes = O.IVBytes };
 
@@ -56,7 +54,10 @@ public class Function : IFunction
 		using var inStream = new PixelStream(canvas);
 		using var outStream = new PixelStream(canvas);
 
-		processor.TransformStream(O.DoDecryption, inStream, outStream, O.Password, progress);
+		processor.TransformStream(O.DoDecryption,
+			inStream, outStream, O.Password,
+			Context.Token, Context.Progress
+		);
 
 		//put processed image back
 		frame.CopyFrom(canvas);

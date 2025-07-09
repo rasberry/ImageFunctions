@@ -1,3 +1,5 @@
+using Rasberry.Cli;
+
 namespace ImageFunctions.Core;
 
 public sealed class FunctionContext : IFunctionContext
@@ -6,5 +8,6 @@ public sealed class FunctionContext : IFunctionContext
 	public ILayers Layers { get; set; }
 	public ICoreOptions Options { get; set; }
 	public ICoreLog Log { get; set; }
-	public IProgress<double> Progress { get; set; }
+	public IProgressWithLabel<double> Progress { get; set; }
+	public CancellationToken Token { get; set; }
 }

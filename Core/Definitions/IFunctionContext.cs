@@ -1,3 +1,5 @@
+using Rasberry.Cli;
+
 namespace ImageFunctions.Core;
 
 /// <summary>
@@ -24,4 +26,15 @@ public interface IFunctionContext
 	/// ICoreLog instance to use for logging
 	/// </summary>
 	ICoreLog Log { get; }
+
+	/// <summary>
+	/// Cancellation token to allow the user to stop the function
+	/// </summary>
+	CancellationToken Token { get; }
+
+	/// <summary>
+	/// IProgress to keep track of how much progress has been made
+	/// The reported amount should be in range [0.0, 1.0]
+	/// </summary>
+	IProgressWithLabel<double> Progress { get; }
 }
