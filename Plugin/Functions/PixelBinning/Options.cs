@@ -85,6 +85,8 @@ public sealed class Options : IOptions, IUsageProvider
 			Calculation.Add => "color values added",
 			Calculation.Average => "color values are averaged",
 			Calculation.RMS => "color values are combined using root mean square",
+			Calculation.Min => "Picks the smallest color value in the group",
+			Calculation.Max => "Picks the largest color value in the group",
 			_ => ""
 		};
 	}

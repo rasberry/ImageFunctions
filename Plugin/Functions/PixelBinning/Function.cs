@@ -54,6 +54,8 @@ public class Function : IFunction
 			PixelBinning.Options.Calculation.Add => CalcAdd,
 			PixelBinning.Options.Calculation.Average => CalcAverage,
 			PixelBinning.Options.Calculation.RMS => CalcRMS,
+			PixelBinning.Options.Calculation.Min => CalcMin,
+			PixelBinning.Options.Calculation.Max => CalcMax,
 			_ => null
 		};
 
@@ -64,8 +66,12 @@ public class Function : IFunction
 			int endX = Math.Min(startX + Local.BinSize.Width, canvas.Width);
 			int endY = Math.Min(startY + Local.BinSize.Height, canvas.Height);
 
-			double accR = 0.0, accG = 0.0, accB = 0.0, accA = 0.0, avgA = 0.0;
 			int count = Local.BinSize.Width * Local.BinSize.Height;
+			double accR = 0.0, accG = 0.0, accB = 0.0, accA = 0.0, avgA = 0.0;
+
+			if(Local.PickCalc == PixelBinning.Options.Calculation.Min) {
+				accR = 1.0; accG = 1.0; accB = 1.0; accA = 1.0; avgA = 1.0;
+			}
 
 			for(int y = startY; y < endY; y++) {
 				for(int x = startX; x < endX; x++) {
@@ -136,6 +142,22 @@ public class Function : IFunction
 		g += color.G * color.G / count;
 		b += color.B * color.B / count;
 		a += color.A * color.A / count;
+	}
+
+	void CalcMin(ref double r, ref double g, ref double b, ref double a, int count, ColorRGBA color)
+	{
+		if(color.R < r) { r = color.R; }
+		if(color.G < g) { g = color.G; }
+		if(color.B < b) { b = color.B; }
+		if(color.A < a) { a = color.A; }
+	}
+
+	void CalcMax(ref double r, ref double g, ref double b, ref double a, int count, ColorRGBA color)
+	{
+		if(color.R > r) { r = color.R; }
+		if(color.G > g) { g = color.G; }
+		if(color.B > b) { b = color.B; }
+		if(color.A > a) { a = color.A; }
 	}
 
 	// assumes positive numbers
