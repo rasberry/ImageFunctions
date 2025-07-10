@@ -95,13 +95,13 @@ public sealed class Options : IOptions, IUsageProvider
 		return true;
 	}
 
-	static string EdgeRuleDesc(object rule)
+	static string EdgeRuleDesc(PickEdgeRule rule)
 	{
-		switch(rule) {
-		case PickEdgeRule.Wrap: return "Wrap around to the other side";
-		case PickEdgeRule.Reflect: return "Turn around at the edge";
-		}
-		return "";
+		return rule switch {
+			PickEdgeRule.Wrap => "Wrap around to the other side",
+			PickEdgeRule.Reflect => "Turn around at the edge",
+			_ => "",
+		};
 	}
 
 	static IReadOnlyList<Rule> ParsePattern(string pattern)

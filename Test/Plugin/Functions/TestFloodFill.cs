@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestFloodFill : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.FloodFill);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.FloodFill);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

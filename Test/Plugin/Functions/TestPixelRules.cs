@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestPixelRules : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.PixelRules);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.PixelRules);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

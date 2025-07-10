@@ -1,13 +1,13 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestAllColors : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
-	const string MyName = nameof(Plugin.Functions.AllColors);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.AllColors);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

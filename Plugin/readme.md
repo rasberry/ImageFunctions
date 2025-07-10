@@ -18,18 +18,22 @@ namespace ImageFunctions.Plugin.Functions.MyFunction;
 
 public class Function : IFunction
 {
-	public static IFunction Create(IRegister register, ILayers layers, ICoreOptions core)
+	public static IFunction Create(IFunctionContext context)
 	{
+		if(context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
 		var f = new Function {
-			Register = register,
-			CoreOptions = core,
-			Layers = layers
+			Context = context,
+			Local = new(context),
 		};
 		return f;
 	}
+
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Register);
+		Options.Usage(sb, Context.Register);
 	}
 
 	public bool Run(string[] args)
@@ -37,7 +41,11 @@ public class Function : IFunction
 		if (Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Register)) {
+		if (!Options.ParseArgs(args, Context.Register)) {
+			return false;
+		}
+		if(Layers.Count < 1) {
+			Context.Log.Error(Note.LayerMustHaveAtLeast());
 			return false;
 		}
 
@@ -46,10 +54,10 @@ public class Function : IFunction
 		return true;
 	}
 
-	readonly Options Options = new();
-	IRegister Register;
-	ILayers Layers;
-	ICoreOptions CoreOptions;
+	public IOptions Options { get { return Local; } }
+	public ILayers Layers { get { return Context.Layers; } }
+	Options Local;
+	IFunctionContext Context;
 }
 ```
 
@@ -57,6 +65,7 @@ public class Function : IFunction
 
 ```csharp
 using ImageFunctions.Core;
+using ImageFunctions.Core.Aides;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.MyFunction;
@@ -64,11 +73,18 @@ namespace ImageFunctions.Plugin.Functions.MyFunction;
 public sealed class Options : IOptions
 {
 	public string SomeOption;
+	readonly ICoreLog Log;
+
+	public Options(IFunctionContext context)
+	{
+		if(context == null) { throw Squeal.ArgumentNull(nameof(context)); }
+		Log = context.Log;
+	}
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1,"Does something interesting");
-		sb.ND(1,"-myopt (number)","describe myopt here");
+		sb.ND(1, "Does something interesting");
+		sb.ND(1, "-myopt (number)", "describe myopt here");
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
@@ -81,7 +97,7 @@ public sealed class Options : IOptions
 
 		if (p.Scan<string>("-myopt", "default")
 			.WhenGoodOrMissing(r => { SomeOption = r.Value; return r; })
-			.WhenInvalidTellDefault()
+			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;

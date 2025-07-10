@@ -49,7 +49,7 @@ public sealed class Options : IOptions, IUsageProvider
 		return u;
 	}
 
-	string SweepDescription(object k)
+	string SweepDescription(SweepKind k)
 	{
 		return k switch {
 			SweepKind.Nothing => "Don't tweak the image; may run into dead-ends",
@@ -59,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 		};
 	}
 
-	string DrawModeDescription(object k)
+	string DrawModeDescription(DrawModeKind k)
 	{
 		return k switch {
 			DrawModeKind.Nothing => "Don't draw boxes - combine with '-b' to draw only borders",

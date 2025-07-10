@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestSwirl : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.Swirl);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.Swirl);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

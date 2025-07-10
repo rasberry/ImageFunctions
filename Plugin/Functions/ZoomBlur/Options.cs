@@ -61,7 +61,7 @@ public class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePoint<PointF>)
+		if(p.Scan<PointF>("-cp", par: Core.Aides.OptionsAide.ParsePointSize<PointF>)
 			.WhenGood(r => { CenterRt = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -69,7 +69,7 @@ public class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePoint<Point>)
+		if(p.Scan<Point>("-cx", par: Core.Aides.OptionsAide.ParsePointSize<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()

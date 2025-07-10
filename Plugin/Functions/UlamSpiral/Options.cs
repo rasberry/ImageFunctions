@@ -69,30 +69,30 @@ public sealed class Options : IOptions, IUsageProvider
 		return u;
 	}
 
-	static string DescMapping(object m)
+	static string DescMapping(PickMapping m)
 	{
-		switch(m) {
-		case PickMapping.Diagonal: return "Diagonal winding from top left";
-		case PickMapping.Linear: return "Linear mapping left to right, top to bottom";
-		case PickMapping.Spiral: return "Spiral mapping inside to outside";
-		}
-		return "";
+		return m switch {
+			PickMapping.Diagonal => "Diagonal winding from top left",
+			PickMapping.Linear => "Linear mapping left to right, top to bottom",
+			PickMapping.Spiral => "Spiral mapping inside to outside",
+			_ => "",
+		};
 	}
 
-	static string DescDotType(object m)
+	static string DescDotType(PickDot m)
 	{
-		switch(m) {
-		case PickDot.Blob: return "Draws a spherical fading dot";
-		case PickDot.Circle: return "Draws a regular circle";
-		case PickDot.Square: return "Draws a regular square";
-		}
-		return "";
+		return m switch {
+			PickDot.Blob => "Draws a spherical fading dot",
+			PickDot.Circle => "Draws a regular circle",
+			PickDot.Square => "Draws a regular square",
+			_ => "",
+		};
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var pointParser = new ParseParams.Parser<Point>(CoreOptions.ParsePoint<Point>);
+		var pointParser = new ParseParams.Parser<Point>(CoreOptions.ParsePointSize<Point>);
 		var colorParser = new ParseParams.Parser<ColorRGBA>(CoreOptions.ParseColor);
 
 		if(p.Has("-f").IsGood()) {

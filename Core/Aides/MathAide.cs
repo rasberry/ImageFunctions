@@ -35,4 +35,23 @@ public static class MathAide
 		}
 		throw Squeal.ArgumentOutOfRange(nameof(number));
 	}
+
+	/// <summary>
+	/// Calculates the greatest-common-divisor of two integers
+	/// </summary>
+	public static int GCD(int a, int b)
+	{
+		while(b != 0) {
+			(a, b) = (b, a % b);
+		}
+		return Math.Abs(a); // Ensures GCD is always non-negative
+	}
+
+	/// <summary>
+	/// Calculates the greatest-common-divisor for a list of integers
+	/// </summary>
+	public static int GCD(IEnumerable<int> intList)
+	{
+		return intList.Aggregate(GCD);
+	}
 }

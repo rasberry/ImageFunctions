@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace ImageFunctions.Test;
 
 [TestClass]
-public class Setup
+public static class Setup
 {
 	[AssemblyInitialize]
 	public static void Init(TestContext ctx)
@@ -14,8 +14,8 @@ public class Setup
 		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
 
 		Register = new CoreRegister(log);
-		PluginLoader.RegisterPlugin(log, typeof(Core.Adapter).Assembly, Register);
-		PluginLoader.RegisterPlugin(log, typeof(Plugin.Adapter).Assembly, Register);
+		PluginLoader.RegisterPlugin(log, typeof(ImageFunctions.Core.Adapter).Assembly, Register);
+		PluginLoader.RegisterPlugin(log, typeof(ImageFunctions.Plugin.Adapter).Assembly, Register);
 	}
 
 	[AssemblyCleanup]

@@ -1,7 +1,7 @@
 using ImageFunctions.Plugin.Aides;
 using static Rasberry.Cli.ParseParams;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestOptionsAide
@@ -25,7 +25,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tir = OptionsAide.BeGreaterThanZero(ti, log, includeZero);
+		var tir = ti.BeGreaterThanZero(log, includeZero);
 		Assert.AreEqual(result, tir.Result);
 
 		var tl = new Rasberry.Cli.ParseResult<long> {
@@ -33,7 +33,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tlr = OptionsAide.BeGreaterThanZero(tl, log, includeZero);
+		var tlr = tl.BeGreaterThanZero(log, includeZero);
 		Assert.AreEqual(result, tlr.Result);
 
 		var td = new Rasberry.Cli.ParseResult<double> {
@@ -41,7 +41,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tdr = OptionsAide.BeGreaterThanZero(td, log, includeZero);
+		var tdr = td.BeGreaterThanZero(log, includeZero);
 		Assert.AreEqual(result, tdr.Result);
 	}
 
@@ -61,7 +61,7 @@ public class TestOptionsAide
 			Result = Result.Good,
 			Value = value
 		};
-		var tir = OptionsAide.BeBetween(ti, log, low, high, lI, hI);
+		var tir = ti.BeBetween(log, low, high, lI, hI);
 		Assert.AreEqual(result, tir.Result);
 	}
 }

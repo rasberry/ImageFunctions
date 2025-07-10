@@ -1,6 +1,6 @@
 using ImageFunctions.Plugin.Aides;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestMathAide

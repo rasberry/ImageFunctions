@@ -50,24 +50,24 @@ public sealed class Options : IOptions, IUsageProvider
 		return u;
 	}
 
-	static string MazeDesc(object maze)
+	static string MazeDesc(PickMaze maze)
 	{
-		switch(maze) {
-		case PickMaze.Automata: return "Cellular automata maze";
-		case PickMaze.BinaryTree: return "Binary tree maze algorithm";
-		case PickMaze.Division: return "Recursize division algorithm";
-		case PickMaze.Eller: return "Eller's algorithm";
-		case PickMaze.GrowingTree: return "Growing tree maze algorithm";
-		case PickMaze.Kruskal: return "Kruskal's algorithm 🐢";
-		case PickMaze.Prims: return "Prim's (Jarník's) algorithm";
-		case PickMaze.ReverseDelete: return "Reverse delete algorithm 🐢";
-		case PickMaze.SideWinder: return "Sidewinder maze algorithm";
-		case PickMaze.Spiral: return "Experimental maze using a spiral layout";
-		}
-		return "";
+		return maze switch {
+			PickMaze.Automata => "Cellular automata maze",
+			PickMaze.BinaryTree => "Binary tree maze algorithm",
+			PickMaze.Division => "Recursize division algorithm",
+			PickMaze.Eller => "Eller's algorithm",
+			PickMaze.GrowingTree => "Growing tree maze algorithm",
+			PickMaze.Kruskal => "Kruskal's algorithm 🐢",
+			PickMaze.Prims => "Prim's (Jarník's) algorithm",
+			PickMaze.ReverseDelete => "Reverse delete algorithm 🐢",
+			PickMaze.SideWinder => "Sidewinder maze algorithm",
+			PickMaze.Spiral => "Experimental maze using a spiral layout",
+			_ => "",
+		};
 	}
 
-	static string SeqDesc(object next)
+	static string SeqDesc(PickNext next)
 	{
 		switch(next) {
 		case PickNext.Middle: return "Pick the middle cell of the current path";
@@ -78,7 +78,7 @@ public sealed class Options : IOptions, IUsageProvider
 		return "";
 	}
 
-	static string SeqName(object next)
+	static string SeqName(PickNext next)
 	{
 		switch(next) {
 		case PickNext.Middle: return "(M)iddle";

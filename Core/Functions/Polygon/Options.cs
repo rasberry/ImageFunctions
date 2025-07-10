@@ -34,7 +34,7 @@ public sealed class Options : IOptions, IUsageProvider
 		return u;
 	}
 
-	string LineKindDescription(object k)
+	string LineKindDescription(LineKind k)
 	{
 		return k switch {
 			LineKind.DDA => "Digital Differential Analyzer",
@@ -76,7 +76,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		bool done = false;
 		do {
-			if(p.Scan("-p", Point.Empty, OptionsAide.ParsePoint<Point>)
+			if(p.Scan("-p", Point.Empty, OptionsAide.ParsePointSize<Point>)
 				.WhenMissing(r => { done = true; return r; })
 				.WhenGood(r => {
 					PointList ??= new();

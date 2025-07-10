@@ -45,9 +45,8 @@ public sealed class Options : IOptions, IUsageProvider
 		return u;
 	}
 
-	static string ModeDesc(object mode)
+	static string ModeDesc(Mode m)
 	{
-		Mode m = (Mode)mode;
 		if(m == Mode.Polynomial) { return "x^e/w, y^e/h"; }
 		if(m == Mode.Inverted) { return "n/x, n/y; n = (x^e + y^e)"; }
 		return "";
@@ -60,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if(p.Scan<PointF>("-cp", par: OptionsAide.ParsePoint<PointF>)
+		if(p.Scan<PointF>("-cp", par: OptionsAide.ParsePointSize<PointF>)
 			.WhenGood(r => { CenterPp = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -68,7 +67,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<Point>("-cx", par: OptionsAide.ParsePoint<Point>)
+		if(p.Scan<Point>("-cx", par: OptionsAide.ParsePointSize<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()

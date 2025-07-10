@@ -93,15 +93,15 @@ public sealed class Options : IOptions, IUsageProvider
 		return true;
 	}
 
-	static string ModeDesc(object m)
+	static string ModeDesc(Mode m)
 	{
-		switch(m) {
-		case Mode.StairCaseDescend: return "move towards smallest distance";
-		case Mode.StairCaseAscend: return "move towards largest distance";
-		case Mode.StairCaseClosest: return "move towards closest distance";
-		case Mode.StairCaseFarthest: return "move towards farthest distance";
-		}
-		return "";
+		return m switch {
+			Mode.StairCaseDescend => "move towards smallest distance",
+			Mode.StairCaseAscend => "move towards largest distance",
+			Mode.StairCaseClosest => "move towards closest distance",
+			Mode.StairCaseFarthest => "move towards farthest distance",
+			_ => "",
+		};
 	}
 }
 
