@@ -3,6 +3,8 @@ using ImageFunctions.Core.Logging;
 using RazorEngineCore;
 using System.Text;
 
+[assembly: DoNotParallelize]
+
 namespace ImageFunctions.Writer;
 
 class Program

@@ -110,7 +110,7 @@ public abstract class AbstractFunctionTest
 		var log = new TestLogger(TestContext);
 		try {
 			RunFunction(info, loader);
-			Assert.AreEqual(true, info.Success);
+			Assert.IsTrue(info.Success);
 			Assert.AreEqual(0, info.ExitCode);
 
 			loader ??= GetOrLoadResourceImage;
@@ -118,7 +118,7 @@ public abstract class AbstractFunctionTest
 			var dist = CompareTopTwoLayers(info);
 			log.Info($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
-			Assert.IsTrue(dist.Total <= info.MaxDiff, $"Name = {info.OutName} Distance = {dist}");
+			Assert.IsLessThanOrEqualTo(info.MaxDiff, dist.Total, $"Name = {info.OutName} Distance = {dist}");
 		}
 		finally {
 			//remove the compare image

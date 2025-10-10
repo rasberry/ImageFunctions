@@ -15,8 +15,8 @@ public static class Helpers
 
 	public static void AssertAreSimilar(ColorRGBA e, ColorRGBA a, double maxdiff = 0.0)
 	{
-		var dist = ImageComparer.ColorDistance(e, a, clampValues:true);
-		Assert.IsTrue(dist.Total < maxdiff,
+		var dist = Plugin.ImageComparer.ColorDistance(e, a);
+		Assert.IsLessThan(maxdiff, dist.Total,
 			$"Color Distance {dist} > {maxdiff}."
 			+ $" Expected <{e.R},{e.G},{e.B},{e.A}>"
 			+ $" Actual <{a.R},{a.G},{a.B},{a.A}>"

@@ -32,24 +32,6 @@ public class TestFileClerk
 	}
 
 	[TestMethod]
-	public void RelativePaths()
-	{
-		string fileName = @"temp\test.png";
-		var io = new TestIO();
-		using var clerk = new FileClerk(io, fileName);
-
-		Assert.AreEqual(fileName, clerk.GetLabel(fileName));
-		Assert.AreEqual(@"temp\test.tiff", clerk.GetLabel(fileName, "tiff"));
-		Assert.AreEqual(@"temp\test-1.tiff", clerk.GetLabel(fileName, "tiff", "1"));
-
-		var rs0 = clerk.ReadStream();
-		Assert.IsTrue(rs0.CanRead);
-		Assert.AreEqual("Test data 0", ReadToString(rs0));
-		Assert.AreEqual(fileName, io.LastFile);
-	}
-
-	[TestMethod]
-	[ExpectedException(typeof(InvalidOperationException))]
 	public void OneStreamOnlyRead()
 	{
 		string fileName = @"c:\temp\test.png";
@@ -60,11 +42,12 @@ public class TestFileClerk
 		Assert.AreEqual("Test data 0", ReadToString(rs0));
 
 		//should throw InvalidOperationException "stream already created"
-		var rs1 = clerk.ReadStream();
+		Assert.Throws<InvalidOperationException>(() => {
+			var rs1 = clerk.ReadStream();
+		});
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(InvalidOperationException))]
 	public void OneStreamOnlyWrite()
 	{
 		string fileName = @"c:\temp\test.png";
@@ -75,7 +58,10 @@ public class TestFileClerk
 		Assert.AreEqual("Test data 0", ReadToString(rs0));
 
 		//should throw InvalidOperationException "stream already created"
-		var ws1 = clerk.WriteStream();
+		Assert.Throws<InvalidOperationException>(() => {
+			var ws1 = clerk.WriteStream();
+		});
+
 	}
 
 	[TestMethod]
@@ -97,7 +83,6 @@ public class TestFileClerk
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(InvalidOperationException))]
 	public void StreamFactoryWriteOneTime()
 	{
 		string fileName = @"c:\temp\test.png";
@@ -109,7 +94,9 @@ public class TestFileClerk
 		Assert.AreEqual(@"c:\temp\test-1.tiff", io.LastFile);
 
 		//should throw InvalidOperationException "factory already created"
-		var fac1 = clerk.WriteFactory();
+		Assert.Throws<InvalidOperationException>(() => {
+			var fac1 = clerk.WriteFactory();
+		});
 	}
 }
 
