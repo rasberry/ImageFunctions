@@ -1,5 +1,5 @@
 using ImageFunctions.Core;
-using ImageFunctions.Plugin;
+using ImageFunctions.Plugin.Aides;
 
 namespace ImageFunctions.Test;
 

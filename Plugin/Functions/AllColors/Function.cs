@@ -2,7 +2,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
 using ImageFunctions.Plugin.Aides;
-using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.AllColors;
 
@@ -379,7 +379,7 @@ public class Function : IFunction
 					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			MoreAide.ParallelSort(tempList, Context.Token, comp,
+			MoreAidePlus.ParallelSort(tempList, Context.Token, comp,
 				Context.Progress, Context.Options.MaxDegreeOfParallelism);
 		}
 		else {

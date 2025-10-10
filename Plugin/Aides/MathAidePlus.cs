@@ -1,6 +1,6 @@
 namespace ImageFunctions.Plugin.Aides;
 
-public static class MathAide
+public static class MathAidePlus
 {
 	/// <summary>
 	/// Random coin toss

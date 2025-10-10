@@ -3,7 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
-using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.FibSquares;
 
@@ -252,7 +252,7 @@ public class Function : IFunction
 			// if (dr > steps) { steps = dr; d = Direction.Right; }
 			// if (db > steps) { steps = db; d = Direction.Down; }
 
-			int steps = Plugin.Aides.MathAide.Max(dl, dt, dr, db);
+			int steps = Plugin.Aides.MathAidePlus.Max(dl, dt, dr, db);
 			//Log.Debug($"steps={steps} beg={beg} end={end}");
 
 			for(int s = 0; s < steps; s++) {

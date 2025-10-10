@@ -4,8 +4,8 @@ using ImageFunctions.Core.Metrics;
 using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 using CoreColor = ImageFunctions.Core.Aides.ColorAide;
-using PlugImage = ImageFunctions.Plugin.Aides.ImageAide;
-using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
+using PlugImage = ImageFunctions.Plugin.Aides.ImageAidePlus;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 

@@ -36,7 +36,7 @@ public sealed class FileClerk : IFileClerk
 		if(OneStream != null) {
 			throw new InvalidOperationException("stream already created");
 		}
-		
+
 		var loc = TransformLocation(Location, ext, tag);
 		System.Diagnostics.Trace.WriteLine($"Location={Location} loc={loc}");
 

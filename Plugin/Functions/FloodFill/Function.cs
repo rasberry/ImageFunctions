@@ -63,7 +63,7 @@ public class Function : IFunction
 			Storage = new QueueWrapper<(Point, ColorRGBA)>();
 		}
 
-		MaxDist = ImageComparer.Max(O.Metric?.Value);
+		MaxDist = Aides.ImageComparer.Max(O.Metric?.Value);
 		ICanvas surface;
 		if(O.MakeNewLayer) {
 			surface = Context.Options.Engine.Item.Value.NewCanvasFromLayers(Context.Layers);
@@ -146,7 +146,7 @@ public class Function : IFunction
 	// 1.0 - completely similar (identical)
 	bool IsSimilar(ColorRGBA pick, ColorRGBA sample)
 	{
-		var dist = ImageComparer.ColorDistance(pick, sample, O.Metric?.Value);
+		var dist = Aides.ImageComparer.ColorDistance(pick, sample, O.Metric?.Value);
 		var amount = Math.Clamp(1.0 - dist.Total / MaxDist, 0.0, 1.0);
 		bool isSimilar = amount >= O.Similarity;
 		return isSimilar;

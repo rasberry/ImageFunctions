@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Metrics;
 
-namespace ImageFunctions.Plugin;
+namespace ImageFunctions.Plugin.Aides;
 
 public static class ImageComparer
 {
@@ -68,10 +68,10 @@ public static class ImageComparer
 	public static ComponentDistance ColorDistance(ColorRGBA one, ColorRGBA two,
 		IMetric metric = null, bool excludeAlpha = false, bool clampValues = false)
 	{
-		double dr = clampValues ? Math.Clamp(one.R,0.0,1.0) - Math.Clamp(two.R,0.0,1.0) : one.R - two.R;
-		double dg = clampValues ? Math.Clamp(one.G,0.0,1.0) - Math.Clamp(two.G,0.0,1.0) : one.G - two.G;
-		double db = clampValues ? Math.Clamp(one.B,0.0,1.0) - Math.Clamp(two.B,0.0,1.0) : one.B - two.B;
-		double da = clampValues ? Math.Clamp(one.A,0.0,1.0) - Math.Clamp(two.A,0.0,1.0) : one.A - two.A;
+		double dr = clampValues ? Math.Clamp(one.R, 0.0, 1.0) - Math.Clamp(two.R, 0.0, 1.0) : one.R - two.R;
+		double dg = clampValues ? Math.Clamp(one.G, 0.0, 1.0) - Math.Clamp(two.G, 0.0, 1.0) : one.G - two.G;
+		double db = clampValues ? Math.Clamp(one.B, 0.0, 1.0) - Math.Clamp(two.B, 0.0, 1.0) : one.B - two.B;
+		double da = clampValues ? Math.Clamp(one.A, 0.0, 1.0) - Math.Clamp(two.A, 0.0, 1.0) : one.A - two.A;
 		double total;
 
 		if(metric != null) {

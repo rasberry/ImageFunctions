@@ -40,7 +40,7 @@ public class TestPixelBinning : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
 		yield return CreateTestInfo(1, startImg, new string[0]);
-		yield return CreateTestInfo(2, startImg, new string[] { "-s", "3,3", "-c", "RMS"});
+		yield return CreateTestInfo(2, startImg, new string[] { "-s", "3,3", "-c", "RMS" });
 		yield return CreateTestInfo(3, startImg, new string[] { "-c", "Average", });
 	}
 

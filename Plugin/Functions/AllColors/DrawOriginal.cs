@@ -163,7 +163,7 @@ public static class DrawOriginal
 					return MultiSort(compList, a.Item2, b.Item2);
 				})
 			);
-			MoreAide.ParallelSort(tempList, token, comp, progress, maxThreads);
+			MoreAidePlus.ParallelSort(tempList, token, comp, progress, maxThreads);
 		}
 		else {
 			//seems to be a lot faster than Array.Sort(key,collection)

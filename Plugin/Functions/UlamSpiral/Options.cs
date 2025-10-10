@@ -5,7 +5,7 @@ using Rasberry.Cli;
 using System.Drawing;
 using CoreColor = ImageFunctions.Core.Aides.ColorAide;
 using CoreOptions = ImageFunctions.Core.Aides.OptionsAide;
-using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.UlamSpiral;
 

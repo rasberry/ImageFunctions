@@ -65,7 +65,7 @@ public class Function : IFunction
 			BasicMaze = Maze;
 		}
 
-		Plugin.Aides.ImageAide.FillWithColor(canvas, O.WallColor);
+		Plugin.Aides.ImageAidePlus.FillWithColor(canvas, O.WallColor);
 		BasicMaze.DrawMaze(Context.Progress, Context.Token);
 
 		return true;

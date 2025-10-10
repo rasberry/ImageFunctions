@@ -3,8 +3,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
 using System.Drawing;
-using System.Globalization;
-using static ImageFunctions.Plugin.ImageComparer;
+using static ImageFunctions.Plugin.Aides.ImageComparer;
 
 namespace ImageFunctions.Test;
 
@@ -150,7 +149,7 @@ public abstract class AbstractFunctionTest
 		var one = layers[0].Canvas;
 		var two = layers[1].Canvas;
 
-		return CanvasDistance(one, two, clampValues:true);
+		return CanvasDistance(one, two, clampValues: true);
 	}
 
 	/// <summary>

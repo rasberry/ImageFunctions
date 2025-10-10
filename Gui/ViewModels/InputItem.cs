@@ -445,7 +445,7 @@ public sealed class InputItemPoint : InputItem, IDisposable
 	//seperate function to avoid an infinite event loop with IsPickingFromPreview
 	void SetIsPickingAlone(bool val)
 	{
-		if (val) {
+		if(val) {
 			PickingSubscribe();
 		}
 		else {
@@ -461,7 +461,7 @@ public sealed class InputItemPoint : InputItem, IDisposable
 
 	void PickingSubscribe()
 	{
-		if (IsSubscribed || MWVModel == null) { return; }
+		if(IsSubscribed || MWVModel == null) { return; }
 		IsSubscribed = true;
 		SubPreviewPointerPos = MWVModel.WhenAnyValue(m => m.PreviewPointerPos)
 			.Subscribe(p => PickedPoint = p);

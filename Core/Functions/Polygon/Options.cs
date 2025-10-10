@@ -87,7 +87,8 @@ public sealed class Options : IOptions, IUsageProvider
 				.IsInvalid()
 			) {
 				return false;
-			};
+			}
+			;
 		} while(!done);
 
 		if(PointList == null || PointList.Count < 2) {

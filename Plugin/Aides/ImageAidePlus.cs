@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace ImageFunctions.Plugin.Aides;
 
-public static class ImageAide
+public static class ImageAidePlus
 {
 	/// <summary>
 	/// Copies the pixels from one canvas to another
