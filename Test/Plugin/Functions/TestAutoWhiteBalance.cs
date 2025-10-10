@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestAutoWhiteBalance : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.AutoWhiteBalance);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.AutoWhiteBalance);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

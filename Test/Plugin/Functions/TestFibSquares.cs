@@ -1,14 +1,14 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestFibSquares : AbstractFunctionTest
 {
 	const int TestSizePixelsW = 256;
 	const int TestSizePixelsH = 160;
-	const string MyName = nameof(Plugin.Functions.FibSquares);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.FibSquares);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

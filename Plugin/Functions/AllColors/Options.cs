@@ -77,26 +77,23 @@ public sealed class Options : IOptions, IUsageProvider
 		};
 	}
 
-	static string GetPatternDescription(object t)
+	static string GetPatternDescription(Pattern p)
 	{
-		if(t is not Pattern p) {
-			throw Squeal.InvalidArgument(nameof(t));
-		}
-		switch(p) {
-		case Pattern.BitOrder: return "Numeric order";
-		case Pattern.AERT: return "AERT brightness";
-		case Pattern.HSP: return "HSP color model brightness";
-		case Pattern.WCAG2: return "WCAG2 relative luminance";
-		case Pattern.Luminance709: return "Luminance BT.709";
-		case Pattern.Luminance601: return "Luminance BT.601";
-		case Pattern.Luminance2020: return "Luminance BT.2020";
-		case Pattern.SMPTE240M: return "Luminance SMPTE 240M (1999)";
-		case Pattern.Spiral16: return "Spiral blocks of 16 x 16";
-		case Pattern.Spiral4kBuckets: return "Spiral blocks of 4k x 4k using buckets";
-		case Pattern.Spiral4k: return "Spiral blocks of 4k x 4k";
-		case Pattern.Squares4k: return "Square blocks of 256 x 256";
-		}
-		return "";
+		return p switch {
+			Pattern.BitOrder => "Numeric order",
+			Pattern.AERT => "AERT brightness",
+			Pattern.HSP => "HSP color model brightness",
+			Pattern.WCAG2 => "WCAG2 relative luminance",
+			Pattern.Luminance709 => "Luminance BT.709",
+			Pattern.Luminance601 => "Luminance BT.601",
+			Pattern.Luminance2020 => "Luminance BT.2020",
+			Pattern.SMPTE240M => "Luminance SMPTE 240M (1999)",
+			Pattern.Spiral16 => "Spiral blocks of 16 x 16",
+			Pattern.Spiral4kBuckets => "Spiral blocks of 4k x 4k using buckets",
+			Pattern.Spiral4k => "Spiral blocks of 4k x 4k",
+			Pattern.Squares4k => "Square blocks of 256 x 256",
+			_ => "",
+		};
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)

@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestAreaSmoother2 : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.AreaSmoother2);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.AreaSmoother2);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

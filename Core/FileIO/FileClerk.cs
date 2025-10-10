@@ -36,7 +36,9 @@ public sealed class FileClerk : IFileClerk
 		if(OneStream != null) {
 			throw new InvalidOperationException("stream already created");
 		}
+		
 		var loc = TransformLocation(Location, ext, tag);
+		System.Diagnostics.Trace.WriteLine($"Location={Location} loc={loc}");
 
 		var fs = FileIOInst.OpenForReading(loc);
 		OneStream = new WatchedStream(fs, Progress);
@@ -82,26 +84,24 @@ public sealed class FileClerk : IFileClerk
 	int FactoryCount;
 	readonly List<WatchedStream> Watcher = new();
 
-	string TransformLocation(string name, string ext, string tag)
+	string TransformLocation(string original, string ext, string tag)
 	{
-		if(String.IsNullOrWhiteSpace(name)) {
-			Squeal.ArgumentNullOrEmpty(nameof(name));
+		if(String.IsNullOrWhiteSpace(original)) {
+			Squeal.ArgumentNullOrEmpty(nameof(original));
 		}
 
 		// save the path for later
-		var path = Path.GetDirectoryName(name);
+		var path = Path.GetDirectoryName(original);
 		//grab noext in case we have a tag
-		var noext = Path.GetFileNameWithoutExtension(name);
+		var noext = Path.GetFileNameWithoutExtension(original);
 		//if ext is not specified get it from the name
-		if(String.IsNullOrWhiteSpace(ext)) { ext = Path.GetExtension(name); }
+		if(String.IsNullOrWhiteSpace(ext)) { ext = Path.GetExtension(original); }
 		//ensure extension has a dot
 		if(!String.IsNullOrWhiteSpace(ext) && !ext.StartsWith('.')) { ext = '.' + ext; }
 		//if we have a tag incorporate it
-		if(!String.IsNullOrWhiteSpace(tag)) { name = noext + "-" + tag + ext; }
-		//if ext has a value at this point ensure the name is set to that ext
-		if(!String.IsNullOrWhiteSpace(ext)) { name = Path.ChangeExtension(name, ext); }
+		if(!String.IsNullOrWhiteSpace(tag)) { noext += "-" + tag; }
 		//all done
-		return Path.Combine(path, name);
+		return Path.Combine(path, noext + ext);
 	}
 
 	WatchedStream OneStream;

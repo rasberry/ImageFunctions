@@ -1,7 +1,7 @@
 using ImageFunctions.Core.FileIO;
 using System.Text;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Core;
 
 [TestClass]
 public class TestFileClerk
@@ -32,7 +32,24 @@ public class TestFileClerk
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(System.InvalidOperationException))]
+	public void RelativePaths()
+	{
+		string fileName = @"temp\test.png";
+		var io = new TestIO();
+		using var clerk = new FileClerk(io, fileName);
+
+		Assert.AreEqual(fileName, clerk.GetLabel(fileName));
+		Assert.AreEqual(@"temp\test.tiff", clerk.GetLabel(fileName, "tiff"));
+		Assert.AreEqual(@"temp\test-1.tiff", clerk.GetLabel(fileName, "tiff", "1"));
+
+		var rs0 = clerk.ReadStream();
+		Assert.IsTrue(rs0.CanRead);
+		Assert.AreEqual("Test data 0", ReadToString(rs0));
+		Assert.AreEqual(fileName, io.LastFile);
+	}
+
+	[TestMethod]
+	[ExpectedException(typeof(InvalidOperationException))]
 	public void OneStreamOnlyRead()
 	{
 		string fileName = @"c:\temp\test.png";
@@ -47,7 +64,7 @@ public class TestFileClerk
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(System.InvalidOperationException))]
+	[ExpectedException(typeof(InvalidOperationException))]
 	public void OneStreamOnlyWrite()
 	{
 		string fileName = @"c:\temp\test.png";
@@ -80,7 +97,7 @@ public class TestFileClerk
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(System.InvalidOperationException))]
+	[ExpectedException(typeof(InvalidOperationException))]
 	public void StreamFactoryWriteOneTime()
 	{
 		string fileName = @"c:\temp\test.png";

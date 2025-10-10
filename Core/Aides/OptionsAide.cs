@@ -68,33 +68,39 @@ public static class OptionsAide
 	/// Parse a sequence of numbers into a point object
 	/// Sequence may be seperated by space, comma or 'x'
 	/// </summary>
-	/// <typeparam name="P">Point, PointF, or PointD</typeparam>
+	/// <typeparam name="P">Point, PointF, PointD, Size, SizeF</typeparam>
 	/// <param name="arg">argument value</param>
-	/// <returns>A Point</returns>
+	/// <returns>A Point or Size</returns>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="OverflowException"></exception>
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="FormatException"></exception>
 	/// <exception cref="NotSupportedException"></exception>
-	public static P ParsePoint<P>(string arg) where P : struct
+	public static P ParsePointSize<P>(string arg) where P : struct
 	{
 		var pt = typeof(P);
 
 		if(pt == typeof(Point)) {
-			return (P)(object)ParsePointInternal<Point, int>(arg, (a, b) => { return new Point(a, b); });
+			return (P)(object)ParseTwoInternal<Point, int>(arg, (a, b) => { return new Point(a, b); });
 		}
 		else if(pt == typeof(PointF)) {
-			return (P)(object)ParsePointInternal<PointF, float>(arg, (a, b) => { return new PointF(a, b); });
+			return (P)(object)ParseTwoInternal<PointF, float>(arg, (a, b) => { return new PointF(a, b); });
 		}
 		else if(pt == typeof(PointD)) {
-			return (P)(object)ParsePointInternal<PointD, double>(arg, (a, b) => { return new PointD(a, b); });
+			return (P)(object)ParseTwoInternal<PointD, double>(arg, (a, b) => { return new PointD(a, b); });
+		}
+		if(pt == typeof(Size)) {
+			return (P)(object)ParseTwoInternal<Size, int>(arg, (a, b) => { return new Size(a, b); });
+		}
+		if(pt == typeof(SizeF)) {
+			return (P)(object)ParseTwoInternal<SizeF, int>(arg, (a, b) => { return new SizeF(a, b); });
 		}
 		else {
 			throw Squeal.NotSupported($"Type {pt.FullName}");
 		}
 	}
 
-	static P ParsePointInternal<P, T>(string arg, Func<T, T, P> allocator) where T : IParsable<T>
+	static P ParseTwoInternal<P, T>(string arg, Func<T, T, P> allocator) where T : IParsable<T>
 	{
 		//TODO maybe change ParseParams.Parser definition to match IParsable so we don't need a lambda
 		var parser = new ParseParams.Parser<T>((string s) => T.Parse(s, null));

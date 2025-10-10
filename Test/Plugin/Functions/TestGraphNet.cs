@@ -1,12 +1,12 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestGraphNet : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.GraphNet);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.GraphNet);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

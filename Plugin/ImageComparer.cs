@@ -34,7 +34,7 @@ public static class ImageComparer
 	}
 
 	public static ComponentDistance CanvasDistance(ICanvas one, ICanvas two,
-		IMetric metric = null, bool excludeAlpha = false)
+		IMetric metric = null, bool excludeAlpha = false, bool clampValues = false)
 	{
 		var black = new ColorRGBA(0.0, 0.0, 0.0, 1.0);
 		int mw = Math.Max(one.Width, two.Width);
@@ -47,7 +47,7 @@ public static class ImageComparer
 				var pOne = one.Width > x && one.Height > y ? one[x, y] : black;
 				var pTwo = two.Width > x && two.Height > y ? two[x, y] : black;
 
-				var dist = ColorDistance(pOne, pTwo, metric, excludeAlpha);
+				var dist = ColorDistance(pOne, pTwo, metric, excludeAlpha, clampValues);
 				dR += dist.R;
 				dG += dist.G;
 				dB += dist.B;
@@ -66,12 +66,12 @@ public static class ImageComparer
 	}
 
 	public static ComponentDistance ColorDistance(ColorRGBA one, ColorRGBA two,
-		IMetric metric = null, bool excludeAlpha = false)
+		IMetric metric = null, bool excludeAlpha = false, bool clampValues = false)
 	{
-		double dr = one.R - two.R;
-		double dg = one.G - two.G;
-		double db = one.B - two.B;
-		double da = one.A - two.A;
+		double dr = clampValues ? Math.Clamp(one.R,0.0,1.0) - Math.Clamp(two.R,0.0,1.0) : one.R - two.R;
+		double dg = clampValues ? Math.Clamp(one.G,0.0,1.0) - Math.Clamp(two.G,0.0,1.0) : one.G - two.G;
+		double db = clampValues ? Math.Clamp(one.B,0.0,1.0) - Math.Clamp(two.B,0.0,1.0) : one.B - two.B;
+		double da = clampValues ? Math.Clamp(one.A,0.0,1.0) - Math.Clamp(two.A,0.0,1.0) : one.A - two.A;
 		double total;
 
 		if(metric != null) {

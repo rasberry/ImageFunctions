@@ -161,4 +161,24 @@ public static class ImageAide
 		if(canvas == null || x < 0 || y < 0 || x >= canvas.Width || y >= canvas.Height) { return default; }
 		return canvas[x, y];
 	}
+
+	/// <summary>
+	/// Creates a canvas with the given dimensions
+	///  Note: if you add the new canvas to the layers list, do not dispose (don't add 'using')
+	/// </summary>
+	/// <param name="context">An IFunctionContext object</param>
+	/// <param name="width">The width of the new ICanvas</param>
+	/// <param name="height">The height of the new ICanvas</param>
+	/// <returns>The newly created canvas</returns>
+	public static ICanvas NewCanvas(this IFunctionContext context, int width, int height)
+	{
+		if(context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+		var engine = context.Options?.Engine?.Item?.Value ?? null;
+		if(engine == null) {
+			throw Squeal.ArgumentNull(nameof(engine));
+		}
+		return engine.NewCanvas(width, height);
+	}
 }

@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestZoomBlur : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.ZoomBlur);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.ZoomBlur);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

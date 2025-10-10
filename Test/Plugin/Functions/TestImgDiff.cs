@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestImgDiff : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.ImgDiff);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.ImgDiff);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestDeform : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.Deform);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.Deform);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

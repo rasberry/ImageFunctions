@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Core;
 
 // dotnet test --filter "ClassName~TestStackList"
 

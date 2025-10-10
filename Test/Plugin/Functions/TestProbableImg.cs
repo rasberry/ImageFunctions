@@ -1,11 +1,11 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestProbableImg : AbstractFunctionTest
 {
-	const string MyName = nameof(Plugin.Functions.ProbableImg);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.ProbableImg);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

@@ -1,13 +1,13 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestSpearGraphic : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
-	const string MyName = nameof(Plugin.Functions.SpearGraphic);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.SpearGraphic);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]

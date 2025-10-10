@@ -97,12 +97,18 @@ public static class UsageRenderer
 		else if(t.Is<Point>() || t.Is<PointF>()) {
 			return "x,y";
 		}
+		else if(t.Is<Size>() || t.Is<SizeF>()) {
+			return "w,h";
+		}
+		else if(t.Is<Rectangle>() || t.Is<RectangleF>()) {
+			return "x,y,w,h";
+		}
 		if(t.IsNumeric()) {
-			return isNumPct ? "number[%]" : "number";
-		}
-		else {
-			throw Squeal.NotSupported($"Type {t.Name}");
-		}
+				return isNumPct ? "number[%]" : "number";
+			}
+			else {
+				throw Squeal.NotSupported($"Type {t.Name}");
+			}
 	}
 }
 
@@ -292,6 +298,18 @@ public record UsageEnum<T> : UsageEnum
 	public UsageEnum(int indention, string title)
 		: base(indention, typeof(T), title)
 	{
+	}
+
+	/// <inheritdoc />
+	public new Func<T, string> DescriptionMap {
+		get => arg => base.DescriptionMap(arg);
+		init => base.DescriptionMap = arg => value((T)arg);
+	}
+
+	/// <inheritdoc />
+	public new Func<T, string> NameMap {
+		get => arg => base.DescriptionMap(arg);
+		init => base.DescriptionMap = arg => value((T)arg);
 	}
 }
 

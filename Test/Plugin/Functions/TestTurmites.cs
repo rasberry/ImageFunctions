@@ -1,13 +1,13 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test;
+namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
 public class TestTurmites : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
-	const string MyName = nameof(Plugin.Functions.Turmites);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.Turmites);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
