@@ -42,105 +42,61 @@ public class Function : IFunction
 		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
 		Context.Layers.Push(image);
 
-		// keep track of points so we don't have to search for empty spots later
-		List<Point> allPoints = new(image.Width * image.Height);
-		for(int y = 0; y < image.Height; y++) {
-			for(int x = 0; x < image.Width; x++) {
-				allPoints.Add(new Point(x, y));
-			}
-		}
-
-		var Rnd = new Random(); //TODO add option for seed
 		var baseGroup = new int[image.Width, image.Height];
 		List<bool[,]> groups = new();
 
-		//pick random point
-		//place = 1
-		//is there a place within place distance + 1 ?
-		//if yes : place ++ and repeat
-		//if no : add place to location
-
-		int total = image.Width * image.Height;
-		while(allPoints.Count > 0) {
-			var ix = Rnd.Next(allPoints.Count);
-			//speedup - swap and remove it from the end of the array
-			var point = allPoints[ix];
-			(allPoints[^1], allPoints[ix]) = (allPoints[ix], allPoints[^1]);
-			allPoints.RemoveAt(allPoints.Count - 1);
-
-			int place = 0; //place normally starts at 1 but we're making it an index
-			while(place < 20) {
-				//make sure there's a group for every place
-				if(groups.Count <= place) {
-					int w = image.Width / (place + 1);
-					int h = image.Height / (place + 1);
-					var g = new bool[w, h];
-					//Context.Log.Debug($"add group {place} {w}x{h}");
-					groups.Add(g);
-				}
-
-				//check the orthogonal locations for existing placements
-				var plane = groups[place];
-				int mx = plane.GetLength(0) - 1;
-				int my = plane.GetLength(1) - 1;
-				int px = Math.Clamp(point.X / (place + 1), 0, mx);
-				int py = Math.Clamp(point.Y / (place + 1), 0, my);
-				bool hL = false, hR = false, hT = false, hB = false;
-				//Context.Log.Debug($"px={px} py={py} mx={mx} my={my} X={point.X} Y={point.Y} p={place}");
-				bool hH = plane[px, py];
-				if(px > 0) { hL = plane[px - 1, py]; }
-				if(px < mx) { hR = plane[px + 1, py]; }
-				if(py > 0) { hT = plane[px, py - 1]; }
-				if(py < my) { hB = plane[px, py + 1]; }
-
-				if(!hH && !hL && !hR && !hT && !hB) {
-					baseGroup[point.X, point.Y] = place + 1;
-					plane[px, py] = true;
-					break;
-				}
-
-				place++;
-
-				// //make sure there's a group for every place
-				// if(groups.Count <= place) {
-				// 	var tree = new KdTree.KdTree<int, int>(2, new TaxiMath());
-				// 	groups.Add(tree);
-				// }
-				// var treePlace = groups[place];
-
-				// var nearSet = treePlace.GetNearestNeighbours([point.X, point.Y], 1);
-				// done = true;
-				// if(nearSet.Length > 0) {
-				// 	var near = nearSet[0];
-				// 	var dist = TaxiMath.TaxiDistance([point.X, point.Y], near.Point);
-				// 	if(dist - 1 > place) { //place is an index so take one off of dist
-				// 		place++;
-				// 		done = false; //can't place it so continue
-				// 	}
-				// }
-
-				// if(done) {
-				// 	treePlace.Add([point.X, point.Y], place);
-				// 	if(palette.Count <= place) {
-				// 		palette.Add(Rnd.RandomColor(1.0));
-				// 	}
-				// 	image[point.X, point.Y] = palette[place];
-				// }
+		bool CanTryPlace(Point point, int place)
+		{
+			if(groups.Count <= place) {
+				int w = image.Width / (place + 1);
+				int h = image.Height / (place + 1);
+				var g = new bool[w, h];
+				//Context.Log.Debug($"add group {place} {w}x{h}");
+				groups.Add(g);
 			}
 
-			Context.Progress.Label = $"G:{groups.Count} P:{place} ";
-			Context.Progress.Report(1.0 - ((double)allPoints.Count / total));
+			//check the orthogonal locations for existing placements
+			var plane = groups[place];
+			int mx = plane.GetLength(0) - 1;
+			int my = plane.GetLength(1) - 1;
+			int px = Math.Clamp(point.X / (place + 1), 0, mx);
+			int py = Math.Clamp(point.Y / (place + 1), 0, my);
+			bool hL = false, hR = false, hT = false, hB = false;
+
+			bool hH = plane[px, py];
+			if(px > 0) { hL = plane[px - 1, py]; }
+			if(px < mx) { hR = plane[px + 1, py]; }
+			if(py > 0) { hT = plane[px, py - 1]; }
+			if(py < my) { hB = plane[px, py + 1]; }
+
+			//all tested location need to be empty (false)
+			bool canPlace = !hH && !hL && !hR && !hT && !hB;
+			//Context.Log.Debug($"C={canPlace} px={px} py={py} mx={mx} my={my} X={point.X} Y={point.Y} p={place}");
+			if(canPlace) {
+				baseGroup[point.X, point.Y] = place + 1;
+				plane[px, py] = true;
+			}
+			return canPlace;
 		}
+
+		var rnd = new Random(); //TODO add option for seed
+		var runner = new RandomPlacement {
+			CanTryPlace = CanTryPlace,
+			Image = image,
+			Progress = Context.Progress,
+			Rnd = rnd
+		};
+		runner.Run();
 
 		List<ColorRGBA> palette = new();
 		for(int y = 0; y < image.Height; y++) {
 			for(int x = 0; x < image.Width; x++) {
-				int place = baseGroup[x, y];
-				while(palette.Count <= place) { //place can be out of order so using a while loop to fill
-					palette.Add(Rnd.RandomColor(1.0));
+				int pl = baseGroup[x, y];
+				while(palette.Count <= pl) { //place can be out of order so using a while loop to fill
+					palette.Add(rnd.RandomColor(1.0));
 				}
-				//if(place == 0) {
-					image[x, y] = palette[place];
+				//if(pl == 1) {
+				image[x, y] = palette[pl];
 				//}
 			}
 		}
@@ -148,39 +104,61 @@ public class Function : IFunction
 		return true;
 	}
 
-	// class TaxiMath : KdTree.Math.TypeMath<int>
-	// {
-	// 	public override int MinValue => int.MinValue;
-	// 	public override int MaxValue => int.MaxValue;
-	// 	public override int Zero => 0;
-	// 	public override int NegativeInfinity => MinValue;
-	// 	public override int PositiveInfinity => MaxValue;
+	class RandomPlacement
+	{
+		//#1 place = 1
+		//#2 pick random point (don't remove)
+		//#3 if can be placed - remove
+		//#4 if can't be placed pick another point (repeat #2)
+		//#5 remove placed point and place++ (repeat #1)
 
-	// 	public override int Add(int a, int b) => a + b;
-	// 	public override bool AreEqual(int a, int b) => a == b;
-	// 	public override int Compare(int a, int b) => a.CompareTo(b);
-	// 	public override int Subtract(int a, int b) => a - b;
-	// 	//Multiply is used to square the radius so we're just going to return the original value
-	// 	// so that it's comparing distance to distance
-	// 	public override int Multiply(int a, int b) => a;
+		void RemovePoint(int ix)
+		{
+			//speedup - swap and remove it from the end of the array
+			(allPoints[^1], allPoints[ix]) = (allPoints[ix], allPoints[^1]);
+			allPoints.RemoveAt(allPoints.Count - 1);
+		}
 
-	// 	public static int TaxiDistance(int[] a, int[] b)
-	// 	{
-	// 		int num = 0;
-	// 		int len = a.Length;
-	// 		for(int i = 0; i < len; i++) {
-	// 			int diff = Math.Abs(a[i] - b[i]);
-	// 			num += diff;
-	// 		}
+		public void Run()
+		{
+			// keep track of points so we don't have to search for empty spots later
+			allPoints = new(Image.Width * Image.Height);
+			for(int y = 0; y < Image.Height; y++) {
+				for(int x = 0; x < Image.Width; x++) {
+					allPoints.Add(new Point(x, y));
+				}
+			}
 
-	// 		return num;
-	// 	}
+			int total = Image.Width * Image.Height;
+			int place = 0;  //place normally starts at 1 but we're making it an index
+			int maxPlace = Math.Min(Image.Width, Image.Height) / 2;
+			int MaxTries = maxPlace; //TODO make optional ?
 
-	// 	public override int DistanceSquaredBetweenPoints(int[] a, int[] b)
-	// 	{
-	// 		return TaxiDistance(a, b);
-	// 	}
-	// }
+			while(allPoints.Count > 0 && place <= maxPlace) {
+				int tries = 0;
+				while(tries < MaxTries) {
+					var ix = Rnd.Next(allPoints.Count);
+					var point = allPoints[ix];
+
+					if(CanTryPlace(point, place)) {
+						RemovePoint(ix);
+						tries = 0;
+					}
+					else {
+						tries++;
+					}
+				}
+				place++;
+				Progress.Report(1.0 - ((double)allPoints.Count / total));
+			}
+		}
+
+		List<Point> allPoints;
+		public ICanvas Image;
+		public Func<Point, int, bool> CanTryPlace;
+		public Rasberry.Cli.IProgressWithLabel<double> Progress;
+		public Random Rnd;
+	}
 
 	Options Local;
 	IFunctionContext Context;
