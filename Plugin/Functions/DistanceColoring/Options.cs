@@ -4,6 +4,8 @@ using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.DistanceColoring;
 
+// https://bsubercaseaux.github.io/blog/2023/packingchromatic/
+
 public sealed class Options : IOptions
 {
 	public string SomeOption;
@@ -17,7 +19,7 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Does something interesting");
+		sb.ND(1, "Colors pixels with the smallest color index determined by distance to the nearest same color");
 		sb.ND(1, "-myopt (number)", "describe myopt here");
 	}
 

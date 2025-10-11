@@ -21,6 +21,7 @@ public static class MathAidePlus
 	/// <returns>The random number</returns>
 	public static long RandomLong(this Random rnd, long min = 0, long max = long.MaxValue)
 	{
+		// return rnd.NextInt64(min, max); //NOTE: this works just a little differently so not using it
 		byte[] buf = new byte[8];
 		rnd.NextBytes(buf);
 		long longRand = BitConverter.ToInt64(buf, 0);

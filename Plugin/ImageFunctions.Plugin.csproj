@@ -13,6 +13,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
     <InternalsVisibleTo Include="ImageFunctions.Writer" />
+    <PackageReference Include="KdTree" Version="1.4.1" />
 
     <!-- references to anything referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
