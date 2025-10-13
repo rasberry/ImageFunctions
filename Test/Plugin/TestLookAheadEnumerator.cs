@@ -6,7 +6,7 @@ namespace ImageFunctions.Test.Plugin;
 public class TestOther
 {
 	[TestMethod]
-	public void TestOne()
+	public void TestNoPeek()
 	{
 		var data = Data;
 		int count = 0;
@@ -20,7 +20,7 @@ public class TestOther
 	}
 
 	[TestMethod]
-	public void TestTwo()
+	public void TestWithPeek()
 	{
 		var data = Data;
 		var tor = new LookAheadEnumerator<char>(data.GetEnumerator());
