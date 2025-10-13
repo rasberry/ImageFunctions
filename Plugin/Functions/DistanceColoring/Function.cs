@@ -79,6 +79,7 @@ public class Function : IFunction
 		}
 
 		var rnd = Local.RandomSeed.HasValue ? new Random(Local.RandomSeed.Value) : new Random();
+		Context.Log.Debug($"Seed = {Local.RandomSeed}");
 		Context.Progress.Label = $"{Local.Kind}";
 
 		IPointSource generator = Local.Kind switch {

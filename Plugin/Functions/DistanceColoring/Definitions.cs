@@ -12,7 +12,7 @@ public interface IPointSource : IEnumerable<Point>
 public enum PlacementKind
 {
 	None = 0,
-	Random,
-	Sequential,
-	Spiral
+	Random = 1,
+	Sequential = 2,
+	Spiral = 3
 }
