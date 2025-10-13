@@ -9,6 +9,14 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <!-- stop TestResults folder from being made -->
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\win.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Windows'))">
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\unix.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.0.0" />

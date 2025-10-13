@@ -6,7 +6,7 @@ namespace ImageFunctions.Plugin.Functions.DistanceColoring;
 
 // https://bsubercaseaux.github.io/blog/2023/packingchromatic/
 
-public sealed class Options : IOptions
+public sealed class Options : IOptions, IUsageProvider
 {
 	public string SomeOption;
 	readonly ICoreLog Log;
@@ -19,28 +19,47 @@ public sealed class Options : IOptions
 
 	public void Usage(StringBuilder sb, IRegister register)
 	{
-		sb.ND(1, "Colors pixels with the smallest color index determined by distance to the nearest same color");
-		sb.ND(1, "-myopt (number)", "describe myopt here");
+		sb.RenderUsage(this);
+	}
+
+	public Usage GetUsageInfo()
+	{
+		var u = new Usage {
+			Description = new UsageDescription(1, "Colors pixels with the smallest color index determined by distance to the nearest same color"),
+			Parameters = [
+				new UsageOne<PlacementKind>(1, "-p","Placement type (defaults to random)") { Default = PlacementKind.Random },
+				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
+			],
+			EnumParameters = [
+				new UsageEnum<PlacementKind>(1,"Available Placements:")
+			]
+		};
+
+		return u;
 	}
 
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		//use ParseNumberPercent for parsing numbers like 0.5 or 50%
-		//var parser = new ParseParams.Parser<double>((string n) => {
-		//	return ExtraParsers.ParseNumberPercent(n);
-		//});
 
-		if(p.Scan<string>("-myopt", "default")
-			.WhenGoodOrMissing(r => { SomeOption = r.Value; return r; })
+		if(p.Scan<PlacementKind>("-p", PlacementKind.Random)
+			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+		if(p.Scan<int>("-rs")
+			.WhenGood(r => { RandomSeed = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
 			return false;
 		}
 
-		//TODO parse any other options and maybe do checks
-
 		return true;
 	}
+
+	public PlacementKind Kind { get; set; }
+	public int? RandomSeed { get; set; }
 }
