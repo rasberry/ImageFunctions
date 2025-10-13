@@ -1,7 +1,10 @@
 using System.Collections;
 
-namespace ImageFunctions.Plugin.Functions.DistanceColoring;
+namespace ImageFunctions.Plugin.Functions.Aides;
 
+/// <summary>
+/// Enumerator wrapper which allows peeking ahead.
+/// </summary>
 public sealed class LookAheadEnumerator<T> : IEnumerator<T>
 {
 	public LookAheadEnumerator(IEnumerator<T> source)
@@ -21,10 +24,10 @@ public sealed class LookAheadEnumerator<T> : IEnumerator<T>
 	}
 
 	/// <summary>
-	/// 
+	/// Peek ahead at an upcoming element
 	/// </summary>
-	/// <param name="offset"></param>
-	/// <returns></returns>
+	/// <param name="offset">Items to skip. Offset zero means the next item</param>
+	/// <returns>The item value</returns>
 	/// <exception cref="ArgumentOutOfRangeException"></exception>
 	/// <exception cref="IndexOutOfRangeException"></exception>
 	public T Peek(int offset = 0)
@@ -44,14 +47,17 @@ public sealed class LookAheadEnumerator<T> : IEnumerator<T>
 		return Buffer.ElementAt(offset);
 	}
 
+	/// <inheritdoc/>
 	public T Current { get; private set; }
 	object IEnumerator.Current => Current;
 
+	/// <inheritdoc/>
 	public void Dispose()
 	{
 		FuncDispose?.Invoke();
 	}
 
+	/// <inheritdoc/>
 	public bool MoveNext()
 	{
 		if(Buffer.Count > 0) {
@@ -68,6 +74,7 @@ public sealed class LookAheadEnumerator<T> : IEnumerator<T>
 		}
 	}
 
+	/// <inheritdoc/>
 	public void Reset()
 	{
 		Current = default;

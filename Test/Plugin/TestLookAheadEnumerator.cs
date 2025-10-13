@@ -1,4 +1,4 @@
-using ImageFunctions.Plugin.Functions.DistanceColoring;
+using ImageFunctions.Plugin.Functions.Aides;
 
 namespace ImageFunctions.Test.Plugin;
 
