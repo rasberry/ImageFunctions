@@ -1,6 +1,6 @@
 namespace ImageFunctions.Plugin.Aides;
 
-public static class MathAide
+public static class MathAidePlus
 {
 	/// <summary>
 	/// Random coin toss
@@ -21,6 +21,7 @@ public static class MathAide
 	/// <returns>The random number</returns>
 	public static long RandomLong(this Random rnd, long min = 0, long max = long.MaxValue)
 	{
+		// return rnd.NextInt64(min, max); //NOTE: this works just a little differently so not using it
 		byte[] buf = new byte[8];
 		rnd.NextBytes(buf);
 		long longRand = BitConverter.ToInt64(buf, 0);
@@ -152,7 +153,7 @@ public static class MathAide
 	}
 
 	/// <summary>
-	///  Convert an x,y coordinate to an index of a square spiral (opposite of SpiralSquareToXY)
+	/// Convert an x,y coordinate to an index of a square spiral (opposite of SpiralSquareToXY)
 	/// </summary>
 	/// <param name="x">The x coordinate</param>
 	/// <param name="y">The y coordinate</param>
@@ -186,6 +187,77 @@ public static class MathAide
 				return m + Math.Abs(5 * x) - y - 1;
 			}
 		}
+	}
+
+	/// <summary>
+	/// Convert an index to an x,y cooridnate of a spiral of specified dimensions
+	/// </summary>
+	/// <param name="position">The index position</param>
+	/// <param name="width">Width of spiral area</param>
+	/// <param name="height">Height of spiral area</param>
+	/// <returns>The x,y coordinate</returns>
+	/// <exception cref="ArgumentOutOfRangeException"></exception>
+	public static (int, int) SpiralToXY(int position, int width, int height)
+	{
+		int layer = 0;
+		while(true) {
+			int w = width - 2 * layer;
+			int h = height - 2 * layer;
+			int perimiter;
+			if (w <= 0 || h <= 0 ) {
+				throw new ArgumentOutOfRangeException(nameof(position));
+			}
+
+			if(w == 1) {
+				perimiter = h;
+			}
+			else if(h == 1) {
+				perimiter = w;
+			}
+			else {
+				perimiter = 2 * (w + h) - 4;
+			}
+
+			if(position < perimiter) { break; }
+			position -= perimiter;
+			layer += 1;
+		}
+
+		// Top edge (left to right)
+		if (position < width - 2 * layer) {
+			int x = layer + position;
+			int y = layer;
+			return (x, y);
+		}
+		position -= width - 2 * layer;
+
+		// Right edge (top to bottom)
+		if (position < height - 2 * layer - 1) {
+			int x = width - layer - 1;
+			int y = layer + 1 + position;
+			return (x, y);
+		}
+		position -= height - 2 * layer - 1;
+
+		// Bottom edge (right to left)
+		if (position < width - 2 * layer - 1) {
+			int x = width - layer - 2 - position;
+			int y = height - layer - 1;
+			return (x, y);
+		}
+		position -= width - 2 * layer - 1;
+
+		// Left edge (bottom to top)
+		{
+			int x = layer;
+			int y = height - layer - 2 - position;
+			return (x, y);
+		}
+	}
+
+	public static long XYToSpiral(int x, int y, int w, int h)
+	{
+		throw new NotImplementedException();
 	}
 
 	/// <summary>

@@ -26,7 +26,7 @@ public class Spiral : IMaze
 		for(int c = 0; c < len; c++) {
 			prog.Report((double)c / len);
 			token.ThrowIfCancellationRequested();
-			var (x, y) = MathAide.SpiralSquareToXY(c, cx, cy);
+			var (x, y) = MathAidePlus.SpiralSquareToXY(c, cx, cy);
 			//if (!IsBlocked(x,y,PickWall.None)) { continue; }
 
 			var pw = PickNeighbor(x, y);

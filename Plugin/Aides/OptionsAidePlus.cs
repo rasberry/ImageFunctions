@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace ImageFunctions.Plugin.Aides;
 
-public static class OptionsAide
+public static class OptionsAidePlus
 {
 	/// <summary>
 	/// Ensures the parameter is greater than zero.
@@ -89,7 +89,9 @@ public static class OptionsAide
 		return r with { Result = ParseParams.Result.UnParsable };
 	}
 
+	//Somewhat arbitrary default image dimension size
 	const int NomSize = 1024;
+
 	/// <summary>
 	/// Helpers to get the default width / height either provided by the user
 	///  or provided as an input

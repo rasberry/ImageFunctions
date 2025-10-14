@@ -48,7 +48,7 @@ public class Function : IFunction
 		using var canvas = engine.NewCanvasFromLayers(Context.Layers); //temporary canvas
 
 		if(!O.VOnly) {
-			MoreAide.ThreadRun(origCanvas.Height, (int y) => {
+			MoreAidePlus.ThreadRun(origCanvas.Height, (int y) => {
 				HashSet<int> visited = new HashSet<int>();
 				for(int x = 0; x < origCanvas.Width; x++) {
 					if(visited.Contains(x)) { continue; }
@@ -58,7 +58,7 @@ public class Function : IFunction
 		}
 
 		if(!O.HOnly) {
-			MoreAide.ThreadRun(origCanvas.Width, (int x) => {
+			MoreAidePlus.ThreadRun(origCanvas.Width, (int x) => {
 				HashSet<int> visited = new HashSet<int>();
 				for(int y = 0; y < origCanvas.Height; y++) {
 					if(visited.Contains(y)) { continue; }

@@ -3,8 +3,7 @@ using ImageFunctions.Core;
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
 using System.Drawing;
-using System.Globalization;
-using static ImageFunctions.Plugin.ImageComparer;
+using static ImageFunctions.Plugin.Aides.ImageComparer;
 
 namespace ImageFunctions.Test;
 
@@ -110,7 +109,7 @@ public abstract class AbstractFunctionTest
 		var log = new TestLogger(TestContext);
 		try {
 			RunFunction(info, loader);
-			Assert.AreEqual(true, info.Success);
+			Assert.IsTrue(info.Success);
 			Assert.AreEqual(0, info.ExitCode);
 
 			loader ??= GetOrLoadResourceImage;
@@ -118,7 +117,7 @@ public abstract class AbstractFunctionTest
 			var dist = CompareTopTwoLayers(info);
 			log.Info($"{info.OutName} dist = [{dist.R},{dist.G},{dist.B},{dist.A}] total={dist.Total}");
 
-			Assert.IsTrue(dist.Total <= info.MaxDiff, $"Name = {info.OutName} Distance = {dist}");
+			Assert.IsLessThanOrEqualTo(info.MaxDiff, dist.Total, $"Name = {info.OutName} Distance = {dist}");
 		}
 		finally {
 			//remove the compare image
@@ -150,7 +149,7 @@ public abstract class AbstractFunctionTest
 		var one = layers[0].Canvas;
 		var two = layers[1].Canvas;
 
-		return CanvasDistance(one, two, clampValues:true);
+		return CanvasDistance(one, two, clampValues: true);
 	}
 
 	/// <summary>

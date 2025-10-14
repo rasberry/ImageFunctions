@@ -3,7 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 using CoreColors = ImageFunctions.Core.Aides.ColorAide;
-using PlugMath = ImageFunctions.Plugin.Aides.MathAide;
+using PlugMath = ImageFunctions.Plugin.Aides.MathAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.FibSquares;
 
@@ -107,7 +107,7 @@ public class Function : IFunction
 		//pre-select colors since gradients need two colors each iteration
 		List<ColorRGBA> colorList = new(shapeList.Count + 1);
 		for(int c = 0; c < shapeList.Count + 1; c++) {
-			colorList.Add(RandomColor());
+			colorList.Add(Rnd.RandomColor(1.0));
 		}
 
 		switch(O.DraMode) {
@@ -197,7 +197,7 @@ public class Function : IFunction
 	{
 		int c = 0;
 		foreach(var item in list) {
-			var color = RandomColor();
+			var color = Rnd.RandomColor(1.0);
 			DrawArea(image, item.Square, colorList[c++]);
 		}
 		DrawArea(image, list[^1].Split, colorList[c++]);
@@ -252,7 +252,7 @@ public class Function : IFunction
 			// if (dr > steps) { steps = dr; d = Direction.Right; }
 			// if (db > steps) { steps = db; d = Direction.Down; }
 
-			int steps = Plugin.Aides.MathAide.Max(dl, dt, dr, db);
+			int steps = Plugin.Aides.MathAidePlus.Max(dl, dt, dr, db);
 			//Log.Debug($"steps={steps} beg={beg} end={end}");
 
 			for(int s = 0; s < steps; s++) {
@@ -459,15 +459,6 @@ public class Function : IFunction
 	// 	if (fib == 1) { return 2; }
 	// 	return (int)Math.Round(fib * Phi);
 	// }
-
-	ColorRGBA RandomColor()
-	{
-		//switching range to make 1.0 inclusive instead of 0.0
-		double r = 1.0 - Rnd.NextDouble();
-		double g = 1.0 - Rnd.NextDouble();
-		double b = 1.0 - Rnd.NextDouble();
-		return new ColorRGBA(r, g, b, 1.0);
-	}
 
 	enum Direction { Up = 0, Down = 1, Left, Right }
 	const double Phi = 1.618033988749895; //(Math.Sqrt(5) + 1) / 2;

@@ -4,10 +4,10 @@ using System.Drawing;
 namespace ImageFunctions.Test.Plugin;
 
 [TestClass]
-public class TestUlamSpiral : AbstractFunctionTest
+public class TestDistanceColoring : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
-	const string MyName = nameof(ImageFunctions.Plugin.Functions.UlamSpiral);
+	const string MyName = nameof(ImageFunctions.Plugin.Functions.DistanceColoring);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
@@ -16,8 +16,8 @@ public class TestUlamSpiral : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 0.001;
-		//info.SaveImage = SaveImageMode.SubjectOnly;
+		info.MaxDiff = 160.000;
+		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
@@ -30,20 +30,14 @@ public class TestUlamSpiral : AbstractFunctionTest
 
 	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
 	{
-		foreach(var info in GetFunctionInfo()) {
-			yield return info;
-		}
+		return GetFunctionInfo();
 	}
 
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
-		yield return CreateTestInfo(1, new string[0]);
-		yield return CreateTestInfo(2, new string[] { "-c1", "white", "-c2", "black" });
-		yield return CreateTestInfo(3, new string[] { "-m", "1" });
-		yield return CreateTestInfo(4, new string[] { "-m", "2" });
-		yield return CreateTestInfo(5, new string[] { "-6m" });
-		yield return CreateTestInfo(6, new string[] { "-f" });
-		yield return CreateTestInfo(7, new string[] { "-f", "-s", "2", "-ds", "20.0" });
+		yield return CreateTestInfo(0, new string[] { "-rs", "0" });
+		yield return CreateTestInfo(1, new string[] { "-rs", "0", "-p", "2" });
+		yield return CreateTestInfo(2, new string[] { "-rs", "0", "-p", "3" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int num, string[] args)

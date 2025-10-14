@@ -10,7 +10,7 @@ public class TestGraphNet : AbstractFunctionTest
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
-	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(GetData))]
 	public void Test(TestFunctionInfo info)
 	{
 		using var layers = new Layers();

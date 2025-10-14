@@ -9,13 +9,13 @@ public class TestProbableImg : AbstractFunctionTest
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
-	[DynamicData(nameof(GetData), DynamicDataSourceType.Method)]
+	[DynamicData(nameof(GetData))]
 	public void Test(TestFunctionInfo info)
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
 		info.MaxDiff = 0.0;
-		//info.SaveImage = SaveImageMode.SubjectOnly;
+		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 

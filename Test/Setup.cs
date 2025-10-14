@@ -1,6 +1,8 @@
 using ImageFunctions.Core;
 using System.Runtime.CompilerServices;
 
+[assembly: Parallelize]
+
 namespace ImageFunctions.Test;
 
 [TestClass]

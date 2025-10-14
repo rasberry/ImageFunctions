@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Plugin.Aides;
 using System.Drawing;
 
 namespace ImageFunctions.Plugin.Functions.FloodFill;

@@ -80,7 +80,8 @@ public class Function : IFunction
 			double dy = Math.Pow(Math.Abs(qh), exp - 1.0);
 			px = Math.Sign(x) * Math.Pow(Math.Abs(x), exp) / dx;
 			py = Math.Sign(y) * Math.Pow(Math.Abs(y), exp) / dy;
-		}; break;
+		}
+		; break;
 		case Deform.Options.Mode.Inverted: {
 			double ax = Math.Pow(Math.Abs(x), exp);
 			double ay = Math.Pow(Math.Abs(y), exp);
@@ -92,7 +93,8 @@ public class Function : IFunction
 			double dy = (qh * qh) / (ah + aw);
 			px = num / x * dx;
 			py = num / y * dy;
-		}; break;
+		}
+		; break;
 		}
 
 		px += ccx; py += ccy;

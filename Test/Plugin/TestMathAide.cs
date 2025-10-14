@@ -5,20 +5,20 @@ namespace ImageFunctions.Test.Plugin;
 [TestClass]
 public class TestMathAide
 {
-	[DataTestMethod]
-	[DynamicData(nameof(LinearData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(LinearData))]
 	public void TestLinearToXY(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.LinearToXY(p, 10);
+		var (x, y) = MathAidePlus.LinearToXY(p, 10);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(LinearData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(LinearData))]
 	public void TestXYToLinear(long exp, int x, int y)
 	{
-		var p = MathAide.XYToLinear(x, y, 10);
+		var p = MathAidePlus.XYToLinear(x, y, 10);
 		Assert.AreEqual(exp, p);
 	}
 
@@ -48,20 +48,20 @@ public class TestMathAide
 		yield return new object[] { 21, 1, 2 };
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(LinearDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(LinearDataShift))]
 	public void TestLinearToXYShift(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.LinearToXY(p, 10, 10, 10);
+		var (x, y) = MathAidePlus.LinearToXY(p, 10, 10, 10);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(LinearDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(LinearDataShift))]
 	public void TestXYToLinearShift(long exp, int x, int y)
 	{
-		var p = MathAide.XYToLinear(x, y, 10, 10, 10);
+		var p = MathAidePlus.XYToLinear(x, y, 10, 10, 10);
 		Assert.AreEqual(exp, p);
 	}
 
@@ -91,20 +91,20 @@ public class TestMathAide
 		yield return new object[] { 21, 11, 12 };
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(DiagonalData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(DiagonalData))]
 	public void TestDiagonalToXY(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.DiagonalToXY(p);
+		var (x, y) = MathAidePlus.DiagonalToXY(p);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(DiagonalData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(DiagonalData))]
 	public void TestXYToDiagonal(long exp, int x, int y)
 	{
-		var p = MathAide.XYToDiagonal(x, y);
+		var p = MathAidePlus.XYToDiagonal(x, y);
 		Assert.AreEqual(exp, p);
 	}
 
@@ -134,20 +134,20 @@ public class TestMathAide
 		yield return new object[] { 21, 0, 6 };
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(DiagonalDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(DiagonalDataShift))]
 	public void TestDiagonalToXYShift(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.DiagonalToXY(p, 10, 10);
+		var (x, y) = MathAidePlus.DiagonalToXY(p, 10, 10);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(DiagonalDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(DiagonalDataShift))]
 	public void TestXYToDiagonalShift(long exp, int x, int y)
 	{
-		var p = MathAide.XYToDiagonal(x, y, 10, 10);
+		var p = MathAidePlus.XYToDiagonal(x, y, 10, 10);
 		Assert.AreEqual(exp, p);
 	}
 
@@ -177,20 +177,20 @@ public class TestMathAide
 		yield return new object[] { 21, 10, 16 };
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(SpiralSquareData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(SpiralSquareData))]
 	public void TestSpiralSquareToXY(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.SpiralSquareToXY(p);
+		var (x, y) = MathAidePlus.SpiralSquareToXY(p);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(SpiralSquareData), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(SpiralSquareData))]
 	public void TestXYToSpiralSquare(long exp, int x, int y)
 	{
-		var p = MathAide.XYToSpiralSquare(x, y);
+		var p = MathAidePlus.XYToSpiralSquare(x, y);
 		Assert.AreEqual(exp, p);
 	}
 
@@ -220,20 +220,20 @@ public class TestMathAide
 		yield return new object[] { 21, -1, 2 };
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(SpiralSquareDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(SpiralSquareDataShift))]
 	public void TestSpiralSquareToXYShift(long p, int exx, int exy)
 	{
-		var (x, y) = MathAide.SpiralSquareToXY(p, 10, 10);
+		var (x, y) = MathAidePlus.SpiralSquareToXY(p, 10, 10);
 		Assert.AreEqual(exx, x);
 		Assert.AreEqual(exy, y);
 	}
 
-	[DataTestMethod]
-	[DynamicData(nameof(SpiralSquareDataShift), DynamicDataSourceType.Method)]
+	[TestMethod]
+	[DynamicData(nameof(SpiralSquareDataShift))]
 	public void TestXYToSpiralSquareShift(long exp, int x, int y)
 	{
-		var p = MathAide.XYToSpiralSquare(x, y, 10, 10);
+		var p = MathAidePlus.XYToSpiralSquare(x, y, 10, 10);
 		Assert.AreEqual(exp, p);
 	}
 

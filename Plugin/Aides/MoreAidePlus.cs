@@ -1,6 +1,6 @@
 namespace ImageFunctions.Plugin.Aides;
 
-internal static class MoreAide
+internal static class MoreAidePlus
 {
 	/// <summary>
 	/// Sorts a list using a multi-threaded sort. Seems to work best on machines with 4+ cores
@@ -36,7 +36,8 @@ internal static class MoreAide
 		ParallelOptions po = new() { CancellationToken = token };
 		if(maxThreads.HasValue) {
 			po.MaxDegreeOfParallelism = maxThreads.Value < 1 ? 1 : maxThreads.Value;
-		};
+		}
+		;
 		Parallel.For(0, max, po, num => {
 			Interlocked.Add(ref done, 1);
 			progress?.Report((double)done / max);

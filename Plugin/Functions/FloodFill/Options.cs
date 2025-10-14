@@ -131,7 +131,8 @@ public sealed class Options : IOptions, IUsageProvider
 				.IsInvalid()
 			) {
 				return false;
-			};
+			}
+			;
 		} while(!done);
 
 		if(Similarity < 0.0 || Similarity > 1.0) {

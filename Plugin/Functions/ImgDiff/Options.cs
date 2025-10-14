@@ -3,7 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Metrics;
 using ImageFunctions.Plugin.Aides;
 using Rasberry.Cli;
-using PlugColors = ImageFunctions.Plugin.Aides.ColorAide;
+using PlugColors = ImageFunctions.Plugin.Aides.ColorAidePlus;
 
 namespace ImageFunctions.Plugin.Functions.ImgDiff;
 

@@ -104,11 +104,11 @@ public static class UsageRenderer
 			return "x,y,w,h";
 		}
 		if(t.IsNumeric()) {
-				return isNumPct ? "number[%]" : "number";
-			}
-			else {
-				throw Squeal.NotSupported($"Type {t.Name}");
-			}
+			return isNumPct ? "number[%]" : "number";
+		}
+		else {
+			throw Squeal.NotSupported($"Type {t.Name}");
+		}
 	}
 }
 
