@@ -6,7 +6,7 @@ namespace ImageFunctions.Plugin.Functions.DistanceColoring;
 
 internal class RandomSource() : IPointSource
 {
-	public ICanvas Image { get; set;  }
+	public ICanvas Image { get; set; }
 	public Random Rnd { get; set; }
 
 	public IEnumerator<Point> GetEnumerator()
@@ -22,7 +22,7 @@ internal class RandomSource() : IPointSource
 		while(allPoints.Count > 0) {
 			int ix = Rnd.Next(allPoints.Count);
 			yield return allPoints[ix];
-			
+
 			//speedup - swap and remove it from the end of the array
 			(allPoints[^1], allPoints[ix]) = (allPoints[ix], allPoints[^1]);
 			allPoints.RemoveAt(allPoints.Count - 1);

@@ -2,6 +2,7 @@ using ImageFunctions.Core.Aides;
 
 namespace ImageFunctions.Core.Gradients;
 
+/// <summary>Parser for Gnofract4d gradient files (.map)</summary>
 public class Gnofract4dGradient : IColorGradient
 {
 	public Gnofract4dGradient(string gf4dfile)
@@ -15,6 +16,7 @@ public class Gnofract4dGradient : IColorGradient
 		LoadGradient(gf4dStream);
 	}
 
+	/// <inheritdoc/>
 	public ColorRGBA GetColor(double position)
 	{
 		position = Math.Clamp(position, 0.0, 1.0);
@@ -36,6 +38,7 @@ public class Gnofract4dGradient : IColorGradient
 
 	void LoadGradient(Stream stream)
 	{
+		//there's usually 256 lines but not setting a limit here
 		using var sr = new StreamReader(stream);
 		while(!sr.EndOfStream) {
 			string line = sr.ReadLine();

@@ -89,7 +89,7 @@ class Program
 		var context = new FunctionContext { Register = Register, Log = Log }; //usage only needs Register and Log
 		var fun = reg.Item.Invoke(context);
 
-		fun.Options.Usage(sb, Register);
+		fun.Core.Usage(sb, Register);
 		model.Usage = sb.ToString();
 		model.Table = new MarkdownTable();
 		model.FunctionName = reg.Name;

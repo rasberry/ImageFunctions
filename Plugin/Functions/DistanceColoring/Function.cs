@@ -132,5 +132,5 @@ public class Function : IFunction
 
 	Options Local;
 	IFunctionContext Context;
-	public IOptions Options { get { return Context.Options; } }
+	public IOptions Core { get { return Context.Options; } }
 }

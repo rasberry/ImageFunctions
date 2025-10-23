@@ -20,10 +20,10 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
-	public IOptions Options { get { return O; } }
+	public IOptions Core { get { return O; } }
 	IFunctionContext Context;
 	Options O;
 
@@ -32,7 +32,7 @@ public class Function : IFunction
 		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Context.Register)) {
+		if(!Core.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 

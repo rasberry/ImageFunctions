@@ -22,10 +22,10 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
-	public IOptions Options { get { return O; } }
+	public IOptions Core { get { return O; } }
 	IFunctionContext Context;
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }
@@ -63,7 +63,7 @@ public class Function : IFunction
 			h2 = bounds.Height * O.CenterRt.Value.Y;
 		}
 
-		Core.Aides.ImageAide.ThreadPixels(bounds, (x, y) => {
+		ImageFunctions.Core.Aides.ImageAide.ThreadPixels(bounds, (x, y) => {
 			var d = source[x, y];
 			//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
 			ColorRGBA nc = ZoomPixel(source, bounds, x, y, w2, h2);

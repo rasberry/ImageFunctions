@@ -204,7 +204,7 @@ public static class MathAidePlus
 			int w = width - 2 * layer;
 			int h = height - 2 * layer;
 			int perimiter;
-			if (w <= 0 || h <= 0 ) {
+			if(w <= 0 || h <= 0) {
 				throw new ArgumentOutOfRangeException(nameof(position));
 			}
 
@@ -224,7 +224,7 @@ public static class MathAidePlus
 		}
 
 		// Top edge (left to right)
-		if (position < width - 2 * layer) {
+		if(position < width - 2 * layer) {
 			int x = layer + position;
 			int y = layer;
 			return (x, y);
@@ -232,7 +232,7 @@ public static class MathAidePlus
 		position -= width - 2 * layer;
 
 		// Right edge (top to bottom)
-		if (position < height - 2 * layer - 1) {
+		if(position < height - 2 * layer - 1) {
 			int x = width - layer - 1;
 			int y = layer + 1 + position;
 			return (x, y);
@@ -240,7 +240,7 @@ public static class MathAidePlus
 		position -= height - 2 * layer - 1;
 
 		// Bottom edge (right to left)
-		if (position < width - 2 * layer - 1) {
+		if(position < width - 2 * layer - 1) {
 			int x = width - layer - 2 - position;
 			int y = height - layer - 1;
 			return (x, y);

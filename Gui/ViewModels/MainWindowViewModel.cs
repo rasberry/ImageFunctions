@@ -150,9 +150,9 @@ public class MainWindowViewModel : ViewModelBase
 			var func = RegFunction?.Item.Invoke(ctx);
 			token.ThrowIfCancellationRequested();
 
-			var opts = func.Options;
+			var opts = func.Core;
 			var sb = new StringBuilder();
-			func?.Options.Usage(sb, Program.Register);
+			func?.Core.Usage(sb, Program.Register);
 			token.ThrowIfCancellationRequested();
 
 			Dispatcher.UIThread.Post(() => {

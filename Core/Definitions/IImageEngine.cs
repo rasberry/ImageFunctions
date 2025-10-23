@@ -34,5 +34,4 @@ public interface IImageEngine
 	/// </summary>
 	/// <returns>An enumeration of the supported image formats</returns>
 	IEnumerable<ImageFormat> Formats();
-
 }

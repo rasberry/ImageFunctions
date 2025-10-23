@@ -328,11 +328,11 @@ internal sealed class Options : ICoreOptions
 			sb.WT();
 			sb.WT(0, $"Function {key}:");
 			var inst = funcItem.Item.Invoke(context);
-			var opts = inst.Options;
+			var opts = inst.Core;
 			if(opts is IUsageProvider uip) {
 				NameSpaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 			}
-			inst.Options.Usage(sb, Register);
+			inst.Core.Usage(sb, Register);
 		}
 
 		return true;
@@ -417,3 +417,6 @@ internal sealed class Options : ICoreOptions
 		All = 8 + 4 + 2 + 1
 	}
 }
+
+# todo - add options to engines - maybe -e:name value
+#	idea is to allow specific engine options without having to make a generic mechanism

@@ -1,8 +1,8 @@
 using ImageFunctions.Core.ColorSpace;
 
 namespace ImageFunctions.Core.Gradients;
-#pragma warning disable CA1805 // Do not initialize unnecessarily
 
+/// <summary>Parser for GIMP gradient files (.ggr)</summary>
 public class GimpGGRGradient : IColorGradient
 {
 	// https://github.com/jjgreen/cptutils/blob/master/src/common/ggr.c
@@ -20,6 +20,7 @@ public class GimpGGRGradient : IColorGradient
 		Grad = LoadGradient(ggrStream, "");
 	}
 
+	/// <inheritdoc/>
 	public ColorRGBA GetColor(double position)
 	{
 		position = Math.Clamp(position, 0.0, 1.0);
@@ -89,13 +90,13 @@ public class GimpGGRGradient : IColorGradient
 			double h0 = hsv0.H, s0 = hsv0.S, v0 = hsv0.V;
 			double h1 = hsv1.H, s1 = hsv1.S, v1 = hsv1.V;
 
-			s0 = s0 + (s1 - s0) * factor;
-			v0 = v0 + (v1 - v0) * factor;
+			s0 += (s1 - s0) * factor;
+			v0 += (v1 - v0) * factor;
 
 			switch(seg.Color) {
 			case GradColorModel.HSVccw:
 				if(h0 < h1) {
-					h0 = h0 + (h1 - h0) * factor;
+					h0 += (h1 - h0) * factor;
 				}
 				else {
 					h0 += (1.0 - (h0 - h1)) * factor;
@@ -150,13 +151,12 @@ public class GimpGGRGradient : IColorGradient
 
 	static Gradient LoadGradient(Stream ggrStream, string fileName)
 	{
-		using(var sr = new StreamReader(ggrStream)) {
-			string line = sr.ReadLine();
-			if(!line.StartsWith("GIMP Gradient", StringComparison.Ordinal)) {
-				throw Squeal.CouldNotLoadFile(fileName, "File does not seem to be a GIMP gradient");
-			}
-			return LoadGrad(sr);
+		using var sr = new StreamReader(ggrStream);
+		string line = sr.ReadLine();
+		if(!line.StartsWith("GIMP Gradient", StringComparison.Ordinal)) {
+			throw Squeal.CouldNotLoadFile(fileName, "File does not seem to be a GIMP gradient");
 		}
+		return LoadGrad(sr);
 	}
 
 	static Gradient LoadGrad(StreamReader sr)
@@ -217,8 +217,8 @@ public class GimpGGRGradient : IColorGradient
 			case 08: seg.G1 = num; break;
 			case 09: seg.B1 = num; break;
 			case 10: seg.A1 = num; break;
-			case 11: seg.Type = (GradType)((int)num); break;
-			case 12: seg.Color = (GradColorModel)((int)num); break;
+			case 11: seg.Type = (GradType)(int)num; break;
+			case 12: seg.Color = (GradColorModel)(int)num; break;
 			}
 			chunk.Clear();
 			element++;
@@ -283,6 +283,8 @@ public class GimpGGRGradient : IColorGradient
 	}
 	#pragma warning restore format
 
+	#pragma warning disable CA1805 // Do not initialize unnecessarily
+	//setting defaults here in-case a line doesn't contain all elements
 	class GradSegment
 	{
 		public double Left = 0.0, Middle = 0.5, Right = 1.0;
@@ -291,6 +293,7 @@ public class GimpGGRGradient : IColorGradient
 		public GradType Type = GradType.Linear;
 		public GradColorModel Color = GradColorModel.RGB;
 	}
+	#pragma warning restore CA1805 // Do not initialize unnecessarily
 
 	class Gradient
 	{
