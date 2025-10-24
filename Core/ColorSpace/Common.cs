@@ -31,7 +31,7 @@ public class ColorSpaceHSBase
 			? c * z.Value
 			: c * (1.0 - Math.Abs((h * 6.0) % 2.0 - 1.0))
 		;
-		int d = (int)Math.Ceiling(h);
+		int d = (int)Math.Ceiling((h * 6.0) % 6.0);
 
 		double r, g, b;
 		switch(d) {

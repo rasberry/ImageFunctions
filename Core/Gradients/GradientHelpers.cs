@@ -4,7 +4,7 @@ namespace ImageFunctions.Core.Gradients;
 
 public static class GradientHelpers
 {
-	const string ParamName = "--gradient";
+	internal const string ParamName = "--gradient";
 	public static UsageOne GradientUsageParameter(int indention = 1)
 	{
 		return new UsageRegistered(indention,

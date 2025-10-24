@@ -11,7 +11,7 @@ public class FullRGBGradient : IColorGradient
 		// //iterate HSL L=[0 to 1] S=1 H[0 to 1]
 		double l = position;
 		double s = 1.0;
-		double h = (position % 4.0) / 4.0; //4 slows down the cycle 4x
+		double h = position * 4.0; //speed up the cycle to get more combinations of colors and lightness
 
 		var rgb = ColorSpace.ToNative(new ColorSpace.ColorSpaceHsl.HSL(h, s, l));
 		return rgb;

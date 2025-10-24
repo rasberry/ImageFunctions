@@ -18,5 +18,6 @@ public class FunctionRegister : AbstractRegistrant<FunctionSpawner>
 	internal static void Register(IRegister register)
 	{
 		register.Add(NS, nameof(Functions.Line), new FunctionSpawner(Functions.Line.Function.Create));
+		register.Add(NS, nameof(Functions.Gradient), new FunctionSpawner(Functions.Gradient.Function.Create));
 	}
 }
