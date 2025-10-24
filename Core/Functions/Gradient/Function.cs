@@ -99,10 +99,11 @@ public class Function : IFunction
 	double CalcLinear(Point start, Point end, Point pos, IMetric metric)
 	{
 		var len = metric.Measure(start.X, start.Y, end.X, end.Y);
-		var dxL = metric.Measure(start.X, 0.0, end.X, 0.0);
-		var dyL = metric.Measure(start.Y, 0.0, end.Y, 0.0);
-		var dxP = metric.Measure(start.X, 0.0, pos.X, 0.0);
-		var dyP = metric.Measure(start.Y, 0.0, pos.Y, 0.0);
+		var dxL = end.X - start.X;
+		var dyL = end.Y - start.Y;
+		var dxP = pos.X - start.X;
+		var dyP = pos.Y - start.Y;
+		// var len = Math.Sqrt(dxL * dxL + dyL * dyL);
 
 		var dp = dxL * dxP + dyL * dyP;
 		var t = dp / (len * len);
@@ -110,6 +111,7 @@ public class Function : IFunction
 		var nx = start.X + t * dxL;
 		var ny = start.Y + t * dyL;
 
+		// var dist = Math.Sqrt(Math.Pow(nx - start.X, 2) + Math.Pow(ny - start.Y, 2));
 		var dist = metric.Measure(start.X, start.Y, nx, ny);
 		return dist / len;
 	}
