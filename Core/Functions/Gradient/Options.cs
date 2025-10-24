@@ -116,6 +116,14 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
+		if(p.Scan("-g", GradientKind.Linear)
+			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+
 		if(Gradient == null) {
 			throw Squeal.ArgumentNullOrEmpty(GradientHelpers.ParamName);
 		}
@@ -128,7 +136,7 @@ public sealed class Options : IOptions, IUsageProvider
 		Linear = 0,
 		BiLinear = 1,
 		Radial = 2,
-		Sqare = 3,
+		Square = 3,
 		Conical = 4,
 		BiConical = 5
 	}

@@ -75,19 +75,19 @@ public class Function : IFunction
 		calcFunc = O.Kind switch {
 			Options.GradientKind.Linear => CalcLinear,
 			Options.GradientKind.BiLinear => null,
-			Options.GradientKind.Radial => null,
-			Options.GradientKind.Sqare => null,
-			Options.GradientKind.Conical => null,
+			Options.GradientKind.Radial => CalcRadial,
+			Options.GradientKind.Square => CalcSquare,
+			Options.GradientKind.Conical => CalcConical,
 			Options.GradientKind.BiConical => null,
 			_ => CalcLinear
 		};
 
 		canvas.ThreadPixels((x, y) => {
 			var grad = calcFunc(startPoint, endPoint, new Point(x, y), O.Metric.Value);
-			// Context.Log.Debug($"[{x},{y}] s:{startPoint} e:{endPoint}");
+			//Context.Log.Debug($"[{x},{y}] s:{startPoint} e:{endPoint} grad:{grad}");
 			var pos = Math.Clamp((1.0 - O.Offset) * grad, 0.0, 1.0);
 			var color = O.Gradient.Value.GetColor((1.0 - O.Offset) * grad);
-			// Context.Log.Debug($"[{x},{y}] o:{O.Offset} grad:{grad} pos:{pos} color:{color}");
+			//Context.Log.Debug($"[{x},{y}] o:{O.Offset} grad:{grad} pos:{pos} color:{color}");
 			//var pos = (double)x / canvas.Width;
 			//var color = O.Gradient.Value.GetColor(pos);
 			canvas[x, y] = color;
@@ -99,89 +99,55 @@ public class Function : IFunction
 	double CalcLinear(Point start, Point end, Point pos, IMetric metric)
 	{
 		var len = metric.Measure(start.X, start.Y, end.X, end.Y);
+		if(len < double.Epsilon) { return 0.0; } //prevent divide by zero
+
 		var dxL = end.X - start.X;
 		var dyL = end.Y - start.Y;
 		var dxP = pos.X - start.X;
 		var dyP = pos.Y - start.Y;
-		// var len = Math.Sqrt(dxL * dxL + dyL * dyL);
 
+		//dot product or something
 		var dp = dxL * dxP + dyL * dyP;
 		var t = dp / (len * len);
 
 		var nx = start.X + t * dxL;
 		var ny = start.Y + t * dyL;
 
-		// var dist = Math.Sqrt(Math.Pow(nx - start.X, 2) + Math.Pow(ny - start.Y, 2));
 		var dist = metric.Measure(start.X, start.Y, nx, ny);
 		return dist / len;
 	}
 
+	double CalcRadial(Point start, Point end, Point pos, IMetric metric)
+	{
+		var len = metric.Measure(start.X, start.Y, end.X, end.Y);
+		if(len < double.Epsilon) { return 0.0; } //prevent divide by zero
 
-// import math
+		var dist = metric.Measure(start.X, start.Y, pos.X, pos.Y);
+		return dist / len;
+	}
 
-// def calculate_distance(x1, y1, x2, y2, x3, y3):
-//     # Step 1: Calculate the vectors for the line (from A to B) and the vector from A to P
-//     dx1 = x2 - x1
-//     dy1 = y2 - y1
-//     dx2 = x3 - x1
-//     dy2 = y3 - y1
+	double CalcSquare(Point start, Point end, Point pos, IMetric metric)
+	{
+		var dx = Math.Abs(start.X - end.X);
+		var dy = Math.Abs(start.Y - end.Y);
+		var len = Math.Max(dx, dy);
+		var px = Math.Abs(start.X - pos.X);
+		var py = Math.Abs(start.Y - pos.Y);
+		var plen = Math.Max(px, py);
 
-//     # Step 2: Calculate the projection scalar (t) using the dot product formula
-//     dot_product = dx1 * dx2 + dy1 * dy2
-//     line_length_squared = dx1**2 + dy1**2
-//     t = dot_product / line_length_squared
+		if(len <= 0) { return 0.0; } //prevent divide by zero
+		return (double)plen / len;
+	}
 
-//     # Step 3: Find the projection point coordinates (Px, Py)
-//     Px = x1 + t * dx1
-//     Py = y1 + t * dy1
+	double CalcConical(Point start, Point end, Point pos, IMetric metric)
+	{
+		var dx = end.X - start.X;
+		var dy = end.Y - start.Y;
+		var px = pos.X - start.X;
+		var py = pos.Y - start.Y;
 
-//     # Step 4: Calculate the distance from the projection point (Px, Py) to the start point (x1, y1)
-//     distance = math.sqrt((Px - x1)**2 + (Py - y1)**2)
-    
-//     return distance
-
-// # Example usage
-// x1, y1 = 1, 2  # Line point A
-// x2, y2 = 4, 6  # Line point B
-// x3, y3 = 3, 3  # External point P
-
-// distance = calculate_distance(x1, y1, x2, y2, x3, y3)
-// print("Distance from the projection to the start of the line:", distance)
-
-
-		//var dist = Math.Abs(dy * pos.X - dx * pos.Y + end.X * start.Y - end.Y * start.X) / len;
-
-		//var grad = len * (1.0 - offset)
-
-		// // first convert line to normalized unit vector
-		// double dx = x2 - x1;
-		// double dy = y2 - y1;
-		// double mag = sqrt(dx*dx + dy*dy);
-		// dx /= mag;
-		// dy /= mag;
-
-		// // translate the point and get the dot product
-		// double lambda = (dx * (x3 - x1)) + (dy * (y3 - y1));
-		// x4 = (dx * lambda) + x1;
-		// y4 = (dy * lambda) + y1;
-		// ndx = x4 - x1;
-		// ndy = y4 - y1;
-		// ndist = sqrt(ndx*ndx + ndy*ndy)
-
-
-		// // first convert line to normalized unit vector
-		// dx = x2 - x1
-		// dy = y2 - y1
-		// mag = sqrt(dx*dx + dy*dy)
-		// mdx = dx / mag
-		// mdy = dy / mag
-
-		// // translate the point and get the dot product
-		// lambda = (mdx * (x3 - x1)) + (mdy * (y3 - y1))
-		// x4 = (mdx * lambda) + x1
-		// y4 = (mdy * lambda) + y1
-		// ndx = x4 - x1
-		// ndy = y4 - y1
-		// ndist = sqrt(ndx*ndx + ndy*ndy)
-	//}
+		var ang = Math.Atan2(dy, dx) - Math.Atan2(py, px);
+		var norm = (ang < 0 ? ang + 2 * Math.PI : ang) / (2 * Math.PI); //normalzie to [0,1)
+		return norm;
+	}
 }
