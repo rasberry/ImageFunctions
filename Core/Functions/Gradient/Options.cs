@@ -30,7 +30,8 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<PointF>(1, "-pps", "Staring point relative(%) coordinates"),
 				new UsageOne<PointF>(1, "-pe", "Ending point coordinates"),
 				new UsageOne<Point>(1, "-ppe", "Ending point relative(%) coordinates"),
-				new UsageOne<double>(1, "-o", "Amount of offset from the end point before drawing begins"),
+				new UsageOne<double>(1, "-s", "Gradient speed multiplier (default 1.0)") { Default = 1.0, Min = -20.0, Max = 20.0 },
+				new UsageOne<double>(1, "-o", "Gradient color offset (default 0.0)") { Default = 0.0, Min = 0.0, Max = 1.0 },
 				GradientHelpers.GradientUsageParameter(1),
 				MetricHelpers.MetricUsageParameter(1),
 			],
@@ -108,8 +109,16 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
+		if(p.Scan("-s", 1.0)
+			.WhenGoodOrMissing(r => { Speed = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+
 		if(p.Scan("-o", 0.0)
-			.WhenGoodOrMissing(r => { Offset = r.Value; return r; })
+			.WhenGoodOrMissing(r => { Phase = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
@@ -124,6 +133,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
+
 		if(Gradient == null) {
 			throw Squeal.ArgumentNullOrEmpty(GradientHelpers.ParamName);
 		}
@@ -134,11 +144,10 @@ public sealed class Options : IOptions, IUsageProvider
 	public enum GradientKind
 	{
 		Linear = 0,
-		BiLinear = 1,
-		Radial = 2,
-		Square = 3,
-		Conical = 4,
-		BiConical = 5
+		Radial = 1,
+		Square = 2,
+		Conical = 3, //TODO cw / ccw ?
+
 	}
 
 	internal Lazy<IColorGradient> Gradient;
@@ -147,7 +156,8 @@ public sealed class Options : IOptions, IUsageProvider
 	internal PointF StartPct;
 	internal PointF EndPct;
 	internal GradientKind Kind;
-	internal double Offset;
 	internal Lazy<IMetric> Metric;
+	internal double Speed;
+	internal double Phase;
 	readonly ICoreLog Log;
 }

@@ -74,22 +74,18 @@ public class Function : IFunction
 		Func<Point, Point, Point, IMetric, double> calcFunc;
 		calcFunc = O.Kind switch {
 			Options.GradientKind.Linear => CalcLinear,
-			Options.GradientKind.BiLinear => null,
 			Options.GradientKind.Radial => CalcRadial,
 			Options.GradientKind.Square => CalcSquare,
 			Options.GradientKind.Conical => CalcConical,
-			Options.GradientKind.BiConical => null,
 			_ => CalcLinear
 		};
 
 		canvas.ThreadPixels((x, y) => {
 			var grad = calcFunc(startPoint, endPoint, new Point(x, y), O.Metric.Value);
 			//Context.Log.Debug($"[{x},{y}] s:{startPoint} e:{endPoint} grad:{grad}");
-			var pos = Math.Clamp((1.0 - O.Offset) * grad, 0.0, 1.0);
-			var color = O.Gradient.Value.GetColor((1.0 - O.Offset) * grad);
+			var pos = (O.Speed * grad + O.Phase) % 1.0; //TODO other modes ? back2back front2back
+			var color = O.Gradient.Value.GetColor(Math.Clamp(pos,0.0,1.0));
 			//Context.Log.Debug($"[{x},{y}] o:{O.Offset} grad:{grad} pos:{pos} color:{color}");
-			//var pos = (double)x / canvas.Width;
-			//var color = O.Gradient.Value.GetColor(pos);
 			canvas[x, y] = color;
 		}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
 
@@ -131,11 +127,12 @@ public class Function : IFunction
 		var dx = Math.Abs(start.X - end.X);
 		var dy = Math.Abs(start.Y - end.Y);
 		var len = Math.Max(dx, dy);
+		if(len <= 0) { return 0.0; } //prevent divide by zero
+
 		var px = Math.Abs(start.X - pos.X);
 		var py = Math.Abs(start.Y - pos.Y);
 		var plen = Math.Max(px, py);
 
-		if(len <= 0) { return 0.0; } //prevent divide by zero
 		return (double)plen / len;
 	}
 
