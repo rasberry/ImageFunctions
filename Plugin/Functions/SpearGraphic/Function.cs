@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
-using ImageFunctions.Plugin.Aides;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 

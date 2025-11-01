@@ -93,19 +93,19 @@ public class Function : IFunction
 		canvas.ThreadPixels((x, y) => {
 			var (grad, keep) = calcFunc(startPoint.Value, endPoint.Value, new Point(x, y), O.Metric.Value);
 			if(O.Restrict && !keep) { return; } //skip pixels outside the gradient area
-			
+
 			var pos = posFunc(grad);
-			var color = O.Gradient.Value.GetColor(Math.Clamp(pos,0.0,1.0));
+			var color = O.Gradient.Value.GetColor(Math.Clamp(pos, 0.0, 1.0));
 			canvas[x, y] = color;
 		}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
 
 		return true;
 	}
 
-	(double,bool) CalcLinear(Point start, Point end, Point pos, IMetric metric)
+	(double, bool) CalcLinear(Point start, Point end, Point pos, IMetric metric)
 	{
 		var len = metric.Measure(start.X, start.Y, end.X, end.Y);
-		if(len < double.Epsilon) { return (0.0,false); } //prevent divide by zero
+		if(len < double.Epsilon) { return (0.0, false); } //prevent divide by zero
 
 		var dxL = end.X - start.X;
 		var dyL = end.Y - start.Y;
@@ -126,30 +126,30 @@ public class Function : IFunction
 		return (dist / len, keep);
 	}
 
-	(double,bool) CalcRadial(Point start, Point end, Point pos, IMetric metric)
+	(double, bool) CalcRadial(Point start, Point end, Point pos, IMetric metric)
 	{
 		var len = metric.Measure(start.X, start.Y, end.X, end.Y);
-		if(len < double.Epsilon) { return (0.0,false); } //prevent divide by zero
+		if(len < double.Epsilon) { return (0.0, false); } //prevent divide by zero
 
 		var dist = metric.Measure(start.X, start.Y, pos.X, pos.Y);
 		return (dist / len, dist <= len);
 	}
 
-	(double,bool) CalcSquare(Point start, Point end, Point pos, IMetric metric)
+	(double, bool) CalcSquare(Point start, Point end, Point pos, IMetric metric)
 	{
 		var dx = Math.Abs(start.X - end.X);
 		var dy = Math.Abs(start.Y - end.Y);
 		var len = Math.Max(dx, dy);
-		if(len <= 0) { return (0.0,false); } //prevent divide by zero
+		if(len <= 0) { return (0.0, false); } //prevent divide by zero
 
 		var px = Math.Abs(start.X - pos.X);
 		var py = Math.Abs(start.Y - pos.Y);
 		var plen = Math.Max(px, py);
 
-		return ((double)plen / len,plen <= len);
+		return ((double)plen / len, plen <= len);
 	}
 
-	(double,bool) CalcConical(Point start, Point end, Point pos, IMetric metric)
+	(double, bool) CalcConical(Point start, Point end, Point pos, IMetric metric)
 	{
 		var dx = end.X - start.X;
 		var dy = end.Y - start.Y;

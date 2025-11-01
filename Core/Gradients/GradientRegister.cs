@@ -136,7 +136,7 @@ public class GradientRegister : AbstractRegistrant<Lazy<IColorGradient>>
 		0.943239 0.961603 0.979967 0.990647 1.000000 0.450000 1.000000 0.317635 0.843781 1.000000 1.000000 0 0
 		0.979967 0.989983 1.000000 0.317635 0.843781 1.000000 1.000000 0.000000 1.000000 0.000000 1.000000 0 0
 		""";
-	
+
 	const string Gimp_Aneurism = """
 		GIMP Gradient
 		Name: Aneurism
@@ -597,7 +597,7 @@ public class GradientRegister : AbstractRegistrant<Lazy<IColorGradient>>
 		0.948247 0.974124 1.000000 0.349020 0.160784 0.058824 1.000000 1.000000 0.556863 0.219608 1.000000 0 0
 		""";
 
-	const string Gimp_Horizon2  = """
+	const string Gimp_Horizon2 = """
 		GIMP Gradient
 		Name: Horizon 2
 		5
@@ -721,7 +721,7 @@ public class GradientRegister : AbstractRegistrant<Lazy<IColorGradient>>
 		1
 		0.000000 0.500000 1.000000 1.000000 0.749020 0.749020 1.000000 1.000000 0.749020 0.749020 1.000000 0 1
 		""";
-	
+
 	const string Gimp_Pastels = """
 		GIMP Gradient
 		Name: Pastels
@@ -940,7 +940,7 @@ public class GradientRegister : AbstractRegistrant<Lazy<IColorGradient>>
 		0.893155 0.911519 0.928214 1.000000 0.501132 0.420000 1.000000 0.757576 0.175329 0.068392 1.000000 1 0
 		0.928214 0.964107 1.000000 0.757576 0.175329 0.068392 0.000000 0.757576 0.175329 0.068392 0.000000 0 0
 		""";
-	
+
 	const string Gimp_Wood1 = """
 		GIMP Gradient
 		Name: Wood 1

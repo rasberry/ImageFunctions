@@ -18,9 +18,9 @@
       must be included with <Private>false</Private>
     -->
     <PackageReference Include="Rasberry.Cli" Version="2.3.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="2.1.7" />
-    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.9" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>

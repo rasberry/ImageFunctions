@@ -3,7 +3,6 @@ using ImageFunctions.Core.Gradients;
 using ImageFunctions.Core.Metrics;
 using Rasberry.Cli;
 using System.Drawing;
-using System.Globalization;
 
 namespace ImageFunctions.Core.Functions.Gradient;
 
@@ -188,6 +187,6 @@ public sealed class Options : IOptions, IUsageProvider
 	internal double Speed;
 	internal double Phase;
 	internal bool Restrict;
-	
+
 	readonly ICoreLog Log;
 }

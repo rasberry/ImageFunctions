@@ -110,7 +110,7 @@ public static class OptionsAide
 	/// <param name="arg">Input value to parse</param>
 	/// <param name="allocator">Takes two invidiual items and returns the combined value</param>
 	/// <param name="parser">Custom parser for the individual values</param>
-	public static P ParsePointSize<P,T>(string arg, Func<T,T,P> allocator, ParseParams.Parser<T> parser)
+	public static P ParsePointSize<P, T>(string arg, Func<T, T, P> allocator, ParseParams.Parser<T> parser)
 		where P : struct where T : IParsable<T>
 	{
 		if(allocator == null) {

@@ -37,10 +37,10 @@ public class TestGradient : AbstractFunctionTest
 	{
 		yield return CreateTestInfo(0, new string[0]);
 		yield return CreateTestInfo(1, new string[] { "--gradient", "Gimp Tube Red" });
-		yield return CreateTestInfo(2, new string[] { "-ps", "40,20", "-pe", "250,120","-r" });
-		yield return CreateTestInfo(3, new string[] { "-pps", "10%,10%", "-ppe", "90%,50%", "-s", "2.0"});
+		yield return CreateTestInfo(2, new string[] { "-ps", "40,20", "-pe", "250,120", "-r" });
+		yield return CreateTestInfo(3, new string[] { "-pps", "10%,10%", "-ppe", "90%,50%", "-s", "2.0" });
 		yield return CreateTestInfo(4, new string[] { "-pps", "0.5,0.4", "-ppe", "0.9,0.5", "-g", "Conical" });
-		yield return CreateTestInfo(5, new string[] { "--gradient", "Gimp Tube Red","-g","Radial","-d","ForBack","-o","0.5"});
+		yield return CreateTestInfo(5, new string[] { "--gradient", "Gimp Tube Red", "-g", "Radial", "-d", "ForBack", "-o", "0.5" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int num, string[] args)

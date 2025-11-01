@@ -293,7 +293,7 @@ public class GimpGGRGradient : IColorGradient
 		public GradType Type = GradType.Linear;
 		public GradColorModel Color = GradColorModel.RGB;
 	}
-	#pragma warning restore CA1805 // Do not initialize unnecessarily
+#pragma warning restore CA1805 // Do not initialize unnecessarily
 
 	class Gradient
 	{
