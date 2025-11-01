@@ -29,15 +29,15 @@ public class TestColorGradient
 
 	[TestMethod]
 	[DataRow(0.0, 0.0, 0.0, 0.0)]
-	[DataRow(0.1, 0.2, 0.0, 0.0)]
-	[DataRow(0.2, 0.4, 0.1, 0.0)]
-	[DataRow(0.3, 0.6, 0.3, 0.0)]
-	[DataRow(0.4, 0.8, 0.5, 0.0)]
-	[DataRow(0.5, 1.0, 0.8, 0.0)]
-	[DataRow(0.6, 1.0, 0.9, 0.2)]
-	[DataRow(0.7, 1.0, 0.9, 0.4)]
-	[DataRow(0.8, 1.0, 0.9, 0.6)]
-	[DataRow(0.9, 1.0, 0.9, 0.8)]
+	[DataRow(0.1, 0.0, 0.2, 0.1)]
+	[DataRow(0.2, 0.3, 0.0, 0.4)]
+	[DataRow(0.3, 0.5, 0.6, 0.0)]
+	[DataRow(0.4, 0.0, 0.3, 0.8)]
+	[DataRow(0.5, 1.0, 0.0, 0.0)]
+	[DataRow(0.6, 0.2, 1.0, 0.5)]
+	[DataRow(0.7, 0.9, 0.4, 1.0)]
+	[DataRow(0.8, 0.9, 1.0, 0.6)]
+	[DataRow(0.9, 0.8, 0.9, 1.0)]
 	[DataRow(1.0, 1.0, 1.0, 1.0)]
 	public void TestAllHuesGradient(double index, double r, double g, double b)
 	{
@@ -45,7 +45,7 @@ public class TestColorGradient
 		var c1 = new ColorRGBA(r, g, b, 1.0);
 		var c2 = grad.GetColor(index);
 		// Console.WriteLine($"i={index} [{c1.R},{c1.G},{c1.B}] ~ [{c2.R},{c2.G},{c2.B}]");
-		Helpers.AssertAreSimilar(c1, c2, 0.2);
+		Helpers.AssertAreSimilar(c1, c2, 0.1);
 	}
 
 	static GimpGGRGradient _ggr = null;
