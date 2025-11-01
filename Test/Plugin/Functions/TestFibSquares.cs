@@ -1,7 +1,7 @@
 using ImageFunctions.Core;
 using System.Drawing;
 
-namespace ImageFunctions.Test.Plugin;
+namespace ImageFunctions.Test.Plugin.Functions;
 
 [TestClass]
 public class TestFibSquares : AbstractFunctionTest

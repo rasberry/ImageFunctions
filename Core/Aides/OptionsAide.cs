@@ -65,11 +65,12 @@ public static class OptionsAide
 	static readonly char[] RectPointDelims = new char[] { ' ', ',', 'x' };
 
 	/// <summary>
-	/// Parse a sequence of numbers into a point object
+	/// Parse a sequence of two numbers into a point object
 	/// Sequence may be seperated by space, comma or 'x'
 	/// </summary>
 	/// <typeparam name="P">Point, PointF, PointD, Size, SizeF</typeparam>
-	/// <param name="arg">argument value</param>
+	/// <param name="arg">Item to parse</param>
+	/// <param name="itemParser">Optional custom item parser</param>
 	/// <returns>A Point or Size</returns>
 	/// <exception cref="ArgumentException"></exception>
 	/// <exception cref="OverflowException"></exception>
@@ -100,10 +101,29 @@ public static class OptionsAide
 		}
 	}
 
-	static P ParseTwoInternal<P, T>(string arg, Func<T, T, P> allocator) where T : IParsable<T>
+	/// <summary>
+	/// Parse a sequence of two numbers into a combined object
+	/// Sequence may be seperated by space, comma or 'x'
+	/// </summary>
+	/// <typeparam name="P">Desired output Type after parsing</typeparam>
+	/// <typeparam name="T">Type of individual item to be parsed</typeparam>
+	/// <param name="arg">Input value to parse</param>
+	/// <param name="allocator">Takes two invidiual items and returns the combined value</param>
+	/// <param name="parser">Custom parser for the individual values</param>
+	public static P ParsePointSize<P,T>(string arg, Func<T,T,P> allocator, ParseParams.Parser<T> parser)
+		where P : struct where T : IParsable<T>
+	{
+		if(allocator == null) {
+			throw Squeal.ArgumentNull(nameof(allocator));
+		}
+		return ParseTwoInternal<P, T>(arg, allocator, parser);
+	}
+
+	static P ParseTwoInternal<P, T>(string arg, Func<T, T, P> allocator, ParseParams.Parser<T> parser = null) where T : IParsable<T>
 	{
 		//TODO maybe change ParseParams.Parser definition to match IParsable so we don't need a lambda
-		var parser = new ParseParams.Parser<T>((string s) => T.Parse(s, null));
+
+		parser ??= s => T.Parse(s, null);
 		var list = ExtraParsers.ParseSequence(arg, RectPointDelims, parser);
 		if(list.Count != 2) { //must be two elements x,y
 			throw Squeal.SequenceMustContain(2);

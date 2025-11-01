@@ -5,7 +5,7 @@ using System.Text;
 namespace ImageFunctions.Test.Core;
 
 [TestClass]
-public class TestGradient
+public class TestColorGradient
 {
 	[TestMethod]
 	[DataRow(0.0, 0.0)]
