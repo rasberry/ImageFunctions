@@ -16,7 +16,7 @@ public class TestSpearGraphic : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 140.0;
+		info.MaxDiff = 70.0;
 		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

@@ -17,7 +17,7 @@ public class TestFibSquares : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 78.000;
+		info.MaxDiff = 39.000;
 		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

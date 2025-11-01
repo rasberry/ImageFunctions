@@ -14,8 +14,8 @@ public class TestFloodFill : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 263.0;
-		//info.SaveImage = SaveImageMode.SubjectOnly;
+		info.MaxDiff = 0.0;
+		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 

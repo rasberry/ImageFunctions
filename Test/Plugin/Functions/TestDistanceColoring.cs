@@ -16,7 +16,7 @@ public class TestDistanceColoring : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 160.000;
+		info.MaxDiff = 78.000;
 		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

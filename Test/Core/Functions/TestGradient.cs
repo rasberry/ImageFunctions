@@ -16,7 +16,7 @@ public class TestGradient : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 100.000;
+		info.MaxDiff = 49.000;
 		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

@@ -25,6 +25,7 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<LineKind>(1, "-m", "Method used to draw the line") { Default = LineKind.RunLengthSlice },
 				//new UsageOne<double>(1, "-w", "Line width in pixels. Partial pixels are ok (defaults to 1.0)") { Default = 1.0, Max = 1024.0, Min = 0.0 },
 				new UsageMany<Point>(1, "-p", "Specify a point. Can be specified multiple times") { AllowCount = int.MaxValue },
+				new UsageMany<PointD>(1, "-pp", "Specify a proportional point (0.1,20%)") { AllowCount = int.MaxValue },
 				new UsageOne<ColorRGBA>(1, "-c", "Color for the line (default black)"),
 			],
 			EnumParameters = [
@@ -52,10 +53,6 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		//use ParseNumberPercent for parsing numbers like 0.5 or 50%
-		//var parser = new ParseParams.Parser<double>((string n) => {
-		//	return ExtraParsers.ParseNumberPercent(n);
-		//});
 
 		// if (p.Scan<double>("-w", 1.0)
 		// 	.WhenGoodOrMissing(r => { Width = r.Value; return r; })
@@ -64,6 +61,21 @@ public sealed class Options : IOptions, IUsageProvider
 		// ) {
 		// 	return false;
 		// }
+
+		// need this to support multiple point types
+		static object parsePointHandler(string name, string value)
+		{
+			if(name == "-p") {
+				return OptionsAide.ParsePointSize<Point>(value);
+			}
+			else if(name == "-pp") {
+				return OptionsAide.ParsePointSize(value,
+					(a, b) => new PointD(a, b),
+					s => ExtraParsers.ParseNumberPercent(s, null)
+				);
+			}
+			throw Squeal.NotSupported(name);
+		}
 
 		if(p.Scan<LineKind>("-m", LineKind.RunLengthSlice)
 			.WhenGoodOrMissing(r => { Kind = r.Value; return r; })
@@ -81,27 +93,18 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		bool done = false;
-		do {
-			if(p.Scan("-p", Point.Empty, OptionsAide.ParsePointSize<Point>)
-				.WhenMissing(r => { done = true; return r; })
-				.WhenGood(r => {
-					PointList ??= new();
-					PointList.Add(r.Value);
-					return r;
-				})
-				.WhenInvalidTellDefault(Log)
-				.IsInvalid()
-			) {
-				return false;
-			}
-			;
-		} while(!done);
-
-		if(PointList == null || PointList.Count < 2) {
-			Log.Error(Note.MissingArgument($"-p. drawing a line requires at least two points"));
+		if(p.ScanMany(new string[] { "-p", "-pp" }, parsePointHandler)
+			.WhenGoodOrMissing(r => { PointList = r.Value.ToList(); return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
 			return false;
 		}
+
+		if(PointList.Count < 2) {
+				Log.Error(Note.MissingArgument($"-p / -pp. drawing a line requires at least two points"));
+				return false;
+			}
 
 		return true;
 	}
@@ -116,7 +119,7 @@ public sealed class Options : IOptions, IUsageProvider
 	}
 
 	internal ColorRGBA Color;
-	internal List<Point> PointList;
+	internal List<object> PointList;
 	internal LineKind Kind;
 	readonly ICoreLog Log;
 }

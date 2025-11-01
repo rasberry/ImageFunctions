@@ -16,7 +16,7 @@ public class TestAllColors : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 0.002;
+		info.MaxDiff = 0.001;
 		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

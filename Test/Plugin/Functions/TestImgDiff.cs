@@ -14,7 +14,7 @@ public class TestImgDiff : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 61.0;
+		info.MaxDiff = 31.0;
 		//info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

@@ -1,13 +1,11 @@
 using ImageFunctions.Core;
-using System.Drawing;
 
 namespace ImageFunctions.Test.Core.Functions;
 
 [TestClass]
-public class TestGradient : AbstractFunctionTest
+public class TestLine : AbstractFunctionTest
 {
-	const int TestSizePixels = 256;
-	const string MyName = nameof(ImageFunctions.Core.Functions.Gradient);
+	const string MyName = nameof(ImageFunctions.Core.Functions.Line);
 	public override string FunctionName { get { return MyName; } }
 
 	[TestMethod]
@@ -16,39 +14,47 @@ public class TestGradient : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 100.000;
-		//info.SaveImage = SaveImageMode.SubjectOnly;
+		info.MaxDiff = 0.6;
+		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}
 
 	public static IEnumerable<object[]> GetData()
 	{
-		foreach(var info in GetFunctionInfo()) {
-			yield return new object[] { info };
+		foreach(var imgName in GetImageNames()) {
+			foreach(var info in GetFunctionInfo(imgName)) {
+				yield return new object[] { info };
+			}
 		}
 	}
 
 	internal override IEnumerable<TestFunctionInfo> GetTestInfo()
 	{
-		return GetFunctionInfo();
+		foreach(var imgName in GetImageNames()) {
+			foreach(var info in GetFunctionInfo(imgName)) {
+				yield return info;
+			}
+		}
 	}
 
-	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
+	public static IEnumerable<TestFunctionInfo> GetFunctionInfo(string startImg)
 	{
-		yield return CreateTestInfo(0, new string[0]);
-		yield return CreateTestInfo(1, new string[] { "--gradient", "Gimp Tube Red" });
-		yield return CreateTestInfo(2, new string[] { "-ps", "40,20", "-pe", "250,120", "-r" });
-		yield return CreateTestInfo(3, new string[] { "-pps", "10%,10%", "-ppe", "90%,50%", "-s", "2.0" });
-		yield return CreateTestInfo(4, new string[] { "-pps", "0.5,0.4", "-ppe", "0.9,0.5", "-g", "Conical" });
-		yield return CreateTestInfo(5, new string[] { "--gradient", "Gimp Tube Red", "-g", "Radial", "-d", "ForBack", "-o", "0.5" });
+		yield return CreateTestInfo(0, startImg, new string[] { "-p", "10,10", "-p", "20,90", "-pp", "0.9,0.9" });
+		yield return CreateTestInfo(1, startImg, new string[] { "-m", "XiaolinWu", "-c", "White", "-p", "10,10", "-pp", "0.9,0.5", "-pp", "0.1,0.9" });
 	}
 
-	static TestFunctionInfo CreateTestInfo(int num, string[] args)
+	static TestFunctionInfo CreateTestInfo(int index, string startImg, string[] args)
 	{
 		return new TestFunctionInfo {
 			Args = args,
-			OutName = $"{MyName}-{num}",
-			Size = new Size(TestSizePixels, TestSizePixels)
+			OutName = $"{MyName}-{startImg}-{index}",
+			ImageNames = new[] { startImg }
 		};
+	}
+
+	public static IEnumerable<string> GetImageNames()
+	{
+		var list = new string[] { "handle" };
+		return list;
 	}
 }

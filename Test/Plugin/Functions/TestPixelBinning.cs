@@ -14,7 +14,7 @@ public class TestPixelBinning : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 60.0;
+		info.MaxDiff = 30.0;
 		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

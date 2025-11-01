@@ -19,7 +19,7 @@
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </ProjectReference>
-    <PackageReference Include="Rasberry.Cli" Version="2.3.2">
+    <PackageReference Include="Rasberry.Cli" Version="2.4.1">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

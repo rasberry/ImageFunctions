@@ -14,7 +14,7 @@ public class TestZoomBlur : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 57.0;
+		info.MaxDiff = 29.0;
 		// info.SaveImage = SaveImageMode.SubjectOnly;
 		RunFunctionAndCompare(info);
 	}

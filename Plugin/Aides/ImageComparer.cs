@@ -86,9 +86,10 @@ public static class ImageComparer
 			total = metric.Measure(oneList, twoList);
 		}
 		else {
+			//total calculated as RMS
 			total = excludeAlpha
-				? Math.Sqrt(dr * dr + dg * dg + db * db)
-				: Math.Sqrt(dr * dr + dg * dg + db * db + da * da)
+				? Math.Sqrt((dr * dr + dg * dg + db * db) / 3)
+				: Math.Sqrt((dr * dr + dg * dg + db * db + da * da) / 4)
 			;
 		}
 
