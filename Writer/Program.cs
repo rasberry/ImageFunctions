@@ -59,7 +59,7 @@ class Program
 			var model = new WikiModel { FunctionList = allFun };
 			string renText = template.Run(model);
 			var funName = Path.GetFileNameWithoutExtension(path);
-			var outPath = Path.Combine(WikiFolder, funName);
+			var outPath = Path.Combine(WikiFolder, Path.ChangeExtension(funName, ".md"));
 			Log.Message($"Writing {Path.GetFullPath(outPath)}");
 			File.WriteAllText(outPath, renText);
 		}
@@ -72,6 +72,7 @@ class Program
 		var text = File.ReadAllText(templateFile);
 
 		foreach(string name in funReg.All()) {
+			Log.Debug($"Processing {name}");
 			var model = CreateSingleFunction(name, funReg);
 			var template = Engine.Compile(text);
 			string renText = template.Run(model);

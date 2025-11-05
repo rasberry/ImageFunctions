@@ -417,6 +417,3 @@ internal sealed class Options : ICoreOptions
 		All = 8 + 4 + 2 + 1
 	}
 }
-
-//# todo - add options to engines - maybe -e:name value
-//#	idea is to allow specific engine options without having to make a generic mechanism
