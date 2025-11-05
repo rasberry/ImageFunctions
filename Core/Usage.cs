@@ -94,7 +94,7 @@ public static class UsageRenderer
 		else if(t.Is<ColorRGBA>() || t.Is<Color>()) {
 			return "color";
 		}
-		else if(t.Is<Point>() || t.Is<PointF>()) {
+		else if(t.Is<Point>() || t.Is<PointF>() || t.Is<PointD>()) {
 			return "x,y";
 		}
 		else if(t.Is<Size>() || t.Is<SizeF>()) {

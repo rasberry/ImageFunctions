@@ -7,7 +7,7 @@ namespace ImageFunctions.Plugin.Functions.DistanceColoring;
 
 internal class SpiralSource : IPointSource
 {
-	public ICanvas Image { get; set;  }
+	public ICanvas Image { get; set; }
 	public Random Rnd { get; set; }
 
 	public IEnumerator<Point> GetEnumerator()

@@ -1,6 +1,5 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
-using ImageFunctions.Plugin.Aides;
 
 namespace ImageFunctions.Plugin.Functions.SpearGraphic;
 
@@ -23,10 +22,10 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
-	public IOptions Options { get { return O; } }
+	public IOptions Core { get { return O; } }
 	IFunctionContext Context;
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }

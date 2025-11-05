@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test.Plugin;
+namespace ImageFunctions.Test.Plugin.Functions;
 
 [TestClass]
 public class TestDerivatives : AbstractFunctionTest
@@ -14,7 +14,7 @@ public class TestDerivatives : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 60.0;
+		info.MaxDiff = 30.0;
 		RunFunctionAndCompare(info);
 	}
 

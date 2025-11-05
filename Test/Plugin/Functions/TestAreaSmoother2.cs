@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test.Plugin;
+namespace ImageFunctions.Test.Plugin.Functions;
 
 [TestClass]
 public class TestAreaSmoother2 : AbstractFunctionTest
@@ -14,7 +14,7 @@ public class TestAreaSmoother2 : AbstractFunctionTest
 	{
 		using var layers = new Layers();
 		info.Layers = layers;
-		info.MaxDiff = 50.0;
+		info.MaxDiff = 25.0;
 		RunFunctionAndCompare(info);
 	}
 

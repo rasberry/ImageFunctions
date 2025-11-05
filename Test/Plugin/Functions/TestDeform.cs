@@ -1,6 +1,6 @@
 using ImageFunctions.Core;
 
-namespace ImageFunctions.Test.Plugin;
+namespace ImageFunctions.Test.Plugin.Functions;
 
 [TestClass]
 public class TestDeform : AbstractFunctionTest

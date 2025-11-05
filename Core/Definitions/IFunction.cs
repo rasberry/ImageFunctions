@@ -5,7 +5,7 @@ public interface IFunction
 	/// <summary>
 	/// Returns an instance of the function options
 	/// </summary>
-	IOptions Options { get; }
+	IOptions Core { get; }
 
 	/// <summary>
 	/// Run the function with the specified function specific arguments

@@ -27,10 +27,10 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
-	public IOptions Options { get { return O; } }
+	public IOptions Core { get { return O; } }
 	IFunctionContext Context;
 	Options O;
 
@@ -94,7 +94,7 @@ public class Function : IFunction
 			int coff = y * image.Height + x;
 			var nc = coff < colorList.Count
 				? colorList[coff]
-				: Core.Aides.ColorAide.Transparent;
+				: ImageFunctions.Core.Aides.ColorAide.Transparent;
 			//Trace.WriteLine($"{nameof(AllColors)} copyColors {x},{y}");
 			image[x, y] = nc;
 		}

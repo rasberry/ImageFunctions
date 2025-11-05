@@ -33,7 +33,7 @@ internal static partial class Handlers
 			};
 			var funcItem = fn.Get(key);
 			var inst = funcItem.Item.Invoke(context);
-			var opts = inst.Options;
+			var opts = inst.Core;
 			if(opts is IUsageProvider uip) {
 				//var namespaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 				//var controls = GetControlParameters(uip);

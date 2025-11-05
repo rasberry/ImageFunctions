@@ -20,10 +20,10 @@ public class Function : IFunction
 	}
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
-	public IOptions Options { get { return O; } }
+	public IOptions Core { get { return O; } }
 	IFunctionContext Context;
 	Options O;
 
@@ -32,7 +32,7 @@ public class Function : IFunction
 		if(Context.Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if(!Options.ParseArgs(args, Context.Register)) {
+		if(!Core.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 
@@ -54,12 +54,25 @@ public class Function : IFunction
 		int pCount = O.PointList.Count;
 		for(int p = 1; p < pCount; p++) {
 			Context.Token.ThrowIfCancellationRequested();
-			var sp = O.PointList[p - 1];
-			var ep = O.PointList[p];
+			var sp = ConvertDeterminePoint(O.PointList[p - 1], canvas);
+			var ep = ConvertDeterminePoint(O.PointList[p], canvas);
 			DrawMethod(canvas, O.Color, sp, ep);
 		}
 
 		return true;
+	}
+
+	Point ConvertDeterminePoint(object pointObj, ICanvas canvas)
+	{
+		if(pointObj is Point p) {
+			return p;
+		}
+		else if(pointObj is PointD pd) {
+			double x = Math.Round(pd.X * canvas.Width, 0);
+			double y = Math.Round(pd.Y * canvas.Height, 0);
+			return new Point((int)x, (int)y);
+		}
+		throw Squeal.NotSupported(pointObj.GetType().Name);
 	}
 
 	//https://en.wikipedia.org/wiki/Digital_differential_analyzer_(graphics_algorithm)

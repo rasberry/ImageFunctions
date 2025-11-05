@@ -88,23 +88,4 @@ public static class OptionsAidePlus
 		log.Error(PlugNote.MustBeInRange(r.Name, low, high, lowInclusive, highInclusive));
 		return r with { Result = ParseParams.Result.UnParsable };
 	}
-
-	//Somewhat arbitrary default image dimension size
-	const int NomSize = 1024;
-
-	/// <summary>
-	/// Helpers to get the default width / height either provided by the user
-	///  or provided as an input
-	/// </summary>
-	/// <param name="options">ICoreOptions object - usually passed to a function</param>
-	/// <param name="defaultWidth">The fallback width to use</param>
-	/// <param name="defaultHeight">The fallback height to use/param>
-	/// <returns>A tuple with width, height</returns>
-	public static (int, int) GetDefaultWidthHeight(this ICoreOptions options, int defaultWidth = NomSize, int defaultHeight = NomSize)
-	{
-		return (
-			options.DefaultWidth.GetValueOrDefault(defaultWidth),
-			options.DefaultHeight.GetValueOrDefault(defaultHeight)
-		);
-	}
 }

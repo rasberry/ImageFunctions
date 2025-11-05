@@ -8,7 +8,6 @@ using System.Numerics;
 namespace ImageFunctions.Core.Engines;
 
 #pragma warning disable CA2000 //Dispose objects before losing scope - dispose is handeled by layers
-#pragma warning disable CA1305 // Specify IFormatProvider
 
 public class SixLaborsEngine : IImageEngine, IDrawEngine
 {
@@ -282,7 +281,7 @@ class SLCanvas : ICanvas
 }
 
 //since native type is double, using a double based color should minimize conversions
-// admittedly using 64bit floats for each component is massive overkill but
+// admittedly using 64bit floats for each component is slightly excessive but
 // double and float seem to be about the same speed so might as well use the better precision
 struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 {

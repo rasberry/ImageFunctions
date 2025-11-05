@@ -228,15 +228,15 @@ dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 #### Analysis Options ####
-# .\ImageFunctions\Writer\obj\Debug\net8.0\TestPlatformEntryPoint.cs(10,66): warning CS8892: Method 'TestingPlatformEntryPoint.Main(string[])' will not be used as an entry point because a synchronous entry point 'Program.Main(string[])' was found. [.\ImageFunctions\Writer\ImageFunctions.Writer.csproj]
+# warning CS8892: Method 'TestingPlatformEntryPoint.Main(string[])' will not be used as an entry point because a synchronous entry point 'Program.Main(string[])' was found. [.\ImageFunctions\Writer\ImageFunctions.Writer.csproj]
 dotnet_diagnostic.CS8892.severity = none
-# .\ImageFunctions\Core\ColorSpace\Common.cs(13,19): warning CA1822: Member 'RgbToHue' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
+# warning CA1822: Member 'RgbToHue' does not access instance data and can be marked as static (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
 dotnet_diagnostic.CA1822.severity = none
 # Use primary constructor
 dotnet_diagnostic.IDE0290.severity = none
-# .\ImageFunctions\Core\Definitions\IRegister.cs(31,9): warning CA1716: Rename virtual/interface member INameSpaceName.NameSpace so that it no longer conflicts with the reserved language keyword 'Namespace'. Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1716) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
+# warning CA1716: Rename virtual/interface member INameSpaceName.NameSpace so that it no longer conflicts with the reserved language keyword 'Namespace'. Using a reserved keyword as the name of a virtual/interface member makes it harder for consumers in other languages to override/implement the member. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1716) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
 dotnet_diagnostic.CA1716.severity = none
-# .\ImageFunctions\Core\ColorSpace\ColorSpaceCie1931.cs(47,25): warning CA1034: Do not nest type XYZ. Alternatively, change its accessibility so that it is not externally visible. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1034) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
+# warning CA1034: Do not nest type XYZ. Alternatively, change its accessibility so that it is not externally visible. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1034) [.\ImageFunctions\Core\ImageFunctions.Core.csproj]
 dotnet_diagnostic.CA1034.severity = none
 # Use collection expression for array (IDE0300)
 dotnet_diagnostic.IDE0300.severity = none
@@ -248,3 +248,5 @@ dotnet_diagnostic.IDE0028.severity = none
 dotnet_diagnostic.CA1710.severity = suggestion
 # Remove unnecessary using directives
 dotnet_diagnostic.IDE0005.severity = warning
+# CA1861:Avoid constant arrays as arguments - ImageFunctions.Core.Functions.Line.Options.ParseArgs(System.String[],ImageFunctions.Core.IRegister)~System.Boolean
+dotnet_diagnostic.CA1861.severity = none

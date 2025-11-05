@@ -328,11 +328,11 @@ internal sealed class Options : ICoreOptions
 			sb.WT();
 			sb.WT(0, $"Function {key}:");
 			var inst = funcItem.Item.Invoke(context);
-			var opts = inst.Options;
+			var opts = inst.Core;
 			if(opts is IUsageProvider uip) {
 				NameSpaceList = GetFlagsFromUsageInfo(uip.GetUsageInfo());
 			}
-			inst.Options.Usage(sb, Register);
+			inst.Core.Usage(sb, Register);
 		}
 
 		return true;
