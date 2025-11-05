@@ -116,12 +116,21 @@ public class Function : IFunction
 			Context.Progress.Report((double)place / maxPlace);
 		}
 
+		Func<double, ColorRGBA> getColor = Local.Gradient == null
+			? d => rnd.RandomColor(1.0)
+			: Local.Gradient.Value.GetColor
+		;
+
+		int colorCount = 0;
+		//using Log2 to speed up the beginning colors of the gradient
+		double maxCount = Math.Log2(groups.Count + 1);
 		List<ColorRGBA> palette = new();
 		for(int y = 0; y < image.Height; y++) {
 			for(int x = 0; x < image.Width; x++) {
 				int pl = baseGroup[x, y];
 				while(palette.Count <= pl) { //place can be out of order so using a while loop to fill
-					palette.Add(rnd.RandomColor(1.0));
+					double colorIndex = Math.Log2(colorCount++) / maxCount;
+					palette.Add(getColor(colorIndex));
 				}
 				image[x, y] = palette[pl];
 			}

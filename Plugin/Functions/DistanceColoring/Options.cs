@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Core.Gradients;
 using Rasberry.Cli;
 
 namespace ImageFunctions.Plugin.Functions.DistanceColoring;
@@ -29,6 +30,7 @@ public sealed class Options : IOptions, IUsageProvider
 			Parameters = [
 				new UsageOne<PlacementKind>(1, "-p","Placement type (defaults to random)") { Default = PlacementKind.Random },
 				new UsageOne<int>(1, "-rs", "Random Int32 seed value (defaults to system picked)"),
+				GradientHelpers.GradientUsageParameter(1, true)
 			],
 			EnumParameters = [
 				new UsageEnum<PlacementKind>(1,"Available Placements:")
@@ -57,9 +59,18 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
+		if(p.ScanGradient(Log, register, true)
+			.WhenGood(r => { Gradient = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+
 		return true;
 	}
 
 	public PlacementKind Kind { get; set; }
 	public int? RandomSeed { get; set; }
+	public Lazy<IColorGradient> Gradient { get; set; }
 }

@@ -5,16 +5,17 @@ namespace ImageFunctions.Core.Gradients;
 public static class GradientHelpers
 {
 	internal const string ParamName = "--gradient";
-	public static UsageOne GradientUsageParameter(int indention = 1)
+	public static UsageOne GradientUsageParameter(int indention = 1, bool skipDefault = false)
 	{
+		string text = "Use a (registered) gradient" + (skipDefault ? "" : "(defaults to 'FullRGB')");
 		return new UsageRegistered(indention,
-			ParamName, "Use a (registered) gradient (defaults to 'FullRGB')") {
+			ParamName, text) {
 			NameSpace = GradientRegister.NS,
 			TypeText = "name"
 		};
 	}
 
-	public static ParseResult<Lazy<IColorGradient>> ScanGradient(this ParseParams p, ICoreLog log, IRegister register)
+	public static ParseResult<Lazy<IColorGradient>> ScanGradient(this ParseParams p, ICoreLog log, IRegister register, bool skipDefault = false)
 	{
 		if(p == null) { throw Squeal.ArgumentNull(nameof(p)); }
 		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
@@ -24,15 +25,21 @@ public static class GradientHelpers
 		ParseParams.Result result;
 
 		var r = p.Scan<string>(ParamName);
+		string name;
 
 		if(r.IsMissing()) {
-			var entry = reg.Get("FullRGB");
-			gradient = entry.Item;
-			result = ParseParams.Result.Good;
+			name = skipDefault ? null : "FullRGB";
 		}
-		else if(!reg.Try(r.Value, out var entry)) {
+		else {
+			name = r.Value;
+		}
+
+		if(string.IsNullOrWhiteSpace(name)) {
+			result = ParseParams.Result.Missing;
+		}
+		else if(!reg.Try(name, out var entry)) {
 			gradient = default;
-			log.Error(Note.NotRegistered(reg.Namespace, r.Value));
+			log.Error(Note.NotRegistered(reg.Namespace, name));
 			result = ParseParams.Result.UnParsable;
 		}
 		else {
