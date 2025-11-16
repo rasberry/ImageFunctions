@@ -98,7 +98,7 @@ public class TestStackList
 	}
 
 	[TestMethod]
-	public void IListMethods() 	// tests for interface functions since Avalonia is using those
+	public void IListMethods()  // tests for interface functions since Avalonia is using those
 	{
 		var stack = new StackList<char>();
 		System.Collections.IList list = stack;
@@ -106,28 +106,28 @@ public class TestStackList
 		list.Add('B');
 		list.Add('C');
 		list.Add('D');
-		
-		Assert.HasCount(4,list);
-		// should come out in stack order (reversed)
-		Assert.AreEqual('D',list[0]);
-		Assert.AreEqual('C',list[1]);
-		Assert.AreEqual('B',list[2]);
-		Assert.AreEqual('A',list[3]);
 
-		#pragma warning disable MSTEST0037 // We want to test the list contains not the Assert version
+		Assert.HasCount(4, list);
+		// should come out in stack order (reversed)
+		Assert.AreEqual('D', list[0]);
+		Assert.AreEqual('C', list[1]);
+		Assert.AreEqual('B', list[2]);
+		Assert.AreEqual('A', list[3]);
+
+#pragma warning disable MSTEST0037 // We want to test the list contains not the Assert version
 		Assert.IsTrue(list.Contains('A'));
 		Assert.IsTrue(list.Contains('D'));
-		#pragma warning restore MSTEST0037
+#pragma warning restore MSTEST0037
 
 		//test GetEnumerator
-		CollectionAssert.AreEqual(new char[] {'D','C','B','A'}, list);
+		CollectionAssert.AreEqual(new char[] { 'D', 'C', 'B', 'A' }, list);
 
 		var temp = new char[list.Count];
-		list.CopyTo(temp,0);
+		list.CopyTo(temp, 0);
 		// should come out in stack order (reversed)
-		CollectionAssert.AreEqual(new char[] {'D','C','B','A'}, temp);
+		CollectionAssert.AreEqual(new char[] { 'D', 'C', 'B', 'A' }, temp);
 
-		list.Insert(4,'E');
+		list.Insert(4, 'E');
 		Assert.HasCount(5, list);
 		list.Remove('E');
 		Assert.HasCount(4, list);
@@ -137,10 +137,10 @@ public class TestStackList
 		list.RemoveAt(0);
 		Assert.HasCount(4, list);
 
-		Assert.AreEqual(0,list.IndexOf('D'));
-		Assert.AreEqual(1,list.IndexOf('C'));
-		Assert.AreEqual(2,list.IndexOf('B'));
-		Assert.AreEqual(3,list.IndexOf('A'));
+		Assert.AreEqual(0, list.IndexOf('D'));
+		Assert.AreEqual(1, list.IndexOf('C'));
+		Assert.AreEqual(2, list.IndexOf('B'));
+		Assert.AreEqual(3, list.IndexOf('A'));
 
 		Assert.IsFalse(list.IsFixedSize);
 		Assert.IsFalse(list.IsReadOnly);

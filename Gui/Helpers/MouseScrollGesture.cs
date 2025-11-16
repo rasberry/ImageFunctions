@@ -122,10 +122,12 @@ public class MouseScrollGesture : GestureRecognizer
 			var rootPoint = e.GetPosition(_rootTarget);
 			//Trace.WriteLine($"PointerMoved {rootPoint}");
 			if(!_scrolling) {
-				if(CanHorizontallyScroll && Math.Abs(_trackedRootPoint.X - rootPoint.X) > ScrollStartDistance)
+				if(CanHorizontallyScroll && Math.Abs(_trackedRootPoint.X - rootPoint.X) > ScrollStartDistance) {
 					_scrolling = true;
-				if(CanVerticallyScroll && Math.Abs(_trackedRootPoint.Y - rootPoint.Y) > ScrollStartDistance)
+				}
+				if(CanVerticallyScroll && Math.Abs(_trackedRootPoint.Y - rootPoint.Y) > ScrollStartDistance) {
 					_scrolling = true;
+				}
 				if(_scrolling) {
 					// Correct _trackedRootPoint with ScrollStartDistance, so scrolling does not start with a skip of ScrollStartDistance
 					_trackedRootPoint = new Point(
@@ -151,7 +153,9 @@ public class MouseScrollGesture : GestureRecognizer
 
 	protected override void PointerCaptureLost(IPointer pointer)
 	{
-		if(pointer == _tracking) EndGesture();
+		if(pointer == _tracking) {
+			EndGesture();
+		}
 	}
 
 	void EndGesture()
@@ -182,7 +186,9 @@ public class MouseScrollGesture : GestureRecognizer
 				|| _lastMoveTimestamp == 0
 				|| e.Timestamp - _lastMoveTimestamp > 200
 				|| !IsScrollInertiaEnabled)
+			{
 				EndGesture();
+			}
 			else {
 				_tracking = null;
 				var savedGestureId = _gestureId;
