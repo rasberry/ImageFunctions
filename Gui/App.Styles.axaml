@@ -8,6 +8,7 @@ xmlns:v="using:ImageFunctions.Gui.Views">
 </Style>
 <Style Selector="Grid.InputItemSlider CheckBox">
 	<Setter Property="Padding" Value="16,0" />
+	<Setter Property="Margin" Value="4,0,0,0" />
 </Style>
 
 <Style Selector="PathIcon">

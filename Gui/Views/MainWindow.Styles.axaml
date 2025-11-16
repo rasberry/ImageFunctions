@@ -14,7 +14,7 @@ xmlns:vm="using:ImageFunctions.Gui.ViewModels">
 		<Setter Property="Padding" Value="8,8,8,8"/>
 	</Style>
 	<Style Selector="#CommandColumn TextBlock">
-		<Setter Property="Margin" Value="8,8,8,8"/>
+		<Setter Property="Margin" Value="8,0,8,0"/>
 	</Style>
 	<Style Selector="GridSplitter">
 		<Setter Property="ShowsPreview" Value="True"/>

@@ -4,15 +4,11 @@ namespace ImageFunctions.Core.Metrics;
 
 public static class MetricHelpers
 {
-	// public static void MetricHelpLine(this StringBuilder sb)
-	// {
-	// 	sb.ND(1, "--metric (name)", "Use a (registered) distance metric (defaults to euclidean)");
-	// }
-
+	const string ParamName = "--metric";
 	public static UsageOne MetricUsageParameter(int indention = 1)
 	{
 		return new UsageRegistered(indention,
-			"--metric", "Use a (registered) distance metric (defaults to euclidean)") {
+			ParamName, "Use a (registered) distance metric (defaults to euclidean)") {
 			NameSpace = MetricRegister.NS,
 			TypeText = "name"
 		};
@@ -27,7 +23,7 @@ public static class MetricHelpers
 		Lazy<IMetric> metric = null;
 		ParseParams.Result result;
 
-		var r = p.Scan<string>("--metric");
+		var r = p.Scan<string>(ParamName);
 
 		if(r.IsMissing()) {
 			var entry = reg.Get("Euclidean");
@@ -44,6 +40,6 @@ public static class MetricHelpers
 			result = ParseParams.Result.Good;
 		}
 
-		return new ParseResult<Lazy<IMetric>>(result, "--metric", metric);
+		return new ParseResult<Lazy<IMetric>>(result, ParamName, metric);
 	}
 }
