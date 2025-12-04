@@ -182,7 +182,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 		int count = Storage.Count;
 		for(int a = 0, i = count - 1 - startIndex; i >= 0; a++, i--) {
-			array.SetValue(Storage[i],a);
+			array.SetValue(Storage[i], a);
 		}
 	}
 

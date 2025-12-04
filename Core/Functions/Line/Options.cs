@@ -102,9 +102,9 @@ public sealed class Options : IOptions, IUsageProvider
 		}
 
 		if(PointList.Count < 2) {
-				Log.Error(Note.MissingArgument($"-p / -pp. drawing a line requires at least two points"));
-				return false;
-			}
+			Log.Error(Note.MissingArgument($"-p / -pp. drawing a line requires at least two points"));
+			return false;
+		}
 
 		return true;
 	}

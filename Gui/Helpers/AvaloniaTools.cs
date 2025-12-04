@@ -91,36 +91,32 @@ public static class AvaloniaTools
 		// 1: can you write a parser in c# that takes a string which is a command line for a program and parse it into args ? the parser should handle quotes and nested quotes and produce an IEnumerable<string> as the output
 		// 2: instead of using args, curernt, and stack can you keep track of the indices of the start and end of the next token and yield return each token as the commandLine string is parsed ?
 
-		if (commandLine == null) {
+		if(commandLine == null) {
 			Squeal.ArgumentNull(nameof(commandLine));
 		}
 
 		int length = commandLine.Length;
 		int i = 0;
 
-		while (i < length)
-		{
+		while(i < length) {
 			// Skip leading whitespace
-			while (i < length && char.IsWhiteSpace(commandLine[i])) { i++; }
-			if (i >= length) { yield break; }
+			while(i < length && char.IsWhiteSpace(commandLine[i])) { i++; }
+			if(i >= length) { yield break; }
 
 			int start = i;
 			bool activeQuote = false;
 
-			while (i < length)
-			{
+			while(i < length) {
 				char c = commandLine[i];
 
 				// Handle escaping for characters '\'
-				if (c == '\\' && i + 1 < length)
-				{
+				if(c == '\\' && i + 1 < length) {
 					i += 2;
 					continue;
 				}
 
 				// Quote handling
-				if (c == '"')
-				{
+				if(c == '"') {
 					//swap inside or outside of quotes
 					activeQuote = !activeQuote;
 					i++;
@@ -128,7 +124,7 @@ public static class AvaloniaTools
 				}
 
 				// If whitespace ends token (only if not inside quotes)
-				if (char.IsWhiteSpace(c) && !activeQuote) {
+				if(char.IsWhiteSpace(c) && !activeQuote) {
 					break;
 				}
 
@@ -146,10 +142,9 @@ public static class AvaloniaTools
 	static string UnquoteAndUnescape(string token)
 	{
 		// Remove surrounding matching quotes
-		if (token.Length >= 2 &&
+		if(token.Length >= 2 &&
 			((token[0] == '"' && token[^1] == '"') ||
-			(token[0] == '\'' && token[^1] == '\'')))
-		{
+			(token[0] == '\'' && token[^1] == '\''))) {
 			token = token.Substring(1, token.Length - 2);
 		}
 

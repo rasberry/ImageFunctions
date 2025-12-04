@@ -185,8 +185,7 @@ public class MouseScrollGesture : GestureRecognizer
 				|| e.Timestamp == 0
 				|| _lastMoveTimestamp == 0
 				|| e.Timestamp - _lastMoveTimestamp > 200
-				|| !IsScrollInertiaEnabled)
-			{
+				|| !IsScrollInertiaEnabled) {
 				EndGesture();
 			}
 			else {
