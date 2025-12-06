@@ -87,12 +87,12 @@ public class Function : IFunction
 
 		//find and add replaceColor pixel coordinates
 		if(O.ReplaceColor.HasValue) {
-			surface.ThreadPixels((x, y) => {
+			surface.ThreadPixels(Context, (x, y) => {
 				var c = surface[x, y];
 				if(IsSimilar(O.ReplaceColor.Value, c)) {
 					Storage.Stow((new Point(x, y), c));
 				}
-			}, Context.Token, Context.Options.MaxDegreeOfParallelism);
+			});
 		}
 
 		if(Storage.Count < 1) {

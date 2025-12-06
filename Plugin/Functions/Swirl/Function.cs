@@ -29,7 +29,6 @@ public class Function : IFunction
 	IFunctionContext Context;
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }
-	ICoreOptions CoreOptions { get { return Context.Options; } }
 
 	public bool Run(string[] args)
 	{
@@ -69,15 +68,15 @@ public class Function : IFunction
 			swirly = rect.Height * py + rect.Top;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
+		var engine = Context.Options.Engine.Item.Value;
 		using var canvas = engine.NewCanvasFromLayers(Layers);
 
-		rect.ThreadPixels((x, y) => {
+		rect.ThreadPixels(Context, (x, y) => {
 			int cy = y - rect.Top;
 			int cx = x - rect.Left;
 			ColorRGBA nc = SwirlPixel(source, x, y, swirlx, swirly, swirlRadius, swirlTwists);
 			canvas[cx, cy] = nc;
-		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		source.CopyFrom(canvas, rect);
 		return true;

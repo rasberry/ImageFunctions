@@ -101,12 +101,7 @@ public class Function : IFunction
 
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 2");
 		Context.Progress.Label = "Rendering... ";
-		image.ThreadPixels(
-			copyColors,
-			Context.Token,
-			Context.Options.MaxDegreeOfParallelism,
-			Context.Progress
-		);
+		image.ThreadPixels(Context, copyColors);
 		//Trace.WriteLine($"{nameof(AllColors)} Draw 3");
 	}
 

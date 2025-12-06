@@ -7,7 +7,7 @@ public static class GradientHelpers
 	internal const string ParamName = "--gradient";
 	public static UsageOne GradientUsageParameter(int indention = 1, bool skipDefault = false)
 	{
-		string text = "Use a (registered) gradient" + (skipDefault ? "" : "(defaults to 'FullRGB')");
+		string text = "Use a (registered) gradient" + (skipDefault ? "" : " (defaults to 'FullRGB')");
 		return new UsageRegistered(indention,
 			ParamName, text) {
 			NameSpace = GradientRegister.NS,

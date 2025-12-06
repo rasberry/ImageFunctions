@@ -77,7 +77,7 @@ public class Function : IFunction
 		var colorTransp = CoreColors.Transparent;
 		double totalDist = 0.0;
 
-		minimum.ThreadPixels((x, y) => {
+		minimum.ThreadPixels(Context, (x, y) => {
 			var one = srcImg[x, y];
 			var two = compareImg[x, y];
 			bool areSame = one.Equals(two);
@@ -108,7 +108,7 @@ public class Function : IFunction
 				frame[x, y] = overlay;
 			}
 			//otherwise leave empty
-		}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		return totalDist;
 	}

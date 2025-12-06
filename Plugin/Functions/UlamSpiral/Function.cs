@@ -34,7 +34,6 @@ public class Function : IFunction
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }
 	IRegister Register { get { return Context.Register; } }
-	ICoreOptions CoreOptions { get { return Context.Options; } }
 
 	public bool Run(string[] args)
 	{
@@ -45,8 +44,8 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
-		var (dfw, dfh) = CoreOptions.GetDefaultWidthHeight(UlamSpiral.Options.DefaultWidth, UlamSpiral.Options.DefaultHeight);
+		var engine = Context.Options.Engine.Item.Value;
+		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight(Options.DefaultWidth, Options.DefaultHeight);
 		var source = engine.NewCanvasFromLayersOrDefault(Layers, dfw, dfh);
 		Layers.Push(source);
 		var bounds = source.Bounds();
@@ -122,9 +121,9 @@ public class Function : IFunction
 			}
 		}
 		else {
-			srect.ThreadPixels((x, y) => {
+			srect.ThreadPixels(Context, (x, y) => {
 				drawOne(x, y);
-			}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
+			});
 		}
 
 		return true;
@@ -154,7 +153,7 @@ public class Function : IFunction
 		var (cx, cy) = GetCenterXY(srect);
 		Context.Progress.Label = "Calculating ";
 
-		srect.ThreadPixels((x, y) => {
+		srect.ThreadPixels(Context, (x, y) => {
 			long num = MapXY(x, y, cx, cy, srect.Width);
 			int count = Primes.CountFactors(num);
 			if(count > maxFactor) {
@@ -163,7 +162,7 @@ public class Function : IFunction
 					if(count > maxFactor) { maxFactor = count; }
 				}
 			}
-		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		return maxFactor;
 	}

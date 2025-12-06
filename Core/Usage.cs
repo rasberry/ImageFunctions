@@ -88,7 +88,7 @@ public static class UsageRenderer
 		if(t.IsEnum) {
 			return t.Name;
 		}
-		if(t.Is<bool>()) {
+		else if(t.Is<bool>()) {
 			return "";
 		}
 		else if(t.Is<ColorRGBA>() || t.Is<Color>()) {
@@ -103,7 +103,10 @@ public static class UsageRenderer
 		else if(t.Is<Rectangle>() || t.Is<RectangleF>()) {
 			return "x,y,w,h";
 		}
-		if(t.IsNumeric()) {
+		else if (t.Is<Range>() || t.Is<RangeD>()) {
+			return "start,end";
+		}
+		else if(t.IsNumeric()) {
 			return isNumPct ? "number[%]" : "number";
 		}
 		else {

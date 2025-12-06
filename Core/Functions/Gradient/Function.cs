@@ -90,14 +90,14 @@ public class Function : IFunction
 			_ => PosForward
 		};
 
-		canvas.ThreadPixels((x, y) => {
+		canvas.ThreadPixels(Context, (x, y) => {
 			var (grad, keep) = calcFunc(startPoint.Value, endPoint.Value, new Point(x, y), O.Metric.Value);
 			if(O.Restrict && !keep) { return; } //skip pixels outside the gradient area
 
 			var pos = posFunc(grad);
 			var color = O.Gradient.Value.GetColor(Math.Clamp(pos, 0.0, 1.0));
 			canvas[x, y] = color;
-		}, Context.Token, Context.Options.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		return true;
 	}
