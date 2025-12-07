@@ -50,7 +50,7 @@ public class Function : IFunction
 			for(int c = 0; c < Local.Coefficients.Count; c++) {
 				var coeff = Local.Coefficients[c];
 				sum += coeff * Complex.Pow(point,c + 1);
-				// sum += coeff * ModPow(point,c + 1, 1.0);
+				//sum += coeff * ModPowOne(point,c + 1);
 			}
 
 			//var sum = Complex.Pow(point,3) + Complex.Pow(point,2) + Complex.Pow(point,1) + 1.0;
@@ -96,12 +96,44 @@ public class Function : IFunction
 			// var sum = ModPow(mag,phase, 3, 1.0) + ModPow(mag,phase, 2, 1.0) + ModPow(mag,phase, 1, 1.0) + 1.0;
 			//phase.Multiply(3);
 
-			//Context.Log.Debug($"sum = {sum.Magnitude / 2.0}");
-			var color = Local.Gradient.Value.GetColor(sum.Magnitude % 1.0);
+			Context.Log.Debug($"sum = {sum.Magnitude}");
+			var color = Local.Gradient.Value.GetColor(sum.Magnitude);
 			image[x,y] = color;
 		});
 
 		return true;
+	}
+
+	//according to wolfram alpha https://www.wolframalpha.com/input?i=1.2%2B2.5i+mod+1
+	static Complex ModOne(Complex number)
+	{
+		var floor = new Complex(
+			Math.Floor(number.Real),
+			Math.Floor(number.Imaginary)
+		);
+		return number - floor;
+	}
+
+	static Complex Mod(Complex number, Complex mod)
+	{
+		var residual = number / mod;
+
+		var floor = new Complex(
+			Math.Floor(residual.Real),
+			Math.Floor(residual.Imaginary)
+		);
+
+		return number - (mod * floor);
+	}
+
+	static Complex ModPowOne(Complex number, int power)
+	{
+		Complex res = Complex.One;
+
+		for(int p = 0; p < power; p++) {
+			res = ModOne(res * number);
+		}
+		return res;
 	}
 
 	// https://pressbooks.howardcc.edu/jrip3/chapter/equivalence-classes-of-complex-numbers-modulo-a-natural-number/
@@ -180,35 +212,35 @@ public class Function : IFunction
 	Options Local;
 	IFunctionContext Context;
 
-	class ModMath
-	{
-		public ModMath(double mod)
-		{
-			Mod = mod;
-		}
+	// class ModMath
+	// {
+	// 	public ModMath(double mod)
+	// 	{
+	// 		Mod = mod;
+	// 	}
 
-		public double Add(double a, double b)
-		{
-			return (a + b) % Mod;
-		}
+	// 	public double Add(double a, double b)
+	// 	{
+	// 		return (a + b) % Mod;
+	// 	}
 
-		public double Multiply(double a, double b)
-		{
-			return (a * b) % Mod;
-		}
+	// 	public double Multiply(double a, double b)
+	// 	{
+	// 		return (a * b) % Mod;
+	// 	}
 
-		public double Pow(double a, int power)
-		{
-			if (power == 0) { return 1.0; }
-			if (power == 1) { return a; }
+	// 	public double Pow(double a, int power)
+	// 	{
+	// 		if (power == 0) { return 1.0; }
+	// 		if (power == 1) { return a; }
 
-			double final = 1.0;
-			for(int p = 0; p < power; p++) {
-				final = (final * a) % Mod;
-			}
-			return final;
-		}
+	// 		double final = 1.0;
+	// 		for(int p = 0; p < power; p++) {
+	// 			final = (final * a) % Mod;
+	// 		}
+	// 		return final;
+	// 	}
 
-		public double Mod { get; private set; }
-	}
+	// 	public double Mod { get; private set; }
+	// }
 }
