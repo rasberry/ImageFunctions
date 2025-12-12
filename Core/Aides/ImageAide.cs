@@ -17,7 +17,7 @@ public static class ImageAide
 		if(image == null) {
 			throw Squeal.ArgumentNull(nameof(image));
 		}
-		if (context == null) {
+		if(context == null) {
 			throw Squeal.ArgumentNull(nameof(context));
 		}
 
@@ -50,7 +50,7 @@ public static class ImageAide
 	/// <param name="callback"></param>
 	public static void ThreadPixels(this Rectangle rect, IFunctionContext context, Action<int, int> callback)
 	{
-		if (context == null) {
+		if(context == null) {
 			throw Squeal.ArgumentNull(nameof(context));
 		}
 

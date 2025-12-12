@@ -96,10 +96,10 @@ public static class OptionsAide
 		if(pt == typeof(SizeF)) {
 			return (P)(object)ParseTwoInternal<SizeF, int>(arg, (a, b) => { return new SizeF(a, b); });
 		}
-		if (pt == typeof(Range)) {
+		if(pt == typeof(Range)) {
 			return (P)(object)ParseTwoInternal<Range, int>(arg, (a, b) => { return new Range(a, b); });
 		}
-		if (pt == typeof(RangeD)) {
+		if(pt == typeof(RangeD)) {
 			return (P)(object)ParseTwoInternal<RangeD, double>(arg, (a, b) => { return new RangeD(a, b); });
 		}
 		else {

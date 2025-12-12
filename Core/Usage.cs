@@ -103,7 +103,7 @@ public static class UsageRenderer
 		else if(t.Is<Rectangle>() || t.Is<RectangleF>()) {
 			return "x,y,w,h";
 		}
-		else if (t.Is<Range>() || t.Is<RangeD>()) {
+		else if(t.Is<Range>() || t.Is<RangeD>()) {
 			return "start,end";
 		}
 		else if(t.IsNumeric()) {

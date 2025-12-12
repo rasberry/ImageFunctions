@@ -45,8 +45,8 @@ public sealed class Options : IOptions, IUsageProvider
 
 		static void SetMinMax(RangeD source, ref double min, ref double max)
 		{
-			min = Math.Min(source.Start,source.End);
-			max = Math.Max(source.Start,source.End);
+			min = Math.Min(source.Start, source.End);
+			max = Math.Max(source.Start, source.End);
 		}
 
 		if(p.ScanGradient(Log, register, true)
@@ -57,7 +57,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.ScanMany<double>("-c")
+		if(p.ScanMany<double>("-c")
 			.WhenGoodOrMissing(r => { Coefficients = r.Value.ToList(); return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -65,7 +65,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<RangeD>("-rx", new RangeD(-2.0,2.0), parseRange)
+		if(p.Scan<RangeD>("-rx", new RangeD(-2.0, 2.0), parseRange)
 			.WhenGoodOrMissing(r => { SetMinMax(r.Value, ref MinX, ref MaxX); return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -73,7 +73,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<RangeD>("-ry", new RangeD(-2.0,2.0), parseRange)
+		if(p.Scan<RangeD>("-ry", new RangeD(-2.0, 2.0), parseRange)
 			.WhenGoodOrMissing(r => { SetMinMax(r.Value, ref MinY, ref MaxY); return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -81,7 +81,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<double?>("-l")
+		if(p.Scan<double?>("-l")
 			.WhenGoodOrMissing(r => { LogBase = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -89,7 +89,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<double>("-gs", 2.0)
+		if(p.Scan<double>("-gs", 2.0)
 			.WhenGoodOrMissing(r => { GradientScale = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -97,11 +97,11 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Has("-hl").IsGood()) {
+		if(p.Has("-hl").IsGood()) {
 			UseHueLightness = true;
 		}
 		//grab the default gradient if we're not using HL mode
-		else if (Gradient == null) {
+		else if(Gradient == null) {
 			var reg = new GradientRegister(register);
 			Gradient = reg.Get("FullRGB").Item;
 		}
