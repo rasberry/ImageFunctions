@@ -1,5 +1,6 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
+using ImageFunctions.Core.ColorSpace;
 using System.Numerics;
 
 namespace ImageFunctions.Plugin.Functions.PolyPlaneView;
@@ -39,16 +40,44 @@ public class Function : IFunction
 			return false;
 		}
 
+		Func<double,double,ColorRGBA> colorFunc = Local.UseHueLightness
+			? (Local.Gradient == null ? HLColorPure : HLColorGrad)
+			: GradientColor
+		;
+
 		//we're creating an image so add a layer
 		var engine = Context.Options.Engine.Item.Value;
 		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight();
 		var image = engine.NewCanvasFromLayersOrDefault(Context.Layers, dfw, dfh);
 		Context.Layers.Push(image);
 
+		double min = double.MaxValue;
+		double max = double.MinValue;
+
+		//find min / max
 		image.ThreadPixels(Context, (x,y) => {
+			var sum = CalcComplex(x,y);
+
+			var mag = sum.Magnitude;
+			if (mag < min) { Interlocked.Exchange(ref min,mag); }
+			if (mag > max) { Interlocked.Exchange(ref max,mag); }
+		});
+
+		//fill in pixels
+		image.ThreadPixels(Context, (x,y) => {
+			var sum = CalcComplex(x,y);
+			var mag = sum.Magnitude;
+
+			var scaled = mag / (max - min);
+
+			var color = colorFunc(scaled, sum.Phase);
+			image[x,y] = color;
+		});
+
+		Complex CalcComplex(int x, int y)
+		{
 			double mx = x * (Local.MaxX - Local.MinX) / image.Width + Local.MinX;
 			double my = y * (Local.MaxY - Local.MinY) / image.Height + Local.MinY;
-
 			Complex point = new(mx,my);
 
 			Complex sum = Complex.Zero;
@@ -56,13 +85,38 @@ public class Function : IFunction
 				var coeff = Local.Coefficients[c];
 				sum += coeff * Complex.Pow(point,c + 1);
 			}
-
-			// Context.Log.Debug($"sum = {sum.Magnitude}");
-			var color = Local.Gradient.Value.GetColor(sum.Magnitude % 1.0);
-			image[x,y] = color;
-		});
+			return sum;
+		}
 
 		return true;
+	}
+
+	ColorRGBA GradientColor(double mag, double ph)
+	{
+		mag = mag * Local.GradientScale % 1.0;
+		return Local.Gradient.Value.GetColor(mag);
+	}
+
+	readonly ColorSpaceHsl HSLSpace = new();
+	ColorRGBA HLColorPure(double mag, double ph)
+	{
+		ph = (ph + Math.PI) / (2 * Math.PI);
+		mag = mag / 2.0 + 0.5;
+
+		var hsl = new ColorSpaceHsl.HSL(ph, 1.0, mag);
+		return HSLSpace.ToNative(hsl);
+	}
+
+	ColorRGBA HLColorGrad(double mag, double ph)
+	{
+		ph = (ph + Math.PI) / (2 * Math.PI);
+		double grad = ph * Local.GradientScale % 1.0;
+
+		var c = Local.Gradient.Value.GetColor(grad);
+		double r = Math.Clamp(c.R + mag,0.0,1.0);
+		double g = Math.Clamp(c.G + mag,0.0,1.0);
+		double b = Math.Clamp(c.B + mag,0.0,1.0);
+		return new ColorRGBA(r,g,b,c.A);
 	}
 
 	public IOptions Core { get { return Local; } }

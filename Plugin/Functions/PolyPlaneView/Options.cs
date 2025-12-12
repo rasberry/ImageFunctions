@@ -26,9 +26,11 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageMany<double>(1, "-c", "One coefficient of the polynomial (can specify multiple)"
 					+ " Note: the order is reversed so 3x^2 + 4x + 1 is specified as '-c 1 -c 4 -c 3'"
 				) { Min = -1000.0, Max = 1000.0 },
-				new UsageOne<RangeD>(1, "-rx", "Horizontal range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0 },
-				new UsageOne<RangeD>(1, "-ry", "Vertical range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0 },
-				new UsageOne<double>(1, "-l", "Use log scale with given base") { Min = 1.0, Max = 1000.0 },
+				new UsageOne<RangeD>(1, "-rx", "Horizontal range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0, Default = new RangeD(-2.0,2.0) },
+				new UsageOne<RangeD>(1, "-ry", "Vertical range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0, Default = new RangeD(-2.0,2.0) },
+				//new UsageOne<double>(1, "-l", "Use log scale with given base") { Min = 1.0, Max = 1000.0 },
+				new UsageOne<bool>(1, "-hl", "Use hue, lightness to color the phase, magnitude"),
+				new UsageOne<double>(1, "-gs", "Scale gradient to get repeats (default 2.0)") { Min = 0.0, Max = 1000.0, Default = 2.0},
 				GradientHelpers.GradientUsageParameter(1)
 			]
 		};
@@ -39,11 +41,6 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-
-		// var parseSeq = new ParseParams.Parser<RangeD>(n => {
-		// 	return ExtraParsers.ParseSequence<RangeD>(n, new char[] {' '});
-		// });
-
 		var parseRange = new ParseParams.Parser<RangeD>(OptionsAide.ParseSeq2Type<RangeD>);
 
 		static void SetMinMax(RangeD source, ref double min, ref double max)
@@ -52,7 +49,7 @@ public sealed class Options : IOptions, IUsageProvider
 			max = Math.Max(source.Start,source.End);
 		}
 
-		if(p.ScanGradient(Log, register)
+		if(p.ScanGradient(Log, register, true)
 			.WhenGood(r => { Gradient = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -92,15 +89,34 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
+		if (p.Scan<double>("-gs", 2.0)
+			.WhenGoodOrMissing(r => { GradientScale = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+
+		if (p.Has("-hl").IsGood()) {
+			UseHueLightness = true;
+		}
+		//grab the default gradient if we're not using HL mode
+		else if (Gradient == null) {
+			var reg = new GradientRegister(register);
+			Gradient = reg.Get("FullRGB").Item;
+		}
+
 		return true;
 	}
 
 	readonly ICoreLog Log;
 	public List<double> Coefficients;
+	public Lazy<IColorGradient> Gradient;
 	public double MinX;
 	public double MaxX;
 	public double MinY;
 	public double MaxY;
 	public double? LogBase;
-	public Lazy<IColorGradient> Gradient;
+	public bool UseHueLightness;
+	public double GradientScale;
 }
