@@ -68,7 +68,7 @@ public static class OptionsAide
 	/// Parse a sequence of two numbers into a point object
 	/// Sequence may be seperated by space, comma or 'x'
 	/// </summary>
-	/// <typeparam name="P">Point, PointF, PointD, Size, SizeF</typeparam>
+	/// <typeparam name="P">Point, PointF, PointD, Size, SizeF, Range, RangeD</typeparam>
 	/// <param name="arg">Item to parse</param>
 	/// <param name="itemParser">Optional custom item parser</param>
 	/// <returns>A Point or Size</returns>
@@ -77,7 +77,7 @@ public static class OptionsAide
 	/// <exception cref="ArgumentNullException"></exception>
 	/// <exception cref="FormatException"></exception>
 	/// <exception cref="NotSupportedException"></exception>
-	public static P ParsePointSize<P>(string arg) where P : struct
+	public static P ParseSeq2Type<P>(string arg) where P : struct
 	{
 		var pt = typeof(P);
 
@@ -95,6 +95,12 @@ public static class OptionsAide
 		}
 		if(pt == typeof(SizeF)) {
 			return (P)(object)ParseTwoInternal<SizeF, int>(arg, (a, b) => { return new SizeF(a, b); });
+		}
+		if (pt == typeof(Range)) {
+			return (P)(object)ParseTwoInternal<Range, int>(arg, (a, b) => { return new Range(a, b); });
+		}
+		if (pt == typeof(RangeD)) {
+			return (P)(object)ParseTwoInternal<RangeD, double>(arg, (a, b) => { return new RangeD(a, b); });
 		}
 		else {
 			throw Squeal.NotSupported($"Type {pt.FullName}");

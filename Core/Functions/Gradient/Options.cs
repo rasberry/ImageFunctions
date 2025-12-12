@@ -59,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		static Point? parsePoint(string value)
 		{
-			return OptionsAide.ParsePointSize<Point>(value);
+			return OptionsAide.ParseSeq2Type<Point>(value);
 		}
 
 		if(p.ScanGradient(Log, register)

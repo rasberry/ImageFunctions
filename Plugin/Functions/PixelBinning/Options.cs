@@ -26,7 +26,7 @@ public sealed class Options : IOptions, IUsageProvider
 	{
 		var p = new ParseParams(args);
 
-		if(p.Scan<Size>("-s", DefaultBinSize, OptionsAide.ParsePointSize<Size>)
+		if(p.Scan<Size>("-s", DefaultBinSize, OptionsAide.ParseSeq2Type<Size>)
 			.WhenGoodOrMissing(r => { BinSize = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()

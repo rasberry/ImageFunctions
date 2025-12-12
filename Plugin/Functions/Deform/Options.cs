@@ -59,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if(p.Scan<PointF>("-cp", par: OptionsAide.ParsePointSize<PointF>)
+		if(p.Scan<PointF>("-cp", par: OptionsAide.ParseSeq2Type<PointF>)
 			.WhenGood(r => { CenterPp = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -67,7 +67,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<Point>("-cx", par: OptionsAide.ParsePointSize<Point>)
+		if(p.Scan<Point>("-cx", par: OptionsAide.ParseSeq2Type<Point>)
 			.WhenGood(r => { CenterPx = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()

@@ -40,9 +40,11 @@ public sealed class Options : IOptions, IUsageProvider
 	{
 		var p = new ParseParams(args);
 
-		var parseSeq = new ParseParams.Parser<IEnumerable<double>>(n => {
-			return ExtraParsers.ParseSequence<double>(n, new char[] {' '});
-		});
+		// var parseSeq = new ParseParams.Parser<RangeD>(n => {
+		// 	return ExtraParsers.ParseSequence<RangeD>(n, new char[] {' '});
+		// });
+
+		var parseRange = new ParseParams.Parser<RangeD>(OptionsAide.ParseSeq2Type<RangeD>);
 
 		static void SetMinMax(RangeD source, ref double min, ref double max)
 		{
@@ -66,7 +68,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<RangeD>("-rx", new RangeD(-2.0,2.0))
+		if (p.Scan<RangeD>("-rx", new RangeD(-2.0,2.0), parseRange)
 			.WhenGoodOrMissing(r => { SetMinMax(r.Value, ref MinX, ref MaxX); return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -74,7 +76,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<RangeD>("-ry", new RangeD(-2.0,2.0))
+		if (p.Scan<RangeD>("-ry", new RangeD(-2.0,2.0), parseRange)
 			.WhenGoodOrMissing(r => { SetMinMax(r.Value, ref MinY, ref MaxY); return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
