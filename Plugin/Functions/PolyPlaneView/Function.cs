@@ -63,12 +63,16 @@ public class Function : IFunction
 			if(mag > max) { Interlocked.Exchange(ref max, mag); }
 		});
 
+		var mathEval = new MathComplexEvaluator
+
 		//fill in pixels
 		image.ThreadPixels(Context, (x, y) => {
 			var sum = CalcComplex(x, y);
 			var mag = sum.Magnitude;
 
-			var scaled = mag / (max - min);
+			var scaled = Local.LogScale == null
+				? mag / (max - min)
+				: ApplyLogScale(mag) / ApplyLogScale(max - min);
 
 			var color = colorFunc(scaled, sum.Phase);
 			image[x, y] = color;
@@ -117,6 +121,12 @@ public class Function : IFunction
 		double g = Math.Clamp(c.G + mag, 0.0, 1.0);
 		double b = Math.Clamp(c.B + mag, 0.0, 1.0);
 		return new ColorRGBA(r, g, b, c.A);
+	}
+
+	double ApplyLogScale(double num)
+	{
+		if (num < double.Epsilon) { return 0.0; }
+		return Math.Log(num / Local.LogScale.Value);
 	}
 
 	public IOptions Core { get { return Local; } }
