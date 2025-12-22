@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- <Nullable>enable</Nullable> -->
     <OutputPath>../artifacts/build</OutputPath>
@@ -13,9 +13,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
     <InternalsVisibleTo Include="ImageFunctions.Writer" />
-    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.13.1" />
+    <PackageReference Include="Rasberry.MathEval" Version="0.0.5" />
 
-    <!-- references to anything referenced by Core must be <Private>false</Private> -->
+    <!-- references to anything also referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
@@ -24,7 +24,7 @@
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.9.1" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.10.0" />
     <PackageReference Include="skiasharp" Version="3.119.1" />
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />

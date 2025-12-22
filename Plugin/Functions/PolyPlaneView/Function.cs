@@ -1,6 +1,7 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
+using Rasberry.MathEval.MathComplex;
 using System.Numerics;
 
 namespace ImageFunctions.Plugin.Functions.PolyPlaneView;
@@ -45,6 +46,16 @@ public class Function : IFunction
 			: GradientColor
 		;
 
+		//Test that the expression works
+		var mathEval = new MathComplexCompiled();
+		var evalResult = mathEval.PrepareExpression(Local.Expression);
+		if (evalResult.ErrorCount > 0) {
+			Context.Log.Error($"Failed expression: '{Local.Expression}'");
+			Context.Log.Error(evalResult.ErrorMessage);
+			return false;
+		}
+		var evaluator = evalResult.Evaluator;
+
 		//we're creating an image so add a layer
 		var engine = Context.Options.Engine.Item.Value;
 		var (dfw, dfh) = Context.Options.GetDefaultWidthHeight();
@@ -56,27 +67,38 @@ public class Function : IFunction
 
 		//find min / max
 		image.ThreadPixels(Context, (x, y) => {
-			var sum = CalcComplex(x, y);
-
-			var mag = sum.Magnitude;
+			var calc = CalcComplex(x, y);
+			var mag = calc.Magnitude;
 			if(mag < min) { Interlocked.Exchange(ref min, mag); }
 			if(mag > max) { Interlocked.Exchange(ref max, mag); }
 		});
 
-		var mathEval = new MathComplexEvaluator
-
 		//fill in pixels
 		image.ThreadPixels(Context, (x, y) => {
-			var sum = CalcComplex(x, y);
-			var mag = sum.Magnitude;
+			var calc = CalcComplex(x, y);
+			var mag = calc.Magnitude;
 
 			var scaled = Local.LogScale == null
 				? mag / (max - min)
 				: ApplyLogScale(mag) / ApplyLogScale(max - min);
 
-			var color = colorFunc(scaled, sum.Phase);
+			var color = colorFunc(scaled, calc.Phase);
 			image[x, y] = color;
 		});
+
+		// Complex CalcComplex(int x, int y)
+		// {
+		// 	double mx = x * (Local.MaxX - Local.MinX) / image.Width + Local.MinX;
+		// 	double my = y * (Local.MaxY - Local.MinY) / image.Height + Local.MinY;
+		// 	Complex point = new(mx, my);
+
+		// 	Complex sum = Complex.Zero;
+		// 	for(int c = 0; c < Local.Coefficients.Count; c++) {
+		// 		var coeff = Local.Coefficients[c];
+		// 		sum += coeff * Complex.Pow(point, c + 1);
+		// 	}
+		// 	return sum;
+		// }
 
 		Complex CalcComplex(int x, int y)
 		{
@@ -84,12 +106,11 @@ public class Function : IFunction
 			double my = y * (Local.MaxY - Local.MinY) / image.Height + Local.MinY;
 			Complex point = new(mx, my);
 
-			Complex sum = Complex.Zero;
-			for(int c = 0; c < Local.Coefficients.Count; c++) {
-				var coeff = Local.Coefficients[c];
-				sum += coeff * Complex.Pow(point, c + 1);
-			}
-			return sum;
+			var result = evaluator.Evaluate(point);
+			// run cli PolyPlaneView -x 1 -- -e "z^3+z^2+z+1"
+			//var result = Complex.Pow(point,3) + Complex.Pow(point,2) + point + 1;
+
+			return result;
 		}
 
 		return true;

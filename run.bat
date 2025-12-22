@@ -30,8 +30,9 @@ goto :EOF
 ::we need all of the plugins in one folder so do a publish
 dotnet publish
 if not %ERRORLEVEL%==0 goto :EOF
-::build\net8.0\publish\ImageFunctions.Core.exe %*
-dotnet run --project Cli -- %*
+:: fix problem with carets getting doubled https://superuser.com/questions/1931096/how-to-prevent-a-batch-file-call-from-escaping-a-caret-character
+set ARGS=%*
+dotnet run --project Cli -- %ARGS:^^=^%
 goto :EOF
 
 :wiki

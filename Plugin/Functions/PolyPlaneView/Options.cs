@@ -117,10 +117,6 @@ public sealed class Options : IOptions, IUsageProvider
 			Gradient = reg.Get("FullRGB").Item;
 		}
 
-		if (string.IsNullOrWhiteSpace(Expression)) {
-			
-		}
-
 		return true;
 	}
 
