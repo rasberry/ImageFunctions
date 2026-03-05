@@ -82,101 +82,83 @@ public static class AvaloniaTools
 		return (StreamGeometry)icon;
 	}
 
-	// https://github.com/dotnet/command-line-api/blob/main/src/System.CommandLine/Parsing/CliParser.cs#L40
-
 	/// <summary>Splits a string into a sequence of strings based on whitespace and quotation marks.</summary>
 	/// <param name="commandLine">A command line input string.</param>
 	/// <returns>A sequence of strings.</returns>
 	public static IEnumerable<string> SplitCommandLine(string commandLine)
 	{
-		var memory = commandLine.AsMemory();
-		var startTokenIndex = 0;
-		var pos = 0;
+		//ChatGPT prompt:
+		// 1: can you write a parser in c# that takes a string which is a command line for a program and parse it into args ? the parser should handle quotes and nested quotes and produce an IEnumerable<string> as the output
+		// 2: instead of using args, curernt, and stack can you keep track of the indices of the start and end of the next token and yield return each token as the commandLine string is parsed ?
 
-		var seeking = Boundary.TokenStart;
-		var seekingQuote = Boundary.QuoteStart;
-
-		while(pos < memory.Length) {
-			var c = memory.Span[pos];
-			if(char.IsWhiteSpace(c)) {
-				if(seekingQuote == Boundary.QuoteStart) {
-					switch(seeking) {
-					case Boundary.WordEnd:
-						yield return CurrentToken();
-						startTokenIndex = pos;
-						seeking = Boundary.TokenStart;
-						break;
-
-					case Boundary.TokenStart:
-						startTokenIndex = pos;
-						break;
-					}
-				}
-			}
-			else if(c == '\"') {
-				if(seeking == Boundary.TokenStart) {
-					switch(seekingQuote) {
-					case Boundary.QuoteEnd:
-						yield return CurrentToken();
-						startTokenIndex = pos;
-						seekingQuote = Boundary.QuoteStart;
-						break;
-
-					case Boundary.QuoteStart:
-						startTokenIndex = pos + 1;
-						seekingQuote = Boundary.QuoteEnd;
-						break;
-					}
-				}
-				else {
-					switch(seekingQuote) {
-					case Boundary.QuoteEnd:
-						seekingQuote = Boundary.QuoteStart;
-						break;
-
-					case Boundary.QuoteStart:
-						seekingQuote = Boundary.QuoteEnd;
-						break;
-					}
-				}
-			}
-			else if(seeking == Boundary.TokenStart && seekingQuote == Boundary.QuoteStart) {
-				seeking = Boundary.WordEnd;
-				startTokenIndex = pos;
-			}
-
-			Advance();
-
-			if(IsAtEndOfInput()) {
-				switch(seeking) {
-				case Boundary.TokenStart:
-					break;
-				default:
-					yield return CurrentToken();
-					break;
-				}
-			}
+		if(commandLine == null) {
+			Squeal.ArgumentNull(nameof(commandLine));
 		}
 
-		string CurrentToken()
-		{
-			return memory.Slice(startTokenIndex, IndexOfEndOfToken()).ToString().Replace("\"", "");
-		}
+		int length = commandLine.Length;
+		int i = 0;
 
-		void Advance() { pos++; }
-		int IndexOfEndOfToken() { return pos - startTokenIndex; }
-		bool IsAtEndOfInput() { return pos == memory.Length; }
+		while(i < length) {
+			// Skip leading whitespace
+			while(i < length && char.IsWhiteSpace(commandLine[i])) { i++; }
+			if(i >= length) { yield break; }
+
+			int start = i;
+			bool activeQuote = false;
+
+			while(i < length) {
+				char c = commandLine[i];
+
+				// Handle escaping for characters '\'
+				if(c == '\\' && i + 1 < length) {
+					i += 2;
+					continue;
+				}
+
+				// Quote handling
+				if(c == '"') {
+					//swap inside or outside of quotes
+					activeQuote = !activeQuote;
+					i++;
+					continue;
+				}
+
+				// If whitespace ends token (only if not inside quotes)
+				if(char.IsWhiteSpace(c) && !activeQuote) {
+					break;
+				}
+
+				i++;
+			}
+
+			// Extract raw token
+			string token = commandLine.Substring(start, i - start);
+			token = UnquoteAndUnescape(token);
+
+			yield return token;
+		}
 	}
 
-	enum Boundary
+	static string UnquoteAndUnescape(string token)
 	{
-		TokenStart,
-		WordEnd,
-		QuoteStart,
-		QuoteEnd
+		// Remove surrounding matching quotes
+		if(token.Length >= 2 &&
+			((token[0] == '"' && token[^1] == '"') ||
+			(token[0] == '\'' && token[^1] == '\''))) {
+			token = token.Substring(1, token.Length - 2);
+		}
+
+		// Unescape \" \/ \\ \' inside token
+		token = token
+			.Replace("\\\"", "\"")
+			.Replace("\\'", "'")
+			.Replace("\\\\", "\\")
+		;
+
+		return token;
 	}
 
-	// This exists because Clear() doesn't remove fire the Remove Notification
+	// This exists because Clear() doesn't fire the Remove Notification
 	public static void RemoveDisposeAll<T>(this IList<T> itemList)
 	{
 		for(int i = itemList.Count - 1; i >= 0; i--) {

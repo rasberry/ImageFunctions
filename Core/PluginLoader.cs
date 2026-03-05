@@ -11,7 +11,7 @@ namespace ImageFunctions.Core;
 public static class PluginLoader
 {
 	/// <summary>
-	/// Loads any plugins and adds any registrations to the given IRestier instance
+	/// Loads any plugins and adds any registrations to the given IRegister instance
 	/// </summary>
 	/// <param name="register">an instance of IRegister</param>
 	public static void LoadAllPlugins(IRegister register, ICoreLog log)
@@ -19,16 +19,16 @@ public static class PluginLoader
 		if(log == null) { throw Squeal.ArgumentNull(nameof(log)); }
 		var list = GetFilesWithPlugins(log);
 
+		var selfAssembly = typeof(IPlugin).Assembly;
 		foreach(string f in list) {
 			log.Debug($"Loading pluginfile {f}");
 			//we don't want to re-load the core dll as a plugin
-			var selfAssembly = typeof(IPlugin).Assembly;
 			if(Path.GetFullPath(f) == selfAssembly.Location) {
 				RegisterPlugin(log, selfAssembly, register);
 				continue;
 			}
 
-			Assembly plugin = null;
+			Assembly plugin;
 			try {
 				log.Info($"Looking for plugins in assembly '{f}'");
 				var context = new PluginLoadContext(f);
@@ -115,7 +115,7 @@ public static class PluginLoader
 
 			if(assembly == null) { continue; }
 			foreach(var type in assembly.GetTypes()) {
-				var isPlugin = IsIPlugin(type);
+				//var isPlugin = IsIPlugin(type);
 				//Log.Debug($"Checking type {type.FullName} [{(isPlugin?"Y":"n")}]");
 				if(IsIPlugin(type)) {
 					//Log.Debug($"Found plugin {type.FullName}");
@@ -139,6 +139,8 @@ public static class PluginLoader
 		return isPlugin;
 	}
 
+	// This uses type.Fullname comparisons since comparing types directly
+	// causes the check to fail due to types being in different contexts
 	static bool CheckIsIPlugin(Type subj)
 	{
 		// we don't want to instantiate the IPlugin interface itself
@@ -152,7 +154,7 @@ public static class PluginLoader
 
 		//Do recursive name check because we can't rely on Type.Equals since we're
 		// loading types in different contexts
-		var stack = new List<Type>();
+		var stack = new List<Type>(); //not using Stack<> because it only suppports single pushes
 		stack.AddRange(subj.GetInterfaces()); //push
 
 		while(stack.Count > 0) {
@@ -182,11 +184,11 @@ public static class PluginLoader
 class PluginLoadContext : AssemblyLoadContext
 {
 	readonly AssemblyDependencyResolver _resolver;
-	readonly string OriginalPath;
+	// readonly string OriginalPath;
 
 	public PluginLoadContext(string pluginPath)
 	{
-		OriginalPath = pluginPath;
+		// OriginalPath = pluginPath;
 		_resolver = new AssemblyDependencyResolver(pluginPath);
 	}
 

@@ -9,6 +9,27 @@ public static class ImageAide
 	///  Note: ICanvas is not thread safe.
 	/// </summary>
 	/// <param name="image"></param>
+	/// <param name="context"></param>
+	/// <param name="callback"></param>
+	public static void ThreadPixels(this ICanvas image, IFunctionContext context,
+		Action<int, int> callback)
+	{
+		if(image == null) {
+			throw Squeal.ArgumentNull(nameof(image));
+		}
+		if(context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
+		var size = new Rectangle(0, 0, image.Width, image.Height);
+		ThreadPixels(size, callback, context.Token, context.Options.MaxDegreeOfParallelism, context.Progress);
+	}
+
+	/// <summary>
+	/// Calls in parallel the given function once for each pixel (x,y) in the image.
+	///  Note: ICanvas is not thread safe.
+	/// </summary>
+	/// <param name="image"></param>
 	/// <param name="callback"></param>
 	/// <param name="progress"></param>
 	public static void ThreadPixels(this ICanvas image, Action<int, int> callback,
@@ -19,6 +40,21 @@ public static class ImageAide
 		}
 		var size = new Rectangle(0, 0, image.Width, image.Height);
 		ThreadPixels(size, callback, token, maxThreads, progress);
+	}
+
+	/// <summary>
+	/// Calls in parallel the given function once for each position (x,y) in the rectangle.
+	/// </summary>
+	/// <param name="rect"></param>
+	/// <param name="context"></param>
+	/// <param name="callback"></param>
+	public static void ThreadPixels(this Rectangle rect, IFunctionContext context, Action<int, int> callback)
+	{
+		if(context == null) {
+			throw Squeal.ArgumentNull(nameof(context));
+		}
+
+		ThreadPixels(rect, callback, context.Token, context.Options.MaxDegreeOfParallelism, context.Progress);
 	}
 
 	/// <summary>

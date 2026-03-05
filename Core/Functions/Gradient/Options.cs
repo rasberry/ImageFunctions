@@ -28,8 +28,8 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<DirectionKind>(1, "-d", "Gradient Direction (default Forward)") { Default = DirectionKind.Forward },
 				new UsageOne<Point>(1, "-ps", "Staring point coordinates"),
 				new UsageOne<Point>(1, "-pe", "Ending point coordinates"),
-				new UsageOne<PointD>(1, "-pps", "Staring point relative(%) coordinates"),
-				new UsageOne<PointD>(1, "-ppe", "Ending point relative(%) coordinates"),
+				new UsageOne<PointD>(1, "-pps", "Staring point proportional(%) coordinates"),
+				new UsageOne<PointD>(1, "-ppe", "Ending point proportional(%) coordinates"),
 				new UsageOne<double>(1, "-s", "Gradient speed multiplier (default 1.0)") { Default = 1.0, Min = -20.0, Max = 20.0 },
 				new UsageOne<double>(1, "-o", "Gradient color offset (default 0.0)") { Default = 0.0, Min = 0.0, Max = 1.0 },
 				new UsageOne<bool>(1, "-r", "Restrict gradient to area defined by the coordinates") { Default = false },
@@ -59,7 +59,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		static Point? parsePoint(string value)
 		{
-			return OptionsAide.ParsePointSize<Point>(value);
+			return OptionsAide.ParseSeq2Type<Point>(value);
 		}
 
 		if(p.ScanGradient(Log, register)

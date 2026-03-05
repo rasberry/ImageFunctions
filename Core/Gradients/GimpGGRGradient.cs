@@ -229,7 +229,7 @@ public class GimpGGRGradient : IColorGradient
 			var hsv1 = ColorHSV.ToSpace(new ColorRGBA(seg.R1, seg.G1, seg.B1, 1.0));
 			seg.Color = GradHSVType(seg.Color, hsv0.H, hsv1.H);
 		}
-		if(!Enum.IsDefined(typeof(GradColorModel), seg.Color)) {
+		if(!Enum.IsDefined(seg.Color)) {
 			throw Squeal.InvalidArgument(nameof(GradColorModel));
 		}
 		return seg;

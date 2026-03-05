@@ -28,7 +28,6 @@ public class Function : IFunction
 	IFunctionContext Context;
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }
-	ICoreOptions CoreOptions { get { return Context.Options; } }
 
 	public bool Run(string[] args)
 	{
@@ -44,7 +43,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
+		var engine = Context.Options.Engine.Item.Value;
 		int numSlices = O.WhichSlice.HasValue ? 1 : O.Slices;
 
 		//pull out the original which we'll replace with slices
@@ -55,7 +54,7 @@ public class Function : IFunction
 			Layers.Push(slices[s]);
 		}
 
-		ImageAide.ThreadPixels(original, (x, y) => {
+		ImageAide.ThreadPixels(original, Context, (x, y) => {
 			var c = O.Space.ToSpace(original[x, y]);
 			var ord = c.GetOrdinal(O.ComponentName);
 			double v = GetValue(ord, c);
@@ -71,7 +70,7 @@ public class Function : IFunction
 				: c
 			;
 			slices[index][x, y] = O.Space.ToNative(mc);
-		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		return true;
 	}

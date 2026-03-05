@@ -1,6 +1,7 @@
 using System.Collections;
 
 namespace ImageFunctions.Core;
+#pragma warning disable CA1033 // Interface methods should be callable by child types - only want stack methods public
 
 /// <summary>
 /// Represents a stack of items with additional list-like functions
@@ -66,6 +67,7 @@ public interface IStackList<T> : IEnumerable<T>
 /// <typeparam name="T">Type to store</typeparam>
 public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
+	/// <inheritdoc/>
 	public virtual T this[int index] {
 		get {
 			int ix = StackIxToListIx(index);
@@ -77,6 +79,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		}
 	}
 
+	/// <inheritdoc/>
 	public virtual void Move(int fromIndex, int toIndex)
 	{
 		if(fromIndex == toIndex) { return; }
@@ -89,6 +92,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		Storage.Insert(tix, item);
 	}
 
+	/// <inheritdoc/>
 	public virtual T PopAt(int index)
 	{
 		int ix = StackIxToListIx(index);
@@ -97,12 +101,14 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		return img;
 	}
 
+	/// <inheritdoc/>
 	public virtual void PushAt(int index, T item)
 	{
 		int ix = StackIxToListIx(index - 1);
 		Storage.Insert(ix, item);
 	}
 
+	/// <inheritdoc/>
 	public virtual IEnumerator<T> GetEnumerator()
 	{
 		//enumerations are backwards (stack ordering)
@@ -124,8 +130,11 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		foreach(var i in items) { Push(i); }
 	}
 
+	/// <inheritdoc/>
 	public T Pop() => PopAt(0);
+	/// <inheritdoc/>
 	public void Push(T item) => PushAt(0, item);
+	/// <inheritdoc/>
 	public virtual int Count => Storage.Count;
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -148,7 +157,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	protected virtual bool Remove(T item) => Storage.Remove(item);
 	protected virtual bool IsReadOnly => false;
 
-#pragma warning disable CA1033 // Interface methods should be callable by child types - only want stack methods public
+
 	void ICollection<T>.CopyTo(T[] array, int startIndex) => CopyTo(array, startIndex);
 	int IList<T>.IndexOf(T item) => IndexOf(item);
 	void IList<T>.Insert(int index, T item) => PushAt(index, item);
@@ -158,7 +167,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	bool ICollection<T>.Contains(T item) => Contains(item);
 	bool ICollection<T>.Remove(T item) => Remove(item);
 	bool ICollection<T>.IsReadOnly => IsReadOnly;
-#pragma warning restore CA1033
+
 	#endregion IList<T> Implementation =========================================
 
 	#region IList Implementation ===============================================
@@ -170,15 +179,13 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 		if(array == null) {
 			throw Squeal.ArgumentNull(nameof(array));
 		}
-		int count = Storage.Count;
-		var mimic = (object[])array;
 
+		int count = Storage.Count;
 		for(int a = 0, i = count - 1 - startIndex; i >= 0; a++, i--) {
-			mimic[a] = Storage[i];
+			array.SetValue(Storage[i], a);
 		}
 	}
 
-#pragma warning disable CA1033 // Interface methods should be callable by child types - only want stack methods public
 	int IList.Add(object item)
 	{
 		EnsureIsValid(item);
@@ -189,10 +196,7 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 	bool IList.IsFixedSize {
 		get {
-			if(Storage is IList list) {
-				return list.IsFixedSize;
-			}
-			return IsReadOnly;
+			return ((IList)Storage).IsFixedSize;
 		}
 	}
 
@@ -203,19 +207,13 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 
 	bool ICollection.IsSynchronized {
 		get {
-			if(Storage is ICollection col) {
-				return col.IsSynchronized;
-			}
-			return false;
+			return ((ICollection)Storage).IsSynchronized;
 		}
 	}
 
 	object ICollection.SyncRoot {
 		get {
-			if(Storage is ICollection col) {
-				return col.SyncRoot;
-			}
-			return this;
+			return ((ICollection)Storage).SyncRoot;
 		}
 	}
 
@@ -227,8 +225,8 @@ public class StackList<T> : IStackList<T>, IList<T>, IList, IReadOnlyCollection<
 	void IList.Remove(object item) => Remove(EnsureIsValid(item));
 	void IList.RemoveAt(int index) => PopAt(index);
 	bool IList.IsReadOnly => IsReadOnly;
-#pragma warning restore CA1033
 
+	//checks that the incoming object is the same Type used for T in Storage
 	static T EnsureIsValid(object value)
 	{
 		if(!IsValidType(value)) {

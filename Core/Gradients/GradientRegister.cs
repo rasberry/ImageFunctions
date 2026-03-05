@@ -16,6 +16,7 @@ public class GradientRegister : AbstractRegistrant<Lazy<IColorGradient>>
 	internal static void Register(IRegister register)
 	{
 		var reg = new GradientRegister(register);
+		reg.Default("FullRGB");
 		reg.Add("FullRGB", new Lazy<IColorGradient>(() => new FullRGBGradient()));
 		reg.Add("Monochrome", new Lazy<IColorGradient>(() => new MonochromeGradient()));
 		reg.Add("Gimp Abstract 1", new Lazy<IColorGradient>(() => LoadGimpGradient(Gimp_Abstract1)));

@@ -690,6 +690,7 @@ public class MainWindowViewModel : ViewModelBase
 		if(iup is UsageRegistered ur) {
 			//not implementing multiple for register items since i can't think of a use-case
 			var model = RegisteredControlList.First(svm => svm.NameSpace == ur.NameSpace);
+			System.Diagnostics.Trace.WriteLine($"UsageRegistered m:{model == null} n:{model?.NameSpace}");
 			final = new InputItemSync(iup, model) { Alternate = GetAlt(iup.Name) };
 		}
 		else if(it.Is<bool>()) {

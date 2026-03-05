@@ -2,7 +2,6 @@
 using ImageFunctions.Core.FileIO;
 using ImageFunctions.Core.Logging;
 using Rasberry.Cli;
-using System.Diagnostics;
 
 namespace ImageFunctions.Cli;
 
@@ -13,9 +12,9 @@ internal sealed class Program
 {
 	static int Main(string[] args)
 	{
-#if DEBUG
-		Trace.Listeners.Add(new ConsoleTraceListener());
-#endif
+		// #if DEBUG
+		// 		Trace.Listeners.Add(new ConsoleTraceListener());
+		// #endif
 		var log = new LogToConsole();
 
 		try {

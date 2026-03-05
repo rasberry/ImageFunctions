@@ -33,7 +33,7 @@ public class Function : IFunction
 
 	public void Usage(StringBuilder sb)
 	{
-		Options.Usage(sb, Context.Register);
+		Core.Usage(sb, Context.Register);
 	}
 
 	public bool Run(string[] args)
@@ -41,7 +41,7 @@ public class Function : IFunction
 		if (Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Options.ParseArgs(args, Context.Register)) {
+		if (!Core.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 		if(Layers.Count < 1) {
@@ -54,7 +54,7 @@ public class Function : IFunction
 		return true;
 	}
 
-	public IOptions Options { get { return Local; } }
+	public IOptions Core { get { return Local; } }
 	public ILayers Layers { get { return Context.Layers; } }
 	Options Local;
 	IFunctionContext Context;

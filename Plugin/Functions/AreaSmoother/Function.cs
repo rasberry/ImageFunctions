@@ -47,10 +47,10 @@ public class Function : IFunction
 		var frame = Context.Layers.First().Canvas;
 		using var canvas = Context.Options.Engine.Item.Value.NewCanvasFromLayers(Context.Layers);
 		var maxThreads = Context.Options.MaxDegreeOfParallelism.GetValueOrDefault(1);
-		frame.ThreadPixels((x, y) => {
+		frame.ThreadPixels(Context, (x, y) => {
 			var nc = SmoothPixel(frame, x, y);
 			canvas[x, y] = nc;
-		}, Context.Token, maxThreads, Context.Progress);
+		});
 
 		frame.CopyFrom(canvas);
 		return true;

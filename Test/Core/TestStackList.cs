@@ -38,7 +38,7 @@ public class TestStackList
 
 		//enumerable iterates from top of stack down.
 		var test = new char[] { 'D', 'C', 'B', 'A' };
-		Assert.IsTrue(test.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test, stack);
 	}
 
 	[TestMethod]
@@ -50,17 +50,17 @@ public class TestStackList
 		stack.Move(2, 1);
 
 		var test1 = new char[] { 'D', 'B', 'C', 'A' };
-		Assert.IsTrue(test1.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test1, stack);
 
 		stack.Move(3, 1);
 
 		var test2 = new char[] { 'D', 'A', 'B', 'C' };
-		Assert.IsTrue(test2.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test2, stack);
 
 		stack.Move(0, 2);
 
 		var test3 = new char[] { 'A', 'B', 'D', 'C' };
-		Assert.IsTrue(test3.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test3, stack);
 	}
 
 	[TestMethod]
@@ -72,13 +72,13 @@ public class TestStackList
 		stack.PushAt(2, 'E');
 
 		var test1 = new char[] { 'D', 'C', 'E', 'B', 'A' };
-		Assert.IsTrue(test1.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test1, stack);
 
 		var c = stack.PopAt(1);
 
 		Assert.AreEqual('C', c);
 		var test2 = new char[] { 'D', 'E', 'B', 'A' };
-		Assert.IsTrue(test2.SequenceEqual(stack));
+		CollectionAssert.AreEqual(test2, stack);
 	}
 
 	[TestMethod]
@@ -95,5 +95,55 @@ public class TestStackList
 
 		stack[1] = 'E';
 		Assert.AreEqual('E', stack[1]);
+	}
+
+	[TestMethod]
+	public void IListMethods()  // tests for interface functions since Avalonia is using those
+	{
+		var stack = new StackList<char>();
+		System.Collections.IList list = stack;
+		list.Add('A');
+		list.Add('B');
+		list.Add('C');
+		list.Add('D');
+
+		Assert.HasCount(4, list);
+		// should come out in stack order (reversed)
+		Assert.AreEqual('D', list[0]);
+		Assert.AreEqual('C', list[1]);
+		Assert.AreEqual('B', list[2]);
+		Assert.AreEqual('A', list[3]);
+
+#pragma warning disable MSTEST0037 // We want to test the list contains not the Assert version
+		Assert.IsTrue(list.Contains('A'));
+		Assert.IsTrue(list.Contains('D'));
+#pragma warning restore MSTEST0037
+
+		//test GetEnumerator
+		CollectionAssert.AreEqual(new char[] { 'D', 'C', 'B', 'A' }, list);
+
+		var temp = new char[list.Count];
+		list.CopyTo(temp, 0);
+		// should come out in stack order (reversed)
+		CollectionAssert.AreEqual(new char[] { 'D', 'C', 'B', 'A' }, temp);
+
+		list.Insert(4, 'E');
+		Assert.HasCount(5, list);
+		list.Remove('E');
+		Assert.HasCount(4, list);
+
+		list.Add('E');
+		Assert.HasCount(5, list);
+		list.RemoveAt(0);
+		Assert.HasCount(4, list);
+
+		Assert.AreEqual(0, list.IndexOf('D'));
+		Assert.AreEqual(1, list.IndexOf('C'));
+		Assert.AreEqual(2, list.IndexOf('B'));
+		Assert.AreEqual(3, list.IndexOf('A'));
+
+		Assert.IsFalse(list.IsFixedSize);
+		Assert.IsFalse(list.IsReadOnly);
+		Assert.IsFalse(list.IsSynchronized);
 	}
 }

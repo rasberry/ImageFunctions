@@ -105,12 +105,7 @@ public class Function : IFunction
 			}
 		}
 
-		rect.ThreadPixels(
-			CombineBins,
-			Context.Token,
-			Context.Options.MaxDegreeOfParallelism,
-			Context.Progress
-		);
+		rect.ThreadPixels(Context, CombineBins);
 
 		if(!Local.MakeNewLayer) {
 			Layers.Pop();

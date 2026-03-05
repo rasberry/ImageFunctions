@@ -66,7 +66,7 @@ public sealed class Options : IOptions, IUsageProvider
 		static object parsePointHandler(string name, string value)
 		{
 			if(name == "-p") {
-				return OptionsAide.ParsePointSize<Point>(value);
+				return OptionsAide.ParseSeq2Type<Point>(value);
 			}
 			else if(name == "-pp") {
 				return OptionsAide.ParsePointSize(value,
@@ -102,9 +102,9 @@ public sealed class Options : IOptions, IUsageProvider
 		}
 
 		if(PointList.Count < 2) {
-				Log.Error(Note.MissingArgument($"-p / -pp. drawing a line requires at least two points"));
-				return false;
-			}
+			Log.Error(Note.MissingArgument($"-p / -pp. drawing a line requires at least two points"));
+			return false;
+		}
 
 		return true;
 	}

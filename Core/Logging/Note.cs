@@ -110,9 +110,9 @@ public static class Note
 		;
 		return $"{name} must be greater than {(inclusive ? "or equal to " : "")}{w}";
 	}
-	public static string MustNotBeNullOrEmpty()
+	public static string MustNotBeNullOrEmpty(string argName = null)
 	{
-		return "must not be null or empty";
+		return (argName == null ? "" : $"'{argName}' ") + "must not be null or empty";
 	}
 	public static string MustBeSizeInBytes(string name, int sizeInBytes, bool isMin = false)
 	{

@@ -64,4 +64,5 @@ public sealed class ColorSpaceInfo
 {
 	public required string Description { get; init; }
 	public required IEnumerable<string> ComponentNames { get; init; }
+
 }

@@ -120,7 +120,7 @@ public sealed class Options : IOptions, IUsageProvider
 
 		bool done = false;
 		do {
-			if(p.Scan("-p", Point.Empty, Core.Aides.OptionsAide.ParsePointSize<Point>)
+			if(p.Scan("-p", Point.Empty, Core.Aides.OptionsAide.ParseSeq2Type<Point>)
 				.WhenMissing(r => { done = true; return r; })
 				.WhenGood(r => {
 					StartPoints ??= new();

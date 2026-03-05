@@ -382,9 +382,9 @@ public class Function : IFunction
 			return false;
 		}
 
-		inside.ThreadPixels((px, py) => {
+		inside.ThreadPixels(Context, (px, py) => {
 			canvas[px, py] = color;
-		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
+		});
 
 		return true;
 	}
@@ -399,7 +399,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		inside.ThreadPixels((px, py) => {
+		inside.ThreadPixels(Context, (px, py) => {
 			double offset;
 			if(d == Direction.Right) {
 				offset = (px - inside.Left) / (double)inside.Width;
@@ -416,7 +416,7 @@ public class Function : IFunction
 
 			var color = CoreColors.BetweenColor(start, end, offset);
 			canvas[px, py] = color;
-		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
+		});
 		return true;
 	}
 

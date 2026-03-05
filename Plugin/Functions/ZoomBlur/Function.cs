@@ -29,7 +29,6 @@ public class Function : IFunction
 	IFunctionContext Context;
 	Options O;
 	ILayers Layers { get { return Context.Layers; } }
-	ICoreOptions CoreOptions { get { return Context.Options; } }
 
 	public bool Run(string[] args)
 	{
@@ -45,7 +44,7 @@ public class Function : IFunction
 			return false;
 		}
 
-		var engine = CoreOptions.Engine.Item.Value;
+		var engine = Context.Options.Engine.Item.Value;
 
 		var source = Layers.First().Canvas;
 		using var canvas = engine.NewCanvasFromLayers(Layers);
@@ -63,7 +62,7 @@ public class Function : IFunction
 			h2 = bounds.Height * O.CenterRt.Value.Y;
 		}
 
-		ImageFunctions.Core.Aides.ImageAide.ThreadPixels(bounds, (x, y) => {
+		ImageAide.ThreadPixels(bounds, Context, (x, y) => {
 			var d = source[x, y];
 			//Log.Debug($"pixel1 [{x},{y}] = ({d.R} {d.G} {d.B} {d.A})");
 			ColorRGBA nc = ZoomPixel(source, bounds, x, y, w2, h2);
@@ -71,7 +70,7 @@ public class Function : IFunction
 			int cx = x - bounds.Left;
 			//Log.Debug($"pixel2 [{cx},{cy}] = ({nc.R} {nc.G} {nc.B} {nc.A})");
 			canvas[cx, cy] = nc;
-		}, Context.Token, CoreOptions.MaxDegreeOfParallelism, Context.Progress);
+		});
 
 		source.CopyFrom(canvas, bounds);
 		return true;

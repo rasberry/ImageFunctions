@@ -19,7 +19,7 @@ mc:Ignorable="d">
 <Style>
 	<Setter Property="Template">
 		<ControlTemplate>
-
+<Border Classes="TopBorder">
 <CheckBox Classes="InputItem" Theme="{DynamicResource PureCardCheckBox}" IsChecked="{Binding Enabled}">
 	<Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*">
 		<TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding NameDisplay}" HorizontalAlignment="Left" TextAlignment="Left"/>
@@ -45,6 +45,7 @@ mc:Ignorable="d">
 		</Grid>
 	</Grid>
 </CheckBox>
+</Border>
 
 		</ControlTemplate>
 	</Setter>
@@ -62,6 +63,13 @@ mc:Ignorable="d">
 <Style Selector="ContentPresenter.InputItemContentPresenter">
 	<Setter Property="Margin" Value="0,0,0,4" />
 </Style>
+<Style Selector="Border.TopBorder">
+	<Setter Property="Margin" Value="0,4,0,0" />
+	<Setter Property="BorderBrush" Value="{DynamicResource SemiColorBorder}"/>
+	<Setter Property="BorderThickness" Value="0,1,0,0"/>
+</Style>
+
+
 
 </UserControl.Styles>
 </UserControl>

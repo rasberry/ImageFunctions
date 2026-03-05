@@ -89,7 +89,7 @@ public class Function : IFunction
 
 		DoSimulation(canvas.Width, canvas.Height, last, history);
 
-		canvas.ThreadPixels((x, y) => {
+		canvas.ThreadPixels(Context, (x, y) => {
 			var p = new Point(x, y);
 			if(last.Contains(p)) {
 				UpdatePixel(canvas, x, y, CoreColors.White, channel);
@@ -103,7 +103,7 @@ public class Function : IFunction
 			else {
 				UpdatePixel(canvas, x, y, CoreColors.Black, channel);
 			}
-		}, Context.Token, Context.Options.MaxDegreeOfParallelism);
+		});
 	}
 
 	void UpdatePixel(ICanvas canvas, int x, int y, ColorRGBA color, Channel channel)

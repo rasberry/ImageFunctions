@@ -92,7 +92,7 @@ public sealed class Options : IOptions, IUsageProvider
 	public bool ParseArgs(string[] args, IRegister register)
 	{
 		var p = new ParseParams(args);
-		var pointParser = new ParseParams.Parser<Point>(CoreOptions.ParsePointSize<Point>);
+		var pointParser = new ParseParams.Parser<Point>(CoreOptions.ParseSeq2Type<Point>);
 		var colorParser = new ParseParams.Parser<ColorRGBA>(CoreOptions.ParseColor);
 
 		if(p.Has("-f").IsGood()) {
