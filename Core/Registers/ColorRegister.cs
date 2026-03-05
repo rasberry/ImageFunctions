@@ -16,7 +16,7 @@ public class ColorRegister : AbstractRegistrant<ColorRGBA>
 	internal static void Register(IRegister register)
 	{
 		var reg = new ColorRegister(register);
-		var colorEnum = Enum.GetValues(typeof(System.Drawing.KnownColor));
+		var colorEnum = Enum.GetValues<System.Drawing.KnownColor>();
 		foreach(System.Drawing.KnownColor kc in colorEnum) {
 			var sdColor = System.Drawing.Color.FromKnownColor(kc);
 			bool good = sdColor.IsKnownColor && !sdColor.IsSystemColor;

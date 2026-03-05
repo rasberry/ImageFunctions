@@ -29,9 +29,9 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<double>(1, "-f", "Apply flattening to magnitude with given strength (default 2.0)") { Min = 0.01, Max = 20.0, Default = 2.0 },
 				new UsageOne<double>(1, "-go", "Gradient offset 0.0 to 1.0 (default 0.0)") { Min = 0.0, Max = 1.0, Default = 0.0 },
 				new UsageOne<double>(1, "-gs", "Scale gradient by specified multiple (default 2.0)") { Min = 0.0, Max = 1000.0, Default = 2.0},
-				new UsageOne<bool>(1, "-mo", "Use only maginitude for coloring"),
+				new UsageOne<bool>(1, "-mo", "Use only magnitude for coloring"),
 				new UsageOne<bool>(1, "-po", "Use only phase for coloring"),
-				GradientHelpers.GradientUsageParameter(1)
+				GradientHelpers.GradientUsageParameter(1,true)
 			]
 		};
 

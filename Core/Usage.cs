@@ -109,6 +109,9 @@ public static class UsageRenderer
 		else if(t.IsNumeric()) {
 			return isNumPct ? "number[%]" : "number";
 		}
+		else if (t.Is<string>()) {
+			return "text";
+		}
 		else {
 			throw Squeal.NotSupported($"Type {t.Name}");
 		}
