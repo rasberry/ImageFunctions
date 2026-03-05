@@ -1,5 +1,4 @@
-﻿using Avalonia.Logging;
-using ImageFunctions.Core;
+﻿using ImageFunctions.Core;
 using ImageFunctions.Core.Logging;
 using Rasberry.Cli;
 using RazorEngineCore;

@@ -109,7 +109,7 @@ public static class UsageRenderer
 		else if(t.IsNumeric()) {
 			return isNumPct ? "number[%]" : "number";
 		}
-		else if (t.Is<string>()) {
+		else if(t.Is<string>()) {
 			return "text";
 		}
 		else {

@@ -217,7 +217,7 @@ internal sealed class Options : ICoreOptions
 		if(Show.HasFlag(PickShow.Formats)) {
 			ShowFormats(sb);
 		}
-		
+
 		return true;
 	}
 
@@ -226,7 +226,7 @@ internal sealed class Options : ICoreOptions
 		StringBuilder sb = new();
 
 		//build help text based on options
-		if (!BuildUsage(sb)) {
+		if(!BuildUsage(sb)) {
 			return false;
 		}
 
