@@ -3,7 +3,7 @@ using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.Gradients;
 using Rasberry.Cli;
 
-namespace ImageFunctions.Plugin.Functions.PolyPlaneView;
+namespace ImageFunctions.Plugin.Functions.ComplexPlot;
 
 public sealed class Options : IOptions, IUsageProvider
 {
@@ -26,9 +26,11 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<string>(1,"-e", "Math expression evaluated at each pixel"),
 				new UsageOne<RangeD>(1, "-rx", "Horizontal range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0, Default = new RangeD(-2.0,2.0) },
 				new UsageOne<RangeD>(1, "-ry", "Vertical range of window (default -2.0,2.0)") { Min = -20.0, Max = 20.0, Default = new RangeD(-2.0,2.0) },
-				new UsageOne<double>(1, "-l", "Use log scale with given base") { Min = 1.0, Max = 1000.0 },
-				new UsageOne<bool>(1, "-hl", "Use hue, lightness to color the phase, magnitude"),
+				new UsageOne<double>(1, "-f", "Apply flattening to magnitude with given strength (default 2.0)") { Min = 0.01, Max = 20.0, Default = 2.0 },
+				new UsageOne<double>(1, "-go", "Gradient offset 0.0 to 1.0 (default 0.0)") { Min = 0.0, Max = 1.0, Default = 0.0 },
 				new UsageOne<double>(1, "-gs", "Scale gradient by specified multiple (default 2.0)") { Min = 0.0, Max = 1000.0, Default = 2.0},
+				new UsageOne<bool>(1, "-mo", "Use only maginitude for coloring"),
+				new UsageOne<bool>(1, "-po", "Use only phase for coloring"),
 				GradientHelpers.GradientUsageParameter(1)
 			]
 		};
@@ -68,14 +70,6 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		// if(p.ScanMany<double>("-c")
-		// 	.WhenGoodOrMissing(r => { Coefficients = r.Value.ToList(); return r; })
-		// 	.WhenInvalidTellDefault(Log)
-		// 	.IsInvalid()
-		// ) {
-		// 	return false;
-		// }
-
 		if(p.Scan<RangeD>("-rx", new RangeD(-2.0, 2.0), parseRange)
 			.WhenGoodOrMissing(r => { SetMinMax(r.Value, ref MinX, ref MaxX); return r; })
 			.WhenInvalidTellDefault(Log)
@@ -92,8 +86,8 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Scan<double?>("-l")
-			.WhenGoodOrMissing(r => { LogScale = r.Value; return r; })
+		if(p.Scan<double>("-f", 2.0)
+			.WhenGoodOrMissing(r => { FlatPower = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
 		) {
@@ -108,13 +102,19 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if(p.Has("-hl").IsGood()) {
-			UseHueLightness = true;
+		if(p.Scan<double>("-go", 0.0)
+			.WhenGoodOrMissing(r => { GradOffset = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
 		}
-		//grab the default gradient if we're not using HL mode
-		else if(Gradient == null) {
-			var reg = new GradientRegister(register);
-			Gradient = reg.Get("FullRGB").Item;
+
+		if(p.Has("-mo").IsGood()) {
+			MagColorOnly = true;
+		}
+		if(p.Has("-po").IsGood()) {
+			PhaColorOnly = true;
 		}
 
 		return true;
@@ -128,7 +128,9 @@ public sealed class Options : IOptions, IUsageProvider
 	public double MaxX;
 	public double MinY;
 	public double MaxY;
-	public double? LogScale;
-	public bool UseHueLightness;
+	public double FlatPower;
+	public bool MagColorOnly;
+	public bool PhaColorOnly;
 	public double GradientScale;
+	public double GradOffset;
 }

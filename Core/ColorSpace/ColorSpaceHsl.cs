@@ -1,13 +1,25 @@
 namespace ImageFunctions.Core.ColorSpace;
 
 // https://en.wikipedia.org/wiki/HSL_and_HSV
+// https://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
 public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, ILumaColorSpace
 {
 	public ColorRGBA ToNative(in HSL o)
 	{
-		double c = (1.0 - Math.Abs(2 * o.L - 1.0)) * o.S;
-		double m = o.L - c / 2.0;
-		var (r, g, b) = HueToRgb(o.H, c, m);
+		double a = o.S * Math.Min(o.L, 1.0 - o.L);
+
+		double findFace(HSL c, double n)
+		{
+			double k = (n + c.H * 12) % 12;
+			double min = Math.Min(Math.Min(k - 3, 9 - k), 1);
+			double f = c.L - a * Math.Max(min,-1);
+			return f;
+		}
+
+		double r = findFace(o,0);
+		double g = findFace(o,8);
+		double b = findFace(o,4);
+
 		return new ColorRGBA(r, g, b, o.A);
 	}
 
@@ -54,10 +66,10 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 			H = h; S = s; L = l; A = a;
 		}
 
-		public double H { get; }
-		public double S { get; }
-		public double L { get; }
-		public double A { get; }
+		public double H { init; get; }
+		public double S { init; get; }
+		public double L { init; get; }
+		public double A { init; get; }
 
 		double IColor3.C1 { get { return H; } }
 		double IColor3.C2 { get { return S; } }
