@@ -1,5 +1,7 @@
-﻿using ImageFunctions.Core;
+﻿using Avalonia.Logging;
+using ImageFunctions.Core;
 using ImageFunctions.Core.Logging;
+using Rasberry.Cli;
 using RazorEngineCore;
 using System.Text;
 
@@ -24,6 +26,7 @@ class Program
 
 	static void Setup()
 	{
+		PrintHelper.OutputWidth = int.MaxValue; //don't wrap usage lines
 		var cp = System.Diagnostics.Process.GetCurrentProcess();
 		cp.PriorityClass = System.Diagnostics.ProcessPriorityClass.BelowNormal;
 
@@ -52,11 +55,15 @@ class Program
 		var allFun = funReg.All().ToList();
 		allFun.Sort();
 
+		var model = new WikiModel {
+			FunctionList = allFun,
+			Usage = GetFullUsageFromCli()
+		};
+
 		foreach(var path in fileList) {
 			if(path.Contains("function.md-razor")) { continue; }
 			var text = File.ReadAllText(path);
 			var template = Engine.Compile(text);
-			var model = new WikiModel { FunctionList = allFun };
 			string renText = template.Run(model);
 			var funName = Path.GetFileNameWithoutExtension(path);
 			var outPath = Path.Combine(WikiFolder, Path.ChangeExtension(funName, ".md"));
@@ -195,8 +202,16 @@ class Program
 		}
 	}
 
+	static string GetFullUsageFromCli()
+	{
+		var sb = new StringBuilder();
+		var cliOpts = new Cli.Options(Register, Log) { Show = Cli.Options.PickShow.All };
+		cliOpts.BuildUsage(sb);
+		return sb.ToString();
+	}
+
 	static string RootFolder;
-	static string ProjectFolder { get { return Path.Combine(ProjectRoot, "Writer"); } }
+	//static string ProjectFolder { get { return Path.Combine(ProjectRoot, "Writer"); } }
 	static string ViewFolder { get { return Path.Combine(ProjectRoot, "Writer", "Views"); } }
 	static string WikiFolder { get { return Path.Combine(ProjectRoot, "wiki"); } }
 	static string ImgFolder { get { return Path.Combine(ProjectRoot, "wiki", "img"); } }

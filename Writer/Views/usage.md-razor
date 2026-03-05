@@ -1,0 +1,7 @@
+@inherits ImageFunctions.Writer.WikiTemplate
+# Image Functions #
+
+## Usage ##
+```
+@Model.Usage
+```

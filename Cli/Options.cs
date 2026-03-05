@@ -45,7 +45,7 @@ internal sealed class Options : ICoreOptions
 		sb.ND(0, "Usage: " + nameof(ImageFunctions) + " [options] [function name] [-- function options]");
 		sb.WT();
 		sb.WT(0, "Options:");
-		sb.ND(1, "-h / --help", "Show help / full help (provide a function name to show only that help instead");
+		sb.ND(1, "-h / --help", "Show help / full help (provide a function name to show only that help instead)");
 		sb.ND(1, "-i / --image (file)", "Load this image as a layer. Supports images with multiple layers");
 		sb.ND(1, "-# / --size (width) (height)", "Set the default size in pixels when no images are loaded");
 		sb.ND(1, "-f / --format (name)", "Save any output files as specified (engine supported) format");
@@ -187,10 +187,8 @@ internal sealed class Options : ICoreOptions
 		return true;
 	}
 
-	public bool ProcessOptions()
+	public bool BuildUsage(StringBuilder sb)
 	{
-		StringBuilder sb = new StringBuilder();
-
 		//show normal options and function options
 		if(Show.HasFlag(PickShow.Usage)) {
 			Usage(sb, Register);
@@ -218,6 +216,18 @@ internal sealed class Options : ICoreOptions
 		//show formats
 		if(Show.HasFlag(PickShow.Formats)) {
 			ShowFormats(sb);
+		}
+		
+		return true;
+	}
+
+	public bool ProcessOptions()
+	{
+		StringBuilder sb = new();
+
+		//build help text based on options
+		if (!BuildUsage(sb)) {
+			return false;
 		}
 
 		//if there's any help to print do so now
@@ -384,7 +394,7 @@ internal sealed class Options : ICoreOptions
 	//Options only helper parameters
 	string HelpNameSpace;
 	string EngineName;
-	PickShow Show = PickShow.None;
+	internal PickShow Show = PickShow.None;
 	readonly List<string> _imageFileNames = new();
 	string _functionName;
 	string _imageFormat;
@@ -407,7 +417,7 @@ internal sealed class Options : ICoreOptions
 	public int? DefaultHeight { get { return _defaultHeight; } }
 
 	[Flags]
-	enum PickShow
+	internal enum PickShow
 	{
 		None = 0,
 		Usage = 1,

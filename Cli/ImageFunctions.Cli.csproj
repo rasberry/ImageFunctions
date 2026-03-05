@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj" />
     <InternalsVisibleTo Include="ImageFunctions.Test" />
+    <InternalsVisibleTo Include="ImageFunctions.Writer" />
   </ItemGroup>
 
 </Project>
