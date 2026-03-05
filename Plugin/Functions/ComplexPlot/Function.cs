@@ -55,7 +55,7 @@ public class Function : IFunction
 		//Test that the expression works
 		var mathEval = new MathComplexCompiled();
 		var evalResult = mathEval.PrepareExpression(Local.Expression);
-		if (evalResult.ErrorCount > 0) {
+		if(evalResult.ErrorCount > 0) {
 			Context.Log.Error($"Failed expression: '{Local.Expression}'");
 			Context.Log.Error(evalResult.ErrorMessage);
 			return false;
@@ -82,10 +82,10 @@ public class Function : IFunction
 		//fill in pixels
 		image.ThreadPixels(Context, (x, y) => {
 			var calc = CalcComplex(x, y);
-			if (Complex.IsNaN(calc)) { calc = Complex.Zero; }
+			if(Complex.IsNaN(calc)) { calc = Complex.Zero; }
 
 			var mag = calc.Magnitude;
-			var scaled = 2.0 * Math.Atan(mag)/Math.PI;
+			var scaled = 2.0 * Math.Atan(mag) / Math.PI;
 			scaled = FlattenMid(scaled, Local.FlatPower);
 
 			var color = colorFunc(scaled, calc.Phase);
@@ -104,15 +104,15 @@ public class Function : IFunction
 
 		return true;
 	}
-		
+
 	//not sure what this function is called (hill function?)
 	// x^k / (x^k + (1-x)^k) <=> 1 / (1 + ((1-x)/x)^k)
 	static double FlattenMid(double x, double strength)
 	{
-		if (strength == 1.0) { return x; }
+		if(strength == 1.0) { return x; }
 		double s = 1.0 / strength;
 
-		double px = Math.Pow((1.0-x)/x,s);
+		double px = Math.Pow((1.0 - x) / x, s);
 		return 1.0 / (1.0 + px);
 	}
 
@@ -124,7 +124,7 @@ public class Function : IFunction
 
 	ColorRGBA ColorGradPha(double mag, double ph)
 	{
-		return ColorGrad(0.5,ph);
+		return ColorGrad(0.5, ph);
 	}
 
 	ColorRGBA ColorGrad(double mag, double ph)
@@ -149,12 +149,12 @@ public class Function : IFunction
 
 	ColorRGBA ColorHLMag(double mag, double ph)
 	{
-		return ColorHL(mag,0.0);
+		return ColorHL(mag, 0.0);
 	}
 
 	ColorRGBA ColorHLPha(double mag, double ph)
 	{
-		return ColorHL(0.5,ph);
+		return ColorHL(0.5, ph);
 	}
 
 	public IOptions Core { get { return Local; } }

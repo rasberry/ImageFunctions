@@ -57,7 +57,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (String.IsNullOrWhiteSpace(Expression)) {
+		if(String.IsNullOrWhiteSpace(Expression)) {
 			Log.Error(Note.MustNotBeNullOrEmpty("-e"));
 			return false;
 		}

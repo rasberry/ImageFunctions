@@ -12,13 +12,13 @@ public class ColorSpaceHsl : ColorSpaceHSBase, IColor3Space<ColorSpaceHsl.HSL>, 
 		{
 			double k = (n + c.H * 12) % 12;
 			double min = Math.Min(Math.Min(k - 3, 9 - k), 1);
-			double f = c.L - a * Math.Max(min,-1);
+			double f = c.L - a * Math.Max(min, -1);
 			return f;
 		}
 
-		double r = findFace(o,0);
-		double g = findFace(o,8);
-		double b = findFace(o,4);
+		double r = findFace(o, 0);
+		double g = findFace(o, 8);
+		double b = findFace(o, 4);
 
 		return new ColorRGBA(r, g, b, o.A);
 	}

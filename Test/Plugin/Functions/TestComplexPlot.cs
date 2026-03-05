@@ -39,13 +39,13 @@ public class TestComplexPlot : AbstractFunctionTest
 	public static IEnumerable<TestFunctionInfo> GetFunctionInfo()
 	{
 		yield return CreateTestInfo(0, new string[] { "-e", Eq1 });
-		yield return CreateTestInfo(1, new string[] { "-e", Eq1, "--gradient", Grad,"-gs","4","-go","0.5" });
-		yield return CreateTestInfo(2, new string[] { "-e", Eq1, "--gradient", Grad,"-gs","4","-mo" });
-		yield return CreateTestInfo(3, new string[] { "-e", Eq1, "-f","1.0" });
+		yield return CreateTestInfo(1, new string[] { "-e", Eq1, "--gradient", Grad, "-gs", "4", "-go", "0.5" });
+		yield return CreateTestInfo(2, new string[] { "-e", Eq1, "--gradient", Grad, "-gs", "4", "-mo" });
+		yield return CreateTestInfo(3, new string[] { "-e", Eq1, "-f", "1.0" });
 		yield return CreateTestInfo(4, new string[] { "-e", Eq1, "-mo" });
 		yield return CreateTestInfo(5, new string[] { "-e", Eq2 });
-		yield return CreateTestInfo(6, new string[] { "-e", Eq2,"-rx", "-4,4", "-ry", "-4,4" });
-		yield return CreateTestInfo(7, new string[] { "-e", Eq2 ,"-po"});
+		yield return CreateTestInfo(6, new string[] { "-e", Eq2, "-rx", "-4,4", "-ry", "-4,4" });
+		yield return CreateTestInfo(7, new string[] { "-e", Eq2, "-po" });
 	}
 
 	static TestFunctionInfo CreateTestInfo(int num, string[] args)
