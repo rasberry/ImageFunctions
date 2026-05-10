@@ -1,5 +1,6 @@
 #nullable enable
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.GestureRecognizers;
 using Avalonia.Interactivity;
@@ -109,7 +110,8 @@ public class MouseScrollGesture : GestureRecognizer
 		EndGesture();
 		_tracking = e.Pointer;
 		_gestureId = ScrollGestureEventArgs.GetNextFreeId();
-		_rootTarget = (Visual?)(Target as Visual)?.GetVisualRoot();
+		_rootTarget = TopLevel.GetTopLevel(Target as Visual)?.GetVisualParent();
+		//_rootTarget = (Visual?)(Target as Visual)?.GetVisualRoot();
 		_trackedRootPoint = _pointerPressedPoint = e.GetPosition(_rootTarget);
 		_velocityTracker = new MyVelocityTracker();
 		_velocityTracker?.AddPosition(TimeSpan.FromMilliseconds(e.Timestamp), default);
@@ -588,7 +590,14 @@ public sealed class MyScrollGestureInertiaStartingEventArgs : RoutedEventArgs
 	public int Id { get; }
 	public Vector Inertia { get; }
 
-	internal MyScrollGestureInertiaStartingEventArgs(int id, Vector inertia) : base(Gestures.ScrollGestureInertiaStartingEvent)
+	//TODO no idea what changing this does
+	// internal MyScrollGestureInertiaStartingEventArgs(int id, Vector inertia) : base(Gestures.ScrollGestureInertiaStartingEvent)
+	// {
+	// 	Id = id;
+	// 	Inertia = inertia;
+	// }
+
+	internal MyScrollGestureInertiaStartingEventArgs(int id, Vector inertia) : base()
 	{
 		Id = id;
 		Inertia = inertia;

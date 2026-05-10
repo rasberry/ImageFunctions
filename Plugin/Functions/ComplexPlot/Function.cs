@@ -98,7 +98,7 @@ public class Function : IFunction
 			double my = y * (Local.MaxY - Local.MinY) / image.Height + Local.MinY;
 			Complex point = new(mx, -my); //flip y to match traditional geometric axes
 
-			var result = evaluator.Evaluate(point);
+			var result = evaluator.Evaluate(); //TODO fixed in feature/smooth
 			return result;
 		}
 
