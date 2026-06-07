@@ -22,7 +22,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		}
 
 		layerName ??= clerk.GetLabel(null);
-		var image = Image.Load<RgbaD>(clerk.ReadStream());
+		var image = Image.Load<Rgba256>(clerk.ReadStream());
 
 		//for images with one frame just use the original
 		if(image.Frames.Count == 1) {
@@ -40,12 +40,12 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 				int w = frame.Width;
 				int h = frame.Height;
 
-				var layer = new Image<RgbaD>(w, h);
-				var memory = new RgbaD[w * h];
-				var span = new Span<RgbaD>(memory);
+				var layer = new Image<Rgba256>(w, h);
+				var memory = new Rgba256[w * h];
+				var span = new Span<Rgba256>(memory);
 
 				frame.CopyPixelDataTo(span);
-				var copy = Image.LoadPixelData<RgbaD>(span, w, h);
+				var copy = Image.LoadPixelData<Rgba256>(span, w, h);
 				var lay = new SLCanvas(copy);
 				//push to the end so that the order does not get reversed
 				layers.PushAt(layers.Count, lay, clerk.GetLabel(layerName, null, $"{++count}"));
@@ -115,7 +115,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 		else {
 			//copy all frames into a single image
 			var firstImg = (SLCanvas)layers.First().Canvas;
-			using var final = new Image<RgbaD>(firstImg.Width, firstImg.Height);
+			using var final = new Image<Rgba256>(firstImg.Width, firstImg.Height);
 
 			foreach(var lay in layers) {
 				var native = (SLCanvas)lay.Canvas;
@@ -138,7 +138,7 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 	/// <inheritdoc/>
 	public ICanvas NewCanvas(int width, int height)
 	{
-		var native = new Image<RgbaD>(width, height);
+		var native = new Image<Rgba256>(width, height);
 		var img = new SLCanvas(native);
 		return img;
 	}
@@ -150,18 +150,18 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			throw Squeal.ArgumentNull(nameof(image));
 		}
 
-		var opts = new DrawingOptions {
-			GraphicsOptions = new GraphicsOptions { Antialias = true }
-		};
-		var rgba = new RgbaD { R = color.R, G = color.G, B = color.B, A = color.A };
-		var c = new Color(rgba.ToScaledVector4());
+		var rgba = new Rgba256 { R = color.R, G = color.G, B = color.B, A = color.A };
 		var f0 = new PointF((float)p0.X, (float)p0.Y);
 		var f1 = new PointF((float)p1.X, (float)p1.Y);
 
 		var wrap = (SLCanvas)image;
-		wrap.Image.Mutate((ctx) => {
-			ctx.DrawLine(opts, c, (float)width, f0, f1);
-		});
+		wrap.Image.Mutate(ctx => ctx.Paint(canvas => {
+			ctx.SetGraphicsOptions(opts => {
+				opts.Antialias = true;
+			});
+			var pen = Pens.Solid(Color.FromPixel(rgba), (float)width);
+			canvas.DrawLine(pen, f0, f1);
+		}));
 	}
 
 	/// <inheritdoc/>
@@ -253,12 +253,12 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 
 class SLCanvas : ICanvas
 {
-	public SLCanvas(Image<RgbaD> image)
+	public SLCanvas(Image<Rgba256> image)
 	{
 		Image = image;
 	}
 
-	internal Image<RgbaD> Image;
+	internal Image<Rgba256> Image;
 
 	public ColorRGBA this[int x, int y] {
 		get {
@@ -266,7 +266,7 @@ class SLCanvas : ICanvas
 			return new ColorRGBA(ipix.R, ipix.G, ipix.B, ipix.A);
 		}
 		set {
-			var xpix = new RgbaD { R = value.R, G = value.G, B = value.B, A = value.A };
+			var xpix = new Rgba256 { R = value.R, G = value.G, B = value.B, A = value.A };
 			Image[x, y] = xpix;
 		}
 	}
@@ -280,12 +280,13 @@ class SLCanvas : ICanvas
 	}
 }
 
+//Named Rgba256 following SixLabors convention (64*4)
 //since native type is double, using a double based color should minimize conversions
 // admittedly using 64bit floats for each component is slightly excessive but
-// double and float seem to be about the same speed so might as well use the better precision
-struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
+// double and float seem to be about the same speed 🤷 so might as well use the better precision
+struct Rgba256 : IEquatable<Rgba256>, IPixel<Rgba256>
 {
-	public RgbaD(double r, double g, double b, double a)
+	public Rgba256(double r, double g, double b, double a)
 	{
 		R = Math.Clamp(r, 0.0, 1.0);
 		G = Math.Clamp(g, 0.0, 1.0);
@@ -295,7 +296,7 @@ struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 
 	public double R, G, B, A;
 
-	public static bool operator ==(RgbaD lhs, RgbaD rhs)
+	public static bool operator ==(Rgba256 lhs, Rgba256 rhs)
 	{
 		return
 			   lhs.R == rhs.R
@@ -305,19 +306,19 @@ struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 		;
 	}
 
-	public static bool operator !=(RgbaD lhs, RgbaD rhs)
+	public static bool operator !=(Rgba256 lhs, Rgba256 rhs)
 	{
 		return !(lhs == rhs);
 	}
 
-	public readonly bool Equals(RgbaD compare)
+	public readonly bool Equals(Rgba256 compare)
 	{
 		return this == compare;
 	}
 
 	public override readonly bool Equals(object compare)
 	{
-		var right = (RgbaD)compare;
+		var right = (Rgba256)compare;
 		return this == right;
 	}
 
@@ -326,38 +327,50 @@ struct RgbaD : IEquatable<RgbaD>, IPixel<RgbaD>
 		return HashCode.Combine(R, G, B, A);
 	}
 
-	public readonly PixelOperations<RgbaD> CreatePixelOperations()
+	public static PixelOperations<Rgba256> CreatePixelOperations()
 	{
-		return new PixelOperations<RgbaD>();
+		return PixelOperations<Rgba256>.Instance;
 	}
 
-	public void FromScaledVector4(Vector4 v)
+	public static PixelTypeInfo GetPixelTypeInfo()
 	{
-		this.R = v.X;
-		this.G = v.Y;
-		this.B = v.Z;
-		this.A = v.W;
+		Rgba32.GetPixelTypeInfo();
+		return PixelTypeInfo.Create<Rgba256>(
+			PixelComponentInfo.Create<Rgba256>(4, 64, 64, 64, 64),
+			PixelColorType.RGB | PixelColorType.Alpha,
+			PixelAlphaRepresentation.Unassociated
+		);
+	}
+
+	public static Rgba256 FromAbgr32(Abgr32 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromArgb32(Argb32 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromBgr24(Bgr24 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromBgra32(Bgra32 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromBgra5551(Bgra5551 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromL16(L16 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromL8(L8 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromLa16(La16 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromLa32(La32 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromRgb24(Rgb24 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromRgb48(Rgb48 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromRgba32(Rgba32 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromRgba64(Rgba64 source) { return FromScaledVector4(source.ToScaledVector4()); }
+	public static Rgba256 FromVector4(Vector4 source) { return FromScaledVector4(source); }
+	public readonly Rgba32 ToRgba32() { return Rgba32.FromScaledVector4(ToScaledVector4()); }
+	public readonly Vector4 ToVector4() { return ToScaledVector4(); }
+
+	public static Rgba256 FromScaledVector4(Vector4 source)
+	{
+		return new Rgba256 {
+			R = source.X,
+			G = source.Y,
+			B = source.Z,
+			A = source.W,
+		};
 	}
 
 	public readonly Vector4 ToScaledVector4()
 	{
 		return new Vector4((float)R, (float)G, (float)B, (float)A);
 	}
-	public void FromVector4(Vector4 v) { FromScaledVector4(v); }
-	public readonly Vector4 ToVector4() { return ToScaledVector4(); }
-	public readonly void ToRgba32(ref Rgba32 dest) { dest.FromScaledVector4(ToScaledVector4()); }
-
-	public void FromArgb32(Argb32 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromBgra5551(Bgra5551 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromBgr24(Bgr24 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromBgra32(Bgra32 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromL8(L8 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromL16(L16 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromLa16(La16 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromLa32(La32 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromRgb24(Rgb24 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromRgba32(Rgba32 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromRgb48(Rgb48 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromRgba64(Rgba64 source) { FromScaledVector4(source.ToScaledVector4()); }
-	public void FromAbgr32(Abgr32 source) { FromScaledVector4(source.ToScaledVector4()); }
 }
