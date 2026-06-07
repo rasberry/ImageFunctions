@@ -22,10 +22,14 @@ public sealed class Options : IOptions, IUsageProvider
 		var u = new Usage {
 			Description = new UsageDescription(1, "Removes similar colored outside edges from an image"),
 			Parameters = [
+				new UsageOne<TrimKind>(1, "-t", $"Type of trim (default {nameof(TrimKind.EdgeStripe)})") { Default = TrimKind.EdgeStripe },
 				new UsageOne<ColorRGBA>(1, "-c", "Use this color as the edge color"),
 				new UsageOne<double>(1, "-f", "Fuzz factor or how much deviation to allow [0-100%] (default 0)") { Default = 0.0, Min = 0.0, Max = 1.0, IsNumberPct = true },
 				new UsageOne<bool>(1, "-t", "Replace trimmed pixels with transparecy instead of cropping"),
 				new UsageOne<bool>(1, "-nl", "Keep original layer instead of replacing it")
+			],
+			EnumParameters = [
+				new UsageEnum<TrimKind>(1, "Available Trim Types") { DescriptionMap = TrimDesc }
 			]
 		};
 
@@ -63,6 +67,14 @@ public sealed class Options : IOptions, IUsageProvider
 			KeepOrigLayer = true;
 		}
 
+		if (p.Scan<TrimKind>("-t", TrimKind.EdgeStripe)
+			.WhenGoodOrMissing(r => { TrimType = r.Value; return r; })
+			.WhenInvalidTellDefault(Log)
+			.IsInvalid()
+		) {
+			return false;
+		}
+
 		if (Fuzz< 0.0 || Fuzz > 1.0) {
 			Log.Error(Note.MustBeBetween("-f","0.0 / 0%","1.0 / 100%"));
 			return false;
@@ -71,6 +83,22 @@ public sealed class Options : IOptions, IUsageProvider
 		return true;
 	}
 
+	public enum TrimKind
+	{
+		EdgeStripe,
+		DwindleTrim
+	}
+
+	static string TrimDesc(TrimKind kind)
+	{
+		return kind switch {
+			TrimKind.EdgeStripe => "Trim 1px stripes outside-in based on similarity accross stipe",
+			TrimKind.DwindleTrim => "Trim by reducing image size and colors to remove border color variability",
+			_ => ""
+		};
+	}
+
+	public TrimKind TrimType;
 	public double Fuzz;
 	public ColorRGBA? BackColor;
 	public bool FillTransparent;

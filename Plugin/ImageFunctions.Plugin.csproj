@@ -13,7 +13,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
     <InternalsVisibleTo Include="ImageFunctions.Writer" />
-    <PackageReference Include="Rasberry.MathEval" Version="0.0.8" />
+    <PackageReference Include="Rasberry.MathEval" Version="0.1.0" />
 
     <!-- references to anything also referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
@@ -24,9 +24,9 @@
         <Private>false</Private>
         <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.13.0" />
-    <PackageReference Include="skiasharp" Version="3.119.2" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
+    <PackageReference Include="Magick.NET-Q16-HDRI-AnyCPU" Version="14.14.0" />
+    <PackageReference Include="skiasharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" Condition="$([MSBuild]::IsOsPlatform('Linux'))" />
     <PackageReference Include="SkiaSharp.NativeAssets.macOS" Version="2.88.6" Condition="$([MSBuild]::IsOsPlatform('OSX'))" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.2" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
   </ItemGroup>
