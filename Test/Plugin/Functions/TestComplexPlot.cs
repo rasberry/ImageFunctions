@@ -4,7 +4,6 @@ using System.Drawing;
 namespace ImageFunctions.Test.Plugin.Functions;
 
 [TestClass]
-[DoNotParallelize]
 public class TestComplexPlot : AbstractFunctionTest
 {
 	const int TestSizePixels = 256;
