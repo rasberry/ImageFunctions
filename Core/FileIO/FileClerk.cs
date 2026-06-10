@@ -38,7 +38,7 @@ public sealed class FileClerk : IFileClerk
 		}
 
 		var loc = TransformLocation(Location, ext, tag);
-		System.Diagnostics.Trace.WriteLine($"Location={Location} loc={loc}");
+		//System.Diagnostics.Trace.WriteLine($"Location={Location} loc={loc}");
 
 		var fs = FileIOInst.OpenForReading(loc);
 		OneStream = new WatchedStream(fs, Progress);

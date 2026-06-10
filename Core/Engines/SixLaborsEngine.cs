@@ -156,9 +156,9 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 
 		var wrap = (SLCanvas)image;
 		wrap.Image.Mutate(ctx => ctx.Paint(canvas => {
-			ctx.SetGraphicsOptions(opts => {
-				opts.Antialias = true;
-			});
+			// ctx.SetGraphicsOptions(opts => {
+			// 	opts.Antialias = true;
+			// });
 			var pen = Pens.Solid(Color.FromPixel(rgba), (float)width);
 			canvas.DrawLine(pen, f0, f1);
 		}));
@@ -196,6 +196,9 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat => false,
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => true,
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => false,
+			SixLabors.ImageSharp.Formats.Exr.ExrFormat => false,
+			SixLabors.ImageSharp.Formats.Ico.IcoFormat => true,
+			SixLabors.ImageSharp.Formats.Cur.CurFormat => true,
 			_ => throw Squeal.FormatIsNotSupported(format.Name)
 		};
 		return isFramey;
@@ -213,6 +216,9 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Tga.TgaFormat => ".tga",
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => ".tif",
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => ".webp",
+			SixLabors.ImageSharp.Formats.Exr.ExrFormat => ".exr",
+			SixLabors.ImageSharp.Formats.Ico.IcoFormat => ".ico",
+			SixLabors.ImageSharp.Formats.Cur.CurFormat => ".cur",
 			_ => throw Squeal.FormatIsNotSupported(format.Name)
 		};
 		return ext;
@@ -227,9 +233,12 @@ public class SixLaborsEngine : IImageEngine, IDrawEngine
 			SixLabors.ImageSharp.Formats.Pbm.PbmFormat => "image/x-portable-bitmap",
 			SixLabors.ImageSharp.Formats.Png.PngFormat => "image/png",
 			SixLabors.ImageSharp.Formats.Qoi.QoiFormat => "image/qoi", // https://gitlab.freedesktop.org/xdg/shared-mime-info/-/blob/master/data/freedesktop.org.xml.in
-			SixLabors.ImageSharp.Formats.Tga.TgaFormat => "image/x-targa",
+			SixLabors.ImageSharp.Formats.Tga.TgaFormat => "image/x-tga", // https://en.wikipedia.org/wiki/Truevision_TGA#MIME_type
 			SixLabors.ImageSharp.Formats.Tiff.TiffFormat => "image/tiff",
 			SixLabors.ImageSharp.Formats.Webp.WebpFormat => "image/webp",
+			SixLabors.ImageSharp.Formats.Exr.ExrFormat => "image/x-exr",
+			SixLabors.ImageSharp.Formats.Ico.IcoFormat => " image/x-icon", // https://en.wikipedia.org/wiki/ICO_%28file_format%29#MIME_type
+			SixLabors.ImageSharp.Formats.Cur.CurFormat => " image/x-icon", // https://en.wikipedia.org/wiki/CUR_%28file_format%29#MIME_type
 			_ => throw Squeal.FormatIsNotSupported(format.Name)
 		};
 		return ext;
@@ -318,6 +327,7 @@ struct Rgba256 : IEquatable<Rgba256>, IPixel<Rgba256>
 
 	public override readonly bool Equals(object compare)
 	{
+		if(compare == null) { return false; }
 		var right = (Rgba256)compare;
 		return this == right;
 	}
@@ -329,7 +339,7 @@ struct Rgba256 : IEquatable<Rgba256>, IPixel<Rgba256>
 
 	public static PixelOperations<Rgba256> CreatePixelOperations()
 	{
-		return PixelOperations<Rgba256>.Instance;
+		return new PixelOperations<Rgba256>();
 	}
 
 	public static PixelTypeInfo GetPixelTypeInfo()

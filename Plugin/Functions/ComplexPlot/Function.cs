@@ -1,6 +1,7 @@
 using ImageFunctions.Core;
 using ImageFunctions.Core.Aides;
 using ImageFunctions.Core.ColorSpace;
+using Rasberry.MathEval;
 using Rasberry.MathEval.MathComplex;
 using System.Numerics;
 
@@ -55,6 +56,7 @@ public class Function : IFunction
 		//Test that the expression works
 		var mathEval = new MathComplexCompiled();
 		var evalResult = mathEval.PrepareExpression(Local.Expression);
+		//System.Diagnostics.Trace.WriteLine($"## E:{evalResult.ErrorCount} M:{evalResult.ErrorMessage} V:{(evalResult.Evaluator == null ? "null":"good")}");
 		if(evalResult.ErrorCount > 0) {
 			Context.Log.Error($"Failed expression: '{Local.Expression}'");
 			Context.Log.Error(evalResult.ErrorMessage);
@@ -94,11 +96,12 @@ public class Function : IFunction
 
 		Complex CalcComplex(int x, int y)
 		{
+			//System.Diagnostics.Trace.WriteLine($"V:{(evaluator==null?"null":"good")}");
 			double mx = x * (Local.MaxX - Local.MinX) / image.Width + Local.MinX;
 			double my = y * (Local.MaxY - Local.MinY) / image.Height + Local.MinY;
 			Complex point = new(mx, -my); //flip y to match traditional geometric axes
-
-			var result = evaluator.Evaluate(); //TODO fixed in feature/smooth
+			var variables = new VariableManager() { { "z", point } };
+			var result = evaluator.Evaluate(variables);
 			return result;
 		}
 

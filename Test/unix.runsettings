@@ -2,7 +2,7 @@
 <RunSettings>
 
   <RunConfiguration>
-    <ResultsDirectory>/dev/null</ResultsDirectory>
+    <ResultsDirectory>/tmp</ResultsDirectory>
   </RunConfiguration>
 
 </RunSettings>

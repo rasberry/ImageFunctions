@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- <Nullable>enable</Nullable> -->
     <OutputPath>../artifacts/build</OutputPath>
@@ -13,7 +13,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="ImageFunctions.Test" />
     <InternalsVisibleTo Include="ImageFunctions.Writer" />
-    <PackageReference Include="Rasberry.MathEval" Version="0.1.0" />
+    <PackageReference Include="Rasberry.MathEval" Version="0.1.2" />
 
     <!-- references to anything also referenced by Core must be <Private>false</Private> -->
     <ProjectReference Include="..\Core\ImageFunctions.Core.csproj">
