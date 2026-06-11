@@ -44,7 +44,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return ExtraParsers.ParseNumberPercent(n);
 		});
 
-		if (p.Scan<ColorRGBA?>("-c", null)
+		if(p.Scan<ColorRGBA?>("-c", null)
 			.WhenGoodOrMissing(r => { BackColor = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -52,7 +52,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Scan<double>("-f", 0.0, pctParser)
+		if(p.Scan<double>("-f", 0.0, pctParser)
 			.WhenGoodOrMissing(r => { Fuzz = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -60,14 +60,14 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Has("-r").IsGood()) {
+		if(p.Has("-r").IsGood()) {
 			FillTransparent = true;
 		}
-		if (p.Has("-nl").IsGood()) {
+		if(p.Has("-nl").IsGood()) {
 			KeepOrigLayer = true;
 		}
 
-		if (p.Scan<TrimKind>("-t", TrimKind.EdgeStripe)
+		if(p.Scan<TrimKind>("-t", TrimKind.EdgeStripe)
 			.WhenGoodOrMissing(r => { TrimType = r.Value; return r; })
 			.WhenInvalidTellDefault(Log)
 			.IsInvalid()
@@ -75,8 +75,8 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (Fuzz< 0.0 || Fuzz > 1.0) {
-			Log.Error(Note.MustBeBetween("-f","0.0 / 0%","1.0 / 100%"));
+		if(Fuzz < 0.0 || Fuzz > 1.0) {
+			Log.Error(Note.MustBeBetween("-f", "0.0 / 0%", "1.0 / 100%"));
 			return false;
 		}
 

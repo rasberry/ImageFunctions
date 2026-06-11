@@ -59,7 +59,7 @@ public class Function : IFunction
 		Context.Log.Debug($"T={area.Top} B={area.Bottom} L={area.Left} R={area.Right} W={area.Width} H={area.Height}");
 
 		var final = Local.FillTransparent
-			? FillTransparent(canvas,area)
+			? FillTransparent(canvas, area)
 			: CropCanvas(canvas, area)
 		;
 		if(Local.KeepOrigLayer) { Layers.Push(orig); }
