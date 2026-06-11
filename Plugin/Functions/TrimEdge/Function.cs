@@ -27,10 +27,10 @@ public class Function : IFunction
 
 	public bool Run(string[] args)
 	{
-		if (Layers == null) {
+		if(Layers == null) {
 			throw Squeal.ArgumentNull(nameof(Layers));
 		}
-		if (!Core.ParseArgs(args, Context.Register)) {
+		if(!Core.ParseArgs(args, Context.Register)) {
 			return false;
 		}
 		if(Layers.Count < 1) {
@@ -38,16 +38,32 @@ public class Function : IFunction
 			return false;
 		}
 
+		if(Local.TrimType == Options.TrimKind.EdgeStripe) {
+			DoEdgeStripe();
+		}
+		else if(Local.TrimType == Options.TrimKind.DwindleTrim) {
+			throw new NotSupportedException(Options.TrimKind.DwindleTrim.ToString());
+		}
+		else {
+			Squeal.NotSupported(Local.TrimType.ToString());
+		}
+
+		return true;
+	}
+
+	void DoEdgeStripe()
+	{
 		var orig = Layers.Pop();
 		var canvas = orig.Canvas;
 		var area = DetermineEdge(canvas);
 		Context.Log.Debug($"T={area.Top} B={area.Bottom} L={area.Left} R={area.Right} W={area.Width} H={area.Height}");
 
-		var cropped = CropCanvas(canvas, area);
-		if (Local.KeepOrigLayer) { Layers.Push(orig); }
-		Layers.Push(cropped, orig.Name);
-
-		return true;
+		var final = Local.FillTransparent
+			? FillTransparent(canvas,area)
+			: CropCanvas(canvas, area)
+		;
+		if(Local.KeepOrigLayer) { Layers.Push(orig); }
+		Layers.Push(final, orig.Name);
 	}
 
 	ICanvas CropCanvas(ICanvas src, Rectangle area)
@@ -56,7 +72,17 @@ public class Function : IFunction
 		dest.ThreadPixels(Context, (x, y) => {
 			int sx = x + area.Left;
 			int sy = y + area.Top;
-			dest[x,y] = src[sx,sy];
+			dest[x, y] = src[sx, sy];
+		});
+		return dest;
+	}
+
+	ICanvas FillTransparent(ICanvas src, Rectangle area)
+	{
+		var dest = Context.NewCanvas(src.Width, src.Height);
+		dest.ThreadPixels(Context, (x, y) => {
+			bool isInside = area.Contains(new Point(x, y));
+			dest[x, y] = isInside ? src[x, y] : ColorAide.Transparent;
 		});
 		return dest;
 	}
@@ -65,31 +91,31 @@ public class Function : IFunction
 	{
 		int top = 0, bottom = canvas.Height - 1,
 			left = 0, right = canvas.Width - 1;
-		
+
 		int max = Math.Min(canvas.Width, canvas.Height) / 2;
 		bool stopT = false, stopL = false, stopR = false, stopB = false;
 		//TODO this can be made parallel
 		for(int o = 0; o < max; o++) {
-			if (!stopT && ShouldTrim(canvas, Side.Top, o)) { top = o;} else { stopT = true; }
-			if (!stopL && ShouldTrim(canvas, Side.Left, o)) { left = o; } else { stopL = true; }
-			if (!stopR && ShouldTrim(canvas, Side.Right, o)) { right = canvas.Width - o - 1; } else { stopR = true; }
-			if (!stopB && ShouldTrim(canvas, Side.Bottom, o)) { bottom = canvas.Height - o - 1; } else { stopB = true; }
+			if(!stopT && ShouldTrim(canvas, Side.Top, o)) { top = o; } else { stopT = true; }
+			if(!stopL && ShouldTrim(canvas, Side.Left, o)) { left = o; } else { stopL = true; }
+			if(!stopR && ShouldTrim(canvas, Side.Right, o)) { right = canvas.Width - o - 1; } else { stopR = true; }
+			if(!stopB && ShouldTrim(canvas, Side.Bottom, o)) { bottom = canvas.Height - o - 1; } else { stopB = true; }
 			//Context.Log.Debug($"o={o} T={top} B={bottom} L={left} R={right}");
 			Context.Progress.Report((double)o / max);
 		}
 
-		var rect = Rectangle.FromLTRB(left,top,right + 1,bottom + 1);
+		var rect = Rectangle.FromLTRB(left, top, right + 1, bottom + 1);
 		return rect;
 	}
 
 	bool ShouldTrim(ICanvas canvas, Side side, int offset)
 	{
-		var stripe = GetStripe(canvas,side,offset);
+		var stripe = GetStripe(canvas, side, offset);
 		var avg = Local.BackColor != null
 			? Local.BackColor.Value.Luma
 			: GetStripeAverage(stripe);
-		var dev = GetStripeDeviation(stripe,avg) * 2.0; //range 0.0 to 1.0
-		Context.Log.Debug($"{offset}\t{side}\t{dev}\t{(dev <= Local.Fuzz?"Y":"n")}");
+		var dev = GetStripeDeviation(stripe, avg) * 2.0; //range 0.0 to 1.0
+		Context.Log.Debug($"{offset}\t{side}\t{dev}\t{(dev <= Local.Fuzz ? "Y" : "n")}");
 		return dev <= Local.Fuzz;
 	}
 
@@ -112,7 +138,7 @@ public class Function : IFunction
 		int count = 0;
 		foreach(var color in stripe) {
 			count++;
-			variance += Math.Pow(color.Luma - avg,2);
+			variance += Math.Pow(color.Luma - avg, 2);
 		}
 		return Math.Sqrt(variance / count);
 	}
@@ -134,8 +160,8 @@ public class Function : IFunction
 
 		for(int i = 0; i <= indexEnd; i++) {
 			yield return isTopBottom
-				? canvas[i,indexFixed]
-				: canvas[indexFixed,i]
+				? canvas[i, indexFixed]
+				: canvas[indexFixed, i]
 			;
 		}
 	}

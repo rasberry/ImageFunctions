@@ -25,7 +25,7 @@ public sealed class Options : IOptions, IUsageProvider
 				new UsageOne<TrimKind>(1, "-t", $"Type of trim (default {nameof(TrimKind.EdgeStripe)})") { Default = TrimKind.EdgeStripe },
 				new UsageOne<ColorRGBA>(1, "-c", "Use this color as the edge color"),
 				new UsageOne<double>(1, "-f", "Fuzz factor or how much deviation to allow [0-100%] (default 0)") { Default = 0.0, Min = 0.0, Max = 1.0, IsNumberPct = true },
-				new UsageOne<bool>(1, "-t", "Replace trimmed pixels with transparecy instead of cropping"),
+				new UsageOne<bool>(1, "-r", "Replace trimmed pixels with transparecy instead of cropping"),
 				new UsageOne<bool>(1, "-nl", "Keep original layer instead of replacing it")
 			],
 			EnumParameters = [
@@ -60,7 +60,7 @@ public sealed class Options : IOptions, IUsageProvider
 			return false;
 		}
 
-		if (p.Has("-t").IsGood()) {
+		if (p.Has("-r").IsGood()) {
 			FillTransparent = true;
 		}
 		if (p.Has("-nl").IsGood()) {
